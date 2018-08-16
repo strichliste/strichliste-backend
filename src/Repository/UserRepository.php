@@ -32,7 +32,7 @@ class UserRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    public function findByName(string $name): User
+    public function findByName(string $name): ?User
     {
         return $this->findOneBy([
             'name' => $name
