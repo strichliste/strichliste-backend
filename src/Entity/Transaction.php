@@ -6,6 +6,7 @@ use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
+ * @ORM\HasLifecycleCallbacks()
  * @Orm\Table(name="transactions")
  * @ORM\Entity(repositoryClass="App\Repository\TransactionRepository")
  */
@@ -115,6 +116,7 @@ class Transaction implements \JsonSerializable
             'user' => $this->user,
             'article' => $this->article,
             'comment' => $this->comment,
+            'amount' => $this->amount,
             'created' => $this->getCreated()->format('Y-m-d H:i:s')
         ];
     }
