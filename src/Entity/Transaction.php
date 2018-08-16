@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -90,6 +91,17 @@ class Transaction implements \JsonSerializable
         $this->created = $created;
 
         return $this;
+    }
+
+    /**
+     * @ORM\PrePersist()
+     * @param LifecycleEventArgs $event
+     */
+    public function setHistoryColumnsOnPrePersist(LifecycleEventArgs $event)
+    {
+        if (!$this->getCreated()) {
+            $this->setCreated(new \DateTime());
+        }
     }
 
     public function jsonSerialize(): array {
