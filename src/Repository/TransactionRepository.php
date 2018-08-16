@@ -44,4 +44,17 @@ class TransactionRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    public function findByUserAndId(User $user, int $transactionId): ?Transaction {
+        return $this->createQueryBuilder('t')
+            ->select('t')
+            ->where('t.id = :id')
+            ->andWhere('t.user = :user')
+            ->setParameters([
+                'id' => $transactionId,
+                'user' => $user
+            ])
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 }

@@ -101,4 +101,26 @@ class TransactionController extends AbstractController
             'transactions' => $transactions,
         ]);
     }
+
+    /**
+     * @Route("/user/{userId}/transaction/{transactionId}", methods="GET")
+     */
+    public function getTransaction($userId, $transactionId, EntityManagerInterface $entityManager)
+    {
+        $user = $entityManager->getRepository(User::class)->find($userId);
+
+        if (!$user) {
+            throw $this->createNotFoundException();
+        }
+
+        $transaction = $entityManager->getRepository(Transaction::class)->findByUserAndId($user, $transactionId);
+
+        if (!$transaction) {
+            throw $this->createNotFoundException();
+        }
+
+        return $this->json([
+            'transaction' => $transaction,
+        ]);
+    }
 }
