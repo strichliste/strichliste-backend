@@ -5,9 +5,10 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
+ * @Orm\Table(name="transactions")
  * @ORM\Entity(repositoryClass="App\Repository\TransactionRepository")
  */
-class Transaction
+class Transaction implements \JsonSerializable
 {
     /**
      * @ORM\Id()
@@ -37,17 +38,18 @@ class Transaction
      */
     private $created;
 
+
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getUser(): ?User
+    public function getUser(): User
     {
         return $this->user;
     }
 
-    public function setUser(?User $user): self
+    public function setUser(User $user): self
     {
         $this->user = $user;
 
@@ -88,5 +90,15 @@ class Transaction
         $this->created = $created;
 
         return $this;
+    }
+
+    public function jsonSerialize(): array {
+        return [
+            'id' => $this->id,
+            'user' => $this->user,
+            'article' => $this->article,
+            'comment' => $this->comment,
+            'created' => $this->getCreated()->format('Y-m-d H:i:s')
+        ];
     }
 }
