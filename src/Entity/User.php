@@ -4,12 +4,15 @@ namespace App\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Event\LifecycleEventArgs;
+use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
+ * @ORM\HasLifecycleCallbacks()
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  */
-class User
+class User implements \JsonSerializable
 {
     /**
      * @ORM\Id()
@@ -165,5 +168,40 @@ class User
         }
 
         return $this;
+    }
+
+    /**
+     * @ORM\PrePersist()
+     * @param LifecycleEventArgs $event
+     */
+    public function setHistoryColumnsOnPrePersist(LifecycleEventArgs $event)
+    {
+        if (!$this->getCreated()) {
+            $this->setCreated(new \DateTime());
+        }
+    }
+
+    /**
+     * @ORM\PreUpdate()
+     * @param PreUpdateEventArgs $event
+     */
+    public function setHistoryColumnsOnPreUpdate(PreUpdateEventArgs $event)
+    {
+        if (!$event->hasChangedField('updated')) {
+            $this->setUpdated(new \DateTime());
+        }
+    }
+
+    public function jsonSerialize(): array
+    {
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'active' => $this->active,
+            'email' => $this->email,
+            'balance' => $this->balance,
+            'created' => $this->getCreated()->format('Y-m-d H:i:s'),
+            'updated' => $this->getUpdated() ? $this->getUpdated()->format('Y-m-d H:i:s') : null
+        ];
     }
 }
