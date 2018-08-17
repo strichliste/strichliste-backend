@@ -19,10 +19,10 @@ class TransactionController extends AbstractController
      */
     public function list(Request $request, EntityManagerInterface $entityManager)
     {
-        $offset = $request->request->get('offset', 0);
         $limit = $request->request->get('limit', 25);
+        $offset = $request->request->get('offset', 0);
 
-        $transactions = $entityManager->getRepository(Transaction::class)->findAll($offset, $limit);
+        $transactions = $entityManager->getRepository(Transaction::class)->findAll($limit, $offset);
 
         return $this->json([
             'transactions' => $transactions
@@ -86,10 +86,10 @@ class TransactionController extends AbstractController
      */
     public function getUserTransactions($userId, Request $request, EntityManagerInterface $entityManager)
     {
-        $offset = $request->request->get('offset', 0);
         $limit = $request->request->get('limit', 25);
+        $offset = $request->request->get('offset', 0);
 
-        $user = $entityManager->getRepository(User::class)->find($userId, $offset, $limit);
+        $user = $entityManager->getRepository(User::class)->find($userId, $limit, $offset);
 
         if (!$user) {
             throw $this->createNotFoundException();

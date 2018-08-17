@@ -19,7 +19,7 @@ class TransactionRepository extends ServiceEntityRepository
         parent::__construct($registry, Transaction::class);
     }
 
-    public function findAll(int $offset = 0, int $limit = 25) {
+    public function findAll(int $limit = 0, int $offset = 25) {
         return $this->createQueryBuilder('t')
             ->setFirstResult($offset)
             ->setMaxResults($limit)
@@ -33,7 +33,7 @@ class TransactionRepository extends ServiceEntityRepository
      * @param int $limit
      * @return Transaction[]
      */
-    public function findByUser(User $user, int $offset = 0, int $limit = 25) {
+    public function findByUser(User $user, int $limit = 0, int $offset = 25) {
         return $this->createQueryBuilder('t')
             ->select('t')
             ->where('t.user = :user')
