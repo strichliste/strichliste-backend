@@ -43,20 +43,15 @@ class TransactionController extends AbstractController {
         $transaction = new Transaction();
         $transaction->setUser($user);
 
-        $amount = $request->request->get('amount');
-        // TODO: Validate transaction boundaries
-        $transaction->setAmount($amount);
-
-        // TODO: User something like bignumber
-        $user->setBalance($user->getBalance() + $amount);
-
         $comment = $request->request->get('comment');
         if ($comment) {
             $transaction->setComment($comment);
         }
 
         $article = null;
+        $amount = $request->request->get('amount');
         $articleId = $request->request->get('articleId');
+
         if ($articleId) {
             $article = $entityManager->getRepository(Article::class)->findOneBy(
                 ['id' => $articleId, 'active' => true]);
@@ -65,9 +60,18 @@ class TransactionController extends AbstractController {
                 throw new BadRequestHttpException(sprintf('Article id %d not found', $articleId));
             }
 
+            $amount = $article->getAmount();
             $article->setUsageCount($article->getUsageCount() + 1);
+
             $transaction->setArticle($article);
         }
+
+        // TODO: Validate transaction boundaries
+        $transaction->setAmount($amount);
+
+        // TODO: User something like bignumber
+        $user->setBalance($user->getBalance() + $amount);
+
 
         $entityManager->transactional(function () use ($entityManager, $user, $transaction, $article) {
             $entityManager->persist($user);
