@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\HasLifecycleCallbacks()
  * @ORM\Entity(repositoryClass="App\Repository\ArticleRepository")
  */
-class Article
+class Article implements \JsonSerializable
 {
     /**
      * @ORM\Id()
@@ -36,7 +36,7 @@ class Article
     /**
      * @ORM\OneToOne(targetEntity="App\Entity\Article")
      */
-    private $ancestor;
+    private $precursor;
 
     /**
      * @ORM\Column(type="boolean")
@@ -89,14 +89,14 @@ class Article
         return $this;
     }
 
-    public function getAncestor(): ?self
+    public function getPrecursor(): ?self
     {
-        return $this->ancestor;
+        return $this->precursor;
     }
 
-    public function setAncestor(?self $ancestor): self
+    public function setPrecursor(?self $precursor): self
     {
-        $this->ancestor = $ancestor;
+        $this->precursor = $precursor;
 
         return $this;
     }
@@ -134,5 +134,17 @@ class Article
         if (!$this->getCreated()) {
             $this->setCreated(new \DateTime());
         }
+    }
+
+    public function jsonSerialize(): array {
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'barcode' => $this->barcode,
+            'amount' => $this->amount,
+            'active' => $this->active,
+            'precursor' => $this->precursor,
+            'created' => $this->getCreated()->format('Y-m-d H:i:s')
+        ];
     }
 }
