@@ -64,6 +64,7 @@ class ArticleController extends AbstractController {
 
         $newArticle = $this->createArticleByRequest($request);
         $newArticle->setPrecursor($oldArticle);
+        $newArticle->setUsageCount($oldArticle->getUsageCount());
 
         $oldArticle->setActive(false);
 

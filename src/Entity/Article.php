@@ -48,6 +48,11 @@ class Article implements \JsonSerializable {
      */
     private $created;
 
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $usageCount = 0;
+
     public function getId(): ?int {
         return $this->id;
     }
@@ -112,6 +117,16 @@ class Article implements \JsonSerializable {
         return $this;
     }
 
+    public function getUsageCount(): ?int {
+        return $this->usageCount;
+    }
+
+    public function setUsageCount(int $usageCount): self {
+        $this->usageCount = $usageCount;
+
+        return $this;
+    }
+
     /**
      * @ORM\PrePersist()
      * @param LifecycleEventArgs $event
@@ -129,6 +144,7 @@ class Article implements \JsonSerializable {
             'barcode' => $this->barcode,
             'amount' => $this->amount,
             'active' => $this->active,
+            'usageCount' => $this->usageCount,
             'precursor' => $this->precursor,
             'created' => $this->getCreated()->format('Y-m-d H:i:s')
         ];

@@ -55,6 +55,7 @@ class TransactionController extends AbstractController {
             $transaction->setComment($comment);
         }
 
+        $article = null;
         $articleId = $request->request->get('articleId');
         if ($articleId) {
             $article = $entityManager->getRepository(Article::class)->findOneBy(
@@ -64,12 +65,17 @@ class TransactionController extends AbstractController {
                 throw new BadRequestHttpException(sprintf('Article id %d not found', $articleId));
             }
 
+            $article->setUsageCount($article->getUsageCount() + 1);
             $transaction->setArticle($article);
         }
 
-        $entityManager->transactional(function () use ($entityManager, $user, $transaction) {
+        $entityManager->transactional(function () use ($entityManager, $user, $transaction, $article) {
             $entityManager->persist($user);
             $entityManager->persist($transaction);
+
+            if ($article) {
+                $entityManager->persist($article);
+            }
         });
 
         $entityManager->flush();
