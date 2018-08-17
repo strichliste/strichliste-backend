@@ -28,12 +28,12 @@ class Transaction implements \JsonSerializable {
     /**
      * @ORM\OneToOne(targetEntity="App\Entity\Article")
      */
-    private $article;
+    private $article = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $comment;
+    private $comment = null;
 
     /**
      * @ORM\Column(type="decimal", precision=10, scale=2)

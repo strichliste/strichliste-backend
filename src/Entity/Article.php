@@ -26,7 +26,7 @@ class Article implements \JsonSerializable {
     /**
      * @ORM\Column(type="string", length=32, nullable=true)
      */
-    private $barcode;
+    private $barcode = null;
 
     /**
      * @ORM\Column(type="decimal", precision=10, scale=2)
@@ -36,12 +36,12 @@ class Article implements \JsonSerializable {
     /**
      * @ORM\OneToOne(targetEntity="App\Entity\Article")
      */
-    private $precursor;
+    private $precursor = null;
 
     /**
      * @ORM\Column(type="boolean")
      */
-    private $active;
+    private $active = true;
 
     /**
      * @ORM\Column(type="datetime")

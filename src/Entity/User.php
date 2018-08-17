@@ -29,17 +29,17 @@ class User implements \JsonSerializable {
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $email;
+    private $email = null;
 
     /**
      * @ORM\Column(type="decimal", precision=10, scale=2)
      */
-    private $balance;
+    private $balance = 0.0;
 
     /**
      * @ORM\Column(type="boolean")
      */
-    private $active;
+    private $active = true;
 
     /**
      * @ORM\Column(type="datetime")

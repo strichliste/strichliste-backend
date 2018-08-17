@@ -30,8 +30,6 @@ class UserController extends AbstractController {
      */
     public function createUser(Request $request, EntityManagerInterface $entityManager) {
         $user = new User();
-        $user->setBalance(0);
-        $user->setActive(true);
 
         $name = $request->request->get('name');
 
