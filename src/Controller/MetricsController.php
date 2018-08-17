@@ -23,7 +23,7 @@ class MetricsController extends AbstractController {
     }
 
     private function getBalance(EntityManagerInterface $entityManager) {
-        return $entityManager->createQueryBuilder()
+        return (int) $entityManager->createQueryBuilder()
             ->select('SUM(u.balance) as balance')
             ->from(User::class, 'u')
             ->where('u.active = true')
@@ -55,7 +55,7 @@ class MetricsController extends AbstractController {
         $entries = $stmt->fetchAll();
 
         $entries = array_map(function ($entry) use ($entityManager) {
-            $entry['positiveBalance'] = $entityManager
+            $entry['positiveBalance'] = (int) $entityManager
                 ->createQueryBuilder()
                 ->select('SUM(t.amount)')
                 ->from(Transaction::class, 't')
@@ -63,7 +63,7 @@ class MetricsController extends AbstractController {
                 ->getQuery()
                 ->getSingleScalarResult();
 
-            $entry['negativeBalance'] = $entityManager
+            $entry['negativeBalance'] = (int) $entityManager
                 ->createQueryBuilder()
                 ->select('SUM(t.amount)')
                 ->from(Transaction::class, 't')
@@ -71,7 +71,7 @@ class MetricsController extends AbstractController {
                 ->getQuery()
                 ->getSingleScalarResult();
 
-            $entry['balance'] = sprintf("%.2f", $entry['balance']);
+            $entry['balance'] = (int) $entry['balance'];
 
             return $entry;
         }, $entries);
