@@ -67,7 +67,12 @@ class UserController extends AbstractController {
      * @Route("/{userId}")
      */
     public function user($userId, EntityManagerInterface $entityManager) {
-        $user = $entityManager->getRepository(User::class)->find($userId);
+
+        if (is_numeric($userId)) {
+            $user = $entityManager->getRepository(User::class)->find($userId);
+        } else {
+            $user = $entityManager->getRepository(User::class)->findByName($userId);
+        }
 
         if (!$user) {
             throw $this->createNotFoundException();
