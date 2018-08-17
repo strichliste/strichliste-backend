@@ -68,9 +68,12 @@ class UserController extends AbstractController {
      */
     public function user($userId, EntityManagerInterface $entityManager) {
 
+        $user = null;
         if (is_numeric($userId)) {
             $user = $entityManager->getRepository(User::class)->find($userId);
-        } else {
+        }
+
+        if (!$user) {
             $user = $entityManager->getRepository(User::class)->findByName($userId);
         }
 
