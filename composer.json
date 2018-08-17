@@ -6,6 +6,7 @@
         "ext-ctype": "*",
         "ext-iconv": "*",
         "ext-json": "*",
+        "nelmio/cors-bundle": "^1.5",
         "symfony/console": "^4.1",
         "symfony/flex": "^1.0",
         "symfony/framework-bundle": "^4.1",
