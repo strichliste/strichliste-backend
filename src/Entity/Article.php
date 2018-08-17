@@ -2,9 +2,11 @@
 
 namespace App\Entity;
 
+use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
+ * @ORM\HasLifecycleCallbacks()
  * @ORM\Entity(repositoryClass="App\Repository\ArticleRepository")
  */
 class Article
@@ -121,5 +123,16 @@ class Article
         $this->created = $created;
 
         return $this;
+    }
+
+    /**
+     * @ORM\PrePersist()
+     * @param LifecycleEventArgs $event
+     */
+    public function setHistoryColumnsOnPrePersist(LifecycleEventArgs $event)
+    {
+        if (!$this->getCreated()) {
+            $this->setCreated(new \DateTime());
+        }
     }
 }
