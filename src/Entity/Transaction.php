@@ -26,7 +26,7 @@ class Transaction implements \JsonSerializable {
     private $user;
 
     /**
-     * @ORM\OneToOne(targetEntity="App\Entity\Article")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Article")
      */
     private $article = null;
 
