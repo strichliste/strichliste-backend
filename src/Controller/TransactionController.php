@@ -31,17 +31,16 @@ class TransactionController extends AbstractController {
      * @Route("/user/{userId}/transaction", methods="POST")
      */
     public function createUserTransactions($userId, Request $request, EntityManagerInterface $entityManager) {
-        /**
-         * @var User $user
-         */
+
         $user = $entityManager->getRepository(User::class)->find($userId);
 
         if (!$user) {
             throw $this->createNotFoundException();
         }
-
         $transaction = new Transaction();
         $transaction->setUser($user);
+
+        $amount = (int) $request->request->get('amount', 0);
 
         $comment = $request->request->get('comment');
         if ($comment) {
@@ -49,7 +48,6 @@ class TransactionController extends AbstractController {
         }
 
         $article = null;
-        $amount = $request->request->get('amount');
         $articleId = $request->request->get('articleId');
 
         if ($articleId) {
@@ -69,7 +67,6 @@ class TransactionController extends AbstractController {
         // TODO: Validate transaction boundaries
         $transaction->setAmount($amount);
 
-        // TODO: User something like bignumber
         $user->setBalance($user->getBalance() + $amount);
 
 

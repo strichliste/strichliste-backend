@@ -107,7 +107,7 @@ class ArticleController extends AbstractController {
             throw new BadRequestHttpException('Missing parameter name');
         }
 
-        $amount = $request->request->get('amount');
+        $amount = (int) $request->request->get('amount', 0);
         if (!$amount) {
             throw new BadRequestHttpException('Missing parameter amount');
         }
@@ -115,7 +115,6 @@ class ArticleController extends AbstractController {
         $article = new Article();
         $article->setName(trim($name));
         $article->setAmount($amount);
-        $article->setActive(true);
 
         $barcode = $request->request->get('barcode');
         if ($barcode) {

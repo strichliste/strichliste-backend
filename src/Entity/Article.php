@@ -29,7 +29,7 @@ class Article implements \JsonSerializable {
     private $barcode = null;
 
     /**
-     * @ORM\Column(type="decimal", precision=10, scale=2)
+     * @ORM\Column(type="integer")
      */
     private $amount;
 
@@ -77,11 +77,11 @@ class Article implements \JsonSerializable {
         return $this;
     }
 
-    public function getAmount() {
+    public function getAmount(): int {
         return $this->amount;
     }
 
-    public function setAmount($amount): self {
+    public function setAmount(int $amount): self {
         $this->amount = $amount;
 
         return $this;

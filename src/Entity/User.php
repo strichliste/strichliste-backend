@@ -32,9 +32,9 @@ class User implements \JsonSerializable {
     private $email = null;
 
     /**
-     * @ORM\Column(type="decimal", precision=10, scale=2)
+     * @ORM\Column(type="integer")
      */
-    private $balance = 0.0;
+    private $balance = 0;
 
     /**
      * @ORM\Column(type="boolean")

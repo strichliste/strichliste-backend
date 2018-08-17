@@ -36,7 +36,7 @@ class Transaction implements \JsonSerializable {
     private $comment = null;
 
     /**
-     * @ORM\Column(type="decimal", precision=10, scale=2)
+     * @ORM\Column(type="integer")
      */
     private $amount;
 
@@ -79,6 +79,16 @@ class Transaction implements \JsonSerializable {
         return $this;
     }
 
+    public function getAmount(): int {
+        return $this->amount;
+    }
+
+    public function setAmount(int $amount): self {
+        $this->amount = $amount;
+
+        return $this;
+    }
+
     public function getCreated(): ?\DateTimeInterface {
         return $this->created;
     }
@@ -108,15 +118,5 @@ class Transaction implements \JsonSerializable {
             'amount' => $this->amount,
             'created' => $this->getCreated()->format('Y-m-d H:i:s')
         ];
-    }
-
-    public function getAmount() {
-        return $this->amount;
-    }
-
-    public function setAmount($amount): self {
-        $this->amount = $amount;
-
-        return $this;
     }
 }
