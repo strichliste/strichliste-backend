@@ -33,7 +33,7 @@ class TransactionRepository extends ServiceEntityRepository {
      * @return Transaction[]
      */
     public function findByUser(User $user, $limit = null, $offset = null) {
-        return $this->findBy(['user' => $user], ['id', 'DESC'], $limit, $offset);
+        return $this->findBy(['user' => $user], ['id' => 'DESC'], $limit, $offset);
     }
 
     public function findByUserAndId(User $user, int $transactionId): ?Transaction {
