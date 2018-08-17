@@ -113,13 +113,13 @@ class ArticleController extends AbstractController {
         }
 
         $article = new Article();
-        $article->setName($name);
+        $article->setName(trim($name));
         $article->setAmount($amount);
         $article->setActive(true);
 
         $barcode = $request->request->get('barcode');
         if ($barcode) {
-            $article->setBarcode($barcode);
+            $article->setBarcode(trim($barcode));
         }
 
         return $article;

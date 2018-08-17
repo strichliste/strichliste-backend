@@ -29,7 +29,6 @@ class UserController extends AbstractController {
      * @
      */
     public function createUser(Request $request, EntityManagerInterface $entityManager) {
-        $user = new User();
 
         $name = $request->request->get('name');
 
@@ -37,10 +36,14 @@ class UserController extends AbstractController {
             throw new BadRequestHttpException('Missing parameter name');
         }
 
+        $name = trim($name);
+        $name = preg_replace('/[\x00-\x1F\x7F]/u', '', $name);
+
         if ($entityManager->getRepository(User::class)->findByName($name)) {
             return new Response(sprintf("User '%s' already exists", $name), 409);
         }
 
+        $user = new User();
         $user->setName($name);
 
         $email = $request->request->get('email');
@@ -49,7 +52,7 @@ class UserController extends AbstractController {
                 throw new BadRequestHttpException('E-Mail address is invalid');
             }
 
-            $user->setEmail($email);
+            $user->setEmail(trim($email));
         }
 
         $entityManager->persist($user);
