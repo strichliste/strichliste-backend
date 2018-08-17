@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Api;
 
 use App\Entity\Article;
 use Doctrine\ORM\EntityManagerInterface;
@@ -10,12 +10,12 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route("/article")
+ * @Route("/api/article")
  */
 class ArticleController extends AbstractController {
 
     /**
-     * @Route("/", methods="GET")
+     * @Route(methods="GET")
      */
     public function list(EntityManagerInterface $entityManager) {
         return $this->json([
@@ -24,7 +24,7 @@ class ArticleController extends AbstractController {
     }
 
     /**
-     * @Route("/", methods="POST")
+     * @Route(methods="POST")
      */
     public function createArticle(Request $request, EntityManagerInterface $entityManager) {
         $article = $this->createArticleByRequest($request);

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Api;
 
 use App\Entity\Transaction;
 use App\Entity\User;
@@ -8,10 +8,13 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @Route("/api/metrics")
+ */
 class MetricsController extends AbstractController {
 
     /**
-     * @Route("/metrics", methods="GET")
+     * @Route(methods="GET")
      */
     public function metrics(EntityManagerInterface $entityManager) {
         return $this->json([

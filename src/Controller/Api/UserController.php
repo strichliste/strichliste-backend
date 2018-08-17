@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Api;
 
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
@@ -11,12 +11,12 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route("/user")
+ * @Route("/api/user")
  */
 class UserController extends AbstractController {
 
     /**
-     * @Route("/", methods="GET")
+     * @Route(methods="GET")
      */
     public function list(EntityManagerInterface $entityManager) {
         return $this->json([
@@ -25,7 +25,7 @@ class UserController extends AbstractController {
     }
 
     /**
-     * @Route("/", methods="POST")
+     * @Route(methods="POST")
      * @
      */
     public function createUser(Request $request, EntityManagerInterface $entityManager) {
