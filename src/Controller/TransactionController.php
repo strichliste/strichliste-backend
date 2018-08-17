@@ -60,7 +60,8 @@ class TransactionController extends AbstractController
 
         $articleId = $request->request->get('articleId');
         if ($articleId) {
-            $article = $entityManager->getRepository(Article::class)->find($articleId);
+            $article = $entityManager->getRepository(Article::class)->findOneBy(
+                ['id' => $articleId, 'active' => true]);
 
             if (!$article) {
                 throw new BadRequestHttpException(sprintf('Article id %d not found', $articleId));
