@@ -11,14 +11,12 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
+class TransactionController extends AbstractController {
 
-class TransactionController extends AbstractController
-{
     /**
      * @Route("/transaction", methods="GET")
      */
-    public function list(Request $request, EntityManagerInterface $entityManager)
-    {
+    public function list(Request $request, EntityManagerInterface $entityManager) {
         $limit = $request->request->get('limit');
         $offset = $request->request->get('offset');
 
@@ -32,8 +30,7 @@ class TransactionController extends AbstractController
     /**
      * @Route("/user/{userId}/transaction", methods="POST")
      */
-    public function createUserTransactions($userId, Request $request, EntityManagerInterface $entityManager)
-    {
+    public function createUserTransactions($userId, Request $request, EntityManagerInterface $entityManager) {
         /**
          * @var User $user
          */
@@ -85,8 +82,7 @@ class TransactionController extends AbstractController
     /**
      * @Route("/user/{userId}/transaction", methods="GET")
      */
-    public function getUserTransactions($userId, Request $request, EntityManagerInterface $entityManager)
-    {
+    public function getUserTransactions($userId, Request $request, EntityManagerInterface $entityManager) {
         $limit = $request->request->get('limit');
         $offset = $request->request->get('offset');
 
@@ -106,8 +102,7 @@ class TransactionController extends AbstractController
     /**
      * @Route("/user/{userId}/transaction/{transactionId}", methods="GET")
      */
-    public function getTransaction($userId, $transactionId, EntityManagerInterface $entityManager)
-    {
+    public function getTransaction($userId, $transactionId, EntityManagerInterface $entityManager) {
         $user = $entityManager->getRepository(User::class)->find($userId);
 
         if (!$user) {

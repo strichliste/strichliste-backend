@@ -10,17 +10,15 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
-
 /**
  * @Route("/user")
  */
-class UserController extends AbstractController
-{
+class UserController extends AbstractController {
+
     /**
      * @Route("/", methods="GET")
      */
-    public function list(EntityManagerInterface $entityManager)
-    {
+    public function list(EntityManagerInterface $entityManager) {
         return $this->json([
             'users' => $entityManager->getRepository(User::class)->findAllActive(),
         ]);
@@ -30,8 +28,7 @@ class UserController extends AbstractController
      * @Route("/", methods="POST")
      * @
      */
-    public function createUser(Request $request, EntityManagerInterface $entityManager)
-    {
+    public function createUser(Request $request, EntityManagerInterface $entityManager) {
         $user = new User();
         $user->setBalance(0);
         $user->setActive(true);
@@ -68,8 +65,7 @@ class UserController extends AbstractController
     /**
      * @Route("/{userId}")
      */
-    public function user($userId, EntityManagerInterface $entityManager)
-    {
+    public function user($userId, EntityManagerInterface $entityManager) {
         $user = $entityManager->getRepository(User::class)->find($userId);
 
         if (!$user) {

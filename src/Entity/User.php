@@ -12,8 +12,8 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\HasLifecycleCallbacks()
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  */
-class User implements \JsonSerializable
-{
+class User implements \JsonSerializable {
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -56,84 +56,69 @@ class User implements \JsonSerializable
      */
     private $transactions;
 
-
-    public function __construct()
-    {
+    public function __construct() {
         $this->transactions = new ArrayCollection();
     }
 
-    public function getId(): ?int
-    {
+    public function getId(): ?int {
         return $this->id;
     }
 
-    public function getName(): ?string
-    {
+    public function getName(): ?string {
         return $this->name;
     }
 
-    public function setName(string $name): self
-    {
+    public function setName(string $name): self {
         $this->name = $name;
 
         return $this;
     }
 
-    public function getEmail(): ?string
-    {
+    public function getEmail(): ?string {
         return $this->email;
     }
 
-    public function setEmail(?string $email): self
-    {
+    public function setEmail(?string $email): self {
         $this->email = $email;
 
         return $this;
     }
 
-    public function getBalance()
-    {
+    public function getBalance() {
         return $this->balance;
     }
 
-    public function setBalance($balance): self
-    {
+    public function setBalance($balance): self {
         $this->balance = $balance;
 
         return $this;
     }
 
-    public function getActive(): ?bool
-    {
+    public function getActive(): ?bool {
         return $this->active;
     }
 
-    public function setActive(bool $active): self
-    {
+    public function setActive(bool $active): self {
         $this->active = $active;
 
         return $this;
     }
 
-    public function getCreated(): ?\DateTimeInterface
-    {
+    public function getCreated(): ?\DateTimeInterface {
         return $this->created;
     }
 
-    public function setCreated(\DateTimeInterface $created): self
-    {
+    public function setCreated(\DateTimeInterface $created): self {
         $this->created = $created;
 
         return $this;
     }
 
-    public function getUpdated(): ?\DateTimeInterface
-    {
+    public function getUpdated(): ?\DateTimeInterface {
         return $this->updated;
     }
 
-    public function setUpdated(?\DateTimeInterface $updated): self
-    {
+    public function setUpdated(?\DateTimeInterface $updated): self {
         $this->updated = $updated;
 
         return $this;
@@ -142,13 +127,11 @@ class User implements \JsonSerializable
     /**
      * @return Collection|Transaction[]
      */
-    public function getTransactions(): Collection
-    {
+    public function getTransactions(): Collection {
         return $this->transactions;
     }
 
-    public function addTransaction(Transaction $transaction): self
-    {
+    public function addTransaction(Transaction $transaction): self {
         if (!$this->transactions->contains($transaction)) {
             $this->transactions[] = $transaction;
             $transaction->setUser($this);
@@ -157,8 +140,7 @@ class User implements \JsonSerializable
         return $this;
     }
 
-    public function removeTransaction(Transaction $transaction): self
-    {
+    public function removeTransaction(Transaction $transaction): self {
         if ($this->transactions->contains($transaction)) {
             $this->transactions->removeElement($transaction);
             // set the owning side to null (unless already changed)
@@ -174,8 +156,7 @@ class User implements \JsonSerializable
      * @ORM\PrePersist()
      * @param LifecycleEventArgs $event
      */
-    public function setHistoryColumnsOnPrePersist(LifecycleEventArgs $event)
-    {
+    public function setHistoryColumnsOnPrePersist(LifecycleEventArgs $event) {
         if (!$this->getCreated()) {
             $this->setCreated(new \DateTime());
         }
@@ -185,15 +166,13 @@ class User implements \JsonSerializable
      * @ORM\PreUpdate()
      * @param PreUpdateEventArgs $event
      */
-    public function setHistoryColumnsOnPreUpdate(PreUpdateEventArgs $event)
-    {
+    public function setHistoryColumnsOnPreUpdate(PreUpdateEventArgs $event) {
         if (!$event->hasChangedField('updated')) {
             $this->setUpdated(new \DateTime());
         }
     }
 
-    public function jsonSerialize(): array
-    {
+    public function jsonSerialize(): array {
         return [
             'id' => $this->id,
             'name' => $this->name,

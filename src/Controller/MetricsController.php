@@ -8,13 +8,12 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 
-class MetricsController extends AbstractController
-{
+class MetricsController extends AbstractController {
+
     /**
      * @Route("/metrics", methods="GET")
      */
-    public function metrics(EntityManagerInterface $entityManager)
-    {
+    public function metrics(EntityManagerInterface $entityManager) {
         return $this->json([
             'balance' => $this->getBalance($entityManager),
             'transactionCount' => $this->getTransactionCount($entityManager),
@@ -55,7 +54,7 @@ class MetricsController extends AbstractController
         $stmt->execute();
         $entries = $stmt->fetchAll();
 
-        $entries = array_map(function($entry) use ($entityManager) {
+        $entries = array_map(function ($entry) use ($entityManager) {
             $entry['positiveBalance'] = $entityManager
                 ->createQueryBuilder()
                 ->select('SUM(t.amount)')
@@ -75,7 +74,6 @@ class MetricsController extends AbstractController
             $entry['balance'] = sprintf("%.2f", $entry['balance']);
 
             return $entry;
-
         }, $entries);
 
         return $entries;

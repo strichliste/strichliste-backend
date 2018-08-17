@@ -9,8 +9,8 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\HasLifecycleCallbacks()
  * @ORM\Entity(repositoryClass="App\Repository\ArticleRepository")
  */
-class Article implements \JsonSerializable
-{
+class Article implements \JsonSerializable {
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -48,78 +48,65 @@ class Article implements \JsonSerializable
      */
     private $created;
 
-    public function getId(): ?int
-    {
+    public function getId(): ?int {
         return $this->id;
     }
 
-    public function getName(): ?string
-    {
+    public function getName(): ?string {
         return $this->name;
     }
 
-    public function setName(string $name): self
-    {
+    public function setName(string $name): self {
         $this->name = $name;
 
         return $this;
     }
 
-    public function getBarcode(): ?string
-    {
+    public function getBarcode(): ?string {
         return $this->barcode;
     }
 
-    public function setBarcode(?string $barcode): self
-    {
+    public function setBarcode(?string $barcode): self {
         $this->barcode = $barcode;
 
         return $this;
     }
 
-    public function getAmount()
-    {
+    public function getAmount() {
         return $this->amount;
     }
 
-    public function setAmount($amount): self
-    {
+    public function setAmount($amount): self {
         $this->amount = $amount;
 
         return $this;
     }
 
-    public function getPrecursor(): ?self
-    {
+    public function getPrecursor(): ?self {
         return $this->precursor;
     }
 
-    public function setPrecursor(?self $precursor): self
-    {
+    public function setPrecursor(?self $precursor): self {
         $this->precursor = $precursor;
 
         return $this;
     }
 
-    public function getActive(): ?bool
-    {
+    public function getActive(): ?bool {
         return $this->active;
     }
 
-    public function setActive(bool $active): self
-    {
+    public function setActive(bool $active): self {
         $this->active = $active;
 
         return $this;
     }
 
-    public function getCreated(): ?\DateTimeInterface
-    {
+    public function getCreated(): ?\DateTimeInterface {
         return $this->created;
     }
 
-    public function setCreated(\DateTimeInterface $created): self
-    {
+    public function setCreated(\DateTimeInterface $created): self {
         $this->created = $created;
 
         return $this;
@@ -129,8 +116,7 @@ class Article implements \JsonSerializable
      * @ORM\PrePersist()
      * @param LifecycleEventArgs $event
      */
-    public function setHistoryColumnsOnPrePersist(LifecycleEventArgs $event)
-    {
+    public function setHistoryColumnsOnPrePersist(LifecycleEventArgs $event) {
         if (!$this->getCreated()) {
             $this->setCreated(new \DateTime());
         }

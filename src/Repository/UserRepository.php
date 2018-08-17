@@ -12,23 +12,20 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
  * @method User[]    findAll()
  * @method User[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class UserRepository extends ServiceEntityRepository
-{
-    public function __construct(RegistryInterface $registry)
-    {
+class UserRepository extends ServiceEntityRepository {
+
+    public function __construct(RegistryInterface $registry) {
         parent::__construct($registry, User::class);
     }
 
     /**
      * @return User[]
      */
-    public function findAllActive(): array
-    {
+    public function findAllActive(): array {
         return $this->findBy(['active' => true], ['name' => 'ASC']);
     }
 
-    public function findByName(string $name): ?User
-    {
+    public function findByName(string $name): ?User {
         return $this->findOneBy(['name' => $name]);
     }
 }

@@ -6,21 +6,18 @@ use App\Entity\Article;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Annotation\Route;
-
 
 /**
  * @Route("/article")
  */
-class ArticleController extends AbstractController
-{
+class ArticleController extends AbstractController {
+
     /**
      * @Route("/", methods="GET")
      */
-    public function list(EntityManagerInterface $entityManager)
-    {
+    public function list(EntityManagerInterface $entityManager) {
         return $this->json([
             'articles' => $entityManager->getRepository(Article::class)->findAllActive(),
         ]);
@@ -29,8 +26,7 @@ class ArticleController extends AbstractController
     /**
      * @Route("/", methods="POST")
      */
-    public function createArticle(Request $request, EntityManagerInterface $entityManager)
-    {
+    public function createArticle(Request $request, EntityManagerInterface $entityManager) {
         $article = $this->createArticleByRequest($request);
 
         $entityManager->persist($article);
@@ -44,8 +40,7 @@ class ArticleController extends AbstractController
     /**
      * @Route("/{articleId}", methods="GET")
      */
-    public function getArticle($articleId, EntityManagerInterface $entityManager)
-    {
+    public function getArticle($articleId, EntityManagerInterface $entityManager) {
         $article = $entityManager->getRepository(Article::class)->find($articleId);
 
         if (!$article) {
@@ -60,8 +55,7 @@ class ArticleController extends AbstractController
     /**
      * @Route("/{articleId}", methods="POST")
      */
-    public function updateArticle($articleId, Request $request, EntityManagerInterface $entityManager)
-    {
+    public function updateArticle($articleId, Request $request, EntityManagerInterface $entityManager) {
         $oldArticle = $entityManager->getRepository(Article::class)->find($articleId);
 
         if (!$oldArticle) {
@@ -73,7 +67,7 @@ class ArticleController extends AbstractController
 
         $oldArticle->setActive(false);
 
-        $entityManager->transactional(function() use ($entityManager, $oldArticle, $newArticle) {
+        $entityManager->transactional(function () use ($entityManager, $oldArticle, $newArticle) {
             $entityManager->persist($oldArticle);
             $entityManager->persist($newArticle);
         });
@@ -88,8 +82,7 @@ class ArticleController extends AbstractController
     /**
      * @Route("/{articleId}", methods="DELETE")
      */
-    public function deleteArticle($articleId, EntityManagerInterface $entityManager)
-    {
+    public function deleteArticle($articleId, EntityManagerInterface $entityManager) {
         $article = $entityManager->getRepository(Article::class)->find($articleId);
 
         if (!$article) {
