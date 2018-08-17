@@ -24,18 +24,11 @@ class UserRepository extends ServiceEntityRepository
      */
     public function findAllActive(): array
     {
-        return $this->createQueryBuilder('u')
-            ->select('u')
-            ->where('u.active = true')
-            ->orderBy('u.name', 'ASC')
-            ->getQuery()
-            ->getResult();
+        return $this->findBy(['active' => true], ['name' => 'ASC']);
     }
 
     public function findByName(string $name): ?User
     {
-        return $this->findOneBy([
-            'name' => $name
-        ]);
+        return $this->findOneBy(['name' => $name]);
     }
 }

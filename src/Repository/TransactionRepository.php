@@ -34,27 +34,10 @@ class TransactionRepository extends ServiceEntityRepository
      * @return Transaction[]
      */
     public function findByUser(User $user, int $limit = 0, int $offset = 25) {
-        return $this->createQueryBuilder('t')
-            ->select('t')
-            ->where('t.user = :user')
-            ->setParameter('user', $user)
-            ->orderBy('t.id', 'DESC')
-            ->setFirstResult($offset)
-            ->setMaxResults($limit)
-            ->getQuery()
-            ->getResult();
+        return $this->findBy(['user' => $user], ['id', 'DESC'], $limit, $offset);
     }
 
     public function findByUserAndId(User $user, int $transactionId): ?Transaction {
-        return $this->createQueryBuilder('t')
-            ->select('t')
-            ->where('t.id = :id')
-            ->andWhere('t.user = :user')
-            ->setParameters([
-                'id' => $transactionId,
-                'user' => $user
-            ])
-            ->getQuery()
-            ->getOneOrNullResult();
+        return $this->findOneBy(['id' => $transactionId, 'user' => $user]);
     }
 }
