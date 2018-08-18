@@ -119,6 +119,39 @@ Returns a list of transactions as a `Transaction-Object`
 
 * 404 Not found, if user does not exist
 
+### POST /user/{userId}
+
+#### Description
+
+Updates user
+
+#### Example
+
+```json
+{
+  "name": "Username",
+  "email": "foo@bar.de",
+  "active": false
+}
+```
+
+#### Request-Parameters
+
+|  field  | datatype    | description                   |
+|---------|-------------|-------------------------------|
+| name    | string      | username                      |
+| email   | string      | e-mail address (optional)     |
+| active  | boolean     | active/inactive               |
+
+#### Response
+
+Returns the created `User-Object`
+
+#### Errors
+
+* Returns 409 if the new username already exists
+* Returns 400 if E-Mailaddress is invalid
+
 ### POST /user/{userId}/transaction
 
 #### Description
