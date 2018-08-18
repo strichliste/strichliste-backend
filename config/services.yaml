@@ -6,8 +6,8 @@
 parameters:
     strichliste:
 
-        # Period (ISO 8601, Time Interval) from which on the users counts as stale
-        staleUserPeriod: 'P10D'
+        # See http://de.php.net/manual/en/datetime.formats.relative.php
+        staleUserPeriod: '10 day'
 
         # Be aware: All amounts are in cents!
         payment:

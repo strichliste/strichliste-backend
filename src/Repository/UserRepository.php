@@ -18,11 +18,30 @@ class UserRepository extends ServiceEntityRepository {
         parent::__construct($registry, User::class);
     }
 
-    /**
-     * @return User[]
-     */
-    public function findAllActive(): array {
-        return $this->findBy(['active' => true], ['name' => 'ASC']);
+    public function findAllActive(\DateTime $since = null) : array {
+        $queryBuilder = $this->createQueryBuilder('u')
+            ->select('u')
+            ->where('u.active = true');
+
+        if ($since) {
+            $queryBuilder
+                ->andWhere('u.updated IS NOT NULL')
+                ->andWhere('u.updated >= :since')
+                ->setParameter('since', $since);
+        }
+
+        return $queryBuilder->getQuery()->getResult();
+    }
+
+    public function findAllActiveAndStale(\DateTime $since): array {
+        return $this->createQueryBuilder('u')
+            ->select('u')
+            ->where('u.active = true')
+            ->andWhere('u.updated IS NOT NULL')
+            ->andWhere('u.updated <= :since')
+            ->setParameter('since', $since)
+            ->getQuery()
+            ->getResult();
     }
 
     public function findByIdentifier($identifier): ?User {

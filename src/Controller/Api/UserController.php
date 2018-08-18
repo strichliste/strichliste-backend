@@ -18,9 +18,22 @@ class UserController extends AbstractController {
     /**
      * @Route(methods="GET")
      */
-    public function list(EntityManagerInterface $entityManager) {
+    public function list(Request $request, EntityManagerInterface $entityManager) {
+        $stale = $request->query->getBoolean('stale', false);
+        $settings = $this->getParameter('strichliste');
+
+        $stalePeriod = \DateInterval::createFromDateString($settings['staleUserPeriod']);
+        $since = new \DateTime();
+        $since->sub($stalePeriod);
+
+        if ($stale) {
+            $users = $entityManager->getRepository(User::class)->findAllActiveAndStale($since);
+        } else {
+            $users = $entityManager->getRepository(User::class)->findAllActive($since);
+        }
+
         return $this->json([
-            'users' => $entityManager->getRepository(User::class)->findAllActive(),
+            'users' => $users,
         ]);
     }
 
