@@ -13,7 +13,10 @@ parameters:
             dateFormat: 'YYYY-MM-DD HH:mm:ss'
             timezone: 'auto'
             language: 'en'
-            currency: '€'
+            currency:
+                name: 'Euro'
+                symbol: '€'
+                alpha3: 'EUR'
 
         # Be aware: All amounts are in cents!
         payment:
