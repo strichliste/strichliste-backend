@@ -37,8 +37,7 @@ class UserRepository extends ServiceEntityRepository {
         return $this->createQueryBuilder('u')
             ->select('u')
             ->where('u.active = true')
-            ->andWhere('u.updated IS NOT NULL')
-            ->andWhere('u.updated <= :since')
+            ->andWhere('(u.updated IS NULL or u.updated <= :since)')
             ->setParameter('since', $since)
             ->getQuery()
             ->getResult();
