@@ -108,7 +108,7 @@ class UserController extends AbstractController {
             $name = trim($name);
             $name = preg_replace('/[\x00-\x1F\x7F]/u', '', $name);
 
-            if ($entityManager->getRepository(User::class)->findByName($name)) {
+            if ($name !== $user->getName() && $entityManager->getRepository(User::class)->findByName($name)) {
                 throw new UserAlreadyExistsException($name);
             }
 
