@@ -36,21 +36,17 @@ class TransactionController extends AbstractController {
     public function createUserTransactions($userId, Request $request, EntityManagerInterface $entityManager) {
 
         $user = $entityManager->getRepository(User::class)->find($userId);
-
         if (!$user) {
             throw $this->createNotFoundException();
         }
-        $transaction = new Transaction();
-        $transaction->setUser($user);
-
-        $amount = (int) $request->request->get('amount', 0);
-
-        $comment = $request->request->get('comment');
-        if ($comment) {
-            $transaction->setComment($comment);
-        }
 
         $article = null;
+        $recipientUser = null;
+        $recipientTransaction = null;
+
+        // TODO: Validate transaction boundaries
+        $amount = (int) $request->request->get('amount', 0);
+        $comment = $request->request->get('comment');
         $articleId = $request->request->get('articleId');
 
         if ($articleId) {
@@ -61,24 +57,51 @@ class TransactionController extends AbstractController {
                 throw new BadRequestHttpException(sprintf('Article id %d not found', $articleId));
             }
 
-            $amount = $article->getAmount();
+            $amount = $article->getAmount() * -1;
             $article->setUsageCount($article->getUsageCount() + 1);
-
-            $transaction->setArticle($article);
         }
 
-        // TODO: Validate transaction boundaries
+        $transaction = new Transaction();
+        $transaction->setUser($user);
         $transaction->setAmount($amount);
+        $transaction->setArticle($article);
+        $transaction->setComment($comment);
+
+        $recipientId = $request->request->get('recipientId');
+        if ($recipientId) {
+            $recipientUser = $entityManager->getRepository(User::class)->find($recipientId);
+            if (!$recipientUser) {
+                throw new BadRequestHttpException(sprintf('Recipient user id %d not found', $recipientId));
+            }
+
+            $recipientTransaction = new Transaction();
+            $recipientTransaction->setAmount($amount * -1);
+            $recipientTransaction->setArticle($article);
+            $recipientTransaction->setComment($comment);
+            $recipientTransaction->setUser($recipientUser);
+
+            $recipientTransaction->setSender($user);
+            $transaction->setRecipient($recipientUser);
+
+            $recipientUser->setBalance($recipientUser->getBalance() + ($amount * -1));
+        }
 
         $user->setBalance($user->getBalance() + $amount);
 
-
-        $entityManager->transactional(function () use ($entityManager, $user, $transaction, $article) {
+        $entityManager->transactional(function () use ($entityManager, $user, $transaction, $article, $recipientUser, $recipientTransaction) {
             $entityManager->persist($user);
             $entityManager->persist($transaction);
 
             if ($article) {
                 $entityManager->persist($article);
+            }
+
+            if ($recipientUser) {
+                $entityManager->persist($recipientUser);
+            }
+
+            if ($recipientTransaction) {
+                $entityManager->persist($recipientTransaction);
             }
         });
 

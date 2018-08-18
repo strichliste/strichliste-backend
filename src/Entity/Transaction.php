@@ -36,6 +36,17 @@ class Transaction implements \JsonSerializable {
     private $comment = null;
 
     /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\User")
+     */
+    private $recipient = null;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\User")
+     */
+    private $sender = null;
+
+
+    /**
      * @ORM\Column(type="integer")
      */
     private $amount;
@@ -65,6 +76,30 @@ class Transaction implements \JsonSerializable {
 
     public function setArticle(?Article $article): self {
         $this->article = $article;
+
+        return $this;
+    }
+
+    public function getRecipient(): ?User
+    {
+        return $this->recipient;
+    }
+
+    public function setRecipient(?User $recipient): self
+    {
+        $this->recipient = $recipient;
+
+        return $this;
+    }
+
+    public function getSender(): ?User
+    {
+        return $this->sender;
+    }
+
+    public function setSender(?User $sender): self
+    {
+        $this->sender = $sender;
 
         return $this;
     }
@@ -114,6 +149,8 @@ class Transaction implements \JsonSerializable {
             'id' => $this->id,
             'user' => $this->user,
             'article' => $this->article,
+            'sender' => $this->sender,
+            'recipient' => $this->recipient,
             'comment' => $this->comment,
             'amount' => $this->amount,
             'created' => $this->getCreated()->format('Y-m-d H:i:s')
