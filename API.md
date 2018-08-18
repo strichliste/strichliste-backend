@@ -100,6 +100,8 @@ Note: You can access this resource using the `id` or `name` as userId. This resp
         "updated": "2018-08-17 16:22:41"
       },
       "article": null,
+      "recipient": null,
+      "sender": null,
       "comment": null,
       "amount": 33,
       "created": "2018-08-17 16:22:41"
@@ -131,15 +133,17 @@ Note: You can access this resource using the `id` or `name` as userId
 {
   "amount": 123,
   "articleId": 1,
+  "recipientId": 2,
   "comment": "Foobar!"
 }
 ```
 
-|  field    | datatype | description                                         |
-|-----------|----------|-----------------------------------------------------|
-| amount    | integer  | amount in cents (optional if articleId is provided) |
-| articleId | integer  | id of an article (optional)                         |
-| comment   | string   | comment (optional)                                  |
+|  field      | datatype | description                                         |
+|-------------|----------|-----------------------------------------------------|
+| amount      | integer  | amount in cents (optional if articleId is provided) |
+| articleId   | integer  | id of an article (optional)                         |
+| recipientId | integer  | userId of recipient (optional)                      |
+| comment     | string   | comment (optional)                                  |
 
 If an articleId is provided, the amount parameter gets overwritten by the price of the article
 
@@ -305,20 +309,32 @@ With these two parameters, you can page through the result set:
     "updated": "2018-08-17 16:22:41"
   },
   "article": null,
+  "sender": null,
+  "recipient": {
+    "id": 1,
+    "name": "schinken",
+    "active": true,
+    "email": "foo@bar.de",
+    "balance": 233,
+    "created": "2018-08-17 16:20:57",
+    "updated": "2018-08-17 16:22:41"
+  },
   "comment": null,
   "amount": 33,
   "created": "2018-08-17 16:22:41"
 }
 ```
 
-|  field  | datatype               | description                                                              |
-|---------|------------------------|--------------------------------------------------------------------------|
-| id      | integer                | transaction identifier                                                   |
-| user    | User-Object            |                                                                          |
-| article | Article-Object or null | Contains an article-object if the transaction is created with an article |
-| comment | string or null         | comment (optional)                                                       |
-| amount  | integer                | amount in cents                                                          |
-| created | datetime               | datetime of creation                                                     |
+|  field    | datatype               | description                                                              |
+|-----------|------------------------|--------------------------------------------------------------------------|
+| id        | integer                | transaction identifier                                                   |
+| user      | User-Object            |                                                                          |
+| article   | Article-Object or null | Contains an article-object if the transaction is created with an article |
+| recipient | User-Object or null    | Contains an user-object of the transaction recipient                     |
+| sender    | User-Object or null    | Contains an user-object of the transaction sender                        |
+| comment   | string or null         | comment (optional)                                                       |
+| amount    | integer                | amount in cents                                                          |
+| created   | datetime               | datetime of creation                                                     |
 
 ### Article-Object
 
