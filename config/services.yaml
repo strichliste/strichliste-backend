@@ -6,8 +6,8 @@
 parameters:
     strichliste:
 
-        # Period (ISO 8601, Time Interval) from which on the users counts as inactive
-        inactiveUserPeriod: 'P10D'
+        # Period (ISO 8601, Time Interval) from which on the users counts as stale
+        staleUserPeriod: 'P10D'
 
         # Be aware: All amounts are in cents!
         payment:
