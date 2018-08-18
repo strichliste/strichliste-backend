@@ -81,7 +81,7 @@ Returns the `User-Object`
 
 Access the user's transactions for a given `userId`
 
-Note: You can access this resource using the `id` or `name` as userId
+Note: You can access this resource using the `id` or `name` as userId. This response is Pageable. See #Pagination
 
 #### Example
 
@@ -116,7 +116,6 @@ Returns a list of transactions as a `Transaction-Object`
 #### Errors
 
 * 404 Not found, if user does not exist
-
 
 ### POST /user/{userId}/transaction
 
@@ -154,6 +153,94 @@ Returns a `Transaction-Object`
 * 400 If Request is not well-formed or fields are missing
 
 
+### GET /article
+
+#### Description
+
+Returns all available articles
+
+Note: This response is Pageable. See #Pagination
+
+#### Example
+
+```json
+{
+  "articles": [
+    {
+      "id": 2,
+      "name": "Club Mate",
+      "barcode": "13373243",
+      "amount": 100,
+      "active": true,
+      "usageCount": 0,
+      "precursor": null,
+      "created": "2018-08-17 14:21:25"
+    },
+    {}, {}, {}
+  ]
+}
+```
+
+#### Response
+
+Returns a list of articles as a `Article-Object`
+
+### POST /article
+
+#### Description
+
+Create a new article
+
+#### Example
+
+```json
+{
+  "name": "Club Mate Cola",
+  "amount": 100,
+  "barcode": "13374223"
+}
+```
+
+#### Request-Parameters
+
+|  field  | datatype    | description                   |
+|---------|-------------|-------------------------------|
+| name    | string      | article name                  |
+| amount  | integer     | amount in cents               |
+| barcode | string      | barcode (optional)            |
+
+#### Response
+
+Returns the created `Article-Object`
+
+### POST /article/{articleId}
+
+#### Description
+
+Updated an article. If you update an article, a new one is created with the reference to the old, deactivated one to maintain referencial integrity. 
+
+#### Example
+
+```json
+{
+  "name": "Club Mate Cola",
+  "amount": 100,
+  "barcode": "13374223"
+}
+```
+
+#### Request-Parameters
+
+|  field  | datatype    | description                   |
+|---------|-------------|-------------------------------|
+| name    | string      | article name                  |
+| amount  | integer     | amount in cents               |
+| barcode | string      | barcode (optional)            |
+
+#### Response
+
+Returns the new created `Article-Object`, with the old one as precursor.
+
 ## Misc
 
 ### Pagination
@@ -183,7 +270,7 @@ With these two parameters, you can page through the result set:
 
 |  field  | datatype       | description                   |
 |---------|----------------|-------------------------------|
-| id      | integer        | contains the user identifier  |
+| id      | integer        | user identifier               |
 | name    | string         | username                      |
 | active  | boolean        | If user is deactivated or not |
 | email   | string or null | e-mail address (optional )    |
@@ -214,9 +301,35 @@ With these two parameters, you can page through the result set:
 
 |  field  | datatype               | description                                                              |
 |---------|------------------------|--------------------------------------------------------------------------|
-| id      | integer                | contains the transaction identifier                                      |
+| id      | integer                | transaction identifier                                                   |
 | user    | User-Object            |                                                                          |
 | article | Article-Object or null | Contains an article-object if the transaction is created with an article |
 | comment | string or null         | comment (optional)                                                       |
 | amount  | integer                | amount in cents                                                          |
-| created | datetime               | datetime of creating       
+| created | datetime               | datetime of creation                                                     |
+
+### Article-Object
+
+```json
+{
+  "id": 2,
+  "name": "Club Mate",
+  "barcode": "13373243",
+  "amount": 100,
+  "active": true,
+  "usageCount": 0,
+  "precursor": null,
+  "created": "2018-08-17 14:21:25"
+}
+```
+
+|  field     | datatype               | description                            |
+|------------|------------------------|----------------------------------------|
+| id         | integer                | article identifier                     |
+| name       | string                 | name of the article                    |
+| barcode    | string                 | barcode                                |
+| amount     | integer                | amount in cents                        |
+| active     | boolean                | active/inactive                        |
+| usageCount | integer                | usage count in transactions            |
+| precursor  | Article-Object or null | links to the precursor article, if any |
+| created    | datetime               | datetime of creation                   |
