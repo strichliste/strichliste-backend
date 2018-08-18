@@ -27,6 +27,7 @@ class ArticleController extends AbstractController {
 
     /**
      * @Route(methods="POST")
+     * @throws ParameterMissingException
      */
     public function createArticle(Request $request, EntityManagerInterface $entityManager) {
         $article = $this->createArticleByRequest($request);
@@ -41,6 +42,7 @@ class ArticleController extends AbstractController {
 
     /**
      * @Route("/{articleId}", methods="GET")
+     * @throws ArticleNotFoundException
      */
     public function getArticle($articleId, EntityManagerInterface $entityManager) {
 
@@ -56,6 +58,8 @@ class ArticleController extends AbstractController {
 
     /**
      * @Route("/{articleId}", methods="POST")
+     * @throws ArticleNotFoundException
+     * @throws ParameterMissingException
      */
     public function updateArticle($articleId, Request $request, EntityManagerInterface $entityManager) {
         $oldArticle = $entityManager->getRepository(Article::class)->find($articleId);
@@ -83,6 +87,7 @@ class ArticleController extends AbstractController {
 
     /**
      * @Route("/{articleId}", methods="DELETE")
+     * @throws ArticleNotFoundException
      */
     public function deleteArticle($articleId, EntityManagerInterface $entityManager) {
         $article = $entityManager->getRepository(Article::class)->find($articleId);
@@ -100,6 +105,11 @@ class ArticleController extends AbstractController {
         ]);
     }
 
+    /**
+     * @param Request $request
+     * @return Article
+     * @throws ParameterMissingException
+     */
     private function createArticleByRequest(Request $request): Article {
 
         $name = $request->request->get('name');

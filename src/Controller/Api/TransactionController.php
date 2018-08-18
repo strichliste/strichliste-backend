@@ -36,6 +36,10 @@ class TransactionController extends AbstractController {
 
     /**
      * @Route("/user/{userId}/transaction", methods="POST")
+     * @throws UserNotFoundException
+     * @throws TransactionBoundaryException
+     * @throws ArticleNotFoundException
+     * @throws AccountBalanceBoundaryException
      */
     public function createUserTransactions($userId, Request $request, EntityManagerInterface $entityManager) {
 
@@ -122,6 +126,7 @@ class TransactionController extends AbstractController {
 
     /**
      * @Route("/user/{userId}/transaction", methods="GET")
+     * @throws UserNotFoundException
      */
     public function getUserTransactions($userId, Request $request, EntityManagerInterface $entityManager) {
         $limit = $request->request->get('limit', 25);
@@ -141,6 +146,8 @@ class TransactionController extends AbstractController {
 
     /**
      * @Route("/user/{userId}/transaction/{transactionId}", methods="GET")
+     * @throws UserNotFoundException
+     * @throws TransactionNotFoundException
      */
     public function getTransaction($userId, $transactionId, EntityManagerInterface $entityManager) {
         $user = $entityManager->getRepository(User::class)->find($userId);
