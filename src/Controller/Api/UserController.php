@@ -49,6 +49,7 @@ class UserController extends AbstractController {
             throw new ParameterMissingException('name');
         }
 
+        // TODO: Use sanitize-helper
         $name = trim($name);
         $name = preg_replace('/[\x00-\x1F\x7F]/u', '', $name);
 
@@ -77,7 +78,7 @@ class UserController extends AbstractController {
     }
 
     /**
-     * @Route("/{userId}")
+     * @Route("/{userId}", methods="GET")
      */
     public function user($userId, EntityManagerInterface $entityManager) {
         $user = $entityManager->getRepository(User::class)->findByIdentifier($userId);
@@ -85,6 +86,51 @@ class UserController extends AbstractController {
         if (!$user) {
             throw new UserNotFoundException($userId);
         }
+
+        return $this->json([
+            'user' => $user
+        ]);
+    }
+
+    /**
+     * @Route("/{userId}", methods="POST")
+     */
+    public function updateUser($userId, Request $request, EntityManagerInterface $entityManager) {
+        $user = $entityManager->getRepository(User::class)->findByIdentifier($userId);
+
+        if (!$user) {
+            throw new UserNotFoundException($userId);
+        }
+
+        $name = $request->request->get('name');
+        if ($name) {
+            // TODO: Use sanitize-helper
+            $name = trim($name);
+            $name = preg_replace('/[\x00-\x1F\x7F]/u', '', $name);
+
+            if ($entityManager->getRepository(User::class)->findByName($name)) {
+                throw new UserAlreadyExistsException($name);
+            }
+
+            $user->setName($name);
+        }
+
+        $email = $request->request->get('email');
+        if ($email) {
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                throw new ParameterInvalidException('email');
+            }
+
+            $user->setEmail($email);
+        }
+
+        $active = $request->request->get('active');
+        if ($active !== null) {
+            $user->setActive($active);
+        }
+
+        $entityManager->persist($user);
+        $entityManager->flush();
 
         return $this->json([
             'user' => $user
