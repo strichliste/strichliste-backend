@@ -20,17 +20,23 @@ parameters:
                 symbol: '€'
                 alpha3: 'EUR'
 
+        account:
+            boundary:
+                upper: 20000
+                lower: -20000
+
         # Be aware: All amounts are in cents!
         payment:
+            boundary:
+                upper: 15000
+                lower: -2000
+
             transactions:
                 enabled: true
 
             deposit:
                 enabled: true
                 custom: true
-                boundary:
-                    upper: 9999999
-                    lower: -5000
                 steps:
                     - 50
                     - 100
@@ -41,9 +47,6 @@ parameters:
             dispense:
                 enabled: true
                 custom: true
-                boundery:
-                    upper: 15000
-                    lower: -2000
                 steps:
                     - 50
                     - 100

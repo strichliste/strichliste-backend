@@ -5,7 +5,9 @@ namespace App\Controller\Api;
 use App\Entity\Article;
 use App\Entity\Transaction;
 use App\Entity\User;
+use App\Exception\AccountBalanceBoundaryException;
 use App\Exception\ArticleNotFoundException;
+use App\Exception\TransactionBoundaryException;
 use App\Exception\TransactionNotFoundException;
 use App\Exception\UserNotFoundException;
 use Doctrine\ORM\EntityManagerInterface;
@@ -46,7 +48,6 @@ class TransactionController extends AbstractController {
         $recipientUser = null;
         $recipientTransaction = null;
 
-        // TODO: Validate transaction boundaries
         $amount = (int)$request->request->get('amount', 0);
         $comment = $request->request->get('comment');
         $articleId = $request->request->get('articleId');
@@ -62,6 +63,8 @@ class TransactionController extends AbstractController {
             $amount = $article->getAmount() * -1;
             $article->setUsageCount($article->getUsageCount() + 1);
         }
+
+        $this->checkTransactionBoundaries($amount);
 
         $transaction = new Transaction();
         $transaction->setUser($user);
@@ -88,7 +91,10 @@ class TransactionController extends AbstractController {
             $recipientUser->setBalance($recipientUser->getBalance() + ($amount * -1));
         }
 
-        $user->setBalance($user->getBalance() + $amount);
+        $newBalance = $user->getBalance() + $amount;
+        $this->checkAccountBalance($newBalance);
+
+        $user->setBalance($newBalance);
 
         $entityManager->transactional(function () use ($entityManager, $user, $transaction, $article, $recipientUser, $recipientTransaction) {
             $entityManager->persist($user);
@@ -150,5 +156,39 @@ class TransactionController extends AbstractController {
         return $this->json([
             'transaction' => $transaction,
         ]);
+    }
+
+    /**
+     * @param int $amount
+     * @throws TransactionBoundaryException
+     */
+    private function checkTransactionBoundaries($amount) {
+        $settings = $this->getParameter('strichliste');
+
+        $upper = $settings['payment']['boundary']['upper'];
+        $lower = $settings['payment']['boundary']['lower'];
+
+        if ($amount > $upper) {
+            throw new TransactionBoundaryException($amount, $upper);
+        } else if ($amount < $lower){
+            throw new TransactionBoundaryException($amount, $lower);
+        }
+    }
+
+    /**
+     * @param int $amount
+     * @throws AccountBalanceBoundaryException
+     */
+    private function checkAccountBalance($amount) {
+        $settings = $this->getParameter('strichliste');
+
+        $upper = $settings['account']['boundary']['upper'];
+        $lower = $settings['account']['boundary']['lower'];
+
+        if ($amount > $upper) {
+            throw new AccountBalanceBoundaryException($amount, $upper);
+        } else if ($amount < $lower){
+            throw new AccountBalanceBoundaryException($amount, $lower);
+        }
     }
 }
