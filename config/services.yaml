@@ -4,6 +4,41 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
+    strichliste:
+
+        # Period (ISO 8601, Time Interval) from which on the users counts as inactive
+        inactiveUserPeriod: 'P10D'
+
+        # Be aware: All amounts are in cents!
+        payment:
+            transactions:
+                enabled: true
+
+            deposit:
+                enabled: true
+                custom: true
+                boundary:
+                    upper: 9999999
+                    lower: -5000
+                steps:
+                    - 50
+                    - 100
+                    - 200
+                    - 500
+                    - 1000
+
+            dispense:
+                enabled: true
+                custom: true
+                boundery:
+                    upper: 15000
+                    lower: -2000
+                steps:
+                    - 50
+                    - 100
+                    - 200
+                    - 500
+                    - 1000
 
 services:
     # default configuration for services in *this* file
