@@ -25,6 +25,14 @@ class UserRepository extends ServiceEntityRepository {
         return $this->findBy(['active' => true], ['name' => 'ASC']);
     }
 
+    public function findByIdentifier($identifier): ?User {
+        if (is_numeric($identifier)) {
+            return $this->find($identifier);
+        }
+
+        return $this->findByName($identifier);
+    }
+
     public function findByName(string $name): ?User {
         return $this->findOneBy(['name' => $name]);
     }
