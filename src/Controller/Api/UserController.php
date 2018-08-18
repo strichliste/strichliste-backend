@@ -3,11 +3,13 @@
 namespace App\Controller\Api;
 
 use App\Entity\User;
+use App\Exception\ParameterInvalidException;
+use App\Exception\ParameterMissingException;
+use App\Exception\UserAlreadyExistsException;
+use App\Exception\UserNotFoundException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -43,16 +45,15 @@ class UserController extends AbstractController {
     public function createUser(Request $request, EntityManagerInterface $entityManager) {
 
         $name = $request->request->get('name');
-
         if (!$name) {
-            throw new BadRequestHttpException('Missing parameter name');
+            throw new ParameterMissingException('name');
         }
 
         $name = trim($name);
         $name = preg_replace('/[\x00-\x1F\x7F]/u', '', $name);
 
         if ($entityManager->getRepository(User::class)->findByName($name)) {
-            return new Response(sprintf("User '%s' already exists", $name), 409);
+            throw new UserAlreadyExistsException($name);
         }
 
         $user = new User();
@@ -61,7 +62,7 @@ class UserController extends AbstractController {
         $email = $request->request->get('email');
         if ($email) {
             if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                throw new BadRequestHttpException('E-Mail address is invalid');
+                throw new ParameterInvalidException('email');
             }
 
             $user->setEmail(trim($email));
@@ -82,7 +83,7 @@ class UserController extends AbstractController {
         $user = $entityManager->getRepository(User::class)->findByIdentifier($userId);
 
         if (!$user) {
-            throw $this->createNotFoundException();
+            throw new UserNotFoundException($userId);
         }
 
         return $this->json([

@@ -3,6 +3,8 @@
 namespace App\Controller\Api;
 
 use App\Entity\Article;
+use App\Exception\ArticleNotFoundException;
+use App\Exception\ParameterMissingException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -41,10 +43,10 @@ class ArticleController extends AbstractController {
      * @Route("/{articleId}", methods="GET")
      */
     public function getArticle($articleId, EntityManagerInterface $entityManager) {
-        $article = $entityManager->getRepository(Article::class)->find($articleId);
 
+        $article = $entityManager->getRepository(Article::class)->find($articleId);
         if (!$article) {
-            throw $this->createNotFoundException();
+            throw new ArticleNotFoundException($articleId);
         }
 
         return $this->json([
@@ -57,9 +59,8 @@ class ArticleController extends AbstractController {
      */
     public function updateArticle($articleId, Request $request, EntityManagerInterface $entityManager) {
         $oldArticle = $entityManager->getRepository(Article::class)->find($articleId);
-
         if (!$oldArticle) {
-            throw $this->createNotFoundException();
+            throw new ArticleNotFoundException($articleId);
         }
 
         $newArticle = $this->createArticleByRequest($request);
@@ -85,9 +86,8 @@ class ArticleController extends AbstractController {
      */
     public function deleteArticle($articleId, EntityManagerInterface $entityManager) {
         $article = $entityManager->getRepository(Article::class)->find($articleId);
-
         if (!$article) {
-            throw $this->createNotFoundException();
+            throw new ArticleNotFoundException($articleId);
         }
 
         $article->setActive(false);
@@ -104,12 +104,12 @@ class ArticleController extends AbstractController {
 
         $name = $request->request->get('name');
         if (!$name) {
-            throw new BadRequestHttpException('Missing parameter name');
+            throw new ParameterMissingException('name');
         }
 
         $amount = (int) $request->request->get('amount', 0);
         if (!$amount) {
-            throw new BadRequestHttpException('Missing parameter amount');
+            throw new ParameterMissingException('amount');
         }
 
         $article = new Article();

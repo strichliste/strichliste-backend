@@ -5,10 +5,12 @@ namespace App\Controller\Api;
 use App\Entity\Article;
 use App\Entity\Transaction;
 use App\Entity\User;
+use App\Exception\ArticleNotFoundException;
+use App\Exception\TransactionNotFoundException;
+use App\Exception\UserNotFoundException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -37,7 +39,7 @@ class TransactionController extends AbstractController {
 
         $user = $entityManager->getRepository(User::class)->find($userId);
         if (!$user) {
-            throw $this->createNotFoundException();
+            throw new UserNotFoundException($userId);
         }
 
         $article = null;
@@ -45,7 +47,7 @@ class TransactionController extends AbstractController {
         $recipientTransaction = null;
 
         // TODO: Validate transaction boundaries
-        $amount = (int) $request->request->get('amount', 0);
+        $amount = (int)$request->request->get('amount', 0);
         $comment = $request->request->get('comment');
         $articleId = $request->request->get('articleId');
 
@@ -54,7 +56,7 @@ class TransactionController extends AbstractController {
                 ['id' => $articleId, 'active' => true]);
 
             if (!$article) {
-                throw new BadRequestHttpException(sprintf('Article id %d not found', $articleId));
+                throw new ArticleNotFoundException($articleId);
             }
 
             $amount = $article->getAmount() * -1;
@@ -71,7 +73,7 @@ class TransactionController extends AbstractController {
         if ($recipientId) {
             $recipientUser = $entityManager->getRepository(User::class)->find($recipientId);
             if (!$recipientUser) {
-                throw new BadRequestHttpException(sprintf('Recipient user id %d not found', $recipientId));
+                throw new UserNotFoundException($recipientId);
             }
 
             $recipientTransaction = new Transaction();
@@ -120,9 +122,8 @@ class TransactionController extends AbstractController {
         $offset = $request->request->get('offset');
 
         $user = $entityManager->getRepository(User::class)->find($userId, $limit, $offset);
-
         if (!$user) {
-            throw $this->createNotFoundException();
+            throw new UserNotFoundException($userId);
         }
 
         $transactions = $entityManager->getRepository(Transaction::class)->findByUser($user);
@@ -137,15 +138,13 @@ class TransactionController extends AbstractController {
      */
     public function getTransaction($userId, $transactionId, EntityManagerInterface $entityManager) {
         $user = $entityManager->getRepository(User::class)->find($userId);
-
         if (!$user) {
-            throw $this->createNotFoundException();
+            throw new UserNotFoundException($userId);
         }
 
         $transaction = $entityManager->getRepository(Transaction::class)->findByUserAndId($user, $transactionId);
-
         if (!$transaction) {
-            throw $this->createNotFoundException();
+            throw new TransactionNotFoundException($user, $transactionId);
         }
 
         return $this->json([
