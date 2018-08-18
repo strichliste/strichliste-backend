@@ -58,7 +58,7 @@ Returns the created `User-Object`
 
 * Returns 409 if the user already exists
 
-### GET /user/<userId>
+### GET /user/{userId}
 
 #### Description
 
@@ -75,7 +75,7 @@ Returns the `User-Object`
 * 404 Not found, if user does not exist
 * 400 If Request is not well-formed or fields are missing
 
-### GET /user/<userId>/transaction
+### GET /user/{userId}/transaction
 
 #### Description
 
@@ -118,7 +118,7 @@ Returns a list of transactions as a `Transaction-Object`
 * 404 Not found, if user does not exist
 
 
-### POST /user/<userId>/transaction
+### POST /user/{userId}/transaction
 
 #### Description
 
