@@ -241,6 +241,18 @@ Updated an article. If you update an article, a new one is created with the refe
 
 Returns the new created `Article-Object`, with the old one as precursor.
 
+### DELETE /article/{articleId}
+
+#### Description
+
+Deletes an article. (Actually deactivates it) 
+
+
+#### Response
+
+Returns the old, deactivated `Article-Object`
+
+
 ## Misc
 
 ### Pagination
