@@ -26,7 +26,6 @@ class UserController extends AbstractController {
 
     /**
      * @Route(methods="POST")
-     * @
      */
     public function createUser(Request $request, EntityManagerInterface $entityManager) {
 
