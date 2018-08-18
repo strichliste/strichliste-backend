@@ -9,6 +9,12 @@ parameters:
         # See http://de.php.net/manual/en/datetime.formats.relative.php
         staleUserPeriod: '10 day'
 
+        i18n:
+            dateFormat: 'YYYY-MM-DD HH:mm:ss'
+            timezone: 'auto'
+            language: 'en'
+            currency: '€'
+
         # Be aware: All amounts are in cents!
         payment:
             transactions:
