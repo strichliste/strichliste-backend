@@ -425,13 +425,13 @@ With these two parameters, you can page through the result set:
 
 Current possible exceptions are
 
-| exception                       | http status code | message                                                             |
-|---------------------------------|------------------|---------------------------------------------------------------------|
-| AccountBalanceBoundaryException | 400              | Transaction amount '30' exceeds upper account balance boundary '10' |
-| ArticleNotFoundException        | 404              | Article '42' not found                                              |
-| ParameterInvalidException       | 400              | Parameter 'email' is invalid                                        |
-| ParameterMissingException       | 400              | Parameter 'name' is missing                                         |
-| TransactionBoundaryException    | 400              | Transaction amount '10' exceeds upper transaction boundary '3'      |
-| TransactionNotFoundException    | 404              | Transaction '42' not found for user '23'                            |
-| UserAlreadyExistsException      | 409              | User 'schinken' already exists                                      |
-| UserNotFoundException           | 404              | User 'schinken' not found                                           |
+| exception                       | http status code | message                                                                          |
+|---------------------------------|------------------|----------------------------------------------------------------------------------|
+| AccountBalanceBoundaryException | 400              | Transaction amount '30' exceeds upper account balance boundary '10' for user '1' |
+| ArticleNotFoundException        | 404              | Article '42' not found                                                           |
+| ParameterInvalidException       | 400              | Parameter 'email' is invalid                                                     |
+| ParameterMissingException       | 400              | Parameter 'name' is missing                                                      |
+| TransactionBoundaryException    | 400              | Transaction amount '10' exceeds upper transaction boundary '3'                   |
+| TransactionNotFoundException    | 404              | Transaction '42' not found for user '23'                                         |
+| UserAlreadyExistsException      | 409              | User 'schinken' already exists                                                   |
+| UserNotFoundException           | 404              | User 'schinken' not found                                                        |
