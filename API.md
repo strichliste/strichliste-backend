@@ -56,7 +56,7 @@ Returns the created `User-Object`
 
 #### Errors
 
-* Returns 409 if the user already exists
+* UserAlreadyExistsException
 
 ### GET /user/{userId}
 
@@ -72,8 +72,7 @@ Returns the `User-Object`
 
 #### Errors
 
-* 404 Not found, if user does not exist
-* 400 If Request is not well-formed or fields are missing
+* UserNotFoundException
 
 ### GET /user/{userId}/transaction
 
@@ -117,7 +116,7 @@ Returns a list of transactions as a `Transaction-Object`
 
 #### Errors
 
-* 404 Not found, if user does not exist
+* UserNotFoundException
 
 ### POST /user/{userId}
 
@@ -149,8 +148,10 @@ Returns the created `User-Object`
 
 #### Errors
 
-* Returns 409 if the new username already exists
-* Returns 400 if E-Mailaddress is invalid
+* UserNotFoundException
+* UserAlreadyExistsException
+* ParameterMissingException
+* ParameterInvalidException
 
 ### POST /user/{userId}/transaction
 
@@ -186,9 +187,11 @@ Returns a `Transaction-Object`
 
 #### Errors
 
-* 404 Not found, if user does not exist
-* 400 If Request is not well-formed or fields are missing
-
+* UserNotFoundException
+* ParameterMissingException
+* ParameterInvalidException
+* AccountBalanceBoundaryException
+* TransactionBoundaryException
 
 ### GET /article
 
@@ -250,6 +253,11 @@ Create a new article
 
 Returns the created `Article-Object`
 
+#### Errors
+
+* ParameterInvalidException
+* ParameterMissingException
+
 ### POST /article/{articleId}
 
 #### Description
@@ -276,7 +284,13 @@ Updated an article. If you update an article, a new one is created with the refe
 
 #### Response
 
-Returns the new created `Article-Object`, with the old one as precursor.
+Returns the newly created `Article-Object`, with the old one as precursor.
+
+#### Errors
+
+* ArticleNotFoundException
+* ParameterInvalidException
+* ParameterMissingException
 
 ### DELETE /article/{articleId}
 
@@ -289,6 +303,9 @@ Deletes an article. (Actually deactivates it)
 
 Returns the old, deactivated `Article-Object`
 
+#### Errors
+
+* ArticleNotFoundException
 
 ## Misc
 
@@ -394,3 +411,27 @@ With these two parameters, you can page through the result set:
 | usageCount | integer                | usage count in transactions            |
 | precursor  | Article-Object or null | links to the precursor article, if any |
 | created    | datetime               | datetime of creation                   |
+
+
+### Exception
+
+```json
+{
+  "class": "App\\Exception\\UserNotFoundException",
+  "code": 404,
+  "message": "User 'schinken' not found"
+}
+```
+
+Current possible exceptions are
+
+| exception                       | http status code | message                                                             |
+|---------------------------------|------------------|---------------------------------------------------------------------|
+| AccountBalanceBoundaryException | 400              | Transaction amount '30' exceeds upper account balance boundary '10' |
+| ArticleNotFoundException        | 404              | Article '42' not found                                              |
+| ParameterInvalidException       | 400              | Parameter 'email' is invalid                                        |
+| ParameterMissingException       | 400              | Parameter 'name' is missing                                         |
+| TransactionBoundaryException    | 400              | Transaction amount '10' exceeds upper transaction boundary '3'      |
+| TransactionNotFoundException    | 404              | Transaction '42' not found for user '23'                            |
+| UserAlreadyExistsException      | 409              | User 'schinken' already exists                                      |
+| UserNotFoundException           | 404              | User 'schinken' not found                                           |
