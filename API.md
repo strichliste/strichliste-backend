@@ -313,12 +313,7 @@ Returns the old, deactivated `Article-Object`
 
 With these two parameters, you can page through the result set:
 
-```json
-{
-  "offset": 0,
-  "limit": 25
-}
-```
+```?offset=0&limit=25```
 
 ### User-Object
 

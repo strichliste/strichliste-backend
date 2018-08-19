@@ -24,8 +24,8 @@ class TransactionController extends AbstractController {
      * @Route("/transaction", methods="GET")
      */
     public function list(Request $request, EntityManagerInterface $entityManager) {
-        $limit = $request->request->get('limit');
-        $offset = $request->request->get('offset');
+        $limit = $request->query->get('limit');
+        $offset = $request->query->get('offset');
 
         $transactions = $entityManager->getRepository(Transaction::class)->findAll($limit, $offset);
 
@@ -132,8 +132,8 @@ class TransactionController extends AbstractController {
      * @throws UserNotFoundException
      */
     public function getUserTransactions($userId, Request $request, EntityManagerInterface $entityManager) {
-        $limit = $request->request->get('limit', 25);
-        $offset = $request->request->get('offset');
+        $limit = $request->query->get('limit', 25);
+        $offset = $request->query->get('offset');
 
         $user = $entityManager->getRepository(User::class)->find($userId, $limit, $offset);
         if (!$user) {
