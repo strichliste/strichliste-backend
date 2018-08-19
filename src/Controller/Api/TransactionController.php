@@ -92,11 +92,14 @@ class TransactionController extends AbstractController {
             $recipientTransaction->setSender($user);
             $transaction->setRecipient($recipientUser);
 
-            $recipientUser->setBalance($recipientUser->getBalance() + ($amount * -1));
+            $recipientBalance = $recipientUser->getBalance() + ($amount * -1);
+            $this->checkAccountBalance($recipientUser, $recipientBalance);
+
+            $recipientUser->setBalance($recipientBalance);
         }
 
         $newBalance = $user->getBalance() + $amount;
-        $this->checkAccountBalance($newBalance);
+        $this->checkAccountBalance($user, $newBalance);
 
         $user->setBalance($newBalance);
 
@@ -183,19 +186,20 @@ class TransactionController extends AbstractController {
     }
 
     /**
+     * @param User $user
      * @param int $amount
      * @throws AccountBalanceBoundaryException
      */
-    private function checkAccountBalance($amount) {
+    private function checkAccountBalance(User $user, $amount) {
         $settings = $this->getParameter('strichliste');
 
         $upper = $settings['account']['boundary']['upper'];
         $lower = $settings['account']['boundary']['lower'];
 
         if ($amount > $upper) {
-            throw new AccountBalanceBoundaryException($amount, $upper);
+            throw new AccountBalanceBoundaryException($user, $amount, $upper);
         } else if ($amount < $lower){
-            throw new AccountBalanceBoundaryException($amount, $lower);
+            throw new AccountBalanceBoundaryException($user, $amount, $lower);
         }
     }
 }
