@@ -1,0 +1,115 @@
+<?php
+
+namespace App\Command;
+
+use App\Entity\Transaction;
+use App\Entity\User;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\ConfirmationQuestion;
+
+class CleanupAccountsCommand extends Command {
+
+    /**
+     * @var EntityManagerInterface
+     */
+    private $entityManager;
+
+    public function __construct(string $name = null, EntityManagerInterface $entityManager) {
+        parent::__construct($name);
+        $this->entityManager = $entityManager;
+    }
+
+    protected function configure() {
+        $this
+            ->setName('app:cleanup-accounts')
+            ->setDescription('Deletes or deactivated expired accounts after a given period of time')
+            ->addArgument('interval', InputArgument::REQUIRED, 'See http://de.php.net/manual/en/datetime.formats.relative.php')
+            ->addOption('confirm', null, InputOption::VALUE_NONE, 'Skip question')
+            ->addOption('delete', null, InputOption::VALUE_NONE, 'Delete accounts')
+            ->addOption('minBalance', null, InputOption::VALUE_OPTIONAL, 'Minimum balance', false)
+            ->addOption('maxBalance', null, InputOption::VALUE_OPTIONAL, 'Maximum balance', false);
+    }
+
+    protected function execute(InputInterface $input, OutputInterface $output) {
+        $helper = $this->getHelper('question');
+
+
+        $questions = [];
+        $queryBuilder = $this->entityManager->createQueryBuilder();
+
+        if ($input->getOption('delete')) {
+            $questions[] = 'delete users';
+
+            $queryBuilder->delete(User::class, 'u');
+        } else {
+            $questions[] = 'deactivate users';
+
+            $queryBuilder
+                ->update(User::class, 'u')
+                ->set('u.active', 0);
+        }
+
+
+        $interval = $input->getArgument('interval');
+        if ($interval) {
+            $dateTime = new \DateTime();
+            $dateTime->sub(\DateInterval::createFromDateString($interval));
+
+            $questions[] = sprintf("with last transaction before '%s'", $dateTime->format('Y-m-d H:i:s'));
+
+            $queryBuilder
+                ->where('u.updated <= :date')
+                ->setParameter('date', $dateTime);
+        }
+
+        $minBalance = $input->getOption('minBalance');
+        if ($minBalance !== false) {
+            $questions[] = sprintf('a minimum balance of %d', $minBalance);
+            $queryBuilder->setParameter('minBalance', $minBalance);
+
+            if ($minBalance > 0) {
+                $queryBuilder->andWhere('u.balance >= :minBalance');
+            } else {
+                $queryBuilder->andWhere('u.balance <= :minBalance');
+            }
+        }
+
+        $maxBalance = $input->getOption('maxBalance');
+        if ($maxBalance !== false) {
+            $questions[] = sprintf('a maximum balance of %d', $maxBalance);
+
+            $queryBuilder->setParameter('maxBalance', $maxBalance);
+
+            if ($maxBalance > 0) {
+                $queryBuilder->andWhere('u.balance <= :maxBalance');
+            } else {
+                $queryBuilder->andWhere('u.balance >= :maxBalance');
+            }
+        }
+
+        if (!$minBalance && !$maxBalance) {
+            $questions[] = 'with a balance of 0';
+            $queryBuilder->andWhere('u.balance = 0');
+        }
+
+
+        $question = 'Do you want to ' . join(', ', array_slice($questions, 0, count($questions) - 1));
+        $question .= ' and ' . $questions[count($questions) - 1] . ' [y/N]?';
+
+        $skipQuestion = $input->getOption('confirm');
+        if (!$skipQuestion) {
+            $questions = new ConfirmationQuestion($question, false);
+
+            if (!$helper->ask($input, $output, $questions)) {
+                return;
+            }
+        }
+
+        $queryBuilder->getQuery()->execute();
+    }
+}
