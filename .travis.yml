@@ -1,10 +1,9 @@
 language: php
 php:
 - 7.2
-before_script:
+script:
 - cp .env.dist .env
 - composer install --prefer-source --no-interaction --no-dev
-script:
 - php bin/console doctrine:database:create
 - php bin/console doctrine:schema:create
 - php bin/console cache:clear --no-warmup
