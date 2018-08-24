@@ -2,6 +2,7 @@
 
 namespace App\Command;
 
+use App\Command\Helper\DateIntervalHelper;
 use App\Entity\Transaction;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
@@ -27,21 +28,17 @@ class RetireDataCommand extends Command {
         $this
             ->setName('app:retire-data')
             ->setDescription('Deletes older data after a given period')
-            ->addArgument('interval', InputArgument::REQUIRED, 'See http://de.php.net/manual/en/datetime.formats.relative.php')
+            ->addOption('days', null, InputOption::VALUE_OPTIONAL, 'Interval days', false)
+            ->addOption('months', null, InputOption::VALUE_OPTIONAL, 'Interval month', false)
+            ->addOption('years', null, InputOption::VALUE_OPTIONAL, 'Interval years', false)
             ->addOption('confirm', null, InputOption::VALUE_NONE, 'Skips confirmation');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output) {
         $helper = $this->getHelper('question');
+        $dateTime = DateIntervalHelper::fromCommandInput($input)->getDateTime();
 
-        $interval = $input->getArgument('interval');
         $skipQuestion = $input->getOption('confirm');
-
-        $dateInterval = \DateInterval::createFromDateString($interval);
-
-        $dateTime = new \DateTime();
-        $dateTime->sub($dateInterval);
-
         if (!$skipQuestion) {
             $question = new ConfirmationQuestion(sprintf("Delete all transactions before '%s'? [y/N]", $dateTime->format('Y-m-d H:i:s')), false);
 

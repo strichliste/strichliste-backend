@@ -2,6 +2,7 @@
 
 namespace App\Command;
 
+use App\Command\Helper\DateIntervalHelper;
 use App\Entity\Transaction;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
@@ -28,7 +29,9 @@ class CleanupAccountsCommand extends Command {
         $this
             ->setName('app:cleanup-accounts')
             ->setDescription('Deletes or deactivated expired accounts after a given period of time')
-            ->addArgument('interval', InputArgument::REQUIRED, 'See http://de.php.net/manual/en/datetime.formats.relative.php')
+            ->addOption('days', null, InputOption::VALUE_OPTIONAL, 'Interval days', false)
+            ->addOption('months', null, InputOption::VALUE_OPTIONAL, 'Interval month', false)
+            ->addOption('years', null, InputOption::VALUE_OPTIONAL, 'Interval years', false)
             ->addOption('confirm', null, InputOption::VALUE_NONE, 'Skip question')
             ->addOption('delete', null, InputOption::VALUE_NONE, 'Delete accounts')
             ->addOption('minBalance', null, InputOption::VALUE_OPTIONAL, 'Minimum balance', false)
@@ -37,7 +40,6 @@ class CleanupAccountsCommand extends Command {
 
     protected function execute(InputInterface $input, OutputInterface $output) {
         $helper = $this->getHelper('question');
-
 
         $questions = [];
         $queryBuilder = $this->entityManager->createQueryBuilder();
@@ -54,12 +56,8 @@ class CleanupAccountsCommand extends Command {
                 ->set('u.active', 0);
         }
 
-
-        $interval = $input->getArgument('interval');
-        if ($interval) {
-            $dateTime = new \DateTime();
-            $dateTime->sub(\DateInterval::createFromDateString($interval));
-
+        if ($input->getOption('days') || $input->getOption('months') || $input->getOption('years')) {
+            $dateTime = DateIntervalHelper::fromCommandInput($input)->getDateTime();
             $questions[] = sprintf("with last transaction before '%s'", $dateTime->format('Y-m-d H:i:s'));
 
             $queryBuilder
