@@ -172,6 +172,7 @@ class TransactionController extends AbstractController {
     /**
      * @param int $amount
      * @throws TransactionBoundaryException
+     * @throws TransactionInvalidException
      */
     private function checkTransactionBoundaries($amount) {
         $settings = $this->getParameter('strichliste');
