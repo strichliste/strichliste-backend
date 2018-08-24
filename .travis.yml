@@ -1,0 +1,24 @@
+language: php
+php:
+- 7.2
+before_script:
+- composer install --prefer-source --no-interaction
+script:
+- php bin/console doctrine:database:create
+- php bin/console doctrine:schema:create
+- mv var/app.db var/app.db.example
+- tar cvfz strichliste-frontend.tar.gz build/
+- wget https://github.com/strichliste/strichliste/releases/download/0.1/strichliste-frontend.tar.gz
+- tar cvfz strichliste-frontend.tar.gz -C build/
+- rm strichliste-frontend.tar.gz
+- tar cvfz strichliste.tar.gz *
+deploy:
+  provider: releases
+  api_key:
+    secure: D/3l1qQbsZzEfIYq1JwG96+x+ed6Ad73M0rHyWUh+VT8AYk95wJJvTvD7DW/w6iCRnPomtya/ItsbpmDLJK+S4EL0yma/sc2n3IMio4rI/KXwcT4qaB+OTK3p6urquezLETyzsf98WG+IhlCXlvZUe+xzhnsrSLMF1YYMvPmAhXWZf72hLc/aNXi/AkcYgoWs7uczg4kgxyLKLcagK9Fn7OU2WRbjZIW56iNcAgb9ISX8h/2wzd+D5I6qNbE9dNCYPdQGW8XI1WstkODUqpapxTdtX6fY1D6zqd5B5PLj92yIPWqYGLvPdso7y+8CHHY/RL4OYyIW6or/w+GbgtcpD0S5ukcUYdlnl/LOZ5HCKWtIFgD7JK4Sh3dPgNDGADGdmdej7NPBKANxT68mC9yYV8L78JNhOUwhDlni+XoH66IslCXY68ZXThVQkm/H06K4FtTOAkvbBtE3yNAX+npYXUupJv1GNbPOeC76oeRGbMr6VkUjTMomETfv2toRz65UjA729AR64HWUKidSdYwgG5W9Z+3pVTcfglyad58nrHArmveatQ4og3mQYFEXiiibRhIie9leZGBA02bYB4dr2Ve963RUK5CARRT8PFziimDbfmn9zCE9Y4K7PZWU7dIcAS7wPoXWIskQdFeWAuQrt2ZPwKSs7Wr9XeI0E6NCOM=
+  file: strichliste.tar.gz
+  skip_cleanup: true
+  on:
+    repo: strichliste/server
+    tags: true
+    branch: master
