@@ -19,6 +19,9 @@ class TransactionRepository extends ServiceEntityRepository {
     }
 
     public function findAll($limit = null, $offset = null) {
+
+        var_dump($limit);
+
         return $this->createQueryBuilder('t')
             ->setFirstResult($offset)
             ->setMaxResults($limit)

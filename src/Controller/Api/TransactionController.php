@@ -137,13 +137,12 @@ class TransactionController extends AbstractController {
         $limit = $request->query->get('limit', 25);
         $offset = $request->query->get('offset');
 
-        $user = $entityManager->getRepository(User::class)->find($userId, $limit, $offset);
+        $user = $entityManager->getRepository(User::class)->find($userId);
         if (!$user) {
             throw new UserNotFoundException($userId);
         }
 
-        $transactions = $entityManager->getRepository(Transaction::class)->findByUser($user);
-
+        $transactions = $entityManager->getRepository(Transaction::class)->findByUser($user, $limit, $offset);
         return $this->json([
             'transactions' => $transactions,
         ]);
