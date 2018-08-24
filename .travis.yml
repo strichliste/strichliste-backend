@@ -11,8 +11,7 @@ script:
 - wget https://github.com/strichliste/strichliste/releases/download/v0.1.3/strichliste-frontend.tar.gz
 - tar xvfz strichliste-frontend.tar.gz --strip 1 -C public/
 - rm strichliste-frontend.tar.gz
-- mkdir strichliste && mv * strichliste/
-- tar cvfz strichliste.tar.gz strichliste/
+- tar cvfz strichliste.tar.gz .env *
 deploy:
   provider: releases
   api_key:
