@@ -8,6 +8,7 @@ use App\Entity\User;
 use App\Exception\AccountBalanceBoundaryException;
 use App\Exception\ArticleNotFoundException;
 use App\Exception\TransactionBoundaryException;
+use App\Exception\TransactionInvalidException;
 use App\Exception\TransactionNotFoundException;
 use App\Exception\UserNotFoundException;
 use Doctrine\ORM\EntityManagerInterface;
@@ -52,7 +53,7 @@ class TransactionController extends AbstractController {
         $recipientUser = null;
         $recipientTransaction = null;
 
-        $amount = (int)$request->request->get('amount', 0);
+        $amount = (int) $request->request->get('amount', 0);
         $comment = $request->request->get('comment');
         $articleId = $request->request->get('articleId');
 
@@ -182,6 +183,8 @@ class TransactionController extends AbstractController {
             throw new TransactionBoundaryException($amount, $upper);
         } else if ($amount < $lower){
             throw new TransactionBoundaryException($amount, $lower);
+        } else if ($amount === 0) {
+            throw new TransactionInvalidException();
         }
     }
 
