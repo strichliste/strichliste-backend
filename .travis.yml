@@ -2,8 +2,7 @@ language: php
 php:
 - 7.2
 env:
-- APP_ENV=prod
-- DATABASE_URL="sqlite:///%kernel.project_dir%/var/app.db"
+- APP_ENV=prod DATABASE_URL="sqlite:///%kernel.project_dir%/var/app.db"
 script:
 - composer install --no-dev --optimize-autoloader
 - php bin/console doctrine:database:create
