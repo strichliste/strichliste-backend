@@ -10,7 +10,7 @@ script:
 - php bin/console cache:clear --env=prod --no-debug
 - mv var/app.db var/app.db.example
 - wget https://github.com/strichliste/strichliste/releases/download/v0.1.1/strichliste-frontend.tar.gz
-- tar cvfz strichliste-frontend.tar.gz -C build/
+- tar xvfz strichliste-frontend.tar.gz -C public/
 - rm strichliste-frontend.tar.gz
 - tar cvfz strichliste.tar.gz *
 deploy:
