@@ -41,6 +41,7 @@ class TransactionController extends AbstractController {
      * @throws TransactionBoundaryException
      * @throws ArticleNotFoundException
      * @throws AccountBalanceBoundaryException
+     * @throws TransactionInvalidException
      */
     public function createUserTransactions($userId, Request $request, EntityManagerInterface $entityManager) {
 
