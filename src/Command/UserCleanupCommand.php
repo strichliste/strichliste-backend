@@ -13,7 +13,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 
-class CleanupAccountsCommand extends Command {
+class UserCleanupCommand extends Command {
 
     /**
      * @var EntityManagerInterface
@@ -27,13 +27,12 @@ class CleanupAccountsCommand extends Command {
 
     protected function configure() {
         $this
-            ->setName('app:cleanup-accounts')
+            ->setName('app:user:cleanup')
             ->setDescription('Deletes or deactivated expired accounts after a given period of time')
             ->addOption('days', null, InputOption::VALUE_OPTIONAL, 'Interval days', false)
             ->addOption('months', null, InputOption::VALUE_OPTIONAL, 'Interval month', false)
             ->addOption('years', null, InputOption::VALUE_OPTIONAL, 'Interval years', false)
             ->addOption('confirm', null, InputOption::VALUE_NONE, 'Skip question')
-            ->addOption('delete', null, InputOption::VALUE_NONE, 'Delete accounts')
             ->addOption('minBalance', null, InputOption::VALUE_OPTIONAL, 'Minimum balance', false)
             ->addOption('maxBalance', null, InputOption::VALUE_OPTIONAL, 'Maximum balance', false);
     }
