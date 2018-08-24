@@ -1,12 +1,14 @@
 language: php
 php:
 - 7.2
+environment:
+- APP_ENV=prod
+- DATABASE_URL="sqlite:///%kernel.project_dir%/var/app.db"
 script:
-- cp .env.dist .env
-- composer install --prefer-source --no-interaction --no-dev
+- composer install --no-dev --optimize-autoloader
 - php bin/console doctrine:database:create
 - php bin/console doctrine:schema:create
-- php bin/console cache:clear --no-warmup
+- php bin/console cache:clear --env=prod --no-debug
 - mv var/app.db var/app.db.example
 - wget https://github.com/strichliste/strichliste/releases/download/0.1.1/strichliste-frontend.tar.gz
 - tar cvfz strichliste-frontend.tar.gz -C build/
