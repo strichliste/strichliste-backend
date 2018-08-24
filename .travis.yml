@@ -1,7 +1,7 @@
 language: php
 php:
 - 7.2
-environment:
+env:
 - APP_ENV=prod
 - DATABASE_URL="sqlite:///%kernel.project_dir%/var/app.db"
 script:
