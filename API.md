@@ -197,7 +197,7 @@ Returns a `Transaction-Object`
 
 #### Description
 
-Returns all available articles
+Returns all available articles. Optionally you can provide `barcode` query parameter to filter by barcode.
 
 Note: This response is Pageable. See #Pagination
 
