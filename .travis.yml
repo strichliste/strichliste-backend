@@ -6,7 +6,7 @@ script:
 - composer install --no-dev --optimize-autoloader
 - php bin/console doctrine:database:create
 - php bin/console doctrine:schema:create
-- rm -rf var/cache
+- rm -rf var/cache/*
 - mv var/app.db var/app.db.example
 - wget https://github.com/strichliste/strichliste/releases/download/v0.1.3/strichliste-frontend.tar.gz
 - tar xvfz strichliste-frontend.tar.gz --strip 1 -C public/
