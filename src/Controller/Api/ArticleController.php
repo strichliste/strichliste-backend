@@ -23,8 +23,16 @@ class ArticleController extends AbstractController {
         $limit = $request->query->get('limit', 25);
         $offset = $request->query->get('offset');
 
+        $repository = $entityManager->getRepository(Article::class);
+
+        $barcode = $request->query->get('barcode');
+        if ($barcode) {
+            $articles = $repository->findActiveBy(['barcode' => $barcode]);
+        } else {
+            $articles = $repository->findAllActive($limit, $offset);
+        }
+
         $count = $entityManager->getRepository(Article::class)->countActive();
-        $articles = $entityManager->getRepository(Article::class)->findAllActive($limit, $offset);
 
         return $this->json([
             'count' => $count,
