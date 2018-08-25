@@ -21,4 +21,10 @@ class ArticleRepository extends ServiceEntityRepository {
     public function findAllActive($limit = null, $offset = null) {
         return $this->findBy(['active' => true], ['name' => 'ASC'], $limit, $offset);
     }
+
+    public function countActive(): int {
+        return $this->count([
+            'active' => true
+        ]);
+    }
 }

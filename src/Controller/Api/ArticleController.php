@@ -19,9 +19,16 @@ class ArticleController extends AbstractController {
     /**
      * @Route(methods="GET")
      */
-    public function list(EntityManagerInterface $entityManager) {
+    public function list(Request $request, EntityManagerInterface $entityManager) {
+        $limit = $request->query->get('limit', 25);
+        $offset = $request->query->get('offset');
+
+        $count = $entityManager->getRepository(Article::class)->countActive();
+        $articles = $entityManager->getRepository(Article::class)->findAllActive($limit, $offset);
+
         return $this->json([
-            'articles' => $entityManager->getRepository(Article::class)->findAllActive(),
+            'count' => $count,
+            'articles' => $articles,
         ]);
     }
 

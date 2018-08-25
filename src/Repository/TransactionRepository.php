@@ -39,4 +39,10 @@ class TransactionRepository extends ServiceEntityRepository {
     public function findByUserAndId(User $user, int $transactionId): ?Transaction {
         return $this->findOneBy(['id' => $transactionId, 'user' => $user]);
     }
+
+    public function countByUser(User $user): int {
+        return $this->count([
+            'user' => $user
+        ]);
+    }
 }
