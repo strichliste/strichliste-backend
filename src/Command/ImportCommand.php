@@ -62,9 +62,16 @@ class ImportCommand extends Command
         $userMapping = [];
         foreach($stmt->fetchAll() as $user) {
             $id = (int) $user['id'];
+            $name = $user['name'];
+
+            // Just in case there is a dub from strichliste1, append id
+            if ($entityManager->getRepository(User::class)->findByName($name)) {
+                $output->writeln(sprintf("WARNING: User '%s' (%d) has been renamed to '%s%02d' due to unique constain", $name, $id, $name, $id));
+                $name = sprintf('%s%02d', $name, $id);
+            }
 
             $newUser = new User();
-            $newUser->setName($user['name']);
+            $newUser->setName($name);
             $newUser->setCreated(new \DateTime($user['createDate']));
 
             if ($user['mailAddress']) {
@@ -78,6 +85,7 @@ class ImportCommand extends Command
 
             $userMapping[$id] = $newUser;
         }
+
 
         try {
             $stmt = $connection->query('select userId, value, comment, createDate from transactions');
@@ -136,7 +144,7 @@ class ImportCommand extends Command
             }
         }
 
-        $output->writeln('Import done!');
         $entityManager->flush();
+        $output->writeln('Import done!');
     }
 }
