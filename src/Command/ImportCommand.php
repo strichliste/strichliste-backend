@@ -59,7 +59,7 @@ class ImportCommand extends Command
 
         $stmt->execute();
 
-        $userIdMapping = [];
+        $userMapping = [];
         foreach($stmt->fetchAll() as $user) {
             $id = (int) $user['id'];
 
@@ -76,7 +76,7 @@ class ImportCommand extends Command
 
             $output->writeln(sprintf("Imported user '%s'", $newUser->getName()));
 
-            $userIdMapping[$id] = $newUser;
+            $userMapping[$id] = $newUser;
         }
 
         try {
@@ -89,9 +89,8 @@ class ImportCommand extends Command
         $transactions = $stmt->fetchAll();
 
         foreach($transactions as $transaction) {
-
             $userId = (int) $transaction['userId'];
-            $user = $userIdMapping[$userId];
+            $user = $userMapping[$userId];
 
             $newTransaction = new Transaction();
             $newTransaction->setUser($user);
@@ -112,24 +111,18 @@ class ImportCommand extends Command
         /**
          * @var User $user
          */
-        foreach($userIdMapping as $user) {
+        foreach($userMapping as $user) {
 
-            $amount = $entityManager->createQueryBuilder()
-                ->select('SUM(t.amount)')
+            $result = $entityManager->createQueryBuilder()
+                ->select('SUM(t.amount) as amount, MAX(t.created) as latestTransaction')
                 ->from(Transaction::class, 't')
                 ->where('t.user = :user')
                 ->setParameter('user', $user)
                 ->getQuery()
-                ->getSingleScalarResult();
+                ->getSingleResult();
 
-            $latestTransaction = $entityManager->createQueryBuilder()
-                ->select('MAX(t.created)')
-                ->from(Transaction::class, 't')
-                ->where('t.user = :user')
-                ->setParameter('user', $user)
-                ->getQuery()
-                ->getSingleScalarResult();
-
+            $amount = $result['amount'];
+            $latestTransaction = $result['latestTransaction'];
             if ($amount) {
                 $user->setBalance($amount);
 
@@ -144,7 +137,6 @@ class ImportCommand extends Command
         }
 
         $output->writeln('Import done!');
-
         $entityManager->flush();
     }
 }
