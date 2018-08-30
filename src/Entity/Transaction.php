@@ -31,20 +31,21 @@ class Transaction implements \JsonSerializable {
     private $article = null;
 
     /**
+     * @ORM\OneToOne(targetEntity="App\Entity\Transaction")
+     * @var Transaction
+     */
+    private $recipientTransaction;
+
+    /**
+     * @ORM\OneToOne(targetEntity="App\Entity\Transaction")
+     * @var Transaction
+     */
+    private $senderTransaction;
+
+    /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $comment = null;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\User")
-     */
-    private $recipient = null;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\User")
-     */
-    private $sender = null;
-
 
     /**
      * @ORM\Column(type="integer")
@@ -53,6 +54,7 @@ class Transaction implements \JsonSerializable {
 
     /**
      * @ORM\Column(type="datetime")
+     * @var \DateTime
      */
     private $created;
 
@@ -80,26 +82,22 @@ class Transaction implements \JsonSerializable {
         return $this;
     }
 
-    public function getRecipient(): ?User
-    {
-        return $this->recipient;
+    public function getRecipientTransaction(): ?self {
+        return $this->recipientTransaction;
     }
 
-    public function setRecipient(?User $recipient): self
-    {
-        $this->recipient = $recipient;
+    public function setRecipientTransaction(?self $recipientTransaction): self {
+        $this->recipientTransaction = $recipientTransaction;
 
         return $this;
     }
 
-    public function getSender(): ?User
-    {
-        return $this->sender;
+    public function getSenderTransaction(): ?self {
+        return $this->senderTransaction;
     }
 
-    public function setSender(?User $sender): self
-    {
-        $this->sender = $sender;
+    public function setSenderTransaction(?self $senderTransaction): self {
+        $this->senderTransaction = $senderTransaction;
 
         return $this;
     }
@@ -145,15 +143,17 @@ class Transaction implements \JsonSerializable {
     }
 
     public function jsonSerialize(): array {
+
         return [
             'id' => $this->id,
             'user' => $this->user,
             'article' => $this->article,
-            'sender' => $this->sender,
-            'recipient' => $this->recipient,
+            'sender' => $this->senderTransaction ? $this->senderTransaction->getUser() : null,
+            'recipient' => $this->recipientTransaction ? $this->recipientTransaction->getUser() : null,
             'comment' => $this->comment,
             'amount' => $this->amount,
-            'created' => $this->getCreated()->format('Y-m-d H:i:s')
+            'isDeleteable' => true,
+            'created' => $this->created->format('Y-m-d H:i:s')
         ];
     }
 }
