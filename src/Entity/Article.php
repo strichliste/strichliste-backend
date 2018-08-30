@@ -127,6 +127,14 @@ class Article implements \JsonSerializable {
         return $this;
     }
 
+    public function incrementUsageCount() {
+        $this->usageCount++;
+    }
+
+    public function decrementUsageCount() {
+        $this->usageCount--;
+    }
+
     /**
      * @ORM\PrePersist()
      * @param LifecycleEventArgs $event
