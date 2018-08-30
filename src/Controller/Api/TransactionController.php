@@ -69,7 +69,7 @@ class TransactionController extends AbstractController {
             }
 
             $amount = $article->getAmount() * -1;
-            $article->setUsageCount($article->getUsageCount() + 1);
+            $article->incrementUsageCount();
         }
 
         $this->checkTransactionBoundaries($amount);
@@ -93,8 +93,8 @@ class TransactionController extends AbstractController {
             $recipientTransaction->setComment($comment);
             $recipientTransaction->setUser($recipientUser);
 
-            $recipientTransaction->setSender($user);
-            $transaction->setRecipient($recipientUser);
+            $recipientTransaction->setSenderTransaction($transaction);
+            $transaction->setRecipientTransaction($recipientTransaction);
 
             $recipientBalance = $recipientUser->getBalance() + ($amount * -1);
             $this->checkAccountBalance($recipientUser, $recipientBalance);
@@ -123,8 +123,6 @@ class TransactionController extends AbstractController {
                 $entityManager->persist($recipientTransaction);
             }
         });
-
-        $entityManager->flush();
 
         return $this->json([
             'transaction' => $transaction,
@@ -158,16 +156,42 @@ class TransactionController extends AbstractController {
      * @throws UserNotFoundException
      * @throws TransactionNotFoundException
      */
-    public function getTransaction($userId, $transactionId, EntityManagerInterface $entityManager) {
-        $user = $entityManager->getRepository(User::class)->find($userId);
-        if (!$user) {
-            throw new UserNotFoundException($userId);
-        }
+    public function getUserTransaction($userId, $transactionId, EntityManagerInterface $entityManager) {
+        $transaction = $this->getTransaction($userId, $transactionId, $entityManager);
 
-        $transaction = $entityManager->getRepository(Transaction::class)->findByUserAndId($user, $transactionId);
-        if (!$transaction) {
-            throw new TransactionNotFoundException($user, $transactionId);
-        }
+        return $this->json([
+            'transaction' => $transaction,
+        ]);
+    }
+
+    /**
+     * @Route("/user/{userId}/transaction/{transactionId}", methods="DELETE")
+     * @throws UserNotFoundException
+     * @throws TransactionNotFoundException
+     */
+    public function deleteTransaction($userId, $transactionId, EntityManagerInterface $entityManager) {
+        $transaction = $this->getTransaction($userId, $transactionId, $entityManager);
+
+        $entityManager->transactional(function() use ($entityManager, $transaction) {
+
+            $article = $transaction->getArticle();
+            if ($article) {
+                $article->decrementUsageCount();
+                $entityManager->persist($article);
+            }
+
+            $recipientTransaction = $transaction->getRecipientTransaction();
+            if ($recipientTransaction) {
+                $this->revertTransaction($recipientTransaction, $entityManager);
+            }
+
+            $senderTransaction = $transaction->getSenderTransaction();
+            if ($senderTransaction) {
+                $this->revertTransaction($senderTransaction, $entityManager);
+            }
+
+            $this->revertTransaction($transaction, $entityManager);
+        });
 
         return $this->json([
             'transaction' => $transaction,
@@ -210,5 +234,39 @@ class TransactionController extends AbstractController {
         } else if ($amount < $lower){
             throw new AccountBalanceBoundaryException($user, $amount, $lower);
         }
+    }
+
+    /**
+     * @param int $userId
+     * @param int $transactionId
+     * @param EntityManagerInterface $entityManager
+     * @return Transaction
+     * @throws TransactionNotFoundException
+     * @throws UserNotFoundException
+     */
+    private function getTransaction(int $userId, int $transactionId, EntityManagerInterface $entityManager): Transaction {
+        $user = $entityManager->getRepository(User::class)->find($userId);
+        if (!$user) {
+            throw new UserNotFoundException($userId);
+        }
+
+        $transaction = $entityManager->getRepository(Transaction::class)->findByUserAndId($user, $transactionId);
+        if (!$transaction) {
+            throw new TransactionNotFoundException($user, $transactionId);
+        }
+
+        return $transaction;
+    }
+
+    /**
+     * @param Transaction $transaction
+     * @param EntityManagerInterface $entityManager
+     */
+    private function revertTransaction(Transaction $transaction, EntityManagerInterface $entityManager) {
+        $recipientUser = $transaction->getUser();
+        $recipientUser->setBalance($recipientUser->getBalance() + ($transaction->getAmount() * -1));
+
+        $entityManager->persist($recipientUser);
+        $entityManager->remove($transaction);
     }
 }
