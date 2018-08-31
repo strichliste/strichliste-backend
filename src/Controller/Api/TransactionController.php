@@ -52,76 +52,61 @@ class TransactionController extends AbstractController {
             throw new UserNotFoundException($userId);
         }
 
-        $article = null;
-        $recipientUser = null;
-        $recipientTransaction = null;
-
-        $amount = (int) $request->request->get('amount', 0);
-        $comment = $request->request->get('comment');
-        $articleId = $request->request->get('articleId');
-
-        if ($articleId) {
-            $article = $entityManager->getRepository(Article::class)->findOneBy(
-                ['id' => $articleId, 'active' => true]);
-
-            if (!$article) {
-                throw new ArticleNotFoundException($articleId);
-            }
-
-            $amount = $article->getAmount() * -1;
-            $article->incrementUsageCount();
-        }
-
-        $this->checkTransactionBoundaries($amount);
-
         $transaction = new Transaction();
         $transaction->setUser($user);
-        $transaction->setAmount($amount);
-        $transaction->setArticle($article);
-        $transaction->setComment($comment);
 
-        $recipientId = $request->request->get('recipientId');
-        if ($recipientId) {
-            $recipientUser = $entityManager->getRepository(User::class)->find($recipientId);
-            if (!$recipientUser) {
-                throw new UserNotFoundException($recipientId);
-            }
+        $entityManager->transactional(function() use ($transaction, $user, $request, $entityManager) {
+            $amount = (int) $request->request->get('amount', 0);
 
-            $recipientTransaction = new Transaction();
-            $recipientTransaction->setAmount($amount * -1);
-            $recipientTransaction->setArticle($article);
-            $recipientTransaction->setComment($comment);
-            $recipientTransaction->setUser($recipientUser);
+            $comment = $request->request->get('comment');
+            $transaction->setComment($comment);
 
-            $recipientTransaction->setSenderTransaction($transaction);
-            $transaction->setRecipientTransaction($recipientTransaction);
+            $article = null;
+            $articleId = $request->request->get('articleId');
+            if ($articleId) {
+                $article = $entityManager->getRepository(Article::class)->findOneActive($articleId);
+                if (!$article) {
+                    throw new ArticleNotFoundException($articleId);
+                }
 
-            $recipientBalance = $recipientUser->getBalance() + ($amount * -1);
-            $this->checkAccountBalance($recipientUser, $recipientBalance);
+                $amount = $article->getAmount() * -1;
+                $transaction->setArticle($article);
 
-            $recipientUser->setBalance($recipientBalance);
-        }
-
-        $newBalance = $user->getBalance() + $amount;
-        $this->checkAccountBalance($user, $newBalance);
-
-        $user->setBalance($newBalance);
-
-        $entityManager->transactional(function () use ($entityManager, $user, $transaction, $article, $recipientUser, $recipientTransaction) {
-            $entityManager->persist($user);
-            $entityManager->persist($transaction);
-
-            if ($article) {
+                $article->incrementUsageCount();
                 $entityManager->persist($article);
             }
 
-            if ($recipientUser) {
+            $recipientId = $request->request->get('recipientId');
+            if ($recipientId) {
+                $recipientUser = $entityManager->getRepository(User::class)->find($recipientId);
+                if (!$recipientUser) {
+                    throw new UserNotFoundException($recipientId);
+                }
+
+                $recipientTransaction = new Transaction();
+                $recipientTransaction->setAmount($amount * -1);
+                $recipientTransaction->setArticle($article);
+                $recipientTransaction->setComment($comment);
+                $recipientTransaction->setUser($recipientUser);
+
+                $recipientTransaction->setSenderTransaction($transaction);
+                $transaction->setRecipientTransaction($recipientTransaction);
+
+                $recipientUser->addBalance($amount * -1);
+                $this->checkAccountBalanceBoundary($recipientUser);
+
+                $entityManager->persist($recipientTransaction);
                 $entityManager->persist($recipientUser);
             }
 
-            if ($recipientTransaction) {
-                $entityManager->persist($recipientTransaction);
-            }
+            $transaction->setAmount($amount);
+            $this->checkTransactionBoundary($amount);
+
+            $user->addBalance($amount);
+            $this->checkAccountBalanceBoundary($user);
+
+            $entityManager->persist($transaction);
+            $entityManager->persist($user);
         });
 
         return $this->json([
@@ -203,7 +188,7 @@ class TransactionController extends AbstractController {
      * @throws TransactionBoundaryException
      * @throws TransactionInvalidException
      */
-    private function checkTransactionBoundaries($amount) {
+    private function checkTransactionBoundary($amount) {
         $settings = $this->getParameter('strichliste');
 
         $upper = $settings['payment']['boundary']['upper'];
@@ -220,19 +205,19 @@ class TransactionController extends AbstractController {
 
     /**
      * @param User $user
-     * @param int $amount
      * @throws AccountBalanceBoundaryException
      */
-    private function checkAccountBalance(User $user, $amount) {
+    private function checkAccountBalanceBoundary(User $user) {
         $settings = $this->getParameter('strichliste');
 
+        $balance = $user->getBalance();
         $upper = $settings['account']['boundary']['upper'];
         $lower = $settings['account']['boundary']['lower'];
 
-        if ($amount > $upper) {
-            throw new AccountBalanceBoundaryException($user, $amount, $upper);
-        } else if ($amount < $lower){
-            throw new AccountBalanceBoundaryException($user, $amount, $lower);
+        if ($balance > $upper) {
+            throw new AccountBalanceBoundaryException($user, $balance, $upper);
+        } else if ($balance < $lower){
+            throw new AccountBalanceBoundaryException($user, $balance, $lower);
         }
     }
 

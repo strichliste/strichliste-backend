@@ -18,6 +18,10 @@ class ArticleRepository extends ServiceEntityRepository {
         parent::__construct($registry, Article::class);
     }
 
+    public function findOneActive($id) {
+        return $this->findOneBy(['active' => true, 'id' => $id]);
+    }
+
     public function findAllActive($limit = null, $offset = null) {
         return $this->findBy(['active' => true], ['name' => 'ASC'], $limit, $offset);
     }
