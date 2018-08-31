@@ -26,18 +26,18 @@ class Transaction implements \JsonSerializable {
     private $user;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Article")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Article", nullable=true)
      */
     private $article = null;
 
     /**
-     * @ORM\OneToOne(targetEntity="App\Entity\Transaction")
+     * @ORM\OneToOne(targetEntity="App\Entity\Transaction", nullable=true, cascade={"persist", "remove"})
      * @var Transaction
      */
     private $recipientTransaction;
 
     /**
-     * @ORM\OneToOne(targetEntity="App\Entity\Transaction")
+     * @ORM\OneToOne(targetEntity="App\Entity\Transaction", nullable=true, cascade={"persist", "remove"})
      * @var Transaction
      */
     private $senderTransaction;
