@@ -36,14 +36,14 @@ class Transaction implements \JsonSerializable {
      * @ORM\JoinColumn(nullable=true)
      * @var Transaction
      */
-    private $recipientTransaction;
+    private $recipientTransaction = null;
 
     /**
      * @ORM\OneToOne(targetEntity="App\Entity\Transaction", cascade={"persist", "remove"})
      * @ORM\JoinColumn(nullable=true)
      * @var Transaction
      */
-    private $senderTransaction;
+    private $senderTransaction = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
@@ -56,10 +56,16 @@ class Transaction implements \JsonSerializable {
     private $amount;
 
     /**
+     * @ORM\Column(type="boolean")
+     */
+    private $deleted = false;
+
+    /**
      * @ORM\Column(type="datetime")
      * @var \DateTime
      */
     private $created;
+
 
     public function getId(): ?int {
         return $this->id;
@@ -125,6 +131,16 @@ class Transaction implements \JsonSerializable {
         return $this;
     }
 
+    public function isDeleted(): ?bool {
+        return $this->deleted;
+    }
+
+    public function setDeleted(bool $deleted): self {
+        $this->deleted = $deleted;
+
+        return $this;
+    }
+
     public function getCreated(): ?\DateTimeInterface {
         return $this->created;
     }
@@ -155,6 +171,7 @@ class Transaction implements \JsonSerializable {
             'recipient' => $this->recipientTransaction ? $this->recipientTransaction->getUser() : null,
             'comment' => $this->comment,
             'amount' => $this->amount,
+            'deleted' => $this->deleted,
             'isDeleteable' => true,
             'created' => $this->created->format('Y-m-d H:i:s')
         ];

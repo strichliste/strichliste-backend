@@ -182,15 +182,15 @@ class TransactionController extends AbstractController {
 
             $recipientTransaction = $transaction->getRecipientTransaction();
             if ($recipientTransaction) {
-                $this->revertTransaction($recipientTransaction, $entityManager);
+                $this->undoTransaction($recipientTransaction, $entityManager);
             }
 
             $senderTransaction = $transaction->getSenderTransaction();
             if ($senderTransaction) {
-                $this->revertTransaction($senderTransaction, $entityManager);
+                $this->undoTransaction($senderTransaction, $entityManager);
             }
 
-            $this->revertTransaction($transaction, $entityManager);
+            $this->undoTransaction($transaction, $entityManager);
         });
 
         return $this->json([
@@ -262,11 +262,11 @@ class TransactionController extends AbstractController {
      * @param Transaction $transaction
      * @param EntityManagerInterface $entityManager
      */
-    private function revertTransaction(Transaction $transaction, EntityManagerInterface $entityManager) {
+    private function undoTransaction(Transaction $transaction, EntityManagerInterface $entityManager) {
         $recipientUser = $transaction->getUser();
         $recipientUser->setBalance($recipientUser->getBalance() + ($transaction->getAmount() * -1));
 
-        $entityManager->persist($recipientUser);
-        $entityManager->remove($transaction);
+        $transaction->setDeleted(true);
+        $entityManager->persist($transaction);
     }
 }
