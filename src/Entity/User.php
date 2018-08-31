@@ -94,6 +94,12 @@ class User implements \JsonSerializable {
         return $this;
     }
 
+    public function addBalance($amount): self {
+        $this->balance += $amount;
+
+        return $this;
+    }
+
     public function getActive(): ?bool {
         return $this->active;
     }
