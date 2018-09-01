@@ -202,14 +202,10 @@ class TransactionController extends AbstractController {
 
         if ($amount > $upper) {
             throw new TransactionBoundaryException($amount, $upper);
-        } else {
-            if ($amount < $lower) {
-                throw new TransactionBoundaryException($amount, $lower);
-            } else {
-                if ($amount === 0) {
-                    throw new TransactionInvalidException();
-                }
-            }
+        } elseif ($amount < $lower) {
+            throw new TransactionBoundaryException($amount, $lower);
+        } elseif ($amount === 0) {
+            throw new TransactionInvalidException();
         }
     }
 
@@ -226,10 +222,8 @@ class TransactionController extends AbstractController {
 
         if ($balance > $upper) {
             throw new AccountBalanceBoundaryException($user, $balance, $upper);
-        } else {
-            if ($balance < $lower) {
-                throw new AccountBalanceBoundaryException($user, $balance, $lower);
-            }
+        } elseif ($balance < $lower) {
+            throw new AccountBalanceBoundaryException($user, $balance, $lower);
         }
     }
 
