@@ -43,6 +43,7 @@ class TransactionController extends AbstractController {
      * @throws UserNotFoundException
      * @throws TransactionBoundaryException
      * @throws ArticleNotFoundException
+     * @throws ArticleInactiveException
      * @throws AccountBalanceBoundaryException
      * @throws TransactionInvalidException
      */
@@ -65,9 +66,13 @@ class TransactionController extends AbstractController {
             $article = null;
             $articleId = $request->request->get('articleId');
             if ($articleId) {
-                $article = $entityManager->getRepository(Article::class)->findOneActive($articleId);
+                $article = $entityManager->getRepository(Article::class)->find($articleId);
                 if (!$article) {
                     throw new ArticleNotFoundException($articleId);
+                }
+
+                if (!$article->isActive()) {
+                    throw new ArticleInactiveException($article);
                 }
 
                 $amount = $article->getAmount() * -1;
