@@ -3,11 +3,9 @@
 namespace App\Command;
 
 use App\Command\Helper\DateIntervalHelper;
-use App\Entity\Transaction;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -93,7 +91,6 @@ class UserCleanupCommand extends Command {
             $questions[] = 'with a balance of 0';
             $queryBuilder->andWhere('u.balance = 0');
         }
-
 
         $question = 'Do you want to ' . join(', ', array_slice($questions, 0, count($questions) - 1));
         $question .= ' and ' . $questions[count($questions) - 1] . ' [y/N]?';

@@ -28,11 +28,13 @@ class ArticleRepository extends ServiceEntityRepository {
 
     public function findActiveBy(array $criteria, $limit = null, $offset = null) {
         $criteria = array_merge(['active' => true], $criteria);
+
         return $this->findBy($criteria, ['name' => 'ASC'], $limit, $offset);
     }
 
-    public function findOneActiveBy(array $criteria) : ?Article {
+    public function findOneActiveBy(array $criteria): ?Article {
         $criteria = array_merge(['active' => true], $criteria);
+
         return $this->findOneBy($criteria);
     }
 

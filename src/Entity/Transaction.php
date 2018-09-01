@@ -66,7 +66,6 @@ class Transaction implements \JsonSerializable {
      */
     private $created;
 
-
     public function getId(): ?int {
         return $this->id;
     }

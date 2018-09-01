@@ -6,6 +6,7 @@ use App\Entity\Article;
 use App\Entity\Transaction;
 use App\Entity\User;
 use App\Exception\AccountBalanceBoundaryException;
+use App\Exception\ArticleInactiveException;
 use App\Exception\ArticleNotFoundException;
 use App\Exception\TransactionBoundaryException;
 use App\Exception\TransactionInvalidException;
@@ -55,8 +56,8 @@ class TransactionController extends AbstractController {
         $transaction = new Transaction();
         $transaction->setUser($user);
 
-        $entityManager->transactional(function() use ($transaction, $user, $request, $entityManager) {
-            $amount = (int) $request->request->get('amount', 0);
+        $entityManager->transactional(function () use ($transaction, $user, $request, $entityManager) {
+            $amount = (int)$request->request->get('amount', 0);
 
             $comment = $request->request->get('comment');
             $transaction->setComment($comment);
@@ -157,7 +158,7 @@ class TransactionController extends AbstractController {
     public function deleteTransaction($userId, $transactionId, EntityManagerInterface $entityManager) {
         $transaction = $this->getTransaction($userId, $transactionId, $entityManager);
 
-        $entityManager->transactional(function() use ($entityManager, $transaction) {
+        $entityManager->transactional(function () use ($entityManager, $transaction) {
 
             $article = $transaction->getArticle();
             if ($article) {
@@ -196,10 +197,14 @@ class TransactionController extends AbstractController {
 
         if ($amount > $upper) {
             throw new TransactionBoundaryException($amount, $upper);
-        } else if ($amount < $lower){
-            throw new TransactionBoundaryException($amount, $lower);
-        } else if ($amount === 0) {
-            throw new TransactionInvalidException();
+        } else {
+            if ($amount < $lower) {
+                throw new TransactionBoundaryException($amount, $lower);
+            } else {
+                if ($amount === 0) {
+                    throw new TransactionInvalidException();
+                }
+            }
         }
     }
 
@@ -216,8 +221,10 @@ class TransactionController extends AbstractController {
 
         if ($balance > $upper) {
             throw new AccountBalanceBoundaryException($user, $balance, $upper);
-        } else if ($balance < $lower){
-            throw new AccountBalanceBoundaryException($user, $balance, $lower);
+        } else {
+            if ($balance < $lower) {
+                throw new AccountBalanceBoundaryException($user, $balance, $lower);
+            }
         }
     }
 
