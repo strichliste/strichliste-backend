@@ -4,6 +4,7 @@ namespace App\Controller\Api;
 
 use App\Entity\Article;
 use App\Exception\ArticleBarcodeAlreadyExistsException;
+use App\Exception\ArticleInactiveException;
 use App\Exception\ArticleNotFoundException;
 use App\Exception\ParameterMissingException;
 use Doctrine\ORM\EntityManagerInterface;
@@ -88,11 +89,16 @@ class ArticleController extends AbstractController {
      * @throws ArticleNotFoundException
      * @throws ParameterMissingException
      * @throws ArticleBarcodeAlreadyExistsException
+     * @throws ArticleInactiveException
      */
     public function updateArticle($articleId, Request $request, EntityManagerInterface $entityManager) {
         $oldArticle = $entityManager->getRepository(Article::class)->find($articleId);
         if (!$oldArticle) {
             throw new ArticleNotFoundException($articleId);
+        }
+
+        if (!$oldArticle->isActive()) {
+            throw new ArticleInactiveException($oldArticle);
         }
 
         $newArticle = $this->createArticleByRequest($request);

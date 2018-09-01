@@ -97,7 +97,7 @@ class Article implements \JsonSerializable {
         return $this;
     }
 
-    public function getActive(): ?bool {
+    public function isActive(): ?bool {
         return $this->active;
     }
 
