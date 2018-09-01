@@ -6,6 +6,7 @@ use App\Entity\Article;
 use App\Entity\Transaction;
 use App\Entity\User;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\FetchMode;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -21,6 +22,8 @@ class ImportCommand extends Command {
 
     public function __construct(string $name = null, EntityManagerInterface $entityManager) {
         parent::__construct($name);
+        ini_set('memory_limit', '1024M');
+
         $this->entityManager = $entityManager;
     }
 
@@ -55,8 +58,9 @@ class ImportCommand extends Command {
 
         $stmt->execute();
 
+
         $userMapping = [];
-        foreach ($stmt->fetchAll() as $user) {
+        foreach ($stmt as $user) {
             $id = (int)$user['id'];
             $name = $user['name'];
 
@@ -89,9 +93,9 @@ class ImportCommand extends Command {
         }
 
         $stmt->execute();
-        $transactions = $stmt->fetchAll();
 
-        foreach ($transactions as $transaction) {
+        $count = 0;
+        foreach ($stmt as $transaction) {
             $userId = (int)$transaction['userId'];
             $user = $userMapping[$userId];
 
@@ -108,8 +112,7 @@ class ImportCommand extends Command {
         }
 
         $entityManager->flush();
-
-        $output->writeln(sprintf("Imported %d transactions", count($transactions)));
+        $output->writeln(sprintf("Imported %d transactions", $count));
 
         /**
          * @var User $user
