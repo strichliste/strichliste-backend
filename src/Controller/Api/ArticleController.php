@@ -3,6 +3,7 @@
 namespace App\Controller\Api;
 
 use App\Entity\Article;
+use App\Exception\ArticleBarcodeAlreadyExistsException;
 use App\Exception\ArticleNotFoundException;
 use App\Exception\ParameterMissingException;
 use Doctrine\ORM\EntityManagerInterface;
@@ -43,9 +44,20 @@ class ArticleController extends AbstractController {
     /**
      * @Route(methods="POST")
      * @throws ParameterMissingException
+     * @throws ArticleBarcodeAlreadyExistsException
      */
     public function createArticle(Request $request, EntityManagerInterface $entityManager) {
         $article = $this->createArticleByRequest($request);
+
+        if ($article->getBarcode()) {
+            $existingArticle = $entityManager->getRepository(Article::class)->findOneActiveBy([
+                'barcode' => $article->getBarcode()
+            ]);
+
+            if ($existingArticle) {
+                throw new ArticleBarcodeAlreadyExistsException($existingArticle);
+            }
+        }
 
         $entityManager->persist($article);
         $entityManager->flush();
@@ -75,6 +87,7 @@ class ArticleController extends AbstractController {
      * @Route("/{articleId}", methods="POST")
      * @throws ArticleNotFoundException
      * @throws ParameterMissingException
+     * @throws ArticleBarcodeAlreadyExistsException
      */
     public function updateArticle($articleId, Request $request, EntityManagerInterface $entityManager) {
         $oldArticle = $entityManager->getRepository(Article::class)->find($articleId);
@@ -85,6 +98,17 @@ class ArticleController extends AbstractController {
         $newArticle = $this->createArticleByRequest($request);
         $newArticle->setPrecursor($oldArticle);
         $newArticle->setUsageCount($oldArticle->getUsageCount());
+
+
+        if ($newArticle->getBarcode()) {
+            $existingArticle = $entityManager->getRepository(Article::class)->findOneActiveBy([
+                'barcode' => $newArticle->getBarcode()
+            ]);
+
+            if ($existingArticle && $existingArticle->getId() != $oldArticle->getId()) {
+                throw new ArticleBarcodeAlreadyExistsException($existingArticle);
+            }
+        }
 
         $oldArticle->setActive(false);
 
