@@ -10,7 +10,6 @@ use App\Exception\ParameterMissingException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -105,7 +104,6 @@ class ArticleController extends AbstractController {
         $newArticle->setPrecursor($oldArticle);
         $newArticle->setUsageCount($oldArticle->getUsageCount());
 
-
         if ($newArticle->getBarcode()) {
             $existingArticle = $entityManager->getRepository(Article::class)->findOneActiveBy([
                 'barcode' => $newArticle->getBarcode()
@@ -162,7 +160,7 @@ class ArticleController extends AbstractController {
             throw new ParameterMissingException('name');
         }
 
-        $amount = (int) $request->request->get('amount', 0);
+        $amount = (int)$request->request->get('amount', 0);
         if (!$amount) {
             throw new ParameterMissingException('amount');
         }

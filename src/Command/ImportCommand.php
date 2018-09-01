@@ -12,30 +12,26 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class ImportCommand extends Command
-{
+class ImportCommand extends Command {
 
     /**
      * @var EntityManagerInterface
      */
     private $entityManager;
 
-    public function __construct(string $name = null, EntityManagerInterface $entityManager)
-    {
+    public function __construct(string $name = null, EntityManagerInterface $entityManager) {
         parent::__construct($name);
         $this->entityManager = $entityManager;
     }
 
-    protected function configure()
-    {
+    protected function configure() {
         $this
             ->setName('app:import')
             ->setDescription('Import strichliste1 database')
             ->addArgument('database', InputArgument::REQUIRED, 'SQLite database file from strichliste 1');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
-    {
+    protected function execute(InputInterface $input, OutputInterface $output) {
         $databaseFile = $input->getArgument('database');
 
         $config = new \Doctrine\DBAL\Configuration();
@@ -60,8 +56,8 @@ class ImportCommand extends Command
         $stmt->execute();
 
         $userMapping = [];
-        foreach($stmt->fetchAll() as $user) {
-            $id = (int) $user['id'];
+        foreach ($stmt->fetchAll() as $user) {
+            $id = (int)$user['id'];
             $name = $user['name'];
 
             // Just in case there is a dub from strichliste1, append id
@@ -86,23 +82,22 @@ class ImportCommand extends Command
             $userMapping[$id] = $newUser;
         }
 
-
         try {
             $stmt = $connection->query('select userId, value, comment, createDate from transactions');
         } catch (\Exception $e) {
             $stmt = $connection->query("select userId, value, '' as comment, createDate from transactions");
         }
-        
+
         $stmt->execute();
         $transactions = $stmt->fetchAll();
 
-        foreach($transactions as $transaction) {
-            $userId = (int) $transaction['userId'];
+        foreach ($transactions as $transaction) {
+            $userId = (int)$transaction['userId'];
             $user = $userMapping[$userId];
 
             $newTransaction = new Transaction();
             $newTransaction->setUser($user);
-            $newTransaction->setAmount((int) ($transaction['value'] * 100));
+            $newTransaction->setAmount((int)($transaction['value'] * 100));
             $newTransaction->setCreated(new \DateTime($transaction['createDate']));
 
             if ($transaction['comment']) {
@@ -119,7 +114,7 @@ class ImportCommand extends Command
         /**
          * @var User $user
          */
-        foreach($userMapping as $user) {
+        foreach ($userMapping as $user) {
 
             $result = $entityManager->createQueryBuilder()
                 ->select('SUM(t.amount) as amount, MAX(t.created) as latestTransaction')
