@@ -31,6 +31,11 @@ class ArticleRepository extends ServiceEntityRepository {
         return $this->findBy($criteria, ['name' => 'ASC'], $limit, $offset);
     }
 
+    public function findOneActiveBy(array $criteria) : ?Article {
+        $criteria = array_merge(['active' => true], $criteria);
+        return $this->findOneBy($criteria);
+    }
+
     public function countActive(): int {
         return $this->count([
             'active' => true
