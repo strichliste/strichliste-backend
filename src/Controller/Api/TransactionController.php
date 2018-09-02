@@ -11,6 +11,7 @@ use App\Exception\ArticleNotFoundException;
 use App\Exception\ParameterNotFoundException;
 use App\Exception\TransactionBoundaryException;
 use App\Exception\TransactionInvalidException;
+use App\Exception\TransactionNotDeletableException;
 use App\Exception\TransactionNotFoundException;
 use App\Exception\UserNotFoundException;
 use App\Serializer\TransactionSerializer;
@@ -146,9 +147,14 @@ class TransactionController extends AbstractController {
      * @throws TransactionBoundaryException
      * @throws TransactionInvalidException
      * @throws ParameterNotFoundException
+     * @throws TransactionNotDeletableException
      */
     public function deleteTransaction($userId, $transactionId, TransactionService $transactionService, EntityManagerInterface $entityManager) {
         $transaction = $this->getTransaction($userId, $transactionId, $entityManager);
+        if (!$transactionService->isDeletable($transaction)) {
+            throw new TransactionNotDeletableException($transaction);
+        }
+
         $transactionService->revertTransaction($transaction);
 
         return $this->json([
