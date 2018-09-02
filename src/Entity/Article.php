@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\HasLifecycleCallbacks()
  * @ORM\Entity(repositoryClass="App\Repository\ArticleRepository")
  */
-class Article implements \JsonSerializable {
+class Article {
 
     /**
      * @ORM\Id()
@@ -143,18 +143,5 @@ class Article implements \JsonSerializable {
         if (!$this->getCreated()) {
             $this->setCreated(new \DateTime());
         }
-    }
-
-    public function jsonSerialize(): array {
-        return [
-            'id' => $this->id,
-            'name' => $this->name,
-            'barcode' => $this->barcode,
-            'amount' => $this->amount,
-            'active' => $this->active,
-            'usageCount' => $this->usageCount,
-            'precursor' => $this->precursor,
-            'created' => $this->getCreated()->format('Y-m-d H:i:s')
-        ];
     }
 }
