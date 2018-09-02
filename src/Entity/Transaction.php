@@ -20,26 +20,26 @@ class Transaction {
     private $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="transactions")
+     * @ORM\ManyToOne(targetEntity="App\Entity\User", fetch="EAGER", inversedBy="transactions")
      * @ORM\JoinColumn(nullable=false)
      */
     private $user;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Article")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Article", fetch="EAGER")
      * @ORM\JoinColumn(nullable=true)
      */
     private $article = null;
 
     /**
-     * @ORM\OneToOne(targetEntity="App\Entity\Transaction", cascade={"persist", "remove"})
+     * @ORM\OneToOne(targetEntity="App\Entity\Transaction", fetch="EAGER", cascade={"persist", "remove"})
      * @ORM\JoinColumn(nullable=true)
      * @var Transaction
      */
     private $recipientTransaction = null;
 
     /**
-     * @ORM\OneToOne(targetEntity="App\Entity\Transaction", cascade={"persist", "remove"})
+     * @ORM\OneToOne(targetEntity="App\Entity\Transaction", fetch="EAGER", cascade={"persist", "remove"})
      * @ORM\JoinColumn(nullable=true)
      * @var Transaction
      */
