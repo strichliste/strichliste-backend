@@ -8,6 +8,7 @@ use App\Entity\User;
 use App\Exception\AccountBalanceBoundaryException;
 use App\Exception\ArticleInactiveException;
 use App\Exception\ArticleNotFoundException;
+use App\Exception\ParameterNotFoundException;
 use App\Exception\TransactionBoundaryException;
 use App\Exception\TransactionInvalidException;
 use App\Exception\TransactionNotFoundException;
@@ -47,9 +48,10 @@ class TransactionController extends AbstractController {
      * @throws ArticleInactiveException
      * @throws AccountBalanceBoundaryException
      * @throws TransactionInvalidException
+     * @throws ParameterNotFoundException
      */
     public function createUserTransactions($userId, Request $request, TransactionService $transactionService, EntityManagerInterface $entityManager) {
-        $amount = (int)$request->request->get('amount', 0);
+        $amount = (int)$request->request->get('amount');
         $comment = $request->request->get('comment');
 
         $user = $entityManager->getRepository(User::class)->find($userId);
@@ -128,6 +130,7 @@ class TransactionController extends AbstractController {
      * @throws AccountBalanceBoundaryException
      * @throws TransactionBoundaryException
      * @throws TransactionInvalidException
+     * @throws ParameterNotFoundException
      */
     public function deleteTransaction($userId, $transactionId, TransactionService $transactionService, EntityManagerInterface $entityManager) {
         $transaction = $this->getTransaction($userId, $transactionId, $entityManager);
