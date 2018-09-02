@@ -150,14 +150,20 @@ class TransactionService {
      * @throws ParameterNotFoundException
      */
     private function undoTransaction(Transaction $transaction) {
-        $recipientUser = $transaction->getUser();
+        $user = $transaction->getUser();
         $this->checkTransactionBoundary($transaction->getAmount());
 
-        $recipientUser->addBalance($transaction->getAmount() * -1);
-        $this->checkAccountBalanceBoundary($recipientUser);
+        $user->addBalance($transaction->getAmount() * -1);
+        $this->checkAccountBalanceBoundary($user);
 
-        $transaction->setDeleted(true);
-        $this->entityManager->persist($transaction);
+        if ($this->settingsService->getOrDefault('payment.undo.delete', false)) {
+            $transaction->setDeleted(true);
+            $this->entityManager->persist($transaction);
+        } else {
+            $this->entityManager->remove($transaction);
+        }
+
+        $this->entityManager->persist($user);
     }
 
     /**

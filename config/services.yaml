@@ -29,6 +29,7 @@ parameters:
         payment:
             undo:
                 enabled: true
+                delete: false
                 timeout: '5 minute' # See http://de.php.net/manual/en/datetime.formats.relative.php
 
             boundary:
