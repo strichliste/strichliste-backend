@@ -6,11 +6,10 @@ use App\Entity\Article;
 use App\Entity\Transaction;
 use App\Entity\User;
 use App\Exception\AccountBalanceBoundaryException;
+use App\Exception\ParameterNotFoundException;
 use App\Exception\TransactionBoundaryException;
 use App\Exception\TransactionInvalidException;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-
 
 class TransactionService {
 
@@ -19,9 +18,14 @@ class TransactionService {
      */
     private $entityManager;
 
-    function __construct(ContainerInterface $container, EntityManagerInterface $entityManager) {
+    /**
+     * @var SettingsService
+     */
+    private $settings;
+
+    function __construct(SettingsService $settings, EntityManagerInterface $entityManager) {
         $this->entityManager = $entityManager;
-        $this->settings = $container->getParameter('strichliste');
+        $this->settings = $settings;
     }
 
     /**
@@ -33,6 +37,7 @@ class TransactionService {
      * @throws AccountBalanceBoundaryException
      * @throws TransactionBoundaryException
      * @throws TransactionInvalidException
+     * @throws ParameterNotFoundException
      * @return Transaction
      */
     function doTransaction(User $user, int $amount, string $comment = null, Article $article = null, User $recipient = null): Transaction {
@@ -85,6 +90,7 @@ class TransactionService {
      * @throws AccountBalanceBoundaryException
      * @throws TransactionBoundaryException
      * @throws TransactionInvalidException
+     * @throws ParameterNotFoundException
      * @return Transaction
      */
     function revertTransaction(Transaction $transaction): Transaction {
@@ -118,6 +124,7 @@ class TransactionService {
      * @throws AccountBalanceBoundaryException
      * @throws TransactionBoundaryException
      * @throws TransactionInvalidException
+     * @throws ParameterNotFoundException
      */
     private function undoTransaction(Transaction $transaction) {
         $recipientUser = $transaction->getUser();
@@ -134,10 +141,11 @@ class TransactionService {
      * @param int $amount
      * @throws TransactionBoundaryException
      * @throws TransactionInvalidException
+     * @throws ParameterNotFoundException
      */
     private function checkTransactionBoundary($amount) {
-        $upper = $this->settings['payment']['boundary']['upper'];
-        $lower = $this->settings['payment']['boundary']['lower'];
+        $upper = $this->settings->get('payment.boundary.upper');
+        $lower = $this->settings->get('payment.boundary.lower');
 
         if ($amount > $upper) {
             throw new TransactionBoundaryException($amount, $upper);
@@ -151,11 +159,12 @@ class TransactionService {
     /**
      * @param User $user
      * @throws AccountBalanceBoundaryException
+     * @throws ParameterNotFoundException
      */
     private function checkAccountBalanceBoundary(User $user) {
         $balance = $user->getBalance();
-        $upper = $this->settings['account']['boundary']['upper'];
-        $lower = $this->settings['account']['boundary']['lower'];
+        $upper = $this->settings->get('account.boundary.upper');
+        $lower = $this->settings->get('account.boundary.lower');
 
         if ($balance > $upper) {
             throw new AccountBalanceBoundaryException($user, $balance, $upper);
