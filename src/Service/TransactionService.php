@@ -157,10 +157,10 @@ class TransactionService {
         $this->checkAccountBalanceBoundary($user);
 
         if ($this->settingsService->getOrDefault('payment.undo.delete', false)) {
+            $this->entityManager->remove($transaction);
+        } else {
             $transaction->setDeleted(true);
             $this->entityManager->persist($transaction);
-        } else {
-            $this->entityManager->remove($transaction);
         }
 
         $this->entityManager->persist($user);
