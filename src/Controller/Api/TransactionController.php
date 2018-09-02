@@ -252,10 +252,16 @@ class TransactionController extends AbstractController {
     /**
      * @param Transaction $transaction
      * @param EntityManagerInterface $entityManager
+     * @throws AccountBalanceBoundaryException
+     * @throws TransactionBoundaryException
+     * @throws TransactionInvalidException
      */
     private function undoTransaction(Transaction $transaction, EntityManagerInterface $entityManager) {
         $recipientUser = $transaction->getUser();
-        $recipientUser->setBalance($recipientUser->getBalance() + ($transaction->getAmount() * -1));
+        $this->checkTransactionBoundary($transaction->getAmount());
+
+        $recipientUser->addBalance($transaction->getAmount() * -1);
+        $this->checkAccountBalanceBoundary($recipientUser);
 
         $transaction->setDeleted(true);
         $entityManager->persist($transaction);
