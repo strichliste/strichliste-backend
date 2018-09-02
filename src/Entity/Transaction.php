@@ -10,7 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @Orm\Table(name="transactions")
  * @ORM\Entity(repositoryClass="App\Repository\TransactionRepository")
  */
-class Transaction implements \JsonSerializable {
+class Transaction {
 
     /**
      * @ORM\Id()
@@ -158,21 +158,5 @@ class Transaction implements \JsonSerializable {
         if (!$this->getCreated()) {
             $this->setCreated(new \DateTime());
         }
-    }
-
-    public function jsonSerialize(): array {
-
-        return [
-            'id' => $this->id,
-            'user' => $this->user,
-            'article' => $this->article,
-            'sender' => $this->senderTransaction ? $this->senderTransaction->getUser() : null,
-            'recipient' => $this->recipientTransaction ? $this->recipientTransaction->getUser() : null,
-            'comment' => $this->comment,
-            'amount' => $this->amount,
-            'deleted' => $this->deleted,
-            'isDeleteable' => true,
-            'created' => $this->created->format('Y-m-d H:i:s')
-        ];
     }
 }

@@ -7,6 +7,7 @@ use App\Exception\ArticleBarcodeAlreadyExistsException;
 use App\Exception\ArticleInactiveException;
 use App\Exception\ArticleNotFoundException;
 use App\Exception\ParameterMissingException;
+use App\Serializer\ArticleSerializer;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,6 +17,15 @@ use Symfony\Component\Routing\Annotation\Route;
  * @Route("/api/article")
  */
 class ArticleController extends AbstractController {
+
+    /**
+     * @var ArticleSerializer
+     */
+    private $articleSerializer;
+
+    function __construct(ArticleSerializer $articleSerializer) {
+        $this->articleSerializer = $articleSerializer;
+    }
 
     /**
      * @Route(methods="GET")
@@ -37,7 +47,9 @@ class ArticleController extends AbstractController {
 
         return $this->json([
             'count' => $count,
-            'articles' => $articles,
+            'articles' => array_map(function(Article $article) {
+                return $this->articleSerializer->serialize($article);
+            }, $articles),
         ]);
     }
 
@@ -63,7 +75,7 @@ class ArticleController extends AbstractController {
         $entityManager->flush();
 
         return $this->json([
-            'article' => $article
+            'article' => $this->articleSerializer->serialize($article),
         ]);
     }
 
@@ -79,7 +91,7 @@ class ArticleController extends AbstractController {
         }
 
         return $this->json([
-            'article' => $article
+            'article' => $this->articleSerializer->serialize($article),
         ]);
     }
 
@@ -124,7 +136,7 @@ class ArticleController extends AbstractController {
         $entityManager->flush();
 
         return $this->json([
-            'article' => $newArticle
+            'article' => $this->articleSerializer->serialize($newArticle),
         ]);
     }
 
@@ -144,7 +156,7 @@ class ArticleController extends AbstractController {
         $entityManager->flush();
 
         return $this->json([
-            'article' => $article
+            'article' => $this->articleSerializer->serialize($article),
         ]);
     }
 

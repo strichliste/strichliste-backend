@@ -13,6 +13,7 @@ use App\Exception\TransactionBoundaryException;
 use App\Exception\TransactionInvalidException;
 use App\Exception\TransactionNotFoundException;
 use App\Exception\UserNotFoundException;
+use App\Serializer\TransactionSerializer;
 use App\Service\TransactionService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -23,6 +24,15 @@ use Symfony\Component\Routing\Annotation\Route;
  * @Route("/api")
  */
 class TransactionController extends AbstractController {
+
+    /**
+     * @var TransactionSerializer
+     */
+    private $transactionSerializer;
+
+    function __construct(TransactionSerializer $transactionSerializer) {
+        $this->transactionSerializer = $transactionSerializer;
+    }
 
     /**
      * @Route("/transaction", methods="GET")
@@ -36,7 +46,9 @@ class TransactionController extends AbstractController {
 
         return $this->json([
             'count' => $count,
-            'transactions' => $transactions
+            'transactions' => array_map(function(Transaction $transaction) {
+                return $this->transactionSerializer->serialize($transaction);
+            }, $transactions)
         ]);
     }
 
@@ -51,6 +63,7 @@ class TransactionController extends AbstractController {
      * @throws ParameterNotFoundException
      */
     public function createUserTransactions($userId, Request $request, TransactionService $transactionService, EntityManagerInterface $entityManager) {
+
         $amount = (int)$request->request->get('amount');
         $comment = $request->request->get('comment');
 
@@ -84,7 +97,7 @@ class TransactionController extends AbstractController {
         $transaction = $transactionService->doTransaction($user, $amount, $comment, $article, $recipient);
 
         return $this->json([
-            'transaction' => $transaction,
+            'transaction' => $this->transactionSerializer->serialize($transaction),
         ]);
     }
 
@@ -92,7 +105,7 @@ class TransactionController extends AbstractController {
      * @Route("/user/{userId}/transaction", methods="GET")
      * @throws UserNotFoundException
      */
-    public function getUserTransactions($userId, Request $request, EntityManagerInterface $entityManager) {
+    public function getUserTransactions($userId, Request $request, TransactionSerializer $transactionSerializer, EntityManagerInterface $entityManager) {
         $limit = $request->query->get('limit', 25);
         $offset = $request->query->get('offset');
 
@@ -106,7 +119,9 @@ class TransactionController extends AbstractController {
 
         return $this->json([
             'count' => $count,
-            'transactions' => $transactions,
+            'transactions' => array_map(function(Transaction $transaction) {
+                return $this->transactionSerializer->serialize($transaction);
+            }, $transactions),
         ]);
     }
 
@@ -119,7 +134,7 @@ class TransactionController extends AbstractController {
         $transaction = $this->getTransaction($userId, $transactionId, $entityManager);
 
         return $this->json([
-            'transaction' => $transaction,
+            'transaction' => $this->transactionSerializer->serialize($transaction),
         ]);
     }
 
@@ -137,7 +152,7 @@ class TransactionController extends AbstractController {
         $transactionService->revertTransaction($transaction);
 
         return $this->json([
-            'transaction' => $transaction,
+            'transaction' => $this->transactionSerializer->serialize($transaction),
         ]);
     }
 

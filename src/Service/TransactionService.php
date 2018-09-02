@@ -21,11 +21,34 @@ class TransactionService {
     /**
      * @var SettingsService
      */
-    private $settings;
+    private $settingsService;
 
-    function __construct(SettingsService $settings, EntityManagerInterface $entityManager) {
+    function __construct(SettingsService $settingsService, EntityManagerInterface $entityManager) {
         $this->entityManager = $entityManager;
-        $this->settings = $settings;
+        $this->settingsService = $settingsService;
+    }
+
+
+    function isDeletable(Transaction $transaction): bool {
+        if ($transaction->isDeleted()) {
+            return false;
+        }
+
+        if (!$this->settingsService->getOrDefault('payment.undo.enabled', false)) {
+            return false;
+        }
+
+        $deletionTimeout = $this->settingsService->getOrDefault('payment.undo.timeout');
+        if ($deletionTimeout) {
+            $dateTime = new \DateTime();
+            $dateTime->sub(\DateInterval::createFromDateString($deletionTimeout));
+
+            if ($transaction->getCreated() < $dateTime) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -144,8 +167,8 @@ class TransactionService {
      * @throws ParameterNotFoundException
      */
     private function checkTransactionBoundary($amount) {
-        $upper = $this->settings->get('payment.boundary.upper');
-        $lower = $this->settings->get('payment.boundary.lower');
+        $upper = $this->settingsService->get('payment.boundary.upper');
+        $lower = $this->settingsService->get('payment.boundary.lower');
 
         if ($amount > $upper) {
             throw new TransactionBoundaryException($amount, $upper);
@@ -163,8 +186,8 @@ class TransactionService {
      */
     private function checkAccountBalanceBoundary(User $user) {
         $balance = $user->getBalance();
-        $upper = $this->settings->get('account.boundary.upper');
-        $lower = $this->settings->get('account.boundary.lower');
+        $upper = $this->settingsService->get('account.boundary.upper');
+        $lower = $this->settingsService->get('account.boundary.lower');
 
         if ($balance > $upper) {
             throw new AccountBalanceBoundaryException($user, $balance, $upper);

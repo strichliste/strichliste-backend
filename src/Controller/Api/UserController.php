@@ -7,6 +7,7 @@ use App\Exception\ParameterInvalidException;
 use App\Exception\ParameterMissingException;
 use App\Exception\UserAlreadyExistsException;
 use App\Exception\UserNotFoundException;
+use App\Serializer\UserSerializer;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,6 +17,15 @@ use Symfony\Component\Routing\Annotation\Route;
  * @Route("/api/user")
  */
 class UserController extends AbstractController {
+
+    /**
+     * @var UserSerializer
+     */
+    private $userSerializer;
+
+    function __construct(UserSerializer $userSerializer) {
+        $this->userSerializer = $userSerializer;
+    }
 
     /**
      * @Route(methods="GET")
@@ -35,7 +45,9 @@ class UserController extends AbstractController {
         }
 
         return $this->json([
-            'users' => $users,
+            'users' => array_map(function(User $user) {
+                return $this->userSerializer->serialize($user);
+            }, $users)
         ]);
     }
 
@@ -76,7 +88,7 @@ class UserController extends AbstractController {
         $entityManager->flush();
 
         return $this->json([
-            'user' => $user
+            'user' => $this->userSerializer->serialize($user),
         ]);
     }
 
@@ -92,7 +104,7 @@ class UserController extends AbstractController {
         }
 
         return $this->json([
-            'user' => $user
+            'user' => $this->userSerializer->serialize($user),
         ]);
     }
 
@@ -140,7 +152,7 @@ class UserController extends AbstractController {
         $entityManager->flush();
 
         return $this->json([
-            'user' => $user
+            'user' => $this->userSerializer->serialize($user),
         ]);
     }
 }

@@ -27,6 +27,10 @@ parameters:
 
         # Be aware: All amounts are in cents!
         payment:
+            undo:
+                enabled: true
+                timeout: '5 minute' # See http://de.php.net/manual/en/datetime.formats.relative.php
+
             boundary:
                 upper: 15000
                 lower: -2000

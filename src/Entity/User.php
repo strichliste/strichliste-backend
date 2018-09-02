@@ -12,7 +12,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\HasLifecycleCallbacks()
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  */
-class User implements \JsonSerializable {
+class User {
 
     /**
      * @ORM\Id()
@@ -100,7 +100,7 @@ class User implements \JsonSerializable {
         return $this;
     }
 
-    public function getActive(): ?bool {
+    public function isActive(): ?bool {
         return $this->active;
     }
 
@@ -176,17 +176,5 @@ class User implements \JsonSerializable {
         if (!$event->hasChangedField('updated')) {
             $this->setUpdated(new \DateTime());
         }
-    }
-
-    public function jsonSerialize(): array {
-        return [
-            'id' => $this->id,
-            'name' => $this->name,
-            'active' => $this->active,
-            'email' => $this->email,
-            'balance' => $this->balance,
-            'created' => $this->getCreated()->format('Y-m-d H:i:s'),
-            'updated' => $this->getUpdated() ? $this->getUpdated()->format('Y-m-d H:i:s') : null
-        ];
     }
 }
