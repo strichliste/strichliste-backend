@@ -105,7 +105,7 @@ class TransactionController extends AbstractController {
      * @Route("/user/{userId}/transaction", methods="GET")
      * @throws UserNotFoundException
      */
-    public function getUserTransactions($userId, Request $request, TransactionSerializer $transactionSerializer, EntityManagerInterface $entityManager) {
+    public function getUserTransactions($userId, Request $request, EntityManagerInterface $entityManager) {
         $limit = $request->query->get('limit', 25);
         $offset = $request->query->get('offset');
 
