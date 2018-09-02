@@ -103,6 +103,8 @@ Note: You can access this resource using the `id` or `name` as userId. This resp
       "sender": null,
       "comment": null,
       "amount": 33,
+      "deleted": false,
+      "isDeletable": true,
       "created": "2018-08-17 16:22:41"
     },
     { }, { }, { }
@@ -117,6 +119,92 @@ Returns a list of transactions as a `Transaction-Object`
 #### Errors
 
 * UserNotFoundException
+
+### GET /user/{userId}/transaction/{transactionId}
+
+#### Description
+
+Access a specific transactions
+
+#### Example
+
+```json
+{
+  "transaction": {
+    "id": 3,
+    "user": {
+      "id": 1,
+      "name": "schinken",
+      "active": true,
+      "email": "foo@bar.de",
+      "balance": 233,
+      "created": "2018-08-17 16:20:57",
+      "updated": "2018-08-17 16:22:41"
+    },
+    "article": null,
+    "recipient": null,
+    "sender": null,
+    "comment": null,
+    "amount": 33,
+    "deleted": false,
+    "isDeletable": true,
+    "created": "2018-08-17 16:22:41"
+  }
+}
+```
+
+#### Response
+
+Returns a `Transaction-Object`
+
+#### Errors
+
+* UserNotFoundException
+* TransactionNotFoundException
+
+### DELETE /user/{userId}/transaction/{transactionId}
+
+#### Description
+
+Deletes a specific transaction
+
+#### Example
+
+```json
+{
+  "transaction": {
+    "id": 42,
+    "user": {
+      "id": 1,
+      "name": "schinken",
+      "active": true,
+      "email": "foo@bar.de",
+      "balance": 233,
+      "created": "2018-08-17 16:20:57",
+      "updated": "2018-08-17 16:22:41"
+    },
+    "article": null,
+    "recipient": null,
+    "sender": null,
+    "comment": null,
+    "amount": 33,
+    "deleted": true,
+    "isDeletable": false,
+    "created": "2018-08-17 16:22:41"
+  }
+}
+```
+
+#### Response
+
+Returns a `Transaction-Object` with deleted: false, if transaction only gets deactivated, or with id: null, if it's deleted
+from the database
+
+#### Errors
+
+* UserNotFoundException
+* TransactionNotFoundException
+* TransactionNotDeletableException
 
 ### POST /user/{userId}
 
@@ -366,20 +454,24 @@ With these two parameters, you can page through the result set:
   },
   "comment": null,
   "amount": 33,
+  "deleted": false,
+  "isDeletable": true,
   "created": "2018-08-17 16:22:41"
 }
 ```
 
-|  field    | datatype               | description                                                              |
-|-----------|------------------------|--------------------------------------------------------------------------|
-| id        | integer                | transaction identifier                                                   |
-| user      | User-Object            |                                                                          |
-| article   | Article-Object or null | Contains an article-object if the transaction is created with an article |
-| recipient | User-Object or null    | Contains an user-object of the transaction recipient                     |
-| sender    | User-Object or null    | Contains an user-object of the transaction sender                        |
-| comment   | string or null         | comment (optional)                                                       |
-| amount    | integer                | amount in cents                                                          |
-| created   | datetime               | datetime of creation                                                     |
+|  field       | datatype               | description                                                              |
+|--------------|------------------------|--------------------------------------------------------------------------|
+| id           | integer                | transaction identifier                                                   |
+| user         | User-Object            |                                                                          |
+| article      | Article-Object or null | Contains an article-object if the transaction is created with an article |
+| recipient    | User-Object or null    | Contains an user-object of the transaction recipient                     |
+| sender       | User-Object or null    | Contains an user-object of the transaction sender                        |
+| comment      | string or null         | comment (optional)                                                       |
+| amount       | integer                | amount in cents                                                          |
+| deleted      | bool                   | if transaction has been reverted                                         |
+| isDeletable  | bool                   | if transaction can be reverted                                           |
+| created      | datetime               | datetime of creation                                                     |
 
 ### Article-Object
 
@@ -420,13 +512,17 @@ With these two parameters, you can page through the result set:
 
 Current possible exceptions are
 
-| exception                       | http status code | message                                                                          |
-|---------------------------------|------------------|----------------------------------------------------------------------------------|
-| AccountBalanceBoundaryException | 400              | Transaction amount '30' exceeds upper account balance boundary '10' for user '1' |
-| ArticleNotFoundException        | 404              | Article '42' not found                                                           |
-| ParameterInvalidException       | 400              | Parameter 'email' is invalid                                                     |
-| ParameterMissingException       | 400              | Parameter 'name' is missing                                                      |
-| TransactionBoundaryException    | 400              | Transaction amount '10' exceeds upper transaction boundary '3'                   |
-| TransactionNotFoundException    | 404              | Transaction '42' not found for user '23'                                         |
-| UserAlreadyExistsException      | 409              | User 'schinken' already exists                                                   |
-| UserNotFoundException           | 404              | User 'schinken' not found                                                        |
+| exception                            | http status code | message                                                                          |
+|--------------------------------------|------------------|----------------------------------------------------------------------------------|
+| AccountBalanceBoundaryException      | 400              | Transaction amount '30' exceeds upper account balance boundary '10' for user '1' |
+| ArticleBarcodeAlreadyExistsException | 409              | Active article (42) with barcode '13374242' already exists.                      |
+| ArticleNotFoundException             | 404              | Article '42' not found                                                           |
+| ArticleInactiveException             | 400              | Article 'Club Mate' (42) is inactive                                             |
+| ParameterInvalidException            | 400              | Parameter 'email' is invalid                                                     |
+| ParameterMissingException            | 400              | Parameter 'name' is missing                                                      |
+| ParameterNotFoundException           | 500              | Mandarory config value 'parameter.foo' is missing                                |
+| TransactionBoundaryException         | 400              | Transaction amount '10' exceeds upper transaction boundary '3'                   |
+| TransactionNotFoundException         | 404              | Transaction '42' not found for user '23'                                         |
+| TransactionNotDeletableException     | 400              | Transaction '42' is not deleteable                                               |
+| UserAlreadyExistsException           | 409              | User 'schinken' already exists                                                   |
+| UserNotFoundException                | 404              | User 'schinken' not found                                                        |
