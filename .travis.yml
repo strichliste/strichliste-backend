@@ -8,7 +8,7 @@ script:
 - php bin/console doctrine:schema:create
 - rm -rf var/cache/*
 - mv var/app.db var/app.db.example
-- wget https://github.com/strichliste/strichliste/releases/download/v0.1.5/strichliste-frontend.tar.gz
+- wget https://github.com/strichliste/strichliste/releases/download/v0.1.6/strichliste-frontend.tar.gz
 - tar xvfz strichliste-frontend.tar.gz --strip 1 -C public/
 - rm strichliste-frontend.tar.gz
 - tar cvfz strichliste.tar.gz .env *
