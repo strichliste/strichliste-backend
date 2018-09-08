@@ -1,4 +1,4 @@
-# strichliste [![Build Status](https://travis-ci.org/strichliste/server.svg?branch=master)]
+# strichliste  [![Build Status](https://travis-ci.org/strichliste/server.svg?branch=master)](https://travis-ci.org/strichliste/server)
 
 strichliste ([ʃtʀɪçˈlɪstə], German word for tally sheet) is a tool to replace a tally sheet inside a hackerspace. It is the first project developed by the hackerspace bootstrap organization.
 It’s aim is to provide a no-frills, easy-to-setup and -to-use solution for managing your organization’s snack bar. 
