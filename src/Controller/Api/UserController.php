@@ -53,9 +53,6 @@ class UserController extends AbstractController {
 
     /**
      * @Route(methods="POST")
-     * @throws ParameterMissingException
-     * @throws UserAlreadyExistsException
-     * @throws ParameterInvalidException
      */
     public function createUser(Request $request, EntityManagerInterface $entityManager) {
 
@@ -94,7 +91,6 @@ class UserController extends AbstractController {
 
     /**
      * @Route("/{userId}", methods="GET")
-     * @throws UserNotFoundException
      */
     public function user($userId, EntityManagerInterface $entityManager) {
         $user = $entityManager->getRepository(User::class)->findByIdentifier($userId);
@@ -110,9 +106,6 @@ class UserController extends AbstractController {
 
     /**
      * @Route("/{userId}", methods="POST")
-     * @throws UserNotFoundException
-     * @throws UserAlreadyExistsException
-     * @throws ParameterInvalidException
      */
     public function updateUser($userId, Request $request, EntityManagerInterface $entityManager) {
         $user = $entityManager->getRepository(User::class)->findByIdentifier($userId);

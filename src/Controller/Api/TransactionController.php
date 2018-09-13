@@ -55,13 +55,6 @@ class TransactionController extends AbstractController {
 
     /**
      * @Route("/user/{userId}/transaction", methods="POST")
-     * @throws UserNotFoundException
-     * @throws TransactionBoundaryException
-     * @throws ArticleNotFoundException
-     * @throws ArticleInactiveException
-     * @throws AccountBalanceBoundaryException
-     * @throws TransactionInvalidException
-     * @throws ParameterNotFoundException
      */
     public function createUserTransactions($userId, Request $request, TransactionService $transactionService, EntityManagerInterface $entityManager) {
 
@@ -104,7 +97,6 @@ class TransactionController extends AbstractController {
 
     /**
      * @Route("/user/{userId}/transaction", methods="GET")
-     * @throws UserNotFoundException
      */
     public function getUserTransactions($userId, Request $request, EntityManagerInterface $entityManager) {
         $limit = $request->query->get('limit', 25);
@@ -128,8 +120,6 @@ class TransactionController extends AbstractController {
 
     /**
      * @Route("/user/{userId}/transaction/{transactionId}", methods="GET")
-     * @throws UserNotFoundException
-     * @throws TransactionNotFoundException
      */
     public function getUserTransaction($userId, $transactionId, EntityManagerInterface $entityManager) {
         $transaction = $this->getTransaction($userId, $transactionId, $entityManager);
@@ -141,13 +131,6 @@ class TransactionController extends AbstractController {
 
     /**
      * @Route("/user/{userId}/transaction/{transactionId}", methods="DELETE")
-     * @throws TransactionNotFoundException
-     * @throws UserNotFoundException
-     * @throws AccountBalanceBoundaryException
-     * @throws TransactionBoundaryException
-     * @throws TransactionInvalidException
-     * @throws ParameterNotFoundException
-     * @throws TransactionNotDeletableException
      */
     public function deleteTransaction($userId, $transactionId, TransactionService $transactionService, EntityManagerInterface $entityManager) {
         $transaction = $this->getTransaction($userId, $transactionId, $entityManager);
