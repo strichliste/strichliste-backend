@@ -71,7 +71,10 @@ class TransactionService {
             $transaction->setComment($comment);
 
             if ($article) {
-                $amount = $article->getAmount() * -1;
+                if ($amount === null) {
+                    $amount = $article->getAmount() * -1;
+                }
+
                 $transaction->setArticle($article);
 
                 $article->incrementUsageCount();
