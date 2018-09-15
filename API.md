@@ -267,7 +267,7 @@ Note: You can access this resource using the `id` or `name` as userId
 | recipientId | integer  | userId of recipient (optional)                      |
 | comment     | string   | comment (optional)                                  |
 
-If an articleId is provided, the amount parameter gets overwritten by the price of the article
+If an articleId is provided, the amount parameter overwrites the article amount.
 
 #### Response
 
