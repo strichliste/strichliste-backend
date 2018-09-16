@@ -34,6 +34,7 @@ class TransactionSerializer {
         return [
             'id' => $transaction->getId(),
             'user' => $this->userSerializer->serialize($transaction->getUser()),
+            'quantity' => $transaction->getQuantity(),
             'article' => $article ? $this->articleSerializer->serialize($article) : null,
             'sender' => $this->getUserOrNull($transaction->getSenderTransaction()),
             'recipient' => $this->getUserOrNull($transaction->getRecipientTransaction()),

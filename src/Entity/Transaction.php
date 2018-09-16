@@ -26,6 +26,11 @@ class Transaction {
     private $user;
 
     /**
+     * @ORM\Column(type="integer")
+     */
+    private $quantity = 1;
+
+    /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Article", fetch="EAGER")
      * @ORM\JoinColumn(nullable=true)
      */
@@ -76,6 +81,16 @@ class Transaction {
 
     public function setUser(User $user): self {
         $this->user = $user;
+
+        return $this;
+    }
+
+    public function getQuantity(): ?int {
+        return $this->quantity;
+    }
+
+    public function setQuantity(int $quantity): self {
+        $this->quantity = $quantity;
 
         return $this;
     }
