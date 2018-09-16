@@ -16,13 +16,13 @@ class UserService {
         $this->settingsService = $settingsService;
     }
 
-    function isStale(User $user): bool {
+    function isActive(User $user): bool {
         $staleDateTime = $this->getStaleDateTime();
         if ($staleDateTime) {
-            return ($user->getUpdated() === null || $user->getUpdated() < $staleDateTime);
+            return ($user->getUpdated() !== null && $user->getUpdated() > $staleDateTime);
         }
 
-        return false;
+        return true;
     }
 
     function getStaleDateTime(): ?\DateTime {
