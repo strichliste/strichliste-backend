@@ -58,7 +58,8 @@ class TransactionController extends AbstractController {
      */
     public function createUserTransactions($userId, Request $request, TransactionService $transactionService, EntityManagerInterface $entityManager) {
 
-        $amount = (int)$request->request->get('amount');
+        $amount = $request->request->get('amount');
+        $quantity = $request->request->get('quantity');
         $comment = $request->request->get('comment');
 
         $user = $entityManager->getRepository(User::class)->find($userId);
@@ -88,7 +89,7 @@ class TransactionController extends AbstractController {
             }
         }
 
-        $transaction = $transactionService->doTransaction($user, $amount, $comment, $article, $recipient);
+        $transaction = $transactionService->doTransaction($user, $amount, $comment, $quantity, $article, $recipient);
 
         return $this->json([
             'transaction' => $this->transactionSerializer->serialize($transaction),

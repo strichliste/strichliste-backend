@@ -53,8 +53,9 @@ class TransactionService {
 
     /**
      * @param User $user
-     * @param int $amount
+     * @param int|null $amount
      * @param null|string $comment
+     * @param int|null $quantity
      * @param Article|null $article
      * @param User|null $recipient
      * @throws AccountBalanceBoundaryException
@@ -63,16 +64,20 @@ class TransactionService {
      * @throws ParameterNotFoundException
      * @return Transaction
      */
-    function doTransaction(User $user, int $amount, string $comment = null, Article $article = null, User $recipient = null): Transaction {
+    function doTransaction(User $user, ?int $amount, string $comment = null, ?int $quantity = 1, Article $article = null, User $recipient = null): Transaction {
         $transaction = new Transaction();
 
-        $this->entityManager->transactional(function () use ($transaction, $user, $amount, $comment, $article, $recipient) {
+        $this->entityManager->transactional(function () use ($transaction, $user, $amount, $comment, $quantity, $article, $recipient) {
             $transaction->setUser($user);
             $transaction->setComment($comment);
 
             if ($article) {
+                if ($quantity) {
+                    $transaction->setQuantity($quantity);
+                }
+
                 if ($amount === null) {
-                    $amount = $article->getAmount() * -1;
+                    $amount = $article->getAmount() * $transaction->getQuantity() * -1;
                 }
 
                 $transaction->setArticle($article);
