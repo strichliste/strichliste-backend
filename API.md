@@ -263,7 +263,7 @@ Note: You can access this resource using the `id` or `name` as userId
 
 |  field      | datatype | description                                         |
 |-------------|----------|-----------------------------------------------------|
-| amount      | integer  | amount in cents (optional if articleId is provided) |
+| amount      | integer  | amount in cents                                     |
 | quantity    | integer  | quantity of the article (optional)                  |
 | articleId   | integer  | id of an article (optional)                         |
 | recipientId | integer  | userId of recipient (optional)                      |
@@ -444,6 +444,7 @@ With these two parameters, you can page through the result set:
     "created": "2018-08-17 16:20:57",
     "updated": "2018-08-17 16:22:41"
   },
+  "quantity": 1,
   "article": null,
   "sender": null,
   "recipient": {
@@ -467,6 +468,7 @@ With these two parameters, you can page through the result set:
 |--------------|------------------------|--------------------------------------------------------------------------|
 | id           | integer                | transaction identifier                                                   |
 | user         | User-Object            |                                                                          |
+| quantity     | integer or null        | Quantity of article if created with an article                           |
 | article      | Article-Object or null | Contains an article-object if the transaction is created with an article |
 | recipient    | User-Object or null    | Contains an user-object of the transaction recipient                     |
 | sender       | User-Object or null    | Contains an user-object of the transaction sender                        |
