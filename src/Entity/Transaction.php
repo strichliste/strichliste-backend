@@ -26,9 +26,9 @@ class Transaction {
     private $user;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="integer", nullable=true)
      */
-    private $quantity = 1;
+    private $quantity = null;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Article", fetch="EAGER")

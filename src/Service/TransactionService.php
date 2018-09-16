@@ -72,9 +72,7 @@ class TransactionService {
             $transaction->setComment($comment);
 
             if ($article) {
-                if ($quantity) {
-                    $transaction->setQuantity($quantity);
-                }
+                $transaction->setQuantity($quantity ?: 1);
 
                 if ($amount === null) {
                     $amount = $article->getAmount() * $transaction->getQuantity() * -1;
