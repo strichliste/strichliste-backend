@@ -151,7 +151,6 @@ class TransactionService {
 
     /**
      * @param Transaction $transaction
-     * @param EntityManagerInterface $entityManager
      * @throws AccountBalanceBoundaryException
      * @throws TransactionBoundaryException
      * @throws TransactionInvalidException

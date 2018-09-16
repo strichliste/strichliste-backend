@@ -8,8 +8,9 @@ parameters:
 
     strichliste:
 
-        # See http://de.php.net/manual/en/datetime.formats.relative.php
-        staleUserPeriod: '10 day'
+        user:
+            # See http://de.php.net/manual/en/datetime.formats.relative.php
+            stalePeriod: '10 day'
 
         i18n:
             dateFormat: 'YYYY-MM-DD HH:mm:ss'
