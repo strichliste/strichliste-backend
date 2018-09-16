@@ -8,6 +8,7 @@ use App\Exception\ParameterMissingException;
 use App\Exception\UserAlreadyExistsException;
 use App\Exception\UserNotFoundException;
 use App\Serializer\UserSerializer;
+use App\Service\UserService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -30,18 +31,16 @@ class UserController extends AbstractController {
     /**
      * @Route(methods="GET")
      */
-    public function list(Request $request, EntityManagerInterface $entityManager) {
-        $stale = $request->query->getBoolean('stale', false);
-        $settings = $this->getParameter('strichliste');
+    public function list(Request $request, UserService $userService, EntityManagerInterface $entityManager) {
+        $staleDateTime = $userService->getStaleDateTime();
+        $userRepository = $entityManager->getRepository(User::class);
 
-        $stalePeriod = \DateInterval::createFromDateString($settings['staleUserPeriod']);
-        $since = new \DateTime();
-        $since->sub($stalePeriod);
-
-        if ($stale) {
-            $users = $entityManager->getRepository(User::class)->findAllActiveAndStale($since);
+        if ($request->query->getBoolean('stale')) {
+            $users = $userRepository->findAllActiveAndStale($staleDateTime);
+        } elseif ($request->query->getBoolean('active')) {
+            $users = $userRepository->findAllActive($staleDateTime);
         } else {
-            $users = $entityManager->getRepository(User::class)->findAllActive($since);
+            $users = $userRepository->findAll();
         }
 
         return $this->json([
