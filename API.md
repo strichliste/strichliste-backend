@@ -254,6 +254,7 @@ Note: You can access this resource using the `id` or `name` as userId
 ```json
 {
   "amount": 123,
+  "quantity": 1,
   "articleId": 1,
   "recipientId": 2,
   "comment": "Foobar!"
@@ -263,11 +264,13 @@ Note: You can access this resource using the `id` or `name` as userId
 |  field      | datatype | description                                         |
 |-------------|----------|-----------------------------------------------------|
 | amount      | integer  | amount in cents (optional if articleId is provided) |
+| quantity    | integer  | quantity of the article (optional)                  |
 | articleId   | integer  | id of an article (optional)                         |
 | recipientId | integer  | userId of recipient (optional)                      |
 | comment     | string   | comment (optional)                                  |
 
-If an articleId is provided, the amount parameter overwrites the article amount.
+If an `articleId` is provided, the `amount` parameter overwrites the article amount. 
+`quantity` is only used if an `articleId` is provided - otherwise ignored.
 
 #### Response
 
