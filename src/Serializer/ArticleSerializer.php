@@ -14,7 +14,7 @@ class ArticleSerializer {
             'name' => $article->getName(),
             'barcode' => $article->getBarcode(),
             'amount' => $article->getAmount(),
-            'active' => $article->isActive(),
+            'isActive' => $article->isActive(),
             'usageCount' => $article->getUsageCount(),
             'precursor' => $precursor ? self::serialize($precursor) : null,
             'created' => $article->getCreated()->format('Y-m-d H:i:s')

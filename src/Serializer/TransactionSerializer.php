@@ -40,7 +40,7 @@ class TransactionSerializer {
             'recipient' => $this->getUserOrNull($transaction->getRecipientTransaction()),
             'comment' => $transaction->getComment(),
             'amount' => $transaction->getAmount(),
-            'deleted' => $transaction->isDeleted(),
+            'isDeleted' => $transaction->isDeleted(),
             'isDeletable' => $this->transactionService->isDeletable($transaction),
             'created' => $transaction->getCreated()->format('Y-m-d H:i:s')
         ];
