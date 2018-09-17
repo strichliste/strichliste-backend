@@ -22,8 +22,8 @@ class UserSerializer {
             'name' => $user->getName(),
             'email' => $user->getEmail(),
             'balance' => $user->getBalance(),
-            'isStale' => $this->userService->isStale($user),
-            'isActive' => $user->isActive(),
+            'isActive' => $this->userService->isActive($user),
+            'isDisabled' => $user->isDisabled(),
             'created' => $user->getCreated()->format('Y-m-d H:i:s'),
             'updated' => $user->getUpdated() ? $user->getUpdated()->format('Y-m-d H:i:s') : null
         ];

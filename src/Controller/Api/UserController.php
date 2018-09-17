@@ -32,17 +32,17 @@ class UserController extends AbstractController {
      * @Route(methods="GET")
      */
     public function list(Request $request, UserService $userService, EntityManagerInterface $entityManager) {
-        $stale = $request->query->getBoolean('stale', null);
+        $active = $request->query->getBoolean('active', null);
 
         $staleDateTime = $userService->getStaleDateTime();
         $userRepository = $entityManager->getRepository(User::class);
 
-        if ($stale === true) {
-            $users = $userRepository->findAllActiveAndStale($staleDateTime);
-        } elseif ($stale === false) {
-            $users = $userRepository->findAllActiveAndNotStale($staleDateTime);
+        if ($active === true) {
+            $users = $userRepository->findAllActive($staleDateTime);
+        } elseif ($active === false) {
+            $users = $userRepository->findAllInactive($staleDateTime);
         } else {
-            $users = $userRepository->findAllActive();
+            $users = $userRepository->findAll();
         }
 
         return $this->json([
@@ -137,9 +137,9 @@ class UserController extends AbstractController {
             $user->setEmail($email);
         }
 
-        $active = $request->request->get('active');
-        if ($active !== null) {
-            $user->setActive($active);
+        $disabled = $request->request->getBoolean('disabled', null);
+        if ($disabled !== null) {
+            $user->setDisabled($disabled);
         }
 
         $entityManager->persist($user);

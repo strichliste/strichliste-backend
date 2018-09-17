@@ -27,21 +27,21 @@ class UserStatusCommand extends Command {
             ->setName('app:user:status')
             ->setDescription('Updates User status')
             ->addArgument('userId', InputArgument::REQUIRED, 'Id or name')
-            ->addArgument('active', InputArgument::REQUIRED, 'true or false');
+            ->addArgument('disable', InputArgument::REQUIRED, 'true or false');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output) {
         $userId = $input->getArgument('userId');
-        $active = $input->getArgument('active') === 'true';
+        $disabled = $input->getArgument('disable') === 'true';
 
         $user = $this->entityManager->getRepository(User::class)->findByIdentifier($userId);
         if (!$user) {
             throw new UserNotFoundException($user);
         }
 
-        $user->setActive($active);
+        $user->setDisabled($disabled);
 
-        if ($active) {
+        if ($disabled) {
             $output->writeln(sprintf("User '%s' (%d) has been activated", $user->getName(), $user->getId()));
         } else {
             $output->writeln(sprintf("User '%s' (%d) has been deactivated", $user->getName(), $user->getId()));

@@ -16,13 +16,13 @@ class UserService {
         $this->settingsService = $settingsService;
     }
 
-    function isStale(User $user): bool {
+    function isActive(User $user): bool {
         $staleDateTime = $this->getStaleDateTime();
         if ($staleDateTime) {
-            return ($user->getUpdated() === null || $user->getUpdated() < $staleDateTime);
+            return ($user->getUpdated() !== null && $user->getUpdated() >= $staleDateTime);
         }
 
-        return false;
+        return true;
     }
 
     function getStaleDateTime(): ?\DateTime {
@@ -30,8 +30,8 @@ class UserService {
             $configValue = $this->settingsService->get('user.stalePeriod');
 
             $period = \DateInterval::createFromDateString($configValue);
-            $since = new \DateTime();
 
+            $since = new \DateTime();
             return $since->sub($period);
         } catch (ParameterNotFoundException $e) {
             return null;

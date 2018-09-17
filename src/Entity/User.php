@@ -11,7 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\HasLifecycleCallbacks()
  * @ORM\Table(indexes={
- *     @ORM\Index(name="active_updated", columns={"active", "updated"})
+ *     @ORM\Index(name="disabled_updated", columns={"disabled", "updated"})
  * })
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  */
@@ -42,7 +42,7 @@ class User {
     /**
      * @ORM\Column(type="boolean")
      */
-    private $active = true;
+    private $disabled = false;
 
     /**
      * @ORM\Column(type="datetime")
@@ -103,12 +103,12 @@ class User {
         return $this;
     }
 
-    public function isActive(): ?bool {
-        return $this->active;
+    function isDisabled() : bool {
+        return $this->disabled;
     }
 
-    public function setActive(bool $active): self {
-        $this->active = $active;
+    function setDisabled(bool $disabled) : self {
+        $this->disabled = $disabled;
 
         return $this;
     }
@@ -138,27 +138,6 @@ class User {
      */
     public function getTransactions(): Collection {
         return $this->transactions;
-    }
-
-    public function addTransaction(Transaction $transaction): self {
-        if (!$this->transactions->contains($transaction)) {
-            $this->transactions[] = $transaction;
-            $transaction->setUser($this);
-        }
-
-        return $this;
-    }
-
-    public function removeTransaction(Transaction $transaction): self {
-        if ($this->transactions->contains($transaction)) {
-            $this->transactions->removeElement($transaction);
-            // set the owning side to null (unless already changed)
-            if ($transaction->getUser() === $this) {
-                $transaction->setUser(null);
-            }
-        }
-
-        return $this;
     }
 
     /**

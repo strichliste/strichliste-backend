@@ -10,22 +10,29 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
 /**
  * @method User|null find($id, $lockMode = null, $lockVersion = null)
  * @method User|null findOneBy(array $criteria, array $orderBy = null)
- * @method User[]    findAll()
  * @method User[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
 class UserRepository extends ServiceEntityRepository {
 
-    public function __construct(RegistryInterface $registry) {
+    function __construct(RegistryInterface $registry) {
         parent::__construct($registry, User::class);
     }
 
-    public function findAllActive(): array {
+    function findAll(): array {
         return $this->getBaseQueryBuilder()
             ->getQuery()
             ->getResult();
     }
 
-    public function findAllActiveAndStale(\DateTime $since): array {
+    function findAllDisabled() : array {
+        return $this->createQueryBuilder('u')
+            ->where('u.disabled = true')
+            ->orderBy('u.name')
+            ->getQuery()
+            ->getResult();
+    }
+
+    function findAllInactive(\DateTime $since): array {
         return $this->getBaseQueryBuilder()
             ->andWhere('(u.updated IS NULL or u.updated <= :since)')
             ->setParameter('since', $since)
@@ -33,7 +40,7 @@ class UserRepository extends ServiceEntityRepository {
             ->getResult();
     }
 
-    public function findAllActiveAndNotStale(\DateTime $since): array {
+    function findAllActive(\DateTime $since): array {
         return $this->getBaseQueryBuilder()
             ->andWhere('u.updated IS NOT NULL')
             ->andWhere('u.updated >= :since')
@@ -42,13 +49,7 @@ class UserRepository extends ServiceEntityRepository {
             ->getResult();
     }
 
-    private function getBaseQueryBuilder() : QueryBuilder {
-        return $this->createQueryBuilder('u')
-            ->select('u')
-            ->where('u.active = true');
-    }
-
-    public function findByIdentifier($identifier): ?User {
+    function findByIdentifier($identifier): ?User {
         if (is_numeric($identifier)) {
             return $this->find($identifier);
         }
@@ -56,7 +57,14 @@ class UserRepository extends ServiceEntityRepository {
         return $this->findByName($identifier);
     }
 
-    public function findByName(string $name): ?User {
+    function findByName(string $name): ?User {
         return $this->findOneBy(['name' => $name]);
+    }
+
+    private function getBaseQueryBuilder() : QueryBuilder {
+        return $this->createQueryBuilder('u')
+            ->select('u')
+            ->where('u.disabled = false')
+            ->orderBy('u.name');
     }
 }
