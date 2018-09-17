@@ -32,15 +32,17 @@ class UserController extends AbstractController {
      * @Route(methods="GET")
      */
     public function list(Request $request, UserService $userService, EntityManagerInterface $entityManager) {
+        $stale = $request->query->getBoolean('stale', null);
+
         $staleDateTime = $userService->getStaleDateTime();
         $userRepository = $entityManager->getRepository(User::class);
 
-        if ($request->query->getBoolean('stale')) {
+        if ($stale === true) {
             $users = $userRepository->findAllActiveAndStale($staleDateTime);
-        } elseif ($request->query->getBoolean('active')) {
-            $users = $userRepository->findAllActive($staleDateTime);
+        } elseif ($stale === false) {
+            $users = $userRepository->findAllActiveAndNotStale($staleDateTime);
         } else {
-            $users = $userRepository->findAll();
+            $users = $userRepository->findAllActive();
         }
 
         return $this->json([

@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
@@ -18,29 +19,33 @@ class UserRepository extends ServiceEntityRepository {
         parent::__construct($registry, User::class);
     }
 
-    public function findAllActive(\DateTime $since = null): array {
-        $queryBuilder = $this->createQueryBuilder('u')
-            ->select('u')
-            ->where('u.active = true');
-
-        if ($since) {
-            $queryBuilder
-                ->andWhere('u.updated IS NOT NULL')
-                ->andWhere('u.updated >= :since')
-                ->setParameter('since', $since);
-        }
-
-        return $queryBuilder->getQuery()->getResult();
+    public function findAllActive(): array {
+        return $this->getBaseQueryBuilder()
+            ->getQuery()
+            ->getResult();
     }
 
     public function findAllActiveAndStale(\DateTime $since): array {
-        return $this->createQueryBuilder('u')
-            ->select('u')
-            ->where('u.active = true')
+        return $this->getBaseQueryBuilder()
             ->andWhere('(u.updated IS NULL or u.updated <= :since)')
             ->setParameter('since', $since)
             ->getQuery()
             ->getResult();
+    }
+
+    public function findAllActiveAndNotStale(\DateTime $since): array {
+        return $this->getBaseQueryBuilder()
+            ->andWhere('u.updated IS NOT NULL')
+            ->andWhere('u.updated >= :since')
+            ->setParameter('since', $since)
+            ->getQuery()
+            ->getResult();
+    }
+
+    private function getBaseQueryBuilder() : QueryBuilder {
+        return $this->createQueryBuilder('u')
+            ->select('u')
+            ->where('u.active = true');
     }
 
     public function findByIdentifier($identifier): ?User {
