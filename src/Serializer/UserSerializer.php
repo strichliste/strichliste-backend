@@ -20,10 +20,10 @@ class UserSerializer {
         return [
             'id' => $user->getId(),
             'name' => $user->getName(),
-            'active' => $user->isActive(),
             'email' => $user->getEmail(),
             'balance' => $user->getBalance(),
             'isStale' => $this->userService->isStale($user),
+            'isActive' => $user->isActive(),
             'created' => $user->getCreated()->format('Y-m-d H:i:s'),
             'updated' => $user->getUpdated() ? $user->getUpdated()->format('Y-m-d H:i:s') : null
         ];
