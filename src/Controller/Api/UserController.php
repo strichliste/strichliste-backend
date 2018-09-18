@@ -137,9 +137,10 @@ class UserController extends AbstractController {
             $user->setEmail($email);
         }
 
-        $disabled = $request->request->getBoolean('isDisabled', null);
+        // TODO: Find a better way for this tri-state
+        $disabled = $request->request->get('isDisabled');
         if ($disabled !== null) {
-            $user->setDisabled($disabled);
+            $user->setDisabled($disabled === 'true' ? true : false);
         }
 
         $entityManager->persist($user);
