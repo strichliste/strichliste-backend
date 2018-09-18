@@ -137,7 +137,7 @@ class UserController extends AbstractController {
             $user->setEmail($email);
         }
 
-        $disabled = $request->request->getBoolean('disabled', null);
+        $disabled = $request->request->getBoolean('isDisabled', null);
         if ($disabled !== null) {
             $user->setDisabled($disabled);
         }
