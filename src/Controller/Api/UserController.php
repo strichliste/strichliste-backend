@@ -120,6 +120,10 @@ class UserController extends AbstractController {
         }
 
         $name = $request->request->get('name');
+        if (mb_strlen($name) > 64) {
+            throw new ParameterInvalidException('name');
+        }
+
         if ($name) {
             // TODO: Use sanitize-helper
             $name = trim($name);
