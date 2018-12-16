@@ -11,3 +11,4 @@
 ###< symfony/web-server-bundle ###
 
 /.idea
+data.sqlite
