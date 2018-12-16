@@ -53,85 +53,85 @@ class Article {
      */
     private $usageCount = 0;
 
-    public function getId(): ?int {
+    function getId(): ?int {
         return $this->id;
     }
 
-    public function getName(): ?string {
+    function getName(): ?string {
         return $this->name;
     }
 
-    public function setName(string $name): self {
+    function setName(string $name): self {
         $this->name = $name;
 
         return $this;
     }
 
-    public function getBarcode(): ?string {
+    function getBarcode(): ?string {
         return $this->barcode;
     }
 
-    public function setBarcode(?string $barcode): self {
+    function setBarcode(?string $barcode): self {
         $this->barcode = $barcode;
 
         return $this;
     }
 
-    public function getAmount(): int {
+    function getAmount(): int {
         return $this->amount;
     }
 
-    public function setAmount(int $amount): self {
+    function setAmount(int $amount): self {
         $this->amount = $amount;
 
         return $this;
     }
 
-    public function getPrecursor(): ?self {
+    function getPrecursor(): ?self {
         return $this->precursor;
     }
 
-    public function setPrecursor(?self $precursor): self {
+    function setPrecursor(?self $precursor): self {
         $this->precursor = $precursor;
 
         return $this;
     }
 
-    public function isActive(): ?bool {
+    function isActive(): ?bool {
         return $this->active;
     }
 
-    public function setActive(bool $active): self {
+    function setActive(bool $active): self {
         $this->active = $active;
 
         return $this;
     }
 
-    public function getCreated(): ?\DateTimeInterface {
+    function getCreated(): ?\DateTimeInterface {
         return $this->created;
     }
 
-    public function setCreated(\DateTimeInterface $created): self {
+    function setCreated(\DateTimeInterface $created): self {
         $this->created = $created;
 
         return $this;
     }
 
-    public function getUsageCount(): ?int {
+    function getUsageCount(): ?int {
         return $this->usageCount;
     }
 
-    public function setUsageCount(int $usageCount): self {
+    function setUsageCount(int $usageCount): self {
         $this->usageCount = $usageCount;
 
         return $this;
     }
 
-    public function incrementUsageCount() {
+    function incrementUsageCount() {
         $this->usageCount++;
     }
 
-    public function decrementUsageCount() {
+    function decrementUsageCount() {
         $this->usageCount--;
     }
 
@@ -139,7 +139,7 @@ class Article {
      * @ORM\PrePersist()
      * @param LifecycleEventArgs $event
      */
-    public function setHistoryColumnsOnPrePersist(LifecycleEventArgs $event) {
+    function setHistoryColumnsOnPrePersist(LifecycleEventArgs $event) {
         if (!$this->getCreated()) {
             $this->setCreated(new \DateTime());
         }

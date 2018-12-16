@@ -59,75 +59,75 @@ class User {
      */
     private $transactions;
 
-    public function __construct() {
+    function __construct() {
         $this->transactions = new ArrayCollection();
     }
 
-    public function getId(): ?int {
+    function getId(): ?int {
         return $this->id;
     }
 
-    public function getName(): ?string {
+    function getName(): ?string {
         return $this->name;
     }
 
-    public function setName(string $name): self {
+    function setName(string $name): self {
         $this->name = $name;
 
         return $this;
     }
 
-    public function getEmail(): ?string {
+    function getEmail(): ?string {
         return $this->email;
     }
 
-    public function setEmail(?string $email): self {
+    function setEmail(?string $email): self {
         $this->email = $email;
 
         return $this;
     }
 
-    public function getBalance() {
+    function getBalance() {
         return $this->balance;
     }
 
-    public function setBalance($balance): self {
+    function setBalance($balance): self {
         $this->balance = $balance;
 
         return $this;
     }
 
-    public function addBalance($amount): self {
+    function addBalance($amount): self {
         $this->balance += $amount;
 
         return $this;
     }
 
-    function isDisabled() : bool {
+    function isDisabled(): bool {
         return $this->disabled;
     }
 
-    function setDisabled(bool $disabled) : self {
+    function setDisabled(bool $disabled): self {
         $this->disabled = $disabled;
 
         return $this;
     }
 
-    public function getCreated(): ?\DateTimeInterface {
+    function getCreated(): ?\DateTimeInterface {
         return $this->created;
     }
 
-    public function setCreated(\DateTimeInterface $created): self {
+    function setCreated(\DateTimeInterface $created): self {
         $this->created = $created;
 
         return $this;
     }
 
-    public function getUpdated(): ?\DateTimeInterface {
+    function getUpdated(): ?\DateTimeInterface {
         return $this->updated;
     }
 
-    public function setUpdated(?\DateTimeInterface $updated): self {
+    function setUpdated(?\DateTimeInterface $updated): self {
         $this->updated = $updated;
 
         return $this;
@@ -136,7 +136,7 @@ class User {
     /**
      * @return Collection|Transaction[]
      */
-    public function getTransactions(): Collection {
+    function getTransactions(): Collection {
         return $this->transactions;
     }
 
@@ -144,7 +144,7 @@ class User {
      * @ORM\PrePersist()
      * @param LifecycleEventArgs $event
      */
-    public function setHistoryColumnsOnPrePersist(LifecycleEventArgs $event) {
+    function setHistoryColumnsOnPrePersist(LifecycleEventArgs $event) {
         if (!$this->getCreated()) {
             $this->setCreated(new \DateTime());
         }
@@ -154,7 +154,7 @@ class User {
      * @ORM\PreUpdate()
      * @param PreUpdateEventArgs $event
      */
-    public function setHistoryColumnsOnPreUpdate(PreUpdateEventArgs $event) {
+    function setHistoryColumnsOnPreUpdate(PreUpdateEventArgs $event) {
         if (!$event->hasChangedField('updated')) {
             $this->setUpdated(new \DateTime());
         }

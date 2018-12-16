@@ -24,7 +24,7 @@ class UserRepository extends ServiceEntityRepository {
             ->getResult();
     }
 
-    function findAllDisabled() : array {
+    function findAllDisabled(): array {
         return $this->createQueryBuilder('u')
             ->where('u.disabled = true')
             ->orderBy('u.name')
@@ -61,7 +61,7 @@ class UserRepository extends ServiceEntityRepository {
         return $this->findOneBy(['name' => $name]);
     }
 
-    private function getBaseQueryBuilder() : QueryBuilder {
+    private function getBaseQueryBuilder(): QueryBuilder {
         return $this->createQueryBuilder('u')
             ->select('u')
             ->where('u.disabled = false')

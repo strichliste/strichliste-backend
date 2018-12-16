@@ -16,7 +16,7 @@ class MetricsController extends AbstractController {
     /**
      * @Route(methods="GET")
      */
-    public function metrics(EntityManagerInterface $entityManager) {
+    function metrics(EntityManagerInterface $entityManager) {
         return $this->json([
             'balance' => $this->getBalance($entityManager),
             'transactionCount' => $this->getTransactionCount($entityManager),

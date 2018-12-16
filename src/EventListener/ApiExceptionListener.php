@@ -8,7 +8,7 @@ use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
 
 class ApiExceptionListener {
 
-    public function onKernelException(GetResponseForExceptionEvent $event) {
+    function onKernelException(GetResponseForExceptionEvent $event) {
 
         $exception = $event->getException();
 

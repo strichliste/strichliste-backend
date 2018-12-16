@@ -5,12 +5,8 @@ namespace App\Controller\Api;
 use App\Entity\Article;
 use App\Entity\Transaction;
 use App\Entity\User;
-use App\Exception\AccountBalanceBoundaryException;
 use App\Exception\ArticleInactiveException;
 use App\Exception\ArticleNotFoundException;
-use App\Exception\ParameterNotFoundException;
-use App\Exception\TransactionBoundaryException;
-use App\Exception\TransactionInvalidException;
 use App\Exception\TransactionNotDeletableException;
 use App\Exception\TransactionNotFoundException;
 use App\Exception\UserNotFoundException;
@@ -38,7 +34,7 @@ class TransactionController extends AbstractController {
     /**
      * @Route("/transaction", methods="GET")
      */
-    public function list(Request $request, EntityManagerInterface $entityManager) {
+    function list(Request $request, EntityManagerInterface $entityManager) {
         $limit = $request->query->get('limit', 25);
         $offset = $request->query->get('offset');
 
@@ -47,7 +43,7 @@ class TransactionController extends AbstractController {
 
         return $this->json([
             'count' => $count,
-            'transactions' => array_map(function(Transaction $transaction) {
+            'transactions' => array_map(function (Transaction $transaction) {
                 return $this->transactionSerializer->serialize($transaction);
             }, $transactions)
         ]);
@@ -56,7 +52,7 @@ class TransactionController extends AbstractController {
     /**
      * @Route("/user/{userId}/transaction", methods="POST")
      */
-    public function createUserTransactions($userId, Request $request, TransactionService $transactionService, EntityManagerInterface $entityManager) {
+    function createUserTransactions($userId, Request $request, TransactionService $transactionService, EntityManagerInterface $entityManager) {
 
         $amount = $request->request->get('amount');
         $quantity = $request->request->get('quantity');
@@ -99,7 +95,7 @@ class TransactionController extends AbstractController {
     /**
      * @Route("/user/{userId}/transaction", methods="GET")
      */
-    public function getUserTransactions($userId, Request $request, EntityManagerInterface $entityManager) {
+    function getUserTransactions($userId, Request $request, EntityManagerInterface $entityManager) {
         $limit = $request->query->get('limit', 25);
         $offset = $request->query->get('offset');
 
@@ -113,7 +109,7 @@ class TransactionController extends AbstractController {
 
         return $this->json([
             'count' => $count,
-            'transactions' => array_map(function(Transaction $transaction) {
+            'transactions' => array_map(function (Transaction $transaction) {
                 return $this->transactionSerializer->serialize($transaction);
             }, $transactions),
         ]);
@@ -122,7 +118,7 @@ class TransactionController extends AbstractController {
     /**
      * @Route("/user/{userId}/transaction/{transactionId}", methods="GET")
      */
-    public function getUserTransaction($userId, $transactionId, EntityManagerInterface $entityManager) {
+    function getUserTransaction($userId, $transactionId, EntityManagerInterface $entityManager) {
         $transaction = $this->getTransaction($userId, $transactionId, $entityManager);
 
         return $this->json([
@@ -133,7 +129,7 @@ class TransactionController extends AbstractController {
     /**
      * @Route("/user/{userId}/transaction/{transactionId}", methods="DELETE")
      */
-    public function deleteTransaction($userId, $transactionId, TransactionService $transactionService, EntityManagerInterface $entityManager) {
+    function deleteTransaction($userId, $transactionId, TransactionService $transactionService, EntityManagerInterface $entityManager) {
         $transaction = $this->getTransaction($userId, $transactionId, $entityManager);
         if (!$transactionService->isDeletable($transaction)) {
             throw new TransactionNotDeletableException($transaction);

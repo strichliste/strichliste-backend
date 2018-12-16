@@ -14,11 +14,11 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
  */
 class TransactionRepository extends ServiceEntityRepository {
 
-    public function __construct(RegistryInterface $registry) {
+    function __construct(RegistryInterface $registry) {
         parent::__construct($registry, Transaction::class);
     }
 
-    public function findAll($limit = null, $offset = null) {
+    function findAll($limit = null, $offset = null) {
         return $this->createQueryBuilder('t')
             ->setFirstResult($offset)
             ->setMaxResults($limit)
@@ -32,15 +32,15 @@ class TransactionRepository extends ServiceEntityRepository {
      * @param int $limit
      * @return Transaction[]
      */
-    public function findByUser(User $user, $limit = null, $offset = null) {
+    function findByUser(User $user, $limit = null, $offset = null) {
         return $this->findBy(['user' => $user], ['id' => 'DESC'], $limit, $offset);
     }
 
-    public function findByUserAndId(User $user, int $transactionId): ?Transaction {
+    function findByUserAndId(User $user, int $transactionId): ?Transaction {
         return $this->findOneBy(['id' => $transactionId, 'user' => $user]);
     }
 
-    public function countByUser(User $user): int {
+    function countByUser(User $user): int {
         return $this->count([
             'user' => $user
         ]);

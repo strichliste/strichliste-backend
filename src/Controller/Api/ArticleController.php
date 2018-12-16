@@ -30,7 +30,7 @@ class ArticleController extends AbstractController {
     /**
      * @Route(methods="GET")
      */
-    public function list(Request $request, EntityManagerInterface $entityManager) {
+    function list(Request $request, EntityManagerInterface $entityManager) {
         $limit = $request->query->get('limit', 25);
         $offset = $request->query->get('offset');
 
@@ -47,7 +47,7 @@ class ArticleController extends AbstractController {
 
         return $this->json([
             'count' => $count,
-            'articles' => array_map(function(Article $article) {
+            'articles' => array_map(function (Article $article) {
                 return $this->articleSerializer->serialize($article);
             }, $articles),
         ]);
@@ -56,7 +56,7 @@ class ArticleController extends AbstractController {
     /**
      * @Route(methods="POST")
      */
-    public function createArticle(Request $request, EntityManagerInterface $entityManager) {
+    function createArticle(Request $request, EntityManagerInterface $entityManager) {
         $article = $this->createArticleByRequest($request);
 
         if ($article->getBarcode()) {
@@ -80,7 +80,7 @@ class ArticleController extends AbstractController {
     /**
      * @Route("/{articleId}", methods="GET")
      */
-    public function getArticle($articleId, EntityManagerInterface $entityManager) {
+    function getArticle($articleId, EntityManagerInterface $entityManager) {
 
         $article = $entityManager->getRepository(Article::class)->find($articleId);
         if (!$article) {
@@ -95,7 +95,7 @@ class ArticleController extends AbstractController {
     /**
      * @Route("/{articleId}", methods="POST")
      */
-    public function updateArticle($articleId, Request $request, EntityManagerInterface $entityManager) {
+    function updateArticle($articleId, Request $request, EntityManagerInterface $entityManager) {
         $oldArticle = $entityManager->getRepository(Article::class)->find($articleId);
         if (!$oldArticle) {
             throw new ArticleNotFoundException($articleId);
@@ -136,7 +136,7 @@ class ArticleController extends AbstractController {
     /**
      * @Route("/{articleId}", methods="DELETE")
      */
-    public function deleteArticle($articleId, EntityManagerInterface $entityManager) {
+    function deleteArticle($articleId, EntityManagerInterface $entityManager) {
         $article = $entityManager->getRepository(Article::class)->find($articleId);
         if (!$article) {
             throw new ArticleNotFoundException($articleId);

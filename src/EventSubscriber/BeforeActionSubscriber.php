@@ -9,13 +9,13 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 class BeforeActionSubscriber implements EventSubscriberInterface {
 
-    public static function getSubscribedEvents() {
+    static function getSubscribedEvents() {
         return array(
             KernelEvents::CONTROLLER => 'convertJsonStringToArray',
         );
     }
 
-    public function convertJsonStringToArray(FilterControllerEvent $event) {
+    function convertJsonStringToArray(FilterControllerEvent $event) {
         $request = $event->getRequest();
 
         if ($request->getContentType() != 'json' || !$request->getContent()) {

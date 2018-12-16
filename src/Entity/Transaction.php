@@ -71,95 +71,95 @@ class Transaction {
      */
     private $created;
 
-    public function getId(): ?int {
+    function getId(): ?int {
         return $this->id;
     }
 
-    public function getUser(): User {
+    function getUser(): User {
         return $this->user;
     }
 
-    public function setUser(User $user): self {
+    function setUser(User $user): self {
         $this->user = $user;
 
         return $this;
     }
 
-    public function getQuantity(): ?int {
+    function getQuantity(): ?int {
         return $this->quantity;
     }
 
-    public function setQuantity(int $quantity): self {
+    function setQuantity(int $quantity): self {
         $this->quantity = $quantity;
 
         return $this;
     }
 
-    public function getArticle(): ?Article {
+    function getArticle(): ?Article {
         return $this->article;
     }
 
-    public function setArticle(?Article $article): self {
+    function setArticle(?Article $article): self {
         $this->article = $article;
 
         return $this;
     }
 
-    public function getRecipientTransaction(): ?self {
+    function getRecipientTransaction(): ?self {
         return $this->recipientTransaction;
     }
 
-    public function setRecipientTransaction(?self $recipientTransaction): self {
+    function setRecipientTransaction(?self $recipientTransaction): self {
         $this->recipientTransaction = $recipientTransaction;
 
         return $this;
     }
 
-    public function getSenderTransaction(): ?self {
+    function getSenderTransaction(): ?self {
         return $this->senderTransaction;
     }
 
-    public function setSenderTransaction(?self $senderTransaction): self {
+    function setSenderTransaction(?self $senderTransaction): self {
         $this->senderTransaction = $senderTransaction;
 
         return $this;
     }
 
-    public function getComment(): ?string {
+    function getComment(): ?string {
         return $this->comment;
     }
 
-    public function setComment(?string $comment): self {
+    function setComment(?string $comment): self {
         $this->comment = $comment;
 
         return $this;
     }
 
-    public function getAmount(): int {
+    function getAmount(): int {
         return $this->amount;
     }
 
-    public function setAmount(int $amount): self {
+    function setAmount(int $amount): self {
         $this->amount = $amount;
 
         return $this;
     }
 
-    public function isDeleted(): ?bool {
+    function isDeleted(): ?bool {
         return $this->deleted;
     }
 
-    public function setDeleted(bool $deleted): self {
+    function setDeleted(bool $deleted): self {
         $this->deleted = $deleted;
 
         return $this;
     }
 
-    public function getCreated(): ?\DateTimeInterface {
+    function getCreated(): ?\DateTimeInterface {
         return $this->created;
     }
 
-    public function setCreated(\DateTimeInterface $created): self {
+    function setCreated(\DateTimeInterface $created): self {
         $this->created = $created;
 
         return $this;
@@ -169,7 +169,7 @@ class Transaction {
      * @ORM\PrePersist()
      * @param LifecycleEventArgs $event
      */
-    public function setHistoryColumnsOnPrePersist(LifecycleEventArgs $event) {
+    function setHistoryColumnsOnPrePersist(LifecycleEventArgs $event) {
         if (!$this->getCreated()) {
             $this->setCreated(new \DateTime());
         }

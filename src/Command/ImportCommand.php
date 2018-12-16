@@ -20,7 +20,7 @@ class ImportCommand extends Command {
      */
     private $entityManager;
 
-    public function __construct(string $name = null, EntityManagerInterface $entityManager) {
+    function __construct(string $name = null, EntityManagerInterface $entityManager) {
         parent::__construct($name);
         ini_set('memory_limit', '1024M');
 
@@ -57,7 +57,6 @@ class ImportCommand extends Command {
         }
 
         $stmt->execute();
-
 
         $userMapping = [];
         foreach ($stmt as $user) {

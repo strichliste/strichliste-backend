@@ -20,7 +20,7 @@ class SettingsController extends AbstractController {
     /**
      * @Route(methods="GET")
      */
-    public function list() {
+    function list() {
         return $this->json([
             'settings' => $this->settingsService->getAll()
         ]);

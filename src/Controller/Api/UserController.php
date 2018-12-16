@@ -31,7 +31,7 @@ class UserController extends AbstractController {
     /**
      * @Route(methods="GET")
      */
-    public function list(Request $request, UserService $userService, EntityManagerInterface $entityManager) {
+    function list(Request $request, UserService $userService, EntityManagerInterface $entityManager) {
         $active = $request->query->get('active');
 
         $staleDateTime = $userService->getStaleDateTime();
@@ -46,7 +46,7 @@ class UserController extends AbstractController {
         }
 
         return $this->json([
-            'users' => array_map(function(User $user) {
+            'users' => array_map(function (User $user) {
                 return $this->userSerializer->serialize($user);
             }, $users)
         ]);
@@ -55,7 +55,7 @@ class UserController extends AbstractController {
     /**
      * @Route(methods="POST")
      */
-    public function createUser(Request $request, EntityManagerInterface $entityManager) {
+    function createUser(Request $request, EntityManagerInterface $entityManager) {
 
         $name = $request->request->get('name');
         if (!$name) {
@@ -93,7 +93,7 @@ class UserController extends AbstractController {
     /**
      * @Route("/{userId}", methods="GET")
      */
-    public function user($userId, EntityManagerInterface $entityManager) {
+    function user($userId, EntityManagerInterface $entityManager) {
         $user = $entityManager->getRepository(User::class)->findByIdentifier($userId);
 
         if (!$user) {
@@ -108,7 +108,7 @@ class UserController extends AbstractController {
     /**
      * @Route("/{userId}", methods="POST")
      */
-    public function updateUser($userId, Request $request, EntityManagerInterface $entityManager) {
+    function updateUser($userId, Request $request, EntityManagerInterface $entityManager) {
         $user = $entityManager->getRepository(User::class)->findByIdentifier($userId);
 
         if (!$user) {
