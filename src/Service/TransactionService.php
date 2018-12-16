@@ -67,8 +67,8 @@ class TransactionService {
     function doTransaction(User $user, ?int $amount, string $comment = null, ?int $quantity = 1, Article $article = null, User $recipient = null): Transaction {
         $transaction = new Transaction();
 
-        if (($recipient || $article) && $amount < 0) {
-            throw new TransactionInvalidException('Amount can\'t be negative when sending money or buying an article');
+        if (($recipient || $article) && $amount > 0) {
+            throw new TransactionInvalidException('Amount can\'t be positive when sending money or buying an article');
         }
 
         $this->entityManager->transactional(function () use ($transaction, $user, $amount, $comment, $quantity, $article, $recipient) {
