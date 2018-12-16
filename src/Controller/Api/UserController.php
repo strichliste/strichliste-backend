@@ -70,6 +70,10 @@ class UserController extends AbstractController {
             throw new UserAlreadyExistsException($name);
         }
 
+        if (mb_strlen($name) > 64) {
+            throw new ParameterInvalidException('name');
+        }
+
         $user = new User();
         $user->setName($name);
 
