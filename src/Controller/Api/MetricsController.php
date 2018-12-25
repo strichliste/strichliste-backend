@@ -10,6 +10,7 @@ use App\Serializer\ArticleSerializer;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\Query\Expr\Join;
+use Doctrine\ORM\QueryBuilder;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -67,7 +68,7 @@ class MetricsController extends AbstractController {
             ->andWhere('t.recipientTransaction IS NOT NULL')
             ->getQuery()
             ->getOneOrNullResult(Query::HYDRATE_ARRAY);
-
+        
         $incomingTransactions = $this->getUserTransactionBaseQuery($user, $entityManager)
             ->andWhere('t.senderTransaction IS NOT NULL')
             ->getQuery()
@@ -157,13 +158,13 @@ class MetricsController extends AbstractController {
             ->getSingleScalarResult();
     }
 
-    private function getUserTransactionBaseQuery(User $user, EntityManagerInterface $entityManager) {
+    private function getUserTransactionBaseQuery(User $user, EntityManagerInterface $entityManager): QueryBuilder {
         return $entityManager->createQueryBuilder()
             ->select('COUNT(t.id) as count, SUM(t.amount) amount')
             ->from(Transaction::class, 't')
             ->where('t.user = :user')
             ->andWhere('t.deleted = false')
-            ->groupBy('t.id')
+            ->groupBy('t.user')
             ->setParameter('user', $user);
     }
 }
