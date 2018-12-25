@@ -68,7 +68,7 @@ class MetricsController extends AbstractController {
             ->andWhere('t.recipientTransaction IS NOT NULL')
             ->getQuery()
             ->getOneOrNullResult(Query::HYDRATE_ARRAY);
-        
+
         $incomingTransactions = $this->getUserTransactionBaseQuery($user, $entityManager)
             ->andWhere('t.senderTransaction IS NOT NULL')
             ->getQuery()
@@ -79,7 +79,7 @@ class MetricsController extends AbstractController {
 
             'articles' => array_map(function ($article) use ($articleSerializer) {
                 return [
-                    'article' => $articleSerializer->serialize($article['article']),
+                    'article' => $articleSerializer->serializeWithoutPrecursor($article['article']),
                     'count' => (int) $article['count'],
                     'amount' => (int) $article['amount'],
                  ];
