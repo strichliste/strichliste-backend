@@ -6,6 +6,7 @@ use App\Entity\Article;
 use App\Entity\Transaction;
 use App\Entity\User;
 use App\Exception\UserNotFoundException;
+use App\Serializer\ArticleSerializer;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\Query\Expr\Join;
@@ -31,7 +32,7 @@ class MetricsController extends AbstractController {
      * @Route("/api/user/{userId}/metrics", methods="GET")
      */
 
-    function userMetrics($userId, EntityManagerInterface $entityManager) {
+    function userMetrics($userId, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager) {
         /**
          * @var $user User
          */
@@ -42,16 +43,16 @@ class MetricsController extends AbstractController {
         }
 
         $articles = $entityManager->createQueryBuilder()
-            ->select('COUNT(a.id) as count, SUM(t.amount) * -1 as amount, a.name')
+            ->select('COUNT(a.id) as count, SUM(t.amount) * -1 as amount, a as article')
             ->from(Transaction::class, 't')
             ->innerJoin(Article::class, 'a', Join::WITH, 'a = t.article')
             ->where('t.user = :user')
             ->andWhere('t.article IS NOT NULL')
             ->setParameter('user', $user)
-            ->groupBy('a.id')
+            ->groupBy('a')
             ->orderBy('COUNT(a)', 'DESC')
             ->getQuery()
-            ->getArrayResult();
+            ->getResult();
 
         $transactionCount = $entityManager->createQueryBuilder()
             ->select('COUNT(t.id) as count')
@@ -75,9 +76,9 @@ class MetricsController extends AbstractController {
         return $this->json([
             'balance' => $user->getBalance(),
 
-            'articles' => array_map(function ($article) {
+            'articles' => array_map(function ($article) use ($articleSerializer) {
                 return [
-                    'name' => $article['name'],
+                    'article' => $articleSerializer->serialize($article['article']),
                     'count' => (int) $article['count'],
                     'amount' => (int) $article['amount'],
                  ];
