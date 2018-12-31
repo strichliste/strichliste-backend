@@ -8,13 +8,13 @@
         "ext-iconv": "*",
         "ext-json": "*",
         "nelmio/cors-bundle": "^1.5",
-        "symfony/console": "^4.1",
-        "symfony/dotenv": "^4.1",
+        "symfony/console": "^4.2",
+        "symfony/dotenv": "^4.2",
         "symfony/flex": "^1.0",
-        "symfony/framework-bundle": "^4.1",
+        "symfony/framework-bundle": "^4.2",
         "symfony/lts": "^4@dev",
         "symfony/orm-pack": "^1.0",
-        "symfony/yaml": "^4.1"
+        "symfony/yaml": "^4.2"
     },
     "require-dev": {
         "symfony/maker-bundle": "^1.6",
