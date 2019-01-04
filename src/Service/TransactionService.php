@@ -6,9 +6,13 @@ use App\Entity\Article;
 use App\Entity\Transaction;
 use App\Entity\User;
 use App\Exception\AccountBalanceBoundaryException;
+use App\Exception\ArticleInactiveException;
+use App\Exception\ArticleNotFoundException;
 use App\Exception\ParameterNotFoundException;
 use App\Exception\TransactionBoundaryException;
 use App\Exception\TransactionInvalidException;
+use App\Exception\UserNotFoundException;
+use Doctrine\DBAL\LockMode;
 use Doctrine\ORM\EntityManagerInterface;
 
 class TransactionService {
@@ -52,30 +56,46 @@ class TransactionService {
     }
 
     /**
-     * @param User $user
+     * @param int $userId
      * @param int|null $amount
      * @param null|string $comment
      * @param int|null $quantity
-     * @param Article|null $article
-     * @param User|null $recipient
+     * @param int|null $articleId
+     * @param int|null $recipientId
      * @throws AccountBalanceBoundaryException
      * @throws TransactionBoundaryException
      * @throws TransactionInvalidException
      * @throws ParameterNotFoundException
      * @return Transaction
      */
-    function doTransaction(User $user, ?int $amount, string $comment = null, ?int $quantity = 1, Article $article = null, User $recipient = null): Transaction {
-        $transaction = new Transaction();
+    function doTransaction(int $userId, ?int $amount, string $comment = null, ?int $quantity = 1, ?int $articleId = null, ?int $recipientId = null): Transaction {
 
-        if (($recipient || $article) && $amount > 0) {
+        if (($recipientId || $articleId) && $amount > 0) {
             throw new TransactionInvalidException('Amount can\'t be positive when sending money or buying an article');
         }
 
-        $this->entityManager->transactional(function () use ($transaction, $user, $amount, $comment, $quantity, $article, $recipient) {
+        return $this->entityManager->transactional(function () use ($userId, $amount, $comment, $quantity, $articleId, $recipientId) {
+            $transaction = new Transaction();
+
+            $user = $this->entityManager->getRepository(User::class)->find($userId, LockMode::PESSIMISTIC_WRITE);
+            if (!$user) {
+                throw new UserNotFoundException($userId);
+            }
+
             $transaction->setUser($user);
             $transaction->setComment($comment);
 
-            if ($article) {
+            $article = null;
+            if ($articleId) {
+                $article = $this->entityManager->getRepository(Article::class)->find($articleId);
+                if (!$article) {
+                    throw new ArticleNotFoundException($articleId);
+                }
+
+                if (!$article->isActive()) {
+                    throw new ArticleInactiveException($article);
+                }
+
                 $transaction->setQuantity($quantity ?: 1);
 
                 if ($amount === null) {
@@ -88,7 +108,13 @@ class TransactionService {
                 $this->entityManager->persist($article);
             }
 
-            if ($recipient) {
+            $recipient = null;
+            if ($recipientId) {
+                $recipient = $this->entityManager->getRepository(User::class)->find($recipientId, LockMode::PESSIMISTIC_WRITE);
+                if (!$recipient) {
+                    throw new UserNotFoundException($recipientId);
+                }
+
                 $recipientTransaction = new Transaction();
                 $recipientTransaction->setAmount($amount * -1);
                 $recipientTransaction->setArticle($article);
@@ -113,9 +139,9 @@ class TransactionService {
 
             $this->entityManager->persist($transaction);
             $this->entityManager->persist($user);
-        });
 
-        return $transaction;
+            return $transaction;
+        });
     }
 
     /**

@@ -52,40 +52,14 @@ class TransactionController extends AbstractController {
     /**
      * @Route("/user/{userId}/transaction", methods="POST")
      */
-    function createUserTransactions($userId, Request $request, TransactionService $transactionService, EntityManagerInterface $entityManager) {
-
+    function createUserTransactions($userId, Request $request, TransactionService $transactionService) {
         $amount = $request->request->get('amount');
         $quantity = $request->request->get('quantity');
         $comment = $request->request->get('comment');
-
-        $user = $entityManager->getRepository(User::class)->find($userId);
-        if (!$user) {
-            throw new UserNotFoundException($userId);
-        }
-
-        $article = null;
-        $articleId = $request->request->get('articleId');
-        if ($articleId) {
-            $article = $entityManager->getRepository(Article::class)->find($articleId);
-            if (!$article) {
-                throw new ArticleNotFoundException($articleId);
-            }
-
-            if (!$article->isActive()) {
-                throw new ArticleInactiveException($article);
-            }
-        }
-
-        $recipient = null;
         $recipientId = $request->request->get('recipientId');
-        if ($recipientId) {
-            $recipient = $entityManager->getRepository(User::class)->find($recipientId);
-            if (!$recipient) {
-                throw new UserNotFoundException($recipientId);
-            }
-        }
+        $articleId = $request->request->get('articleId');
 
-        $transaction = $transactionService->doTransaction($user, $amount, $comment, $quantity, $article, $recipient);
+        $transaction = $transactionService->doTransaction($userId, $amount, $comment, $quantity, $articleId, $recipientId);
 
         return $this->json([
             'transaction' => $this->transactionSerializer->serialize($transaction),
