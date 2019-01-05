@@ -80,7 +80,8 @@ class ArticleController extends AbstractController {
     /**
      * @Route("/{articleId}", methods="GET")
      */
-    function getArticle($articleId, EntityManagerInterface $entityManager) {
+    function getArticle($articleId, Request $request, EntityManagerInterface $entityManager) {
+        $depth = $request->query->get('depth', 1);
 
         $article = $entityManager->getRepository(Article::class)->find($articleId);
         if (!$article) {
@@ -88,7 +89,7 @@ class ArticleController extends AbstractController {
         }
 
         return $this->json([
-            'article' => $this->articleSerializer->serialize($article),
+            'article' => $this->articleSerializer->serialize($article, $depth),
         ]);
     }
 

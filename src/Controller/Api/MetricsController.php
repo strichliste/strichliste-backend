@@ -79,7 +79,7 @@ class MetricsController extends AbstractController {
 
             'articles' => array_map(function ($article) use ($articleSerializer) {
                 return [
-                    'article' => $articleSerializer->serializeWithoutPrecursor($article['article']),
+                    'article' => $articleSerializer->serialize($article['article'], 0),
                     'count' => (int) $article['count'],
                     'amount' => (int) $article['amount'],
                  ];
