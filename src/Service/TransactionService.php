@@ -11,6 +11,7 @@ use App\Exception\ArticleNotFoundException;
 use App\Exception\ParameterNotFoundException;
 use App\Exception\TransactionBoundaryException;
 use App\Exception\TransactionInvalidException;
+use App\Exception\TransactionNotFoundException;
 use App\Exception\UserNotFoundException;
 use Doctrine\DBAL\LockMode;
 use Doctrine\ORM\EntityManagerInterface;
@@ -145,15 +146,20 @@ class TransactionService {
     }
 
     /**
-     * @param Transaction $transaction
+     * @param int $transactionId
      * @throws AccountBalanceBoundaryException
      * @throws TransactionBoundaryException
      * @throws TransactionInvalidException
      * @throws ParameterNotFoundException
      * @return Transaction
      */
-    function revertTransaction(Transaction $transaction): Transaction {
-        $this->entityManager->transactional(function () use ($transaction) {
+    function revertTransaction(int $transactionId): Transaction {
+        return $this->entityManager->transactional(function () use ($transactionId) {
+
+            $transaction = $this->entityManager->getRepository(Transaction::class)->find($transactionId, LockMode::PESSIMISTIC_WRITE);
+            if (!$transaction) {
+                throw new TransactionNotFoundException($transactionId);
+            }
 
             $article = $transaction->getArticle();
             if ($article) {
@@ -172,9 +178,9 @@ class TransactionService {
             }
 
             $this->undoTransaction($transaction);
-        });
 
-        return $transaction;
+            return $transaction;
+        });
     }
 
     /**

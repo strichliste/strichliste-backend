@@ -2,12 +2,8 @@
 
 namespace App\Controller\Api;
 
-use App\Entity\Article;
 use App\Entity\Transaction;
 use App\Entity\User;
-use App\Exception\ArticleInactiveException;
-use App\Exception\ArticleNotFoundException;
-use App\Exception\TransactionNotDeletableException;
 use App\Exception\TransactionNotFoundException;
 use App\Exception\UserNotFoundException;
 use App\Serializer\TransactionSerializer;
@@ -93,7 +89,15 @@ class TransactionController extends AbstractController {
      * @Route("/user/{userId}/transaction/{transactionId}", methods="GET")
      */
     function getUserTransaction($userId, $transactionId, EntityManagerInterface $entityManager) {
-        $transaction = $this->getTransaction($userId, $transactionId, $entityManager);
+        $user = $entityManager->getRepository(User::class)->find($userId);
+        if (!$user) {
+            throw new UserNotFoundException($userId);
+        }
+
+        $transaction = $entityManager->getRepository(Transaction::class)->find($transactionId);
+        if (!$transaction) {
+            throw new TransactionNotFoundException($transactionId);
+        }
 
         return $this->json([
             'transaction' => $this->transactionSerializer->serialize($transaction),
@@ -103,38 +107,11 @@ class TransactionController extends AbstractController {
     /**
      * @Route("/user/{userId}/transaction/{transactionId}", methods="DELETE")
      */
-    function deleteTransaction($userId, $transactionId, TransactionService $transactionService, EntityManagerInterface $entityManager) {
-        $transaction = $this->getTransaction($userId, $transactionId, $entityManager);
-        if (!$transactionService->isDeletable($transaction)) {
-            throw new TransactionNotDeletableException($transaction);
-        }
-
-        $transactionService->revertTransaction($transaction);
+    function deleteTransaction($userId, $transactionId, TransactionService $transactionService) {
+        $transaction = $transactionService->revertTransaction($transactionId);
 
         return $this->json([
             'transaction' => $this->transactionSerializer->serialize($transaction),
         ]);
-    }
-
-    /**
-     * @param int $userId
-     * @param int $transactionId
-     * @param EntityManagerInterface $entityManager
-     * @throws TransactionNotFoundException
-     * @throws UserNotFoundException
-     * @return Transaction
-     */
-    private function getTransaction(int $userId, int $transactionId, EntityManagerInterface $entityManager): Transaction {
-        $user = $entityManager->getRepository(User::class)->find($userId);
-        if (!$user) {
-            throw new UserNotFoundException($userId);
-        }
-
-        $transaction = $entityManager->getRepository(Transaction::class)->findByUserAndId($user, $transactionId);
-        if (!$transaction) {
-            throw new TransactionNotFoundException($user, $transactionId);
-        }
-
-        return $transaction;
     }
 }
