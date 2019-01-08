@@ -45,6 +45,10 @@ class UserController extends AbstractController {
             $users = $userRepository->findAll();
         }
 
+        usort($users, function (User $a, User $b) {
+           return strnatcasecmp($a->getName(), $b->getName());
+        });
+
         return $this->json([
             'users' => array_map(function (User $user) {
                 return $this->userSerializer->serialize($user);
