@@ -38,14 +38,14 @@ class Transaction {
 
     /**
      * @ORM\OneToOne(targetEntity="App\Entity\Transaction", fetch="EAGER", cascade={"persist", "remove"})
-     * @ORM\JoinColumn(nullable=true)
+     * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
      * @var Transaction
      */
     private $recipientTransaction = null;
 
     /**
      * @ORM\OneToOne(targetEntity="App\Entity\Transaction", fetch="EAGER", cascade={"persist", "remove"})
-     * @ORM\JoinColumn(nullable=true)
+     * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
      * @var Transaction
      */
     private $senderTransaction = null;
