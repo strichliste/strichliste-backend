@@ -46,8 +46,8 @@ class ImportCommand extends Command {
 
         $entityManager = $this->entityManager;
 
-        $entityManager->createQueryBuilder()->delete(User::class)->getQuery()->execute();
         $entityManager->createQueryBuilder()->delete(Transaction::class)->getQuery()->execute();
+        $entityManager->createQueryBuilder()->delete(User::class)->getQuery()->execute();
         $entityManager->createQueryBuilder()->delete(Article::class)->getQuery()->execute();
 
         try {
@@ -86,9 +86,9 @@ class ImportCommand extends Command {
         }
 
         try {
-            $stmt = $connection->query('select userId, value, comment, createDate from transactions');
+            $stmt = $connection->query('select t.userId, value, t.comment, t.createDate from transactions as t join users on users.id = t.userId');
         } catch (\Exception $e) {
-            $stmt = $connection->query("select userId, value, '' as comment, createDate from transactions");
+            $stmt = $connection->query("select t.userId, value, '' as comment, t.createDate from transactions as t join users on users.id = t.userId");
         }
 
         $stmt->execute();
