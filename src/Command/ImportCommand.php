@@ -65,7 +65,7 @@ class ImportCommand extends Command {
 
             // Just in case there is a dub from strichliste1, append id
             if ($entityManager->getRepository(User::class)->findByName($name)) {
-                $output->writeln(sprintf("WARNING: User '%s' (%d) has been renamed to '%s%02d' due to unique constain", $name, $id, $name, $id));
+                $output->writeln(sprintf("WARNING: User '%s' (%d) has been renamed to '%s%02d' due to unique constrain", $name, $id, $name, $id));
                 $name = sprintf('%s%02d', $name, $id);
             }
 
