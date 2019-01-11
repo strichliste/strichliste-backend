@@ -21,7 +21,7 @@ class Transaction {
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\User", fetch="EAGER", inversedBy="transactions")
-     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
+     * @ORM\JoinColumn(nullable=false)
      */
     private $user;
 
