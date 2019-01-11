@@ -55,7 +55,7 @@ class User {
     private $updated;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Transaction", mappedBy="user", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\Transaction", mappedBy="user")
      */
     private $transactions;
 
