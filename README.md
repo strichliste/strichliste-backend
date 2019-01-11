@@ -15,9 +15,14 @@ It’s as simple as that!
 
 ## Demo
 
-See https://demo.strichliste.org
+Curious to see how it works? Check out our Demo at https://demo.strichliste.org
 
 ## API Documentation
 
-See API.md
+For a full documentation or the strichliste2 API, please see the API.md file.
+
+
+## Config Documentation
+
+For documentation of the config parameters in `config/services.yml`, please read the Config.md file.
 
