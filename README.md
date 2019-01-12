@@ -33,7 +33,7 @@ In the vagrant-ansible directory there is a Vagrantfile + Ansible playbook (usin
 cd vagrant  
 vagrant up  
 
-Test it with: 
+Test it with:  
 curl localhost:8080/api/user -H "Content-Type: application/json" -d '{ "name": "test", "email": "test@chaos.de" }'  
 curl localhost:8080/api/user   
 
