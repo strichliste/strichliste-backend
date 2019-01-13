@@ -32,8 +32,14 @@ if ($trustedHosts = $_SERVER['TRUSTED_HOSTS'] ?? false) {
     Request::setTrustedHosts(explode(',', $trustedHosts));
 }
 
+// Workaround until https://github.com/symfony/symfony/pull/27519 is released
 $kernel = new Kernel($env, $debug);
 $request = Request::createFromGlobals();
-$response = $kernel->handle($request);
-$response->send();
+try {
+    $response = $kernel->handle($request);
+    $response->send();
+} catch (\Symfony\Component\HttpKernel\Exception\NotFoundHttpException $e) {
+    $response = new \Symfony\Component\HttpFoundation\Response("404 Not Found", 404);
+    $response->send();
+}
 $kernel->terminate($request, $response);
