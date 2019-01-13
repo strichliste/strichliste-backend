@@ -214,15 +214,18 @@ class TransactionService {
      * @throws ParameterNotFoundException
      */
     private function checkTransactionBoundary($amount) {
-        $upper = $this->settingsService->get('payment.boundary.upper');
-        $lower = $this->settingsService->get('payment.boundary.lower');
-
-        if ($amount > $upper) {
-            throw new TransactionBoundaryException($amount, $upper);
-        } elseif ($amount < $lower) {
-            throw new TransactionBoundaryException($amount, $lower);
-        } elseif (!$amount) {
+        if (!$amount) {
             throw new TransactionInvalidException();
+        }
+
+        $upper = $this->settingsService->getOrDefault('payment.boundary.upper', false);
+        if ($upper !== false && $amount > $upper) {
+            throw new TransactionBoundaryException($amount, $upper);
+        }
+
+        $lower = $this->settingsService->getOrDefault('payment.boundary.lower', false);
+        if ($lower !== false && $amount < $lower) {
+            throw new TransactionBoundaryException($amount, $lower);
         }
     }
 
@@ -233,12 +236,14 @@ class TransactionService {
      */
     private function checkAccountBalanceBoundary(User $user) {
         $balance = $user->getBalance();
-        $upper = $this->settingsService->get('account.boundary.upper');
-        $lower = $this->settingsService->get('account.boundary.lower');
 
-        if ($balance > $upper) {
+        $upper = $this->settingsService->getOrDefault('account.boundary.upper', false);
+        if ($upper !== false && $balance > $upper) {
             throw new AccountBalanceBoundaryException($user, $balance, $upper);
-        } elseif ($balance < $lower) {
+        }
+
+        $lower = $this->settingsService->getOrDefault('account.boundary.lower', false);
+        if ($lower !== false && $balance < $lower) {
             throw new AccountBalanceBoundaryException($user, $balance, $lower);
         }
     }
