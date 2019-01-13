@@ -12,3 +12,4 @@
 
 /.idea
 data.sqlite
+composer.lock
