@@ -5,7 +5,9 @@
   become_user: root
   tasks:
       - name: install dependencies
-        action: apt pkg={{ item }} state=present
+        apt:
+            name: "{{ item }}"
+            state: present
         with_items:
             - git 
             - curl  

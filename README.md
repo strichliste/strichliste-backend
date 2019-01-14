@@ -27,13 +27,3 @@ For a full documentation or the strichliste2 API, please see the API.md file.
 For documentation of the config parameters in `config/services.yml`, please read the Config.md file.
 
 
-## Installation
-
-In the vagrant-ansible directory there is a Vagrantfile + Ansible playbook (using nginx and Debian Buster)  
-cd vagrant  
-vagrant up  
-
-Test it with:  
-curl localhost:8080/api/user -H "Content-Type: application/json" -d '{ "name": "test", "email": "test@chaos.de" }'  
-curl localhost:8080/api/user   
-
