@@ -97,7 +97,7 @@ class MetricsController extends AbstractController {
         return (int)$entityManager->createQueryBuilder()
             ->select('SUM(u.balance) as balance')
             ->from(User::class, 'u')
-            ->where('u.active = true')
+            ->where('u.disabled = false')
             ->getQuery()
             ->getSingleScalarResult();
     }
@@ -120,7 +120,9 @@ class MetricsController extends AbstractController {
                 SUM(amount) as balance
              from 
                 transactions
-             group by DATE(created)");
+             group by DATE(created)
+             order by DATE(created)
+             limit 30");
 
         $stmt->execute();
         $entries = $stmt->fetchAll();
