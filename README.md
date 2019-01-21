@@ -26,3 +26,4 @@ For a full documentation or the strichliste2 API, please see the API.md file.
 
 For documentation of the config parameters in `config/services.yml`, please read the Config.md file.
 
+
