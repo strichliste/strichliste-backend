@@ -1,5 +1,19 @@
 # Strichliste Commands
 
+# Import strichliste 1 database
+
+To import your old strichliste 1 database, copy your `database.sqlite` file, copy it to the strichliste2 directory and run:
+
+```bash
+php bin/console app:import <filename>
+```
+
+| argument   | description                             |
+|------------|-----------------------------------------|
+| filename   | database to import                      |
+
+After import the terminal outputs "Import done!"
+
 ## User Status
 
 Deactivates or activates a user account based on userid or name
