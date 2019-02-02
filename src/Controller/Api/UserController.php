@@ -150,9 +150,9 @@ class UserController extends AbstractController {
         }
 
         // TODO: Find a better way for this tri-state
-        $disabled = $request->request->get('isDisabled');
-        if ($disabled !== null) {
-            $user->setDisabled($disabled === 'true' ? true : false);
+        $isDisabled = $request->request->get('isDisabled');
+        if ($isDisabled !== null) {
+            $user->setDisabled($isDisabled);
         }
 
         $entityManager->persist($user);
