@@ -14,7 +14,7 @@ php bin/console app:import <filename>
 
 After import the terminal outputs "Import done!"
 
-## User Status
+# User Status
 
 Deactivates or activates a user account based on userid or name
 
@@ -27,7 +27,7 @@ php bin/console app:user:status <userId> <active>
 | userId   | username or id                          |
 | active   | true or false to activate or deactivate |
 
-## Retire Data
+# Retire Data
 
 If you want to delete older transactions because of privacy or other reasons, this is the right command to do that
 
@@ -44,7 +44,7 @@ This command deletes all transactions before 10 month and 3 days and skips confi
 | years   | Interval in years              |
 | confirm | Automatically confirm question |
 
-## Cleanup Accounts
+# Cleanup Accounts
 
 This command comes in handy if you want to deactivate older unused accounts to clean up your list of stale users.
 
@@ -60,3 +60,30 @@ php bin/console app:user:cleanup --days=3 --months=10 --maxBalance=300 --confirm
 | confirm    | Automatically confirm question |
 | minBalance | Minimum balance                |
 | maxBalance | Maximum balance                |
+
+# Import from LDAP
+
+**Attention:** If you want to use that feature, you have to install another composer component, which is not included by default!
+
+Just run this command inside your installation:
+```bash
+composer require symfony/ldap
+```
+
+Bare minimum example command:
+```bash
+php bin/console app:ldapimport --host=ldap.company.tld --bindDn="cn=reader,ou=ldapuser,dc=company" --password="yourpass" --baseDn="ou=employee,dc=company"
+```
+
+| argument   | description                                                         |
+|------------|---------------------------------------------------------------------|
+| host       | hostname or IP                                                      |
+| port       | port or your LDAP server (default: 636)                             |
+| ssl        | Enable/Disable SSL (default: ssl, options: none, ssl, tls)          |
+| bindDn     | LDAP user                                                           |
+| password   | Password                                                            |
+| baseDN     | LDAP base DN                                                        |
+| query      | LDAP filter query (default: ($userField=*))                         |
+| userField  | Username field (default: uid)                                       |
+| emailField | Mailaddress field (default: false)                                  |
+| update     | Enable/Disable updating Mailaddress if user exists (default: false) |
