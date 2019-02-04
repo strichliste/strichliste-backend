@@ -116,7 +116,7 @@ class UserController extends AbstractController {
 
         return $this->json([
             'count' => count($results),
-            'articles' => array_map(function (User $user) {
+            'users' => array_map(function (User $user) {
                 return $this->userSerializer->serialize($user);
             }, $results),
         ]);
