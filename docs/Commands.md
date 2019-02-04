@@ -87,3 +87,5 @@ php bin/console app:ldapimport --host=ldap.company.tld --bindDn="cn=reader,ou=ld
 | userField  | Username field (default: uid)                                       |
 | emailField | Mailaddress field (default: false)                                  |
 | update     | Enable/Disable updating Mailaddress if user exists (default: false) |
+
+You can optionally run this commands as a cronjob, to adapt changed in your LDAP directory data.
