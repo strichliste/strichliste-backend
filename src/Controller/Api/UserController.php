@@ -99,6 +99,30 @@ class UserController extends AbstractController {
     }
 
     /**
+     * @Route("/search", methods="GET")
+     */
+    function search(Request $request, EntityManagerInterface $entityManager) {
+        $query = $request->query->get('query');
+        $limit = $request->query->get('limit', 25);
+
+        $results = $entityManager->getRepository(User::class)->createQueryBuilder('u')
+            ->where('u.name LIKE :query')
+            ->andWhere('u.disabled = false')
+            ->setParameter('query', '%' . $query . '%')
+            ->orderBy('u.name')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+
+        return $this->json([
+            'count' => count($results),
+            'articles' => array_map(function (User $user) {
+                return $this->userSerializer->serialize($user);
+            }, $results),
+        ]);
+    }
+
+    /**
      * @Route("/{userId}", methods="GET")
      */
     function user($userId, EntityManagerInterface $entityManager) {

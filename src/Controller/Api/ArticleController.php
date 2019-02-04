@@ -78,6 +78,48 @@ class ArticleController extends AbstractController {
     }
 
     /**
+     * @Route("/search", methods="GET")
+     */
+    function search(Request $request, EntityManagerInterface $entityManager) {
+        $query = $request->query->get('query');
+        $limit = $request->query->get('limit', 25);
+        $barcode = $request->query->get('barcode');
+
+        $queryBuilder = $entityManager->getRepository(Article::class)->createQueryBuilder('a');
+
+        if ($barcode) {
+            $query = false;
+
+            $queryBuilder
+                ->where('a.barcode = :barcode')
+                ->setParameter('barcode', $barcode);
+        }
+
+        if ($query) {
+            $queryBuilder
+                ->where('a.barcode = :barcode')
+                ->orWhere('a.name LIKE :query')
+                ->setParameter('barcode', $query)
+                ->setParameter('query', '%' . $query . '%');
+        }
+
+
+        $results = $queryBuilder
+            ->andWhere('a.active = true')
+            ->orderBy('a.name')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+
+        return $this->json([
+            'count' => count($results),
+            'articles' => array_map(function (Article $article) {
+                return $this->articleSerializer->serialize($article);
+            }, $results),
+        ]);
+    }
+
+    /**
      * @Route("/{articleId}", methods="GET")
      */
     function getArticle($articleId, Request $request, EntityManagerInterface $entityManager) {
