@@ -5,7 +5,7 @@ script:
 - cp .env.dist .env
 - composer install --no-dev --optimize-autoloader
 - rm -rf var/cache/*
-- wget https://github.com/strichliste/strichliste/releases/download/v1.2.0/strichliste-frontend.tar.gz
+- wget https://github.com/strichliste/strichliste/releases/download/v1.3.0/strichliste-frontend.tar.gz
 - tar xvfz strichliste-frontend.tar.gz --strip 1 -C public/
 - rm strichliste-frontend.tar.gz
 - tar cvfz strichliste.tar.gz .env *
