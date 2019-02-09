@@ -7,6 +7,10 @@ parameters:
     webroot: '%kernel.project_dir%/public'
 
     strichliste:
+        paypal:
+            enabled: false
+            recipient: "foo@bar.de"
+            fee: 0
 
         user:
             # See http://de.php.net/manual/en/datetime.formats.relative.php
