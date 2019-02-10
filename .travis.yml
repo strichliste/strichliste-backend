@@ -5,15 +5,12 @@ script:
 - cp .env.dist .env
 - composer install --no-dev --optimize-autoloader
 - rm -rf var/cache/*
-- wget https://github.com/strichliste/strichliste-web-frontend/releases/download/v1.3.1/strichliste-web-frontend.tar.gz
-- tar xvfz strichliste-web-frontend.tar.gz --strip 1 -C public/
-- rm strichliste-web-frontend.tar.gz
-- tar cvfz strichliste.tar.gz .env *
+- tar cvfz strichliste-backend.tar.gz .env *
 deploy:
   provider: releases
   api_key:
     secure: X7n8w4en2d+QSsx1i2ZrpN9SScqh61p74nRzO+HwcHrLCNvemAUyxNYQQnFdySaAt6TN8LbrxNEsifdIjziT9+t3V1B6ReA5crzPthFrcPEwrW64rgb+095iA4+BgWvq4kK/awIGBX6DMLq06nx6KnaZkOyRdKuoYwIgDmQm1zeVAIxAL0a5Lnizg6B301O7PdphrGrqC4qSMFJ08xtBE6OWm2QCSLhGUy6Pac2OMz/5nxWFxFLqXI5T5LgDjOBooV0E12MCzBFmtSlZ5f9nwS5mCY1iHy1Q34MTI4CAba49FJpF72556gkLuBwVg+zDqzZF1/uqaiZhiFKhLLFO0xXLzQpF/s80pWwBWLAH9GSqL9gMDs3KazprcH+5FqVrYASuzBi1fpcVNaqct3IroKXt+f1xugn5Zzj/IspuC76EpYGL9Y77TaROi8vxaAG6/u28tnTPe4fOeUHTPBk7auta9i3Y6lwz3Jbh6ACiDvYKMyowp4yZwVcmZ2y2HW96P8YHGPfPLcYH08QTmCrohoDFgfX6SRZu8jbouItBkCoX5RCDMPH+ijUDjJ+r+/p7nR+nSAGI86FXKEMTkYlxx/uxqB+G0Hai4t3BipxDTsPe9hvOPnxH9XDO3uagzmOFp9LqthLqIQ/MIKTY8TsHU9nKvtGdD2smLB0cFTXQouU=
-  file: strichliste.tar.gz
+  file: strichliste-backend.tar.gz
   skip_cleanup: true
   on:
     repo: strichliste/strichliste-backend
