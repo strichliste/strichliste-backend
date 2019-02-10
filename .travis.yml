@@ -5,7 +5,7 @@ script:
 - cp .env.dist .env
 - composer install --no-dev --optimize-autoloader
 - rm -rf var/cache/*
-- tar cvfz strichliste-backend.tar.gz .env *
+- tar cfz strichliste-backend.tar.gz .env *
 deploy:
   provider: releases
   api_key:
