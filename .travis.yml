@@ -5,9 +5,9 @@ script:
 - cp .env.dist .env
 - composer install --no-dev --optimize-autoloader
 - rm -rf var/cache/*
-- wget https://github.com/strichliste/strichliste/releases/download/v1.3.0/strichliste-frontend.tar.gz
-- tar xvfz strichliste-frontend.tar.gz --strip 1 -C public/
-- rm strichliste-frontend.tar.gz
+- wget https://github.com/strichliste/strichliste-web-frontend/releases/download/v1.3.0/strichliste-web-frontend.tar.gz
+- tar xvfz strichliste-web-frontend.tar.gz --strip 1 -C public/
+- rm strichliste-web-frontend.tar.gz
 - tar cvfz strichliste.tar.gz .env *
 deploy:
   provider: releases
@@ -16,6 +16,6 @@ deploy:
   file: strichliste.tar.gz
   skip_cleanup: true
   on:
-    repo: strichliste/server
+    repo: strichliste/strichliste-backend
     tags: true
     branch: master
