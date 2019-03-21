@@ -284,6 +284,37 @@ Returns a `Transaction-Object`
 * AccountBalanceBoundaryException
 * TransactionBoundaryException
 
+### GET /user/search
+
+#### Description
+
+Search users by name
+
+```json
+{
+  "count": 5,
+  "users": [
+    {
+      "id": 1,
+      "name": "schinken",
+      "active": true,
+      "email": "foo@bar.de",
+      "balance": 233,
+      "created": "2018-08-17 16:20:57",
+      "updated": "2018-08-17 16:22:41"
+    },
+    { }, { }, { }
+  ]
+}
+```
+
+#### Request-Parameters
+
+|  field  | datatype    | description                   |
+|---------|-------------|-------------------------------|
+| query   | string      | search by name                |
+| limit   | int         | max results (default: 25)     |
+
 ### GET /article
 
 #### Description
@@ -397,6 +428,47 @@ Returns the old, deactivated `Article-Object`
 #### Errors
 
 * ArticleNotFoundException
+
+
+### GET /article/search
+
+#### Description
+
+Search by name or barcode
+
+#### Example
+
+```json
+{
+  "count": 5,
+  "articles": [
+    {
+      "id": 2,
+      "name": "Club Mate",
+      "barcode": "13373243",
+      "amount": 100,
+      "active": true,
+      "usageCount": 0,
+      "precursor": null,
+      "created": "2018-08-17 14:21:25"
+    },
+    {}, {}, {}
+  ]
+}
+```
+
+#### Request-Parameters
+
+|  field  | datatype    | description                   |
+|---------|-------------|-------------------------------|
+| query   | string      | search by barcode or name     |
+| barcode | string      | search explicitly by barcode  |
+| limit   | integer     | max results (default 25)      |
+
+
+#### Response
+
+Returns a list of articles as a `Article-Object`
 
 ## Misc
 
