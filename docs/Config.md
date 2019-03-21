@@ -2,6 +2,11 @@
 
 The configuration can be found in config/services.yml. This is also reachable by the `/api/settings` endpoint and used by the frontend
  
+ ## common
+ 
+ | field      | datatype | default    | description          |
+ |------------|----------|------------|----------------------|
+ | idleTimer  | int      | 30000      | Time in milliseconds |
 
 ## user
 
@@ -16,7 +21,6 @@ The configuration can be found in config/services.yml. This is also reachable by
 | dateFormat | string   | YYYY-MM-DD | Date format |
 | timezone   | string   | auto       | Timezone    |
 | language   | string   | en         | Language    |
-
 
 ####  currency:
 

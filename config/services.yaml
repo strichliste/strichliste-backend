@@ -7,6 +7,10 @@ parameters:
     webroot: '%kernel.project_dir%/public'
 
     strichliste:
+
+        common:
+            idleTimer: 30000 # Time in ms
+
         paypal:
             enabled: false
             recipient: "foo@bar.de"
