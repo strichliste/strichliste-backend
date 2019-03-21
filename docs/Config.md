@@ -2,11 +2,23 @@
 
 The configuration can be found in config/services.yml. This is also reachable by the `/api/settings` endpoint and used by the frontend
  
- ## common
+## common
+
+| field      | datatype | default    | description          |
+|------------|----------|------------|----------------------|
+| idleTimer  | int      | 30000      | Time in milliseconds |
  
- | field      | datatype | default    | description          |
- |------------|----------|------------|----------------------|
- | idleTimer  | int      | 30000      | Time in milliseconds |
+## paypal
+
+You can enable the users to pay their debt or charge the account with paypal. All you need
+is a valid paypal account. 
+
+| field      | datatype | default  | description                                    |
+|------------|----------|----------|------------------------------------------------|
+| enabled    | bool     | true     | Enable/Disable paypal feature                  |
+| recipient  | string   | -        | Recipient Mail Address (paypal account)        |
+| fee        | int      | 0        | Fee in percent (is added to the users balance) |
+
 
 ## user
 
