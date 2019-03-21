@@ -1,0 +1,62 @@
+parameters:
+    strichliste:
+
+        common:
+            idleTimer: 30000 # Time in ms
+
+        paypal:
+            enabled: false
+            recipient: "foo@bar.de"
+            fee: 0
+
+        user:
+            # See http://de.php.net/manual/en/datetime.formats.relative.php
+            stalePeriod: '10 day'
+
+        i18n:
+            dateFormat: 'YYYY-MM-DD HH:mm:ss'
+            timezone: 'auto'
+            language: 'en'
+            currency:
+                name: 'Euro'
+                symbol: '€'
+                alpha3: 'EUR'
+
+        account:
+            boundary:
+                upper: 20000
+                lower: -20000
+
+        # Be aware: All amounts are in cents!
+        payment:
+            undo:
+                enabled: true
+                delete: false
+                timeout: '5 minute' # See http://de.php.net/manual/en/datetime.formats.relative.php
+
+            boundary:
+                upper: 15000
+                lower: -2000
+
+            transactions:
+                enabled: true
+
+            deposit:
+                enabled: true
+                custom: true
+                steps:
+                    - 50
+                    - 100
+                    - 200
+                    - 500
+                    - 1000
+
+            dispense:
+                enabled: true
+                custom: true
+                steps:
+                    - 50
+                    - 100
+                    - 200
+                    - 500
+                    - 1000

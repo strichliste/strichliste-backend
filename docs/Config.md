@@ -1,6 +1,8 @@
 # Strichliste Config
 
-The configuration can be found in config/services.yml. This is also reachable by the `/api/settings` endpoint and used by the frontend
+The configuration can be found in `config/strichliste.yaml`. This is also reachable by the `/api/settings` endpoint and used by the frontend.
+
+*Hint*: You can overwrite the import path in `config/services.yaml` if you want to put your config file into another place like `/etc/strichliste.yml`
  
 ## common
 
