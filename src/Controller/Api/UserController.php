@@ -83,7 +83,7 @@ class UserController extends AbstractController {
 
         $email = $request->request->get('email');
         if ($email) {
-            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL) || mb_strlen($email) > 255) {
                 throw new ParameterInvalidException('email');
             }
 
@@ -153,7 +153,6 @@ class UserController extends AbstractController {
         }
 
         if ($name) {
-            // TODO: Use sanitize-helper
             $name = trim($name);
             $name = preg_replace('/[\x00-\x1F\x7F]/u', '', $name);
 
@@ -166,14 +165,13 @@ class UserController extends AbstractController {
 
         $email = $request->request->get('email');
         if ($email) {
-            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL) || mb_strlen($email) > 255) {
                 throw new ParameterInvalidException('email');
             }
 
             $user->setEmail($email);
         }
 
-        // TODO: Find a better way for this tri-state
         $isDisabled = $request->request->get('isDisabled');
         if ($isDisabled !== null) {
             $user->setDisabled($isDisabled);

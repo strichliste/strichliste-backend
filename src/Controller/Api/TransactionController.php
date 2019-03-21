@@ -4,6 +4,7 @@ namespace App\Controller\Api;
 
 use App\Entity\Transaction;
 use App\Entity\User;
+use App\Exception\ParameterInvalidException;
 use App\Exception\TransactionNotFoundException;
 use App\Exception\UserNotFoundException;
 use App\Serializer\TransactionSerializer;
@@ -54,6 +55,10 @@ class TransactionController extends AbstractController {
         $comment = $request->request->get('comment');
         $recipientId = $request->request->get('recipientId');
         $articleId = $request->request->get('articleId');
+
+        if (mb_strlen($comment) > 255) {
+            throw new ParameterInvalidException('comment');
+        }
 
         $transaction = $transactionService->doTransaction($userId, $amount, $comment, $quantity, $articleId, $recipientId);
 
