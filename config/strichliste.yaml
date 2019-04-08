@@ -2,7 +2,7 @@ parameters:
     strichliste:
 
         common:
-            idleTimer: 30000 # Time in ms
+            idleTimeout: 30000 # Time in ms
 
         paypal:
             enabled: false
