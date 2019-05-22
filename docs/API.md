@@ -1,6 +1,6 @@
 # Strichliste API
 
-## API endpoints 
+## API endpoints
 
 ### GET /user
 
@@ -269,7 +269,7 @@ Note: You can access this resource using the `id` or `name` as userId
 | recipientId | integer  | userId of recipient (optional)                      |
 | comment     | string   | comment (optional)                                  |
 
-If an `articleId` is provided, the `amount` parameter overwrites the article amount. 
+If an `articleId` is provided, the `amount` parameter overwrites the article amount.
 `quantity` is only used if an `articleId` is provided - otherwise ignored.
 
 #### Response
@@ -384,7 +384,7 @@ Returns the created `Article-Object`
 
 #### Description
 
-Updated an article. If you update an article, a new one is created with the reference to the old, deactivated one to maintain referencial integrity. 
+Updated an article. If you update an article, a new one is created with the reference to the old, deactivated one to maintain referencial integrity.
 
 #### Example
 
@@ -418,7 +418,7 @@ Returns the newly created `Article-Object`, with the old one as precursor.
 
 #### Description
 
-Deletes an article. (Actually deactivates it) 
+Deletes an article. (Actually deactivates it)
 
 
 #### Response
@@ -469,6 +469,19 @@ Search by name or barcode
 #### Response
 
 Returns a list of articles as a `Article-Object`
+
+
+### GET /settings
+
+#### Description
+
+Returns the settings currently active.
+
+#### Response
+
+Returns the `Settings` from the config file but as JSON.
+
+#### Errors
 
 ## Misc
 

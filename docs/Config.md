@@ -3,17 +3,19 @@
 The configuration can be found in `config/strichliste.yaml`. This is also reachable by the `/api/settings` endpoint and used by the frontend.
 
 *Hint*: You can overwrite the import path in `config/services.yaml` if you want to put your config file into another place like `/etc/strichliste.yml`
- 
+
+*Hint*: You have to clear the cache with the corresponding command to apply config changes.
+
 ## common
 
 | field      | datatype | default    | description          |
 |------------|----------|------------|----------------------|
 | idleTimer  | int      | 30000      | Time in milliseconds |
- 
+
 ## paypal
 
 You can enable the users to pay their debt or charge the account with paypal. All you need
-is a valid paypal account. 
+is a valid paypal account.
 
 | field      | datatype | default  | description                                    |
 |------------|----------|----------|------------------------------------------------|
@@ -67,7 +69,7 @@ The undo operation is a new feature from strichliste2, which allows to revert yo
 
 ####  boundary
 
-You can limit your transaction to prevent accidental payments (like adding a unwanted zero). 
+You can limit your transaction to prevent accidental payments (like adding a unwanted zero).
 
 | field | datatype | default | description             |
 |-------|----------|---------|-------------------------|
@@ -97,7 +99,7 @@ A new strichliste2 feature is transferring money to other accounts with an optio
 | enabled | bool     | true    | Enable/Disable sending money            |
 | custom  | book     | true    | Enable/Disable custom amounts           |
 | steps   | money[]  |         | Available payment steps in unit "money" |
-        
+
 ## Datatypes
 
 #### timeperiod

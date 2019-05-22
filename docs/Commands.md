@@ -61,6 +61,14 @@ php bin/console app:user:cleanup --days=3 --months=10 --maxBalance=300 --confirm
 | minBalance | Minimum balance                |
 | maxBalance | Maximum balance                |
 
+# Clear cache
+
+This command clears the cache which you have to do after changeing the config file to apply the new configuration.
+
+```bash
+php bin/console cache:clear
+```
+
 # Import from LDAP
 
 **Attention:** If you want to use that feature, you have to install another composer component, which is not included by default!
