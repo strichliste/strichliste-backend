@@ -88,16 +88,16 @@ A new strichliste2 feature is transferring money to other accounts with an optio
 
 | field   | datatype | default | description                             |
 |---------|----------|---------|-----------------------------------------|
-| enabled | bool     | true    | Enable/Disable sending money            |
-| custom  | book     | true    | Enable/Disable custom amounts           |
+| enabled | bool     | true    | Enable/Disable quick money pay in       |
+| custom  | book     | true    | Enable/Disable deposit custom amounts   |
 | steps   | money[]  |         | Available payment steps in unit "money" |
 
-#### dispense:
+#### dispense
 
 | field   | datatype | default | description                             |
 |---------|----------|---------|-----------------------------------------|
-| enabled | bool     | true    | Enable/Disable sending money            |
-| custom  | book     | true    | Enable/Disable custom amounts           |
+| enabled | bool     | true    | Enable/Disable quick expend             |
+| custom  | book     | true    | Enable/Disable dispense custom amounts  |
 | steps   | money[]  |         | Available payment steps in unit "money" |
 
 ## Datatypes
