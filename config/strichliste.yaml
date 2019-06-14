@@ -41,6 +41,9 @@ parameters:
             transactions:
                 enabled: true
 
+            splitInvoice:
+                enabled: true
+
             deposit:
                 enabled: true
                 custom: true
