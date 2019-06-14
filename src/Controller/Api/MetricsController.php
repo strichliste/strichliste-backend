@@ -12,7 +12,7 @@ use Doctrine\ORM\Query;
 use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 class MetricsController extends AbstractController {
@@ -20,12 +20,14 @@ class MetricsController extends AbstractController {
     /**
      * @Route("/api/metrics", methods="GET")
      */
-    function metrics(EntityManagerInterface $entityManager) {
+    function metrics(Request $request, EntityManagerInterface $entityManager) {
+        $days = $request->query->get('days', 30);
+
         return $this->json([
             'balance' => $this->getBalance($entityManager),
             'transactionCount' => $this->getTransactionCount($entityManager),
             'userCount' => $this->getUserCount($entityManager),
-            'days' => $this->getTransactionsPerDay($entityManager)
+            'days' => $this->getTransactionsPerDay($entityManager, $days)
         ]);
     }
 
@@ -93,8 +95,8 @@ class MetricsController extends AbstractController {
         ]);
     }
 
-    private function getBalance(EntityManagerInterface $entityManager) {
-        return (int)$entityManager->createQueryBuilder()
+    private function getBalance(EntityManagerInterface $entityManager): int {
+        return $entityManager->createQueryBuilder()
             ->select('SUM(u.balance) as balance')
             ->from(User::class, 'u')
             ->where('u.disabled = false')
@@ -110,46 +112,95 @@ class MetricsController extends AbstractController {
             ->getSingleScalarResult();
     }
 
-    private function getTransactionsPerDay(EntityManagerInterface $entityManager) {
+    private function getTransactionsPerDay(EntityManagerInterface $entityManager, int $days): array {
+        $entries = [];
 
-        $stmt = $entityManager->getConnection()->prepare(
-            "select 
+        $begin = new \DateTime(sprintf('-%d day', $days));
+        $dateBegin = $begin->format('Y-m-d 00:00:00');
+        $end = new \DateTime('tomorrow');
+
+        $interval = \DateInterval::createFromDateString('1 day');
+        $period = new \DatePeriod($begin, $interval, $end);
+
+        foreach ($period as $dt) {
+            $date = $dt->format('Y-m-d');
+
+            $entries[$date] = [
+                'date' => $date,
+                'transactions' => 0,
+                'distinctUsers' => 0,
+                'balance' => 0,
+                'charged' => 0,
+                'spent' => 0
+            ];
+        }
+
+        $stmt = $entityManager
+            ->getConnection()
+            ->prepare(sprintf("SELECT 
                 DATE(created) as date,
-                COUNT(id) as count,
+                COUNT(id) as countTransactions,
                 COUNT(DISTINCT user_id) as distinctUsers,
                 SUM(amount) as balance
-             from 
-                transactions
-             group by DATE(created)
-             order by DATE(created)
-             limit 30");
+             FROM transactions
+             WHERE created >= '%s'
+             GROUP BY DATE(created)
+             ORDER BY DATE(created)
+             LIMIT %d", $dateBegin, $days));
 
         $stmt->execute();
-        $entries = $stmt->fetchAll();
+        foreach($stmt->fetchAll() as $result) {
+            $key = $result['date'];
 
-        $entries = array_map(function ($entry) use ($entityManager) {
-            $entry['positiveBalance'] = (int)$entityManager
-                ->createQueryBuilder()
-                ->select('SUM(t.amount)')
-                ->from(Transaction::class, 't')
-                ->where('t.amount > 0')
-                ->getQuery()
-                ->getSingleScalarResult();
+            $entries[$key] = array_merge($entries[$key], [
+                'date' => $result['date'],
+                'transactions' => (int) $result['countTransactions'],
+                'distinctUsers' => (int) $result['distinctUsers'],
+                'balance' => (int) $result['balance']
+            ]);
+        }
 
-            $entry['negativeBalance'] = (int)$entityManager
-                ->createQueryBuilder()
-                ->select('SUM(t.amount)')
-                ->from(Transaction::class, 't')
-                ->where('t.amount < 0')
-                ->getQuery()
-                ->getSingleScalarResult();
+        $stmt = $entityManager
+            ->getConnection()
+            ->prepare(sprintf("SELECT 
+                DATE(created) as date,
+                SUM(amount) as amount
+             FROM transactions
+             WHERE amount >= 0 and created >= '%s'
+             GROUP BY DATE(created)
+             ORDER BY DATE(created)
+             LIMIT %d", $dateBegin, $days));
 
-            $entry['balance'] = (int)$entry['balance'];
+        $stmt->execute();
+        foreach($stmt->fetchAll() as $result) {
+            $key = $result['date'];
 
-            return $entry;
-        }, $entries);
+            $entries[$key] = array_merge($entries[$key], [
+                'charged' => (int) $result['amount']
+            ]);
+        }
 
-        return $entries;
+        $stmt = $entityManager
+            ->getConnection()
+            ->prepare(sprintf("SELECT 
+                DATE(created) as date,
+                SUM(amount) as amount
+             FROM transactions
+             WHERE amount < 0 and created >= '%s'
+             GROUP BY DATE(created)
+             ORDER BY DATE(created)
+             LIMIT %d", $dateBegin, $days));
+
+        $stmt->execute();
+        foreach($stmt->fetchAll() as $result) {
+            $key = $result['date'];
+
+            $entries[$key] = array_merge($entries[$key], [
+                'spent' => (int) $result['amount']
+            ]);
+        }
+
+        return array_values($entries);
     }
 
     private function getUserCount(EntityManagerInterface $entityManager): int {
