@@ -1,12 +1,20 @@
 <?php
 
-namespace App\EventListener;
+namespace App\EventSubscriber;
 
 use App\Exception\ApiException;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
+use Symfony\Component\HttpKernel\KernelEvents;
 
-class ApiExceptionListener {
+class ApiExceptionSubscriber implements EventSubscriberInterface {
+
+    static function getSubscribedEvents() {
+        return [
+            KernelEvents::EXCEPTION => 'onKernelException',
+        ];
+    }
 
     function onKernelException(GetResponseForExceptionEvent $event) {
 
