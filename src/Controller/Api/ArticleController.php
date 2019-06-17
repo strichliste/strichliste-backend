@@ -43,7 +43,7 @@ class ArticleController extends AbstractController {
             $criteria['barcode'] = $barcode;
         }
 
-        $precursor = $request->query->get('precursor', true);
+        $precursor = $request->query->getBoolean('precursor', true);
         if (!$precursor) {
             $criteria['precursor'] = null;
         }
