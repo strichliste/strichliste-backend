@@ -43,6 +43,11 @@ class ArticleController extends AbstractController {
             $criteria['barcode'] = $barcode;
         }
 
+        $precursor = $request->query->get('precursor', true);
+        if (!$precursor) {
+            $criteria['precursor'] = null;
+        }
+
         $repository = $entityManager->getRepository(Article::class);
         $articles = $repository->findBy($criteria, ['name' => 'ASC'], $limit, $offset);
 
