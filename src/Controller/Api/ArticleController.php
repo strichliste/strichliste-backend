@@ -34,19 +34,20 @@ class ArticleController extends AbstractController {
         $limit = $request->query->get('limit', 25);
         $offset = $request->query->get('offset');
 
-        $repository = $entityManager->getRepository(Article::class);
+        $criteria = [
+            'active' => $request->query->getBoolean('active', true)
+        ];
 
         $barcode = $request->query->get('barcode');
         if ($barcode) {
-            $articles = $repository->findActiveBy(['barcode' => $barcode]);
-        } else {
-            $articles = $repository->findAllActive($limit, $offset);
+            $criteria['barcode'] = $barcode;
         }
 
-        $count = $entityManager->getRepository(Article::class)->countActive();
+        $repository = $entityManager->getRepository(Article::class);
+        $articles = $repository->findBy($criteria, ['name' => 'ASC'], $limit, $offset);
 
         return $this->json([
-            'count' => $count,
+            'count' => $repository->countActive(),
             'articles' => array_map(function (Article $article) {
                 return $this->articleSerializer->serialize($article);
             }, $articles),
