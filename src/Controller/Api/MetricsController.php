@@ -196,7 +196,7 @@ class MetricsController extends AbstractController {
             $key = $result['date'];
 
             $entries[$key] = array_merge($entries[$key], [
-                'spent' => (int) $result['amount']
+                'spent' => (int) $result['amount'] * -1
             ]);
         }
 
