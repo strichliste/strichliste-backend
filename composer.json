@@ -8,17 +8,16 @@
         "ext-iconv": "*",
         "ext-json": "*",
         "nelmio/cors-bundle": "^1.5",
-        "symfony/console": "^4.2",
-        "symfony/dotenv": "^4.2",
-        "symfony/flex": "^1.0",
-        "symfony/framework-bundle": "^4.2",
-        "symfony/lts": "^4@dev",
+        "symfony/console": "^4.3",
+        "symfony/dotenv": "^4.3",
+        "symfony/flex": "^1.2",
+        "symfony/framework-bundle": "^4.3",
         "symfony/orm-pack": "^1.0",
-        "symfony/yaml": "^4.2"
+        "symfony/yaml": "^4.3"
     },
     "require-dev": {
         "symfony/maker-bundle": "^1.6",
-        "symfony/web-server-bundle": "^4.1"
+        "symfony/web-server-bundle": "^4.3"
     },
     "config": {
         "preferred-install": {
