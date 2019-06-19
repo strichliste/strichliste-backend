@@ -101,7 +101,7 @@ class MetricsController extends AbstractController {
             ->from(User::class, 'u')
             ->where('u.disabled = false')
             ->getQuery()
-            ->getSingleScalarResult();
+            ->getSingleScalarResult() ?: 0;
     }
 
     private function getTransactionCount(EntityManagerInterface $entityManager): int {
@@ -109,7 +109,7 @@ class MetricsController extends AbstractController {
             ->select('COUNT(t) as count')
             ->from(Transaction::class, 't')
             ->getQuery()
-            ->getSingleScalarResult();
+            ->getSingleScalarResult() ?: 0;
     }
 
     private function getTransactionsPerDay(EntityManagerInterface $entityManager, int $days): array {
