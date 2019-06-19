@@ -10,7 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\HasLifecycleCallbacks()
- * @ORM\Table(indexes={
+ * @ORM\Table(name="`user`", indexes={
  *     @ORM\Index(name="disabled_updated", columns={"disabled", "updated"})
  * })
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
