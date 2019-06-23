@@ -23,6 +23,7 @@ doctrine:
         dql:
             datetime_functions:
                 date: App\Doctrine\Functions\Date
+                iif: App\Doctrine\Functions\Iif
         mappings:
             App:
                 is_bundle: false

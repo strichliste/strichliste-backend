@@ -135,63 +135,49 @@ class MetricsController extends AbstractController {
             ];
         }
 
-        $transactions = $this->getTransactionBaseSelect($entityManager, $dateBegin, $days)->getQuery()->getArrayResult();
-        foreach($transactions as $transaction) {
-            $key = $transaction['createDate'];
 
-            $entries[$key] = array_merge($entries[$key], [
-                'date' => $transaction['createDate'],
-                'transactions' => (int) $transaction['countTransactions'],
-                'distinctUsers' => (int) $transaction['distinctUsers'],
-                'balance' => (int) $transaction['amount']
-            ]);
-        }
-
-        $positiveTransactions = $this->getTransactionBaseSelect($entityManager, $dateBegin, $days)->andWhere('t.amount >= 0')
-            ->getQuery()->getArrayResult();
-        foreach($positiveTransactions as $transaction) {
-            $key = $transaction['createDate'];
-
-            $entries[$key] = array_merge($entries[$key], [
-                'charged' => [
-                    'amount' => (int) $transaction['amount'] * -1,
-                    'transactions' => (int) $transaction['countTransactions'],
-                    'users' => (int) $transaction['distinctUsers']
-                ]
-            ]);
-        }
-
-        $negativeTransactions = $this->getTransactionBaseSelect($entityManager, $dateBegin, $days)->andWhere('t.amount < 0')
-            ->getQuery()->getArrayResult();
-        foreach($negativeTransactions as $transaction) {
-            $key = $transaction['createDate'];
-
-            $entries[$key] = array_merge($entries[$key], [
-                'spent' => [
-                    'amount' => (int) $transaction['amount'] * -1,
-                    'transactions' => (int) $transaction['countTransactions'],
-                    'users' => (int) $transaction['distinctUsers']
-                ]
-            ]);
-        }
-
-        return array_values($entries);
-    }
-
-    private function getTransactionBaseSelect(EntityManagerInterface $entityManager, string $created, int $days): QueryBuilder {
-        return $entityManager
+        $results = $entityManager
             ->createQueryBuilder()
             ->select([
                 'DATE(t.created) as createDate',
                 'COUNT(t.id) as countTransactions',
+                'SUM(IIF(t.amount >= 0, 1, 0)) as countCharged',
+                'SUM(IIF(t.amount < 0, 1, 0)) as countSpent',
                 'COUNT(DISTINCT t.user) as distinctUsers',
-                'SUM(t.amount) as amount'
+                'SUM(t.amount) as amount',
+                'SUM(IIF(t.amount >= 0, t.amount, 0)) as amountCharged',
+                'SUM(IIF(t.amount < 0, t.amount, 0)) as amountSpent',
             ])
             ->from(Transaction::class, 't')
             ->where('t.created >= :created')
-            ->setParameter('created', $created)
+            ->setParameter('created', $dateBegin)
             ->groupBy('createDate')
-            ->orderBy('createDate');
+            ->orderBy('createDate')
+            ->getQuery()
+            ->getArrayResult();
+
+        foreach($results as $result) {
+            $key = $result['createDate'];
+
+            $entries[$key] = array_merge($entries[$key], [
+                'date' => $result['createDate'],
+                'transactions' => (int) $result['countTransactions'],
+                'distinctUsers' => (int) $result['distinctUsers'],
+                'balance' => (int) $result['amount'],
+
+                'charged' => [
+                    'amount' => (int) $result['amountCharged'],
+                    'transactions' => (int) $result['countCharged']
+                ],
+
+                'spent' => [
+                    'amount' => (int) $result['amountSpent'] * -1,
+                    'transactions' => (int) $result['countSpent']
+                ]
+            ]);
+        }
+
+        return array_values(array_reverse($entries));
     }
 
     private function getUserCount(EntityManagerInterface $entityManager): int {

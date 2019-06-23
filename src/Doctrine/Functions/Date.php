@@ -12,28 +12,26 @@ class Date extends FunctionNode {
     public $date;
 
     function getSql(\Doctrine\ORM\Query\SqlWalker $sqlWalker) {
-        $function = $this->getFunctionByPlatform(
-            $sqlWalker->getConnection()->getDatabasePlatform()
+        return $this->getFunctionByPlatform(
+            $sqlWalker->getConnection()->getDatabasePlatform(),
+            $sqlWalker->walkArithmeticPrimary($this->date)
         );
-
-        return sprintf($function, $sqlWalker->walkArithmeticPrimary($this->date));
     }
 
-    private function getFunctionByPlatform(AbstractPlatform $platform): string {
+    private function getFunctionByPlatform(AbstractPlatform $platform, string $date): string {
         switch ($platform->getName()) {
             case 'oracle':
-                return "TO_DATE(%s, 'YYYY-MON-DD')";
+                return sprintf("TO_DATE(%s, 'YYYY-MON-DD')", $date);
 
             case 'mssql':
-                return "CONVERT(VARCHAR, %s, 23)";
+                return sprintf("CONVERT(VARCHAR, %s, 23)", $date);
 
+            default:
             case 'mysql':
             case 'sqlite':
             case 'postgresql':
-                return "DATE(%s)";
+                return sprintf("DATE(%s)", $date);
         }
-
-        return "%s";
     }
 
     function parse(\Doctrine\ORM\Query\Parser $parser) {
