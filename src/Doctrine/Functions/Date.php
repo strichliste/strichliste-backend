@@ -15,7 +15,7 @@ class Date extends FunctionNode {
         $function = $this->getFunctionByPlatform(
             $sqlWalker->getConnection()->getDatabasePlatform()
         );
-        
+
         return sprintf($function, $sqlWalker->walkArithmeticPrimary($this->date));
     }
 
