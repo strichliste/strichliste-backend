@@ -143,7 +143,7 @@ class MetricsController extends AbstractController {
                 'date' => $transaction['createDate'],
                 'transactions' => (int) $transaction['countTransactions'],
                 'distinctUsers' => (int) $transaction['distinctUsers'],
-                'balance' => (int) $transaction['balance']
+                'balance' => (int) $transaction['amount']
             ]);
         }
 
@@ -153,7 +153,11 @@ class MetricsController extends AbstractController {
             $key = $transaction['createDate'];
 
             $entries[$key] = array_merge($entries[$key], [
-                'charged' => (int) $transaction['amount']
+                'charged' => [
+                    'amount' => (int) $transaction['amount'] * -1,
+                    'transactions' => (int) $transaction['countTransactions'],
+                    'users' => (int) $transaction['distinctUsers']
+                ]
             ]);
         }
 
@@ -163,7 +167,11 @@ class MetricsController extends AbstractController {
             $key = $transaction['createDate'];
 
             $entries[$key] = array_merge($entries[$key], [
-                'spent' => (int) $transaction['amount'] * -1
+                'spent' => [
+                    'amount' => (int) $transaction['amount'] * -1,
+                    'transactions' => (int) $transaction['countTransactions'],
+                    'users' => (int) $transaction['distinctUsers']
+                ]
             ]);
         }
 
@@ -177,7 +185,7 @@ class MetricsController extends AbstractController {
                 'DATE(t.created) as createDate',
                 'COUNT(t.id) as countTransactions',
                 'COUNT(DISTINCT t.user) as distinctUsers',
-                'SUM(t.amount) as balance'
+                'SUM(t.amount) as amount'
             ])
             ->from(Transaction::class, 't')
             ->where('t.created >= :created')
