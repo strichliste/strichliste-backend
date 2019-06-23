@@ -135,72 +135,55 @@ class MetricsController extends AbstractController {
             ];
         }
 
-        $stmt = $entityManager
-            ->getConnection()
-            ->prepare(sprintf("SELECT 
-                DATE(created) as date,
-                COUNT(id) as countTransactions,
-                COUNT(DISTINCT user_id) as distinctUsers,
-                SUM(amount) as balance
-             FROM transactions
-             WHERE created >= '%s'
-             GROUP BY DATE(created)
-             ORDER BY DATE(created)
-             LIMIT %d", $dateBegin, $days));
-
-        $stmt->execute();
-        foreach($stmt->fetchAll() as $result) {
-            $key = $result['date'];
+        $transactions = $this->getTransactionBaseSelect($entityManager, $dateBegin, $days)->getQuery()->getArrayResult();
+        foreach($transactions as $transaction) {
+            $key = $transaction['createDate'];
 
             $entries[$key] = array_merge($entries[$key], [
-                'date' => $result['date'],
-                'transactions' => (int) $result['countTransactions'],
-                'distinctUsers' => (int) $result['distinctUsers'],
-                'balance' => (int) $result['balance']
+                'date' => $transaction['createDate'],
+                'transactions' => (int) $transaction['countTransactions'],
+                'distinctUsers' => (int) $transaction['distinctUsers'],
+                'balance' => (int) $transaction['balance']
             ]);
         }
 
-        $stmt = $entityManager
-            ->getConnection()
-            ->prepare(sprintf("SELECT 
-                DATE(created) as date,
-                SUM(amount) as amount
-             FROM transactions
-             WHERE amount >= 0 and created >= '%s'
-             GROUP BY DATE(created)
-             ORDER BY DATE(created)
-             LIMIT %d", $dateBegin, $days));
-
-        $stmt->execute();
-        foreach($stmt->fetchAll() as $result) {
-            $key = $result['date'];
+        $positiveTransactions = $this->getTransactionBaseSelect($entityManager, $dateBegin, $days)->andWhere('t.amount >= 0')
+            ->getQuery()->getArrayResult();
+        foreach($positiveTransactions as $transaction) {
+            $key = $transaction['createDate'];
 
             $entries[$key] = array_merge($entries[$key], [
-                'charged' => (int) $result['amount']
+                'charged' => (int) $transaction['amount']
             ]);
         }
 
-        $stmt = $entityManager
-            ->getConnection()
-            ->prepare(sprintf("SELECT 
-                DATE(created) as date,
-                SUM(amount) as amount
-             FROM transactions
-             WHERE amount < 0 and created >= '%s'
-             GROUP BY DATE(created)
-             ORDER BY DATE(created)
-             LIMIT %d", $dateBegin, $days));
-
-        $stmt->execute();
-        foreach($stmt->fetchAll() as $result) {
-            $key = $result['date'];
+        $negativeTransactions = $this->getTransactionBaseSelect($entityManager, $dateBegin, $days)->andWhere('t.amount < 0')
+            ->getQuery()->getArrayResult();
+        foreach($negativeTransactions as $transaction) {
+            $key = $transaction['createDate'];
 
             $entries[$key] = array_merge($entries[$key], [
-                'spent' => (int) $result['amount'] * -1
+                'spent' => (int) $transaction['amount'] * -1
             ]);
         }
 
         return array_values($entries);
+    }
+
+    private function getTransactionBaseSelect(EntityManagerInterface $entityManager, string $created, int $days): QueryBuilder {
+        return $entityManager
+            ->createQueryBuilder()
+            ->select([
+                'DATE(t.created) as createDate',
+                'COUNT(t.id) as countTransactions',
+                'COUNT(DISTINCT t.user) as distinctUsers',
+                'SUM(t.amount) as balance'
+            ])
+            ->from(Transaction::class, 't')
+            ->where('t.created >= :created')
+            ->setParameter('created', $created)
+            ->groupBy('createDate')
+            ->orderBy('createDate');
     }
 
     private function getUserCount(EntityManagerInterface $entityManager): int {
