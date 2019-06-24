@@ -24,7 +24,7 @@ class MetricsController extends AbstractController {
      */
     function metrics(Request $request, ArticleRepository $articleRepository, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager) {
         $days = $request->query->get('days', 30);
-        $articles = $articleRepository->findBy(['active' => true], ['usageCount' => 'ASC']);
+        $articles = $articleRepository->findBy(['active' => true], ['usageCount' => 'DESC']);
 
         return $this->json([
             'balance' => $this->getBalance($entityManager),
