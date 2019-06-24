@@ -95,16 +95,8 @@ class MetricsController extends AbstractController {
 
             'transactions' => [
                 'count' => (int) $transactionCount,
-
-                'charged' => [
-                    'amount' => (int) $outgoingTransactions['count'],
-                    'transactions' => (int) $outgoingTransactions['amount']
-                ],
-
-                'spent' => [
-                    'amount' => (int) $incomingTransactions['count'],
-                    'transactions' => (int)  $incomingTransactions['amount']
-                ]
+                'outgoing' => ['count' => (int) $outgoingTransactions['count'], 'amount' => (int) $outgoingTransactions['amount']],
+                'incoming' => ['count' => (int) $incomingTransactions['count'], 'amount' => (int) $incomingTransactions['amount']],
             ]
         ]);
     }
