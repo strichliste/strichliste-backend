@@ -6,7 +6,9 @@ use App\Entity\Article;
 use App\Entity\Transaction;
 use App\Entity\User;
 use App\Exception\UserNotFoundException;
+use App\Repository\ArticleRepository;
 use App\Serializer\ArticleSerializer;
+use App\Service\ArticleService;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\Query\Expr\Join;
@@ -20,13 +22,17 @@ class MetricsController extends AbstractController {
     /**
      * @Route("/api/metrics", methods="GET")
      */
-    function metrics(Request $request, EntityManagerInterface $entityManager) {
+    function metrics(Request $request, ArticleRepository $articleRepository, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager) {
         $days = $request->query->get('days', 30);
+        $articles = $articleRepository->findBy(['active' => true], ['usageCount' => 'ASC']);
 
         return $this->json([
             'balance' => $this->getBalance($entityManager),
             'transactionCount' => $this->getTransactionCount($entityManager),
             'userCount' => $this->getUserCount($entityManager),
+            'articles' => array_map(function (Article $article) use ($articleSerializer) {
+                return $articleSerializer->serialize($article, 0);
+            }, $articles),
             'days' => $this->getTransactionsPerDay($entityManager, $days)
         ]);
     }
