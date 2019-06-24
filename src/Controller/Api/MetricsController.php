@@ -141,12 +141,12 @@ class MetricsController extends AbstractController {
             ->select([
                 'DATE(t.created) as createDate',
                 'COUNT(t.id) as countTransactions',
-                'SUM(IIF(t.amount >= 0, 1, 0)) as countCharged',
-                'SUM(IIF(t.amount < 0, 1, 0)) as countSpent',
+                'SUM((CASE WHEN t.amount >= 0 THEN 1 ELSE 0 END)) as countCharged',
+                'SUM((CASE WHEN t.amount < 0 THEN 1 ELSE 0 END)) as countSpent',
                 'COUNT(DISTINCT t.user) as distinctUsers',
                 'SUM(t.amount) as amount',
-                'SUM(IIF(t.amount >= 0, t.amount, 0)) as amountCharged',
-                'SUM(IIF(t.amount < 0, t.amount, 0)) as amountSpent',
+                'SUM((CASE WHEN t.amount >= 0 THEN t.amount ELSE 0 END)) as amountCharged',
+                'SUM((CASE WHEN t.amount < 0 THEN t.amount ELSE 0 END)) as amountSpent',
             ])
             ->from(Transaction::class, 't')
             ->where('t.created >= :created')
