@@ -1,6 +1,10 @@
 parameters:
     strichliste:
 
+        article:
+            enabled: true
+            autoOpen: false
+
         common:
             idleTimeout: 30000 # Time in ms
 
