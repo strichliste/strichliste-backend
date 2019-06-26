@@ -9,6 +9,7 @@ use App\Exception\ArticleNotFoundException;
 use App\Serializer\ArticleSerializer;
 use App\Service\ArticleService;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Query\Expr\Join;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -33,26 +34,43 @@ class ArticleController extends AbstractController {
     function list(Request $request, EntityManagerInterface $entityManager) {
         $limit = $request->query->get('limit', 25);
         $offset = $request->query->get('offset');
+        $active = $request->query->getBoolean('active', true);
 
-        $criteria = [
-            'active' => $request->query->getBoolean('active', true)
-        ];
+        $queryBuilder = $entityManager->createQueryBuilder()
+            ->select('a1')
+            ->from(Article::class, 'a1')
+            ->where('a1.active = :active')
+            ->setParameter('active', $active);
 
         $barcode = $request->query->get('barcode');
         if ($barcode) {
-            $criteria['barcode'] = $barcode;
+            $queryBuilder
+                ->andWhere('a1.barcode = :barcode')
+                ->setParameter('barcode', $barcode);
         }
 
         $precursor = $request->query->getBoolean('precursor', true);
         if (!$precursor) {
-            $criteria['precursor'] = null;
+            $queryBuilder->andWhere('a1.precursor IS NULL');
         }
 
-        $repository = $entityManager->getRepository(Article::class);
-        $articles = $repository->findBy($criteria, ['name' => 'ASC'], $limit, $offset);
+        $ancestor = $request->query->get('ancestor', null);
+        if ($ancestor === 'true') {
+            $queryBuilder->leftJoin(Article::class, 'a2', Join::WITH, 'a2.precursor = a1.id')->andWhere('a2.id IS NOT NULL');
+        } elseif ($ancestor === 'false') {
+            $queryBuilder->leftJoin(Article::class, 'a2', Join::WITH, 'a2.precursor = a1.id')->andWhere('a2.id IS NULL');
+        }
+
+        $queryBuilder
+            ->setFirstResult($offset)
+            ->setMaxResults($limit)
+            ->orderBy('a1.name', 'ASC');
+
+        $articles = $queryBuilder->getQuery()->getResult();
+        $articleRepository = $entityManager->getRepository(Article::class);
 
         return $this->json([
-            'count' => $repository->countActive(),
+            'count' => $articleRepository->countActive(),
             'articles' => array_map(function (Article $article) {
                 return $this->articleSerializer->serialize($article);
             }, $articles),
