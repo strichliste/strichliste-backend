@@ -165,6 +165,18 @@ class Article {
         $this->usageCount--;
     }
 
+    function isActivatable(): bool {
+        if ($this->isActive()) {
+            return false;
+        }
+
+        if ($this->getPrecursor()) {
+            return false;
+        }
+
+        return true;
+    }
+
     /**
      * @ORM\PrePersist()
      * @param LifecycleEventArgs $event

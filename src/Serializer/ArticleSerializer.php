@@ -38,9 +38,11 @@ class ArticleSerializer {
             }, $tags),
             'amount' => $article->getAmount(),
             'isActive' => $article->isActive(),
+            'isActivatable' => $article->isActivatable(),
             'usageCount' => $article->getUsageCount(),
             'precursor' => $precursor ? self::serialize($precursor, $depth - 1) : null,
             'created' => $article->getCreated()->format('Y-m-d H:i:s')
         ];
     }
+
 }

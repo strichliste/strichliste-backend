@@ -85,16 +85,6 @@ class ArticleController extends AbstractController {
     function createArticle(Request $request, ArticleService $articleService, EntityManagerInterface $entityManager) {
         $article = $articleService->createArticleByRequest($request);
 
-        if ($article->getBarcodes()) {
-            $existingArticle = $entityManager->getRepository(Article::class)->findOneActiveBy([
-                'barcode' => $article->getBarcode()
-            ]);
-
-            if ($existingArticle) {
-                throw new ArticleBarcodeAlreadyExistsException($existingArticle);
-            }
-        }
-
         $entityManager->persist($article);
         $entityManager->flush();
 
