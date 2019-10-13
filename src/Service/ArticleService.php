@@ -4,7 +4,6 @@ namespace App\Service;
 
 
 use App\Entity\Article;
-use App\Exception\ArticleBarcodeAlreadyExistsException;
 use App\Exception\ParameterMissingException;
 use App\Repository\TransactionRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -36,7 +35,10 @@ class ArticleService {
         if ($referenceCount == 0) {
             $article->setName($newArticle->getName());
             $article->setAmount($newArticle->getAmount());
-            $article->setActive($newArticle->isActive());
+
+            if ($article->isActivatable() && $newArticle->isActive()) {
+                $article->setActive(true);
+            }
 
             $this->entityManager->persist($article);
             $this->entityManager->flush();
@@ -86,9 +88,12 @@ class ArticleService {
             throw new ParameterMissingException('amount');
         }
 
+        $active = $request->request->getBoolean('active', true);
+
         $article = new Article();
         $article->setName(trim($name));
         $article->setAmount($amount);
+        $article->setActive($active);
 
         return $article;
     }
