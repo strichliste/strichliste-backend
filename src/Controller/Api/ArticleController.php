@@ -3,6 +3,8 @@
 namespace App\Controller\Api;
 
 use App\Entity\Article;
+use App\Entity\Barcode;
+use App\Entity\Tag;
 use App\Exception\ArticleBarcodeAlreadyExistsException;
 use App\Exception\ArticleInactiveException;
 use App\Exception\ArticleNotFoundException;
@@ -83,7 +85,7 @@ class ArticleController extends AbstractController {
     function createArticle(Request $request, ArticleService $articleService, EntityManagerInterface $entityManager) {
         $article = $articleService->createArticleByRequest($request);
 
-        if ($article->getBarcode()) {
+        if ($article->getBarcodes()) {
             $existingArticle = $entityManager->getRepository(Article::class)->findOneActiveBy([
                 'barcode' => $article->getBarcode()
             ]);
@@ -108,30 +110,45 @@ class ArticleController extends AbstractController {
         $query = $request->query->get('query');
         $limit = $request->query->get('limit', 25);
         $barcode = $request->query->get('barcode');
+        $tag = $request->query->get('tag');
 
-        $queryBuilder = $entityManager->getRepository(Article::class)->createQueryBuilder('a');
+        $queryBuilder = $entityManager
+            ->getRepository(Article::class)
+            ->createQueryBuilder('a')
+            ->leftJoin(Barcode::class, 'b', Join::WITH, 'b.article = a')
+            ->leftJoin(Tag::class, 't', Join::WITH, 't.article = a');
 
         if ($barcode) {
             $query = false;
 
             $queryBuilder
-                ->where('a.barcode = :barcode')
+                ->where('b.barcode = :barcode')
                 ->setParameter('barcode', $barcode);
+        }
+
+        if ($tag) {
+            $query = false;
+
+            $queryBuilder
+                ->where('t.tag = :tag')
+                ->setParameter('tag', $tag);
         }
 
         if ($query) {
             $queryBuilder
-                ->where('a.barcode = :barcode')
+                ->where('b.barcode = :barcode')
+                ->orWhere('t.tag = :tag')
                 ->orWhere('a.name LIKE :query')
                 ->setParameter('barcode', $query)
+                ->setParameter('tag', $query)
                 ->setParameter('query', '%' . $query . '%');
         }
-
 
         $results = $queryBuilder
             ->andWhere('a.active = true')
             ->orderBy('a.name')
             ->setMaxResults($limit)
+            ->groupBy('a')
             ->getQuery()
             ->getResult();
 

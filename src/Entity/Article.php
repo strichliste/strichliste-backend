@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -24,9 +26,14 @@ class Article {
     private $name;
 
     /**
-     * @ORM\Column(type="string", length=32, nullable=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\Barcode", fetch="EAGER", mappedBy="article", cascade={"persist"})
      */
-    private $barcode = null;
+    private $barcodes;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Tag", fetch="EAGER", mappedBy="article", cascade={"persist"})
+     */
+    private $tags;
 
     /**
      * @ORM\Column(type="integer")
@@ -53,6 +60,11 @@ class Article {
      */
     private $usageCount = 0;
 
+    function __construct() {
+        $this->barcodes = new ArrayCollection();
+        $this->tags = new ArrayCollection();
+    }
+
     function getId(): ?int {
         return $this->id;
     }
@@ -67,12 +79,30 @@ class Article {
         return $this;
     }
 
-    function getBarcode(): ?string {
-        return $this->barcode;
+    /**
+     * @return Barcode[]
+     */
+    function getBarcodes(): Collection {
+        return $this->barcodes;
     }
 
-    function setBarcode(?string $barcode): self {
-        $this->barcode = $barcode;
+    function addBarcode(Barcode $barcode): self {
+        $this->barcodes[] = $barcode;
+        $barcode->setArticle($this);
+
+        return $this;
+    }
+
+    /**
+     * @return Tag[]
+     */
+    function getTags(): Collection {
+        return $this->tags;
+    }
+
+    function addTag(Tag $tag): self {
+        $this->tags[] = $tag;
+        $tag->setArticle($this);
 
         return $this;
     }
