@@ -10,7 +10,7 @@ class TagSerializer {
 
         return [
             'id' => $tag->getId(),
-            'barcode' => $tag->getTag(),
+            'tag' => $tag->getTag(),
             'created' => $tag->getCreated()->format('Y-m-d H:i:s')
         ];
     }
