@@ -6,6 +6,7 @@ use App\Entity\Article;
 use App\Entity\Barcode;
 use App\Exception\ArticleBarcodeAlreadyExistsException;
 use App\Exception\ArticleNotFoundException;
+use App\Exception\BarcodeInvalidException;
 use App\Exception\BarcodeNotFoundException;
 use App\Serializer\ArticleSerializer;
 use App\Serializer\BarcodeSerializer;
@@ -73,6 +74,10 @@ class BarcodeController extends AbstractController {
      */
     function addArticleBarcode(int $articleId, Request $request, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager) {
         $barcode = $request->request->get('barcode');
+
+        if (!$barcode) {
+            throw new BarcodeInvalidException($barcode);
+        }
 
         $article = $entityManager->getRepository(Article::class)->find($articleId);
         if (!$article) {
