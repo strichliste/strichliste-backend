@@ -38,7 +38,7 @@ final class Version20191013083741 extends AbstractMigration {
         $this->addSql('ALTER TABLE article_tag ADD CONSTRAINT FK_919694F9BAD26311 FOREIGN KEY (tag_id) REFERENCES tag (id)');
 
         // Migrate barcodes
-        $this->addSql("INSERT INTO barcode (article_id, barcode, created) SELECT id, barcode, NOW() FROM article WHERE barcode IS NOT NULL AND barcode <> ''");
+        $this->addSql("INSERT INTO barcode (article_id, barcode, created) SELECT id, barcode, NOW() FROM article WHERE barcode IS NOT NULL AND barcode <> '' AND active = 1");
 
         $this->addSql('ALTER TABLE article DROP barcode');
     }
@@ -56,7 +56,7 @@ final class Version20191013083741 extends AbstractMigration {
         $this->addSql('CREATE TABLE tag (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, tag VARCHAR(255) NOT NULL, created DATETIME NOT NULL)');
 
         // Migrate barcodes
-        $this->addSql("INSERT INTO barcode (article_id, barcode, created) SELECT id, barcode, date('now') FROM article WHERE barcode IS NOT NULL AND barcode <> ''");
+        $this->addSql("INSERT INTO barcode (article_id, barcode, created) SELECT id, barcode, date('now') FROM article WHERE barcode IS NOT NULL AND barcode <> '' AND active = 1");
 
         // SQLITE does not support alter table add/remove column, so we have to copy the whole table with a temp table
         $this->addSql('DROP INDEX UNIQ_23A0E66FA546BCC');
@@ -84,7 +84,7 @@ final class Version20191013083741 extends AbstractMigration {
         $this->addSql('CREATE UNIQUE INDEX article_tag ON article_tag (article_id, tag_id)');
 
         // Migrate barcodes
-        $this->addSql('INSERT INTO barcode (article_id, barcode, created) SELECT id, barcode, NOW() FROM article WHERE barcode IS NOT NULL AND barcode <> \'\'');
+        $this->addSql("INSERT INTO barcode (article_id, barcode, created) SELECT id, barcode, NOW()FROM article WHERE barcode IS NOT NULL AND barcode <> '' AND active = 1");
 
         $this->addSql('ALTER TABLE article DROP barcode');
     }
