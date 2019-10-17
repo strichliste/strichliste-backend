@@ -31,9 +31,9 @@ class Article {
     private $barcodes;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Tag", fetch="EAGER", mappedBy="article", cascade={"persist"})
+     * @ORM\OneToMany(targetEntity="App\Entity\ArticleTag", fetch="EAGER", mappedBy="article", cascade={"persist", "remove"})
      */
-    private $tags;
+    private $articleTags;
 
     /**
      * @ORM\Column(type="integer")
@@ -62,7 +62,7 @@ class Article {
 
     function __construct() {
         $this->barcodes = new ArrayCollection();
-        $this->tags = new ArrayCollection();
+        $this->articleTags = new ArrayCollection();
     }
 
     function getId(): ?int {
@@ -82,13 +82,13 @@ class Article {
     /**
      * @return Barcode[]
      */
-    function getBarcodes(): Collection {
-        return $this->barcodes;
+    function getBarcodes(): array {
+        return $this->barcodes->getValues();
     }
 
     function addBarcode(Barcode $barcode): self {
-        $this->barcodes[] = $barcode;
         $barcode->setArticle($this);
+        $this->barcodes[] = $barcode;
 
         return $this;
     }
@@ -96,15 +96,37 @@ class Article {
     /**
      * @return Tag[]
      */
-    function getTags(): Collection {
-        return $this->tags;
+    function getTags(): array {
+        return array_map(function(ArticleTag $articleTag) {
+            return $articleTag->getTag();
+        }, $this->articleTags->getValues());
+    }
+
+    /**
+     * @return ArticleTag[]
+     */
+    function getArticleTags(): array {
+        return $this->articleTags->getValues();
     }
 
     function addTag(Tag $tag): self {
-        $this->tags[] = $tag;
-        $tag->setArticle($this);
+        $articleTag = new ArticleTag();
+        $articleTag->setArticle($this);
+        $articleTag->setTag($tag);
+
+        $this->articleTags[] = $articleTag;
 
         return $this;
+    }
+
+    function hasTag(Tag $tag): bool {
+        foreach($this->getTags() as $existingTag) {
+            if ($tag->getId() == $existingTag->getId()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     function getAmount(): int {

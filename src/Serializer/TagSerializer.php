@@ -11,6 +11,7 @@ class TagSerializer {
         return [
             'id' => $tag->getId(),
             'tag' => $tag->getTag(),
+            'usageCount' => $tag->getUsageCount(),
             'created' => $tag->getCreated()->format('Y-m-d H:i:s')
         ];
     }

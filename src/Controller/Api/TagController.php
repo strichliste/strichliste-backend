@@ -3,6 +3,7 @@
 namespace App\Controller\Api;
 
 use App\Entity\Article;
+use App\Entity\ArticleTag;
 use App\Entity\Tag;
 use App\Exception\ArticleNotFoundException;
 use App\Exception\ArticleTagAlreadyExistsException;
@@ -30,7 +31,11 @@ class TagController extends AbstractController {
      * @Route("/tag", methods="GET")
      */
     function listTags(EntityManagerInterface $entityManager) {
-        $tags = $entityManager->getRepository(Tag::class)->findBy([], ['created' => 'DESC']);
+        $tags = $entityManager->getRepository(Tag::class)->findAll();
+
+        usort($tags, function (Tag $a, Tag $b) {
+            return $a->getUsageCount() <=> $b->getUsageCount() && $a->getCreated() <=> $b->getCreated();
+        });
 
         return $this->json([
             'count' => count($tags),
@@ -45,7 +50,7 @@ class TagController extends AbstractController {
      */
     function listArticleBarcode(int $articleId, EntityManagerInterface $entityManager) {
         $article = $entityManager->getRepository(Article::class)->find($articleId);
-        $tags = $article->getTags()->getValues();
+        $tags = $article->getTags();
 
         return $this->json([
             'count' => count($tags),
@@ -80,12 +85,18 @@ class TagController extends AbstractController {
             throw new ArticleNotFoundException($articleId);
         }
 
-        $existingTag = $entityManager->getRepository(Tag::class)->findByArticleIdAndTag($articleId, $tag);
+        $newTag = new Tag($tag);
+        $existingTag = $entityManager->getRepository(Tag::class)->findByTag($tag);
         if ($existingTag) {
-            throw new ArticleTagAlreadyExistsException($existingTag);
+            if ($article->hasTag($existingTag)) {
+                throw new ArticleTagAlreadyExistsException($article, $existingTag);
+            }
+
+            // use already existing tag, just add reference!
+            $newTag = $existingTag;
         }
 
-        $article->addTag(new Tag($tag));
+        $article->addTag($newTag);
 
         $entityManager->persist($article);
         $entityManager->flush();
@@ -96,21 +107,32 @@ class TagController extends AbstractController {
     }
 
     /**
-     * @Route("/article/{articleId}/barcode/{tagId}", methods="DELETE")
+     * @Route("/article/{articleId}/tag/{articleTagId}", methods="DELETE")
      */
-    function deleteArticleTag(int $articleId, int $tagId, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager) {
+    function deleteArticleTag(int $articleId, int $articleTagId, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager) {
         $article = $entityManager->getRepository(Article::class)->find($articleId);
         if (!$article) {
             throw new ArticleNotFoundException($articleId);
         }
 
-        $existingTag = $entityManager->getRepository(Tag::class)->find($tagId);
-        if (!$existingTag) {
-            throw new TagNotFoundException($tagId);
+        /**
+         * @var $articleTag ArticleTag
+         */
+        $articleTag = $entityManager->getRepository(ArticleTag::class)->find($articleTagId);
+        if (!$articleTag) {
+            throw new TagNotFoundException($articleTagId);
         }
 
-        $entityManager->remove($existingTag);
-        $entityManager->flush();
+        $entityManager->transactional(function() use ($entityManager, $articleTag) {
+            $entityManager->remove($articleTag);
+
+            $tag = $articleTag->getTag();
+            if ($tag->getUsageCount() === 1) {
+                $entityManager->remove($tag);
+            }
+
+            $entityManager->flush();
+        });
 
         return $this->json([
             'article' => $articleSerializer->serialize($article)
