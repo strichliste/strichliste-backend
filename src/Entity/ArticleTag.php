@@ -29,7 +29,7 @@ class ArticleTag {
     private $article;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Tag", cascade={"persist"})
+     * @ORM\ManyToOne(targetEntity="App\Entity\Tag", fetch="EAGER", cascade={"persist"})
      */
     private $tag;
 

@@ -3,6 +3,7 @@
 namespace App\Controller\Api;
 
 use App\Entity\Article;
+use App\Entity\ArticleTag;
 use App\Entity\Barcode;
 use App\Entity\Tag;
 use App\Exception\ArticleBarcodeAlreadyExistsException;
@@ -41,13 +42,14 @@ class ArticleController extends AbstractController {
         $queryBuilder = $entityManager->createQueryBuilder()
             ->select('a1')
             ->from(Article::class, 'a1')
+            ->leftJoin(Barcode::class, 'b', Join::WITH, 'b.article = a1')
             ->where('a1.active = :active')
             ->setParameter('active', $active);
 
         $barcode = $request->query->get('barcode');
         if ($barcode) {
             $queryBuilder
-                ->andWhere('a1.barcode = :barcode')
+                ->andWhere('b.barcode = :barcode')
                 ->setParameter('barcode', $barcode);
         }
 
@@ -106,7 +108,8 @@ class ArticleController extends AbstractController {
             ->getRepository(Article::class)
             ->createQueryBuilder('a')
             ->leftJoin(Barcode::class, 'b', Join::WITH, 'b.article = a')
-            ->leftJoin(Tag::class, 't', Join::WITH, 't.article = a');
+            ->leftJoin(ArticleTag::class, 'at', Join::WITH, 'at.article = a')
+            ->leftJoin(Tag::class, 't', Join::WITH, 'at.tag = t');
 
         if ($barcode) {
             $query = false;

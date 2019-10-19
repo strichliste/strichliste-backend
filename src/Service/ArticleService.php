@@ -55,8 +55,9 @@ class ArticleService {
         }
 
         // Reference all "old" tags to the new article
-        foreach ($article->getTags() as $tag) {
-            $tag->setArticle($newArticle);
+        foreach ($article->getArticleTags() as $articleTag) {
+            $articleTag->setArticle($newArticle);
+            $this->entityManager->persist($articleTag);
         }
 
         $article->setActive(false);
