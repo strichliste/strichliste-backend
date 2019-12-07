@@ -67,3 +67,16 @@ parameters:
                     - 200
                     - 500
                     - 1000
+
+        mqtt:
+            enabled: false
+            host: localhost
+            clientId: strichliste
+            port: 1883
+            authentication: false
+            username: user
+            password: secret
+            flattenTransactionInfo: true
+            topics:
+                transactionValue: 'strichliste/transactionValue'
+                transactionInfo: 'strichliste/transactionInfo'
