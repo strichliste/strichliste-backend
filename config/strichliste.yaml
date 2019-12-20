@@ -68,7 +68,7 @@ parameters:
                     - 500
                     - 1000
 
-        mqtt:
+        _mqtt:
             enabled: false
             host: localhost
             clientId: strichliste
