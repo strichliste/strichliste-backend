@@ -6,7 +6,7 @@ use App\Entity\Article;
 use App\Entity\Transaction;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Symfony\Bridge\Doctrine\RegistryInterface;
+use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @method Transaction|null find($id, $lockMode = null, $lockVersion = null)
@@ -15,7 +15,7 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
  */
 class TransactionRepository extends ServiceEntityRepository {
 
-    function __construct(RegistryInterface $registry) {
+    function __construct(ManagerRegistry $registry) {
         parent::__construct($registry, Transaction::class);
     }
 
