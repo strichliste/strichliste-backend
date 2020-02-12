@@ -70,6 +70,14 @@ Note: You can access this resource using the `id` or `name` as userId
 
 Returns the `User-Object`
 
+#### Example
+
+```json
+{
+  "user": { }
+}
+```
+
 #### Errors
 
 * UserNotFoundException
