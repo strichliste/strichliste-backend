@@ -17,10 +17,17 @@ class SettingsService {
     }
 
     /**
+     * @param bool $includePrivateSettings
      * @return array
      */
-    function getAll() {
-        return $this->settings;
+    function getAll(bool $includePrivateSettings = false) {
+        if ($includePrivateSettings) {
+            return $this->settings;
+        } else {
+            return array_filter($this->settings, function($key) {
+                return $key[0] !== '_';
+            }, ARRAY_FILTER_USE_KEY);
+        }
     }
 
     /**
@@ -46,6 +53,10 @@ class SettingsService {
 
         $settings = $this->settings;
         foreach($parts as $part) {
+            if (!isset($settings[$part])) {
+                $part = '_' . $part;
+            }
+
             if (!isset($settings[$part])) {
                 throw new ParameterNotFoundException($path);
             }

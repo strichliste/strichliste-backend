@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Entity\Article;
 use App\Entity\Transaction;
 use App\Entity\User;
+use App\Event\TransactionCreatedEvent;
 use App\Exception\AccountBalanceBoundaryException;
 use App\Exception\ArticleInactiveException;
 use App\Exception\ArticleNotFoundException;
@@ -15,6 +16,7 @@ use App\Exception\TransactionNotFoundException;
 use App\Exception\UserNotFoundException;
 use Doctrine\DBAL\LockMode;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class TransactionService {
 
@@ -28,9 +30,15 @@ class TransactionService {
      */
     private $settingsService;
 
-    function __construct(SettingsService $settingsService, EntityManagerInterface $entityManager) {
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
+    function __construct(SettingsService $settingsService, EntityManagerInterface $entityManager, EventDispatcherInterface $eventDispatcher) {
         $this->entityManager = $entityManager;
         $this->settingsService = $settingsService;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
 
@@ -75,7 +83,7 @@ class TransactionService {
             throw new TransactionInvalidException('Amount can\'t be positive when sending money or buying an article');
         }
 
-        return $this->entityManager->transactional(function () use ($userId, $amount, $comment, $quantity, $articleId, $recipientId) {
+        $e = $this->entityManager->transactional(function () use ($userId, $amount, $comment, $quantity, $articleId, $recipientId) {
             $transaction = new Transaction();
 
             $user = $this->entityManager->getRepository(User::class)->find($userId, LockMode::PESSIMISTIC_WRITE);
@@ -143,6 +151,11 @@ class TransactionService {
 
             return $transaction;
         });
+
+        $transactionCreatedEvent = new TransactionCreatedEvent($e);
+        $this->eventDispatcher->dispatch('transaction.created', $transactionCreatedEvent);
+
+        return $e;
     }
 
     /**
