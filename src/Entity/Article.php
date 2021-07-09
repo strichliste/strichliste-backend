@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -24,9 +26,14 @@ class Article {
     private $name;
 
     /**
-     * @ORM\Column(type="string", length=32, nullable=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\Barcode", fetch="EAGER", mappedBy="article", cascade={"persist"})
      */
-    private $barcode = null;
+    private $barcodes;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\ArticleTag", fetch="EAGER", mappedBy="article", cascade={"persist", "remove"})
+     */
+    private $articleTags;
 
     /**
      * @ORM\Column(type="integer")
@@ -53,6 +60,11 @@ class Article {
      */
     private $usageCount = 0;
 
+    function __construct() {
+        $this->barcodes = new ArrayCollection();
+        $this->articleTags = new ArrayCollection();
+    }
+
     function getId(): ?int {
         return $this->id;
     }
@@ -67,14 +79,54 @@ class Article {
         return $this;
     }
 
-    function getBarcode(): ?string {
-        return $this->barcode;
+    /**
+     * @return Barcode[]
+     */
+    function getBarcodes(): array {
+        return $this->barcodes->getValues();
     }
 
-    function setBarcode(?string $barcode): self {
-        $this->barcode = $barcode;
+    function addBarcode(Barcode $barcode): self {
+        $barcode->setArticle($this);
+        $this->barcodes[] = $barcode;
 
         return $this;
+    }
+
+    /**
+     * @return Tag[]
+     */
+    function getTags(): array {
+        return array_map(function(ArticleTag $articleTag) {
+            return $articleTag->getTag();
+        }, $this->articleTags->getValues());
+    }
+
+    /**
+     * @return ArticleTag[]
+     */
+    function getArticleTags(): array {
+        return $this->articleTags->getValues();
+    }
+
+    function addTag(Tag $tag): self {
+        $articleTag = new ArticleTag();
+        $articleTag->setArticle($this);
+        $articleTag->setTag($tag);
+
+        $this->articleTags[] = $articleTag;
+
+        return $this;
+    }
+
+    function hasTag(Tag $tag): bool {
+        foreach($this->getTags() as $existingTag) {
+            if ($tag->getId() == $existingTag->getId()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     function getAmount(): int {
@@ -133,6 +185,18 @@ class Article {
 
     function decrementUsageCount() {
         $this->usageCount--;
+    }
+
+    function isActivatable(): bool {
+        if ($this->isActive()) {
+            return false;
+        }
+
+        if ($this->getPrecursor()) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
