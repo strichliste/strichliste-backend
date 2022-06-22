@@ -3,13 +3,13 @@
 namespace App\EventSubscriber;
 
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
+use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 
 class ApiResponseSubscriber implements EventSubscriberInterface {
 
-    function onKernelResponse(FilterResponseEvent $event) {
+    function onKernelResponse(ResponseEvent $event) {
         $response = $event->getResponse();
 
         $response->headers->addCacheControlDirective('no-cache', true);

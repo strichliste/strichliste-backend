@@ -3,7 +3,7 @@
 namespace App\EventSubscriber;
 
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpKernel\Event\FilterControllerEvent;
+use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 
@@ -15,7 +15,7 @@ class BeforeActionSubscriber implements EventSubscriberInterface {
         ];
     }
 
-    function convertJsonStringToArray(FilterControllerEvent $event) {
+    function convertJsonStringToArray(ControllerEvent $event) {
         $request = $event->getRequest();
 
         if ($request->getContentType() != 'json' || !$request->getContent()) {
