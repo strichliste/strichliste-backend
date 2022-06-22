@@ -17,8 +17,8 @@ class UserStatusCommand extends Command {
      */
     private $entityManager;
 
-    function __construct(string $name = null, EntityManagerInterface $entityManager) {
-        parent::__construct($name);
+    function __construct(EntityManagerInterface $entityManager) {
+        parent::__construct();
         $this->entityManager = $entityManager;
     }
 
