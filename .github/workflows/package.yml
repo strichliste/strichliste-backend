@@ -1,0 +1,68 @@
+name: CI
+
+defaults:
+  run:
+    working-directory: build
+
+on:
+  push:
+    tags:
+      - "v*" # Push events to matching v*, i.e. v1.0, v20.15.10
+
+jobs:
+  build-and-package:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+        with:
+          path: build
+
+      - name: Branch Name
+        id: branch_name
+        run: |
+          echo ::set-output name=SOURCE_NAME::${GITHUB_REF#refs/*/}
+          echo ::set-output name=SOURCE_BRANCH::${GITHUB_REF#refs/heads/}
+          echo ::set-output name=SOURCE_TAG::${GITHUB_REF#refs/tags/}
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v2
+        with:
+          path: /tmp/composer-cache
+          key: ${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
+
+      - name: Build
+        uses: php-actions/composer@v6
+        with:
+          php_version: "8.0"
+          dev: no
+          args: --optimize-autoloader
+          working_dir: build
+
+      - name: Package
+        run: |
+          sudo cp .env.dist .env
+          sudo rm -rf var/cache/*
+          tar -czf strichliste-backend.tar.gz .env *
+
+      - name: Create Release
+        uses: actions/create-release@v1
+        id: create_release
+        with:
+          draft: true
+          prerelease: false
+          release_name: Release ${{ steps.branch_name.outputs.SOURCE_TAG }}
+          tag_name: ${{ steps.branch_name.outputs.SOURCE_TAG }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Upload Artifact
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: build/strichliste-backend.tar.gz
+          asset_name: strichliste-backend-${{ steps.branch_name.outputs.SOURCE_TAG }}.tar.gz
+          asset_content_type: application/gzip
