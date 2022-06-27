@@ -12,5 +12,5 @@
 
 /.idea
 data.sqlite
-composer.lock
 symfony.lock
+

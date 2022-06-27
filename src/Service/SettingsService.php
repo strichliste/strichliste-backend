@@ -12,8 +12,8 @@ class SettingsService {
      */
     private $settings;
 
-    function __construct(ContainerInterface $container) {
-        $this->settings = $container->getParameter('strichliste');
+    function __construct(array $strichlisteSettings) {
+        $this->settings = $strichlisteSettings;
     }
 
     /**

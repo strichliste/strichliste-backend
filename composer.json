@@ -3,7 +3,7 @@
     "license": "MIT",
     "version": "1.7.0",
     "require": {
-        "php": "^7.1.3 | ^8.0.0",
+        "php": "~8.0.0 | ~8.1.0",
         "ext-ctype": "*",
         "ext-iconv": "*",
         "ext-json": "*",
@@ -11,16 +11,15 @@
         "doctrine/doctrine-bundle": "^2",
         "doctrine/doctrine-migrations-bundle": "^2",
         "doctrine/orm": "^2",
-        "nelmio/cors-bundle": "^1.5",
-        "symfony/console": "^4.3",
-        "symfony/dotenv": "^4.3",
+        "nelmio/cors-bundle": "^1.5 | ^2.0",
+        "symfony/console": "^5.4",
+        "symfony/dotenv": "^5.4",
         "symfony/flex": "^1.2",
-        "symfony/framework-bundle": "^4.3",
-        "symfony/yaml": "^4.3"
+        "symfony/framework-bundle": "^5.4",
+        "symfony/yaml": "^5.4"
     },
     "require-dev": {
-        "symfony/maker-bundle": "^1.6",
-        "symfony/web-server-bundle": "^4.3"
+        "symfony/maker-bundle": "^1.6"
     },
     "config": {
         "preferred-install": {
