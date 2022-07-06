@@ -1,7 +1,7 @@
 {
     "type": "project",
     "license": "MIT",
-    "version": "1.7.0",
+    "version": "1.8.0",
     "require": {
         "php": "~8.0.0 | ~8.1.0",
         "ext-ctype": "*",
