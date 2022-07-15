@@ -127,7 +127,6 @@ class UserController extends AbstractController {
      */
     function user($userId, EntityManagerInterface $entityManager) {
         $user = $entityManager->getRepository(User::class)->findByIdentifier($userId);
-
         if (!$user) {
             throw new UserNotFoundException($userId);
         }
@@ -142,7 +141,6 @@ class UserController extends AbstractController {
      */
     function updateUser($userId, Request $request, EntityManagerInterface $entityManager) {
         $user = $entityManager->getRepository(User::class)->findByIdentifier($userId);
-
         if (!$user) {
             throw new UserNotFoundException($userId);
         }

@@ -49,7 +49,7 @@ class TransactionController extends AbstractController {
     /**
      * @Route("/user/{userId}/transaction", methods="POST")
      */
-    function createUserTransactions($userId, Request $request, TransactionService $transactionService) {
+    function createUserTransactions($userId, Request $request, TransactionService $transactionService, EntityManagerInterface $entityManager) {
         $amount = $request->request->get('amount');
         $quantity = $request->request->get('quantity');
         $comment = $request->request->get('comment');
@@ -60,7 +60,12 @@ class TransactionController extends AbstractController {
             throw new ParameterInvalidException('comment');
         }
 
-        $transaction = $transactionService->doTransaction($userId, $amount, $comment, $quantity, $articleId, $recipientId);
+        $user = $entityManager->getRepository(User::class)->find($userId);
+        if (!$user) {
+            throw new UserNotFoundException($userId);
+        }
+
+        $transaction = $transactionService->doTransaction($user, $amount, $comment, $quantity, $articleId, $recipientId);
 
         return $this->json([
             'transaction' => $this->transactionSerializer->serialize($transaction),
