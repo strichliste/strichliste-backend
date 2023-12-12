@@ -33,7 +33,7 @@ class RetireDataCommand extends Command {
             ->addOption('confirm', null, InputOption::VALUE_NONE, 'Skips confirmation');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output) {
+    protected function execute(InputInterface $input, OutputInterface $output): int {
         $helper = $this->getHelper('question');
         $dateTime = DateIntervalHelper::fromCommandInput($input)->getDateTime();
 
@@ -42,7 +42,7 @@ class RetireDataCommand extends Command {
             $question = new ConfirmationQuestion(sprintf("Delete all transactions before '%s'? [y/N]", $dateTime->format('Y-m-d H:i:s')), false);
 
             if (!$helper->ask($input, $output, $question)) {
-                return;
+                return Command::FAILURE;
             }
         }
 
@@ -53,5 +53,7 @@ class RetireDataCommand extends Command {
             ->setParameter('date', $dateTime)
             ->getQuery()
             ->execute();
+
+        return Command::SUCCESS;
     }
 }

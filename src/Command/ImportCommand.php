@@ -34,7 +34,7 @@ class ImportCommand extends Command {
             ->addArgument('database', InputArgument::REQUIRED, 'SQLite database file from strichliste 1');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output) {
+    protected function execute(InputInterface $input, OutputInterface $output): int {
         $databaseFile = $input->getArgument('database');
 
         $config = new \Doctrine\DBAL\Configuration();
@@ -143,5 +143,7 @@ class ImportCommand extends Command {
 
         $entityManager->flush();
         $output->writeln('Import done!');
+
+        return Command::SUCCESS;
     }
 }

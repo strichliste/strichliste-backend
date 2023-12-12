@@ -30,7 +30,7 @@ class UserStatusCommand extends Command {
             ->addArgument('disable', InputArgument::REQUIRED, 'true or false');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output) {
+    protected function execute(InputInterface $input, OutputInterface $output): int {
         $userId = $input->getArgument('userId');
         $disabled = $input->getArgument('disable') === 'true';
 
@@ -49,5 +49,7 @@ class UserStatusCommand extends Command {
 
         $this->entityManager->persist($user);
         $this->entityManager->flush();
+
+        return Command::SUCCESS;
     }
 }

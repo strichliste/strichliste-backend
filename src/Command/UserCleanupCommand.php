@@ -35,7 +35,7 @@ class UserCleanupCommand extends Command {
             ->addOption('maxBalance', null, InputOption::VALUE_OPTIONAL, 'Maximum balance', false);
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output) {
+    protected function execute(InputInterface $input, OutputInterface $output): int {
         $helper = $this->getHelper('question');
 
         $questions = [];
@@ -100,10 +100,12 @@ class UserCleanupCommand extends Command {
             $questions = new ConfirmationQuestion($question, false);
 
             if (!$helper->ask($input, $output, $questions)) {
-                return;
+                return Command::FAILURE;
             }
         }
 
         $queryBuilder->getQuery()->execute();
+
+        return Command::SUCCESS;
     }
 }

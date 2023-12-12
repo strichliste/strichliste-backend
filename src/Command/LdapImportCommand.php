@@ -40,7 +40,7 @@ class LdapImportCommand extends Command {
             ->addOption('update', null, InputOption::VALUE_OPTIONAL, 'Update mail address if user already exists', false);
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output) {
+    protected function execute(InputInterface $input, OutputInterface $output): int {
 
         $ldapAdapter = new ExtLdap\Adapter([
             'host' => $input->getOption('host'),
@@ -114,5 +114,6 @@ class LdapImportCommand extends Command {
         }
 
         $output->writeln("Done!");
+        return Command::SUCCESS;
     }
 }
