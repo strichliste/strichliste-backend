@@ -2,55 +2,37 @@
 
 namespace App\Entity;
 
-use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Persistence\Event\LifecycleEventArgs;
 
-/**
- * @ORM\HasLifecycleCallbacks()
- * @ORM\Entity(repositoryClass="App\Repository\ArticleRepository")
- */
+#[ORM\HasLifecycleCallbacks]
+#[ORM\Entity(repositoryClass: "App\Repository\ArticleRepository")]
 class Article {
 
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: "integer")]
     private $id;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: "string", length: 255)]
     private $name;
 
-    /**
-     * @ORM\Column(type="string", length=32, nullable=true)
-     */
+    #[ORM\Column(type: "string", length: 32, nullable: true)]
     private $barcode = null;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Column(type: "integer")]
     private $amount;
 
-    /**
-     * @ORM\OneToOne(targetEntity="App\Entity\Article")
-     */
+    #[ORM\OneToOne(targetEntity: "App\Entity\Article")]
     private $precursor = null;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: "boolean")]
     private $active = true;
 
-    /**
-     * @ORM\Column(type="datetime")
-     */
+    #[ORM\Column(type: "datetime")]
     private $created;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Column(type: "integer")]
     private $usageCount = 0;
 
     function getId(): ?int {
@@ -135,10 +117,7 @@ class Article {
         $this->usageCount--;
     }
 
-    /**
-     * @ORM\PrePersist()
-     * @param LifecycleEventArgs $event
-     */
+    #[ORM\PrePersist]
     function setHistoryColumnsOnPrePersist(LifecycleEventArgs $event) {
         if (!$this->getCreated()) {
             $this->setCreated(new \DateTime());

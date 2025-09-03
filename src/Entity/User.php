@@ -4,59 +4,40 @@ namespace App\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Persistence\Event\LifecycleEventArgs;
 
-/**
- * @ORM\HasLifecycleCallbacks()
- * @ORM\Table(name="`user`", indexes={
- *     @ORM\Index(name="disabled_updated", columns={"disabled", "updated"})
- * })
- * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
- */
+#[ORM\HasLifecycleCallbacks]
+#[ORM\Table(name: "`user`")]
+#[ORM\Index(name: "disabled_updated", columns: ["disabled", "updated"])]
+#[ORM\Entity(repositoryClass: "App\Repository\UserRepository")]
 class User {
 
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: "integer")]
     private $id;
 
-    /**
-     * @ORM\Column(type="string", length=64, unique=true)
-     */
+    #[ORM\Column(type: "string", length: 64, unique: true)]
     private $name;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: "string", length: 255, nullable: true)]
     private $email = null;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Column(type: "integer")]
     private $balance = 0;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: "boolean")]
     private $disabled = false;
 
-    /**
-     * @ORM\Column(type="datetime")
-     */
+    #[ORM\Column(type: "datetime")]
     private $created;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
+    #[ORM\Column(type: "datetime", nullable: true)]
     private $updated;
 
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Transaction", mappedBy="user")
-     */
+    #[ORM\OneToMany(targetEntity: "App\Entity\Transaction", mappedBy: "user")]
     private $transactions;
 
     function __construct() {
@@ -140,20 +121,14 @@ class User {
         return $this->transactions;
     }
 
-    /**
-     * @ORM\PrePersist()
-     * @param LifecycleEventArgs $event
-     */
+    #[ORM\PrePersist]
     function setHistoryColumnsOnPrePersist(LifecycleEventArgs $event) {
         if (!$this->getCreated()) {
             $this->setCreated(new \DateTime());
         }
     }
 
-    /**
-     * @ORM\PreUpdate()
-     * @param PreUpdateEventArgs $event
-     */
+    #[ORM\PreUpdate]
     function setHistoryColumnsOnPreUpdate(PreUpdateEventArgs $event) {
         if (!$event->hasChangedField('updated')) {
             $this->setUpdated(new \DateTime());
