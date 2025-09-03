@@ -12,11 +12,9 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Query\Expr\Join;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
-/**
- * @Route("/api/article")
- */
+#[Route("/api/article")]
 class ArticleController extends AbstractController {
 
     /**
@@ -28,9 +26,7 @@ class ArticleController extends AbstractController {
         $this->articleSerializer = $articleSerializer;
     }
 
-    /**
-     * @Route(methods="GET")
-     */
+    #[Route(methods: ["GET"])]
     function list(Request $request, EntityManagerInterface $entityManager) {
         $limit = $request->query->get('limit', 25);
         $offset = $request->query->get('offset');
@@ -77,9 +73,7 @@ class ArticleController extends AbstractController {
         ]);
     }
 
-    /**
-     * @Route(methods="POST")
-     */
+    #[Route(methods: ["POST"])]
     function createArticle(Request $request, ArticleService $articleService, EntityManagerInterface $entityManager) {
         $article = $articleService->createArticleByRequest($request);
 
@@ -101,9 +95,7 @@ class ArticleController extends AbstractController {
         ]);
     }
 
-    /**
-     * @Route("/search", methods="GET")
-     */
+    #[Route("/search", methods: ["GET"])]
     function search(Request $request, EntityManagerInterface $entityManager) {
         $query = $request->query->get('query');
         $limit = $request->query->get('limit', 25);
@@ -143,9 +135,7 @@ class ArticleController extends AbstractController {
         ]);
     }
 
-    /**
-     * @Route("/{articleId}", methods="GET")
-     */
+    #[Route("/{articleId}", methods: ["GET"])]
     function getArticle($articleId, Request $request, EntityManagerInterface $entityManager) {
         $depth = $request->query->get('depth', 1);
 
@@ -159,9 +149,7 @@ class ArticleController extends AbstractController {
         ]);
     }
 
-    /**
-     * @Route("/{articleId}", methods="POST")
-     */
+    #[Route("/{articleId}", methods: ["POST"])]
     function updateArticle($articleId, Request $request, ArticleService $articleService, EntityManagerInterface $entityManager) {
         $article = $entityManager->getRepository(Article::class)->find($articleId);
 
@@ -180,9 +168,7 @@ class ArticleController extends AbstractController {
         ]);
     }
 
-    /**
-     * @Route("/{articleId}", methods="DELETE")
-     */
+    #[Route("/{articleId}", methods: ["DELETE"])]
     function deleteArticle($articleId, EntityManagerInterface $entityManager) {
         $article = $entityManager->getRepository(Article::class)->find($articleId);
         if (!$article) {

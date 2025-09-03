@@ -11,7 +11,7 @@ class Date extends FunctionNode {
 
     public $date;
 
-    function getSql(\Doctrine\ORM\Query\SqlWalker $sqlWalker) {
+    function getSql(\Doctrine\ORM\Query\SqlWalker $sqlWalker): string {
         return $this->getFunctionByPlatform(
             $sqlWalker->getConnection()->getDatabasePlatform(),
             $sqlWalker->walkArithmeticPrimary($this->date)
@@ -34,7 +34,7 @@ class Date extends FunctionNode {
         }
     }
 
-    function parse(\Doctrine\ORM\Query\Parser $parser) {
+    function parse(\Doctrine\ORM\Query\Parser $parser): void {
         $parser->match(Lexer::T_IDENTIFIER);
         $parser->match(Lexer::T_OPEN_PARENTHESIS);
 

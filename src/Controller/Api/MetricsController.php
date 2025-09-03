@@ -15,13 +15,11 @@ use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class MetricsController extends AbstractController {
 
-    /**
-     * @Route("/api/metrics", methods="GET")
-     */
+    #[Route("/api/metrics", methods: ["GET"])]
     function metrics(Request $request, ArticleRepository $articleRepository, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager) {
         $days = $request->query->get('days', 30);
         $articles = $articleRepository->findBy(['active' => true], ['usageCount' => 'DESC']);
@@ -37,10 +35,7 @@ class MetricsController extends AbstractController {
         ]);
     }
 
-    /**
-     * @Route("/api/user/{userId}/metrics", methods="GET")
-     */
-
+    #[Route("/api/user/{userId}/metrics", methods: ["GET"])]
     function userMetrics($userId, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager) {
         /**
          * @var $user User

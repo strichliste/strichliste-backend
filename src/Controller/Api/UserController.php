@@ -12,11 +12,9 @@ use App\Service\UserService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
-/**
- * @Route("/api/user")
- */
+#[Route('/api/user')]
 class UserController extends AbstractController {
 
     /**
@@ -28,9 +26,7 @@ class UserController extends AbstractController {
         $this->userSerializer = $userSerializer;
     }
 
-    /**
-     * @Route(methods="GET")
-     */
+    #[Route(methods: ['GET'])]
     function list(Request $request, UserService $userService, EntityManagerInterface $entityManager) {
         $active = $request->query->get('active');
 
@@ -56,9 +52,7 @@ class UserController extends AbstractController {
         ]);
     }
 
-    /**
-     * @Route(methods="POST")
-     */
+    #[Route(methods: ['POST'])]
     function createUser(Request $request, EntityManagerInterface $entityManager) {
 
         $name = $request->request->get('name');
@@ -98,9 +92,7 @@ class UserController extends AbstractController {
         ]);
     }
 
-    /**
-     * @Route("/search", methods="GET")
-     */
+    #[Route('/search', methods: ['GET'])]
     function search(Request $request, EntityManagerInterface $entityManager) {
         $query = $request->query->get('query');
         $limit = $request->query->get('limit', 25);
@@ -122,9 +114,7 @@ class UserController extends AbstractController {
         ]);
     }
 
-    /**
-     * @Route("/{userId}", methods="GET")
-     */
+    #[Route('/{userId}', methods: ['GET'])]
     function user($userId, EntityManagerInterface $entityManager) {
         $user = $entityManager->getRepository(User::class)->findByIdentifier($userId);
         if (!$user) {
@@ -136,9 +126,7 @@ class UserController extends AbstractController {
         ]);
     }
 
-    /**
-     * @Route("/{userId}", methods="POST")
-     */
+    #[Route('/{userId}', methods: ['POST'])]
     function updateUser($userId, Request $request, EntityManagerInterface $entityManager) {
         $user = $entityManager->getRepository(User::class)->findByIdentifier($userId);
         if (!$user) {

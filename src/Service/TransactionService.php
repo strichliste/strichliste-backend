@@ -69,7 +69,7 @@ class TransactionService {
      * @throws ParameterNotFoundException
      * @return Transaction
      */
-    function doTransaction(User $user, ?int $amount, string $comment = null, ?int $quantity = 1, ?int $articleId = null, ?int $recipientId = null): Transaction {
+    function doTransaction(User $user, ?int $amount, ?string $comment = null, ?int $quantity = 1, ?int $articleId = null, ?int $recipientId = null): Transaction {
 
         if (($recipientId || $articleId) && $amount > 0) {
             throw new TransactionInvalidException('Amount can\'t be positive when sending money or buying an article');
