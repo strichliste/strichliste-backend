@@ -2,21 +2,19 @@
 
 namespace App\Command\Helper;
 
+use DateInterval;
+use DateTime;
 use Symfony\Component\Console\Input\InputInterface;
 
 class DateIntervalHelper {
+    private readonly DateTime $dateTime;
 
-    /**
-     * @var \DateTime
-     */
-    private $dateTime;
-
-    function __construct() {
-        $this->dateTime = new \DateTime();
+    public function __construct() {
+        $this->dateTime = new DateTime();
     }
 
-    static function fromCommandInput(InputInterface $input): self {
-        $self = new static;
+    public static function fromCommandInput(InputInterface $input): self {
+        $self = new static();
 
         $days = $input->getOption('days');
         if ($days) {
@@ -36,25 +34,25 @@ class DateIntervalHelper {
         return $self;
     }
 
-    function subDays($days): self {
-        $this->dateTime->sub(\DateInterval::createFromDateString(sprintf('%d days', $days)));
+    public function subDays($days): self {
+        $this->dateTime->sub(DateInterval::createFromDateString(\sprintf('%d days', $days)));
 
         return $this;
     }
 
-    function subMonths($month): self {
-        $this->dateTime->sub(\DateInterval::createFromDateString(sprintf('%d months', $month)));
+    public function subMonths($month): self {
+        $this->dateTime->sub(DateInterval::createFromDateString(\sprintf('%d months', $month)));
 
         return $this;
     }
 
-    function subYears($years): self {
-        $this->dateTime->sub(\DateInterval::createFromDateString(sprintf('%d years', $years)));
+    public function subYears($years): self {
+        $this->dateTime->sub(DateInterval::createFromDateString(\sprintf('%d years', $years)));
 
         return $this;
     }
 
-    function getDateTime(): \DateTime {
+    public function getDateTime(): DateTime {
         return $this->dateTime;
     }
 }

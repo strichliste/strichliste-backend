@@ -3,49 +3,40 @@
 namespace App\Service;
 
 use App\Exception\ParameterNotFoundException;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class SettingsService {
-
-    /**
-     * @var array
-     */
-    private $settings;
-
-    function __construct(array $strichlisteSettings) {
-        $this->settings = $strichlisteSettings;
-    }
+    public function __construct(private readonly array $strichlisteSettings) {}
 
     /**
      * @return array
      */
-    function getAll() {
-        return $this->settings;
+    public function getAll() {
+        return $this->strichlisteSettings;
     }
 
     /**
-     * @param string $path
-     * @param null $default
-     * @return array|mixed|null
+     * @param null|mixed $default
+     *
+     * @return null|array|mixed
      */
-    function getOrDefault(string $path, $default = null) {
+    public function getOrDefault(string $path, $default = null) {
         try {
             return $this->get($path);
-        } catch (ParameterNotFoundException $e) {
+        } catch (ParameterNotFoundException) {
             return $default;
         }
     }
 
     /**
-     * @param string $path
      * @return array|mixed
+     *
      * @throws ParameterNotFoundException
      */
-    function get(string $path) {
+    public function get(string $path) {
         $parts = explode('.', $path);
 
         $settings = $this->settings;
-        foreach($parts as $part) {
+        foreach ($parts as $part) {
             if (!isset($settings[$part])) {
                 throw new ParameterNotFoundException($path);
             }

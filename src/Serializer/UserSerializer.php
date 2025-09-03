@@ -4,19 +4,12 @@ namespace App\Serializer;
 
 use App\Entity\User;
 use App\Service\UserService;
+use DateTimeInterface;
 
 class UserSerializer {
+    public function __construct(private readonly UserService $userService) {}
 
-    /**
-     * @var UserService
-     */
-    private $userService;
-
-    function __construct(UserService $userService) {
-        $this->userService = $userService;
-    }
-
-    function serialize(User $user): array {
+    public function serialize(User $user): array {
         return [
             'id' => $user->getId(),
             'name' => $user->getName(),
@@ -25,7 +18,7 @@ class UserSerializer {
             'isActive' => $this->userService->isActive($user),
             'isDisabled' => $user->isDisabled(),
             'created' => $user->getCreated()->format('Y-m-d H:i:s'),
-            'updated' => $user->getUpdated() ? $user->getUpdated()->format('Y-m-d H:i:s') : null
+            'updated' => $user->getUpdated() instanceof DateTimeInterface ? $user->getUpdated()->format('Y-m-d H:i:s') : null,
         ];
     }
 }

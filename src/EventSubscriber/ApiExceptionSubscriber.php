@@ -9,15 +9,13 @@ use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 class ApiExceptionSubscriber implements EventSubscriberInterface {
-
-    static function getSubscribedEvents() {
+    public static function getSubscribedEvents() {
         return [
             KernelEvents::EXCEPTION => 'onKernelException',
         ];
     }
 
-    function onKernelException(ExceptionEvent $event) {
-
+    public function onKernelException(ExceptionEvent $event): void {
         $exception = $event->getThrowable();
 
         if (!$exception instanceof ApiException) {
@@ -26,10 +24,10 @@ class ApiExceptionSubscriber implements EventSubscriberInterface {
 
         $response = [
             'error' => [
-                'class' => get_class($exception),
+                'class' => $exception::class,
                 'code' => $exception->getCode(),
-                'message' => $exception->getMessage()
-            ]
+                'message' => $exception->getMessage(),
+            ],
         ];
 
         $event->setResponse(new JsonResponse($response, $exception->getCode()));

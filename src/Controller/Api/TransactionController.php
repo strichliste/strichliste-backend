@@ -11,39 +11,30 @@ use App\Serializer\TransactionSerializer;
 use App\Service\TransactionService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api')]
 class TransactionController extends AbstractController {
-
-    /**
-     * @var TransactionSerializer
-     */
-    private $transactionSerializer;
-
-    function __construct(TransactionSerializer $transactionSerializer) {
-        $this->transactionSerializer = $transactionSerializer;
-    }
+    public function __construct(private readonly TransactionSerializer $transactionSerializer) {}
 
     #[Route('/transaction', methods: ['GET'])]
-    function list(Request $request, EntityManagerInterface $entityManager) {
-        $limit = $request->query->get('limit', 25);
-        $offset = $request->query->get('offset');
+    public function list(Request $request, EntityManagerInterface $entityManager): JsonResponse {
+        $request->query->get('limit', 25);
+        $request->query->get('offset');
 
         $count = $entityManager->getRepository(Transaction::class)->count([]);
-        $transactions = $entityManager->getRepository(Transaction::class)->findAll($limit, $offset);
+        $transactions = $entityManager->getRepository(Transaction::class)->findAll();
 
         return $this->json([
             'count' => $count,
-            'transactions' => array_map(function (Transaction $transaction) {
-                return $this->transactionSerializer->serialize($transaction);
-            }, $transactions)
+            'transactions' => array_map(fn (Transaction $transaction) => $this->transactionSerializer->serialize($transaction), $transactions),
         ]);
     }
 
     #[Route('/user/{userId}/transaction', methods: ['POST'])]
-    function createUserTransactions($userId, Request $request, TransactionService $transactionService, EntityManagerInterface $entityManager) {
+    public function createUserTransactions($userId, Request $request, TransactionService $transactionService, EntityManagerInterface $entityManager): JsonResponse {
         $amount = $request->request->get('amount');
         $quantity = $request->request->get('quantity');
         $comment = $request->request->get('comment');
@@ -55,7 +46,7 @@ class TransactionController extends AbstractController {
         }
 
         $user = $entityManager->getRepository(User::class)->find($userId);
-        if (!$user) {
+        if ($user === null) {
             throw new UserNotFoundException($userId);
         }
 
@@ -67,12 +58,12 @@ class TransactionController extends AbstractController {
     }
 
     #[Route('/user/{userId}/transaction', methods: ['GET'])]
-    function getUserTransactions($userId, Request $request, EntityManagerInterface $entityManager) {
+    public function getUserTransactions($userId, Request $request, EntityManagerInterface $entityManager): JsonResponse {
         $limit = $request->query->get('limit', 25);
         $offset = $request->query->get('offset');
 
         $user = $entityManager->getRepository(User::class)->find($userId);
-        if (!$user) {
+        if ($user === null) {
             throw new UserNotFoundException($userId);
         }
 
@@ -81,21 +72,19 @@ class TransactionController extends AbstractController {
 
         return $this->json([
             'count' => $count,
-            'transactions' => array_map(function (Transaction $transaction) {
-                return $this->transactionSerializer->serialize($transaction);
-            }, $transactions),
+            'transactions' => array_map(fn (Transaction $transaction) => $this->transactionSerializer->serialize($transaction), $transactions),
         ]);
     }
 
     #[Route('/user/{userId}/transaction/{transactionId}', methods: ['GET'])]
-    function getUserTransaction($userId, $transactionId, EntityManagerInterface $entityManager) {
+    public function getUserTransaction($userId, $transactionId, EntityManagerInterface $entityManager): JsonResponse {
         $user = $entityManager->getRepository(User::class)->find($userId);
-        if (!$user) {
+        if ($user === null) {
             throw new UserNotFoundException($userId);
         }
 
         $transaction = $entityManager->getRepository(Transaction::class)->find($transactionId);
-        if (!$transaction) {
+        if ($transaction === null) {
             throw new TransactionNotFoundException($transactionId);
         }
 
@@ -105,7 +94,7 @@ class TransactionController extends AbstractController {
     }
 
     #[Route('/user/{userId}/transaction/{transactionId}', methods: ['DELETE'])]
-    function deleteTransaction($userId, $transactionId, TransactionService $transactionService) {
+    public function deleteTransaction($userId, int $transactionId, TransactionService $transactionService): JsonResponse {
         $transaction = $transactionService->revertTransaction($transactionId);
 
         return $this->json([

@@ -12,15 +12,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 class UserCleanupCommand extends Command {
-
-    /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
-
-    function __construct(EntityManagerInterface $entityManager) {
+    public function __construct(private readonly EntityManagerInterface $entityManager) {
         parent::__construct();
-        $this->entityManager = $entityManager;
     }
 
     protected function configure() {
@@ -55,7 +48,7 @@ class UserCleanupCommand extends Command {
 
         if ($input->getOption('days') || $input->getOption('months') || $input->getOption('years')) {
             $dateTime = DateIntervalHelper::fromCommandInput($input)->getDateTime();
-            $questions[] = sprintf("with last transaction before '%s'", $dateTime->format('Y-m-d H:i:s'));
+            $questions[] = \sprintf("with last transaction before '%s'", $dateTime->format('Y-m-d H:i:s'));
 
             $queryBuilder
                 ->where('u.updated <= :date')
@@ -64,7 +57,7 @@ class UserCleanupCommand extends Command {
 
         $minBalance = $input->getOption('minBalance');
         if ($minBalance !== false) {
-            $questions[] = sprintf('a minimum balance of %d', $minBalance);
+            $questions[] = \sprintf('a minimum balance of %d', $minBalance);
             $queryBuilder->setParameter('minBalance', $minBalance);
 
             if ($minBalance > 0) {
@@ -76,7 +69,7 @@ class UserCleanupCommand extends Command {
 
         $maxBalance = $input->getOption('maxBalance');
         if ($maxBalance !== false) {
-            $questions[] = sprintf('a maximum balance of %d', $maxBalance);
+            $questions[] = \sprintf('a maximum balance of %d', $maxBalance);
 
             $queryBuilder->setParameter('maxBalance', $maxBalance);
 
@@ -92,8 +85,8 @@ class UserCleanupCommand extends Command {
             $queryBuilder->andWhere('u.balance = 0');
         }
 
-        $question = 'Do you want to ' . join(', ', array_slice($questions, 0, count($questions) - 1));
-        $question .= ' and ' . $questions[count($questions) - 1] . ' [y/N]?';
+        $question = 'Do you want to ' . implode(', ', \array_slice($questions, 0, \count($questions) - 1));
+        $question .= ' and ' . $questions[\count($questions) - 1] . ' [y/N]?';
 
         $skipQuestion = $input->getOption('confirm');
         if (!$skipQuestion) {

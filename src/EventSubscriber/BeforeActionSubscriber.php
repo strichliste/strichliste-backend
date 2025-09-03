@@ -8,14 +8,13 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 class BeforeActionSubscriber implements EventSubscriberInterface {
-
-    static function getSubscribedEvents() {
+    public static function getSubscribedEvents() {
         return [
             KernelEvents::CONTROLLER => 'convertJsonStringToArray',
         ];
     }
 
-    function convertJsonStringToArray(ControllerEvent $event) {
+    public function convertJsonStringToArray(ControllerEvent $event): void {
         $request = $event->getRequest();
 
         if ($request->getContentTypeFormat() !== 'applcation/json' || !$request->getContent()) {
@@ -28,7 +27,6 @@ class BeforeActionSubscriber implements EventSubscriberInterface {
             throw new BadRequestHttpException('invalid json body: ' . json_last_error_msg());
         }
 
-        $request->request->replace(is_array($data) ? $data : array());
+        $request->request->replace(\is_array($data) ? $data : []);
     }
-
 }

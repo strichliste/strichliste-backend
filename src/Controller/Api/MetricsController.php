@@ -8,19 +8,21 @@ use App\Entity\User;
 use App\Exception\UserNotFoundException;
 use App\Repository\ArticleRepository;
 use App\Serializer\ArticleSerializer;
-use App\Service\ArticleService;
+use DateInterval;
+use DatePeriod;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
 class MetricsController extends AbstractController {
-
-    #[Route("/api/metrics", methods: ["GET"])]
-    function metrics(Request $request, ArticleRepository $articleRepository, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager) {
+    #[Route('/api/metrics', methods: ['GET'])]
+    public function metrics(Request $request, ArticleRepository $articleRepository, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager): JsonResponse {
         $days = $request->query->get('days', 30);
         $articles = $articleRepository->findBy(['active' => true], ['usageCount' => 'DESC']);
 
@@ -28,17 +30,15 @@ class MetricsController extends AbstractController {
             'balance' => $this->getBalance($entityManager),
             'transactionCount' => $this->getTransactionCount($entityManager),
             'userCount' => $this->getUserCount($entityManager),
-            'articles' => array_map(function (Article $article) use ($articleSerializer) {
-                return $articleSerializer->serialize($article, 0);
-            }, $articles),
-            'days' => $this->getTransactionsPerDay($entityManager, $days)
+            'articles' => array_map(static fn (Article $article): array => $articleSerializer->serialize($article, 0), $articles),
+            'days' => $this->getTransactionsPerDay($entityManager, $days),
         ]);
     }
 
-    #[Route("/api/user/{userId}/metrics", methods: ["GET"])]
-    function userMetrics($userId, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager) {
+    #[Route('/api/user/{userId}/metrics', methods: ['GET'])]
+    public function userMetrics($userId, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager): JsonResponse {
         /**
-         * @var $user User
+         * @var User $user
          */
         $user = $entityManager->getRepository(User::class)->findByIdentifier($userId);
 
@@ -80,19 +80,17 @@ class MetricsController extends AbstractController {
         return $this->json([
             'balance' => $user->getBalance(),
 
-            'articles' => array_map(function ($article) use ($articleSerializer) {
-                return [
-                    'article' => $articleSerializer->serialize($article['article'], 0),
-                    'count' => (int) $article['count'],
-                    'amount' => (int) $article['amount'],
-                 ];
-            }, $articles),
+            'articles' => array_map(static fn ($article): array => [
+                'article' => $articleSerializer->serialize($article['article'], 0),
+                'count' => (int) $article['count'],
+                'amount' => (int) $article['amount'],
+            ], $articles),
 
             'transactions' => [
                 'count' => (int) $transactionCount,
                 'outgoing' => ['count' => (int) $outgoingTransactions['count'], 'amount' => (int) $outgoingTransactions['amount']],
                 'incoming' => ['count' => (int) $incomingTransactions['count'], 'amount' => (int) $incomingTransactions['amount']],
-            ]
+            ],
         ]);
     }
 
@@ -116,12 +114,12 @@ class MetricsController extends AbstractController {
     private function getTransactionsPerDay(EntityManagerInterface $entityManager, int $days): array {
         $entries = [];
 
-        $begin = new \DateTime(sprintf('-%d day', $days));
+        $begin = new DateTime(\sprintf('-%d day', $days));
         $dateBegin = $begin->format('Y-m-d 00:00:00');
-        $end = new \DateTime('tomorrow');
+        $end = new DateTime('tomorrow');
 
-        $interval = \DateInterval::createFromDateString('1 day');
-        $period = new \DatePeriod($begin, $interval, $end);
+        $interval = DateInterval::createFromDateString('1 day');
+        $period = new DatePeriod($begin, $interval, $end);
 
         foreach ($period as $dt) {
             $date = $dt->format('Y-m-d');
@@ -132,10 +130,9 @@ class MetricsController extends AbstractController {
                 'distinctUsers' => 0,
                 'balance' => 0,
                 'charged' => 0,
-                'spent' => 0
+                'spent' => 0,
             ];
         }
-
 
         $results = $entityManager
             ->createQueryBuilder()
@@ -157,7 +154,7 @@ class MetricsController extends AbstractController {
             ->getQuery()
             ->getArrayResult();
 
-        foreach($results as $result) {
+        foreach ($results as $result) {
             $key = $result['createDate'];
 
             $entries[$key] = array_merge($entries[$key], [
@@ -168,13 +165,13 @@ class MetricsController extends AbstractController {
 
                 'charged' => [
                     'amount' => (int) $result['amountCharged'],
-                    'transactions' => (int) $result['countCharged']
+                    'transactions' => (int) $result['countCharged'],
                 ],
 
                 'spent' => [
                     'amount' => (int) $result['amountSpent'] * -1,
-                    'transactions' => (int) $result['countSpent']
-                ]
+                    'transactions' => (int) $result['countSpent'],
+                ],
             ]);
         }
 

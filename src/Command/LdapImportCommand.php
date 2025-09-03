@@ -8,20 +8,12 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Ldap\Adapter\ExtLdap;
+use Symfony\Component\Ldap\Adapter\ExtLdap\Adapter;
 use Symfony\Component\Ldap\Ldap;
 
 class LdapImportCommand extends Command {
-
-    /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
-
-    function __construct(EntityManagerInterface $entityManager) {
+    public function __construct(private readonly EntityManagerInterface $entityManager) {
         parent::__construct();
-
-        $this->entityManager = $entityManager;
     }
 
     protected function configure() {
@@ -41,11 +33,10 @@ class LdapImportCommand extends Command {
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int {
-
-        $ldapAdapter = new ExtLdap\Adapter([
+        $ldapAdapter = new Adapter([
             'host' => $input->getOption('host'),
-            'port' => (int)$input->getOption('port'),
-            'encryption' => $input->getOption('ssl')
+            'port' => (int) $input->getOption('port'),
+            'encryption' => $input->getOption('ssl'),
         ]);
 
         $ldap = new Ldap($ldapAdapter);
@@ -62,18 +53,19 @@ class LdapImportCommand extends Command {
 
         $query = $input->getOption('query');
         if (!$query) {
-            $query = sprintf('(%s=*)', $userField);
+            $query = \sprintf('(%s=*)', $userField);
         }
 
         $ldapQuery = $ldap->query($input->getOption('baseDn'), $query, [
-            'filter' => $fields
+            'filter' => $fields,
         ]);
 
-        foreach($ldapQuery->execute()->toArray() as $result) {
+        foreach ($ldapQuery->execute()->toArray() as $result) {
             $uid = $result->getAttribute($userField);
 
             if (!$uid) {
-                $output->writeln(sprintf("Username is missing for DN '%s'", $result->getDn()));
+                $output->writeln(\sprintf("Username is missing for DN '%s'", $result->getDn()));
+
                 continue;
             }
 
@@ -82,7 +74,8 @@ class LdapImportCommand extends Command {
                 if ($update) {
                     $user = $existingUser;
                 } else {
-                    $output->writeln(sprintf("Skipping user '%s'. Already exists.", $uid[0]));
+                    $output->writeln(\sprintf("Skipping user '%s'. Already exists.", $uid[0]));
+
                     continue;
                 }
             } else {
@@ -98,22 +91,22 @@ class LdapImportCommand extends Command {
             }
 
             if ($existingUser && $update) {
-
                 // Don't show message if nothing has changed
-                if ($existingUser->getEmail() == $user->getEmail()) {
+                if ($existingUser->getEmail() === $user->getEmail()) {
                     continue;
                 }
 
-                $output->writeln(sprintf("Updated user '%s'", $user->getName()));
+                $output->writeln(\sprintf("Updated user '%s'", $user->getName()));
             } else {
-                $output->writeln(sprintf("Imported user '%s'", $user->getName()));
+                $output->writeln(\sprintf("Imported user '%s'", $user->getName()));
             }
 
             $this->entityManager->persist($user);
             $this->entityManager->flush();
         }
 
-        $output->writeln("Done!");
+        $output->writeln('Done!');
+
         return Command::SUCCESS;
     }
 }

@@ -9,17 +9,16 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @method Transaction|null find($id, $lockMode = null, $lockVersion = null)
- * @method Transaction|null findOneBy(array $criteria, array $orderBy = null)
+ * @method null|Transaction find($id, $lockMode = null, $lockVersion = null)
+ * @method null|Transaction findOneBy(array $criteria, array $orderBy = null)
  * @method Transaction[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
 class TransactionRepository extends ServiceEntityRepository {
-
-    function __construct(ManagerRegistry $registry) {
+    public function __construct(ManagerRegistry $registry) {
         parent::__construct($registry, Transaction::class);
     }
 
-    function findAll($limit = null, $offset = null): array {
+    public function findAll($limit = null, $offset = null): array {
         return $this->createQueryBuilder('t')
             ->setFirstResult($offset)
             ->setMaxResults($limit)
@@ -28,20 +27,17 @@ class TransactionRepository extends ServiceEntityRepository {
     }
 
     /**
-     * @param User $user
-     * @param int $offset
-     * @param int $limit
      * @return Transaction[]
      */
-    function findByUser(User $user, $limit = null, $offset = null) {
+    public function findByUser(User $user, ?int $limit = null, ?int $offset = null) {
         return $this->findBy(['user' => $user], ['id' => 'DESC'], $limit, $offset);
     }
 
-    function findByUserAndId(User $user, int $transactionId): ?Transaction {
+    public function findByUserAndId(User $user, int $transactionId): ?Transaction {
         return $this->findOneBy(['id' => $transactionId, 'user' => $user]);
     }
 
-    function getArticleReferenceCount(Article $article): int {
+    public function getArticleReferenceCount(Article $article): int {
         return $this->createQueryBuilder('t')
             ->select('count(t.id)')
             ->where('t.article = :article')
@@ -50,9 +46,9 @@ class TransactionRepository extends ServiceEntityRepository {
             ->getSingleScalarResult();
     }
 
-    function countByUser(User $user): int {
+    public function countByUser(User $user): int {
         return $this->count([
-            'user' => $user
+            'user' => $user,
         ]);
     }
 }

@@ -3,28 +3,28 @@
 namespace App\Repository;
 
 use App\Entity\User;
+use DateTime;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @method User|null find($id, $lockMode = null, $lockVersion = null)
- * @method User|null findOneBy(array $criteria, array $orderBy = null)
+ * @method null|User find($id, $lockMode = null, $lockVersion = null)
+ * @method null|User findOneBy(array $criteria, array $orderBy = null)
  * @method User[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
 class UserRepository extends ServiceEntityRepository {
-
-    function __construct(ManagerRegistry $registry) {
+    public function __construct(ManagerRegistry $registry) {
         parent::__construct($registry, User::class);
     }
 
-    function findAll(): array {
+    public function findAll(): array {
         return $this->getBaseQueryBuilder()
             ->getQuery()
             ->getResult();
     }
 
-    function findAllDisabled(): array {
+    public function findAllDisabled(): array {
         return $this->createQueryBuilder('u')
             ->where('u.disabled = true')
             ->orderBy('u.name')
@@ -32,7 +32,7 @@ class UserRepository extends ServiceEntityRepository {
             ->getResult();
     }
 
-    function findAllInactive(\DateTime $since): array {
+    public function findAllInactive(DateTime $since): array {
         return $this->getBaseQueryBuilder()
             ->andWhere('(u.updated IS NULL or u.updated <= :since)')
             ->setParameter('since', $since)
@@ -40,7 +40,7 @@ class UserRepository extends ServiceEntityRepository {
             ->getResult();
     }
 
-    function findAllActive(\DateTime $since): array {
+    public function findAllActive(DateTime $since): array {
         return $this->getBaseQueryBuilder()
             ->andWhere('u.updated IS NOT NULL')
             ->andWhere('u.updated >= :since')
@@ -49,7 +49,7 @@ class UserRepository extends ServiceEntityRepository {
             ->getResult();
     }
 
-    function findByIdentifier($identifier): ?User {
+    public function findByIdentifier($identifier): ?User {
         if (is_numeric($identifier)) {
             return $this->find($identifier);
         }
@@ -57,7 +57,7 @@ class UserRepository extends ServiceEntityRepository {
         return $this->findByName($identifier);
     }
 
-    function findByName(string $name): ?User {
+    public function findByName(string $name): ?User {
         return $this->findOneBy(['name' => $name]);
     }
 

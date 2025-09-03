@@ -11,23 +11,16 @@ use App\Service\ArticleService;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Query\Expr\Join;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route("/api/article")]
+#[Route('/api/article')]
 class ArticleController extends AbstractController {
+    public function __construct(private readonly ArticleSerializer $articleSerializer) {}
 
-    /**
-     * @var ArticleSerializer
-     */
-    private $articleSerializer;
-
-    function __construct(ArticleSerializer $articleSerializer) {
-        $this->articleSerializer = $articleSerializer;
-    }
-
-    #[Route(methods: ["GET"])]
-    function list(Request $request, EntityManagerInterface $entityManager) {
+    #[Route(methods: ['GET'])]
+    public function list(Request $request, EntityManagerInterface $entityManager): JsonResponse {
         $limit = $request->query->get('limit', 25);
         $offset = $request->query->get('offset');
         $active = $request->query->getBoolean('active', true);
@@ -67,19 +60,17 @@ class ArticleController extends AbstractController {
 
         return $this->json([
             'count' => $articleRepository->countActive(),
-            'articles' => array_map(function (Article $article) {
-                return $this->articleSerializer->serialize($article);
-            }, $articles),
+            'articles' => array_map(fn (Article $article) => $this->articleSerializer->serialize($article), $articles),
         ]);
     }
 
-    #[Route(methods: ["POST"])]
-    function createArticle(Request $request, ArticleService $articleService, EntityManagerInterface $entityManager) {
+    #[Route(methods: ['POST'])]
+    public function createArticle(Request $request, ArticleService $articleService, EntityManagerInterface $entityManager): JsonResponse {
         $article = $articleService->createArticleByRequest($request);
 
         if ($article->getBarcode()) {
             $existingArticle = $entityManager->getRepository(Article::class)->findOneActiveBy([
-                'barcode' => $article->getBarcode()
+                'barcode' => $article->getBarcode(),
             ]);
 
             if ($existingArticle) {
@@ -95,8 +86,8 @@ class ArticleController extends AbstractController {
         ]);
     }
 
-    #[Route("/search", methods: ["GET"])]
-    function search(Request $request, EntityManagerInterface $entityManager) {
+    #[Route('/search', methods: ['GET'])]
+    public function search(Request $request, EntityManagerInterface $entityManager): JsonResponse {
         $query = $request->query->get('query');
         $limit = $request->query->get('limit', 25);
         $barcode = $request->query->get('barcode');
@@ -119,7 +110,6 @@ class ArticleController extends AbstractController {
                 ->setParameter('query', '%' . $query . '%');
         }
 
-
         $results = $queryBuilder
             ->andWhere('a.active = true')
             ->orderBy('a.name')
@@ -128,19 +118,17 @@ class ArticleController extends AbstractController {
             ->getResult();
 
         return $this->json([
-            'count' => count($results),
-            'articles' => array_map(function (Article $article) {
-                return $this->articleSerializer->serialize($article);
-            }, $results),
+            'count' => \count($results),
+            'articles' => array_map(fn (Article $article) => $this->articleSerializer->serialize($article), $results),
         ]);
     }
 
-    #[Route("/{articleId}", methods: ["GET"])]
-    function getArticle($articleId, Request $request, EntityManagerInterface $entityManager) {
+    #[Route('/{articleId}', methods: ['GET'])]
+    public function getArticle($articleId, Request $request, EntityManagerInterface $entityManager): JsonResponse {
         $depth = $request->query->get('depth', 1);
 
         $article = $entityManager->getRepository(Article::class)->find($articleId);
-        if (!$article) {
+        if ($article === null) {
             throw new ArticleNotFoundException($articleId);
         }
 
@@ -149,11 +137,11 @@ class ArticleController extends AbstractController {
         ]);
     }
 
-    #[Route("/{articleId}", methods: ["POST"])]
-    function updateArticle($articleId, Request $request, ArticleService $articleService, EntityManagerInterface $entityManager) {
+    #[Route('/{articleId}', methods: ['POST'])]
+    public function updateArticle($articleId, Request $request, ArticleService $articleService, EntityManagerInterface $entityManager): JsonResponse {
         $article = $entityManager->getRepository(Article::class)->find($articleId);
 
-        if (!$article) {
+        if ($article === null) {
             throw new ArticleNotFoundException($articleId);
         }
 
@@ -168,10 +156,10 @@ class ArticleController extends AbstractController {
         ]);
     }
 
-    #[Route("/{articleId}", methods: ["DELETE"])]
-    function deleteArticle($articleId, EntityManagerInterface $entityManager) {
+    #[Route('/{articleId}', methods: ['DELETE'])]
+    public function deleteArticle($articleId, EntityManagerInterface $entityManager): JsonResponse {
         $article = $entityManager->getRepository(Article::class)->find($articleId);
-        if (!$article) {
+        if ($article === null) {
             throw new ArticleNotFoundException($articleId);
         }
 

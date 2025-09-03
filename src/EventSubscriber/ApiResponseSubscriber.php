@@ -6,10 +6,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
-
 class ApiResponseSubscriber implements EventSubscriberInterface {
-
-    function onKernelResponse(ResponseEvent $event) {
+    public function onKernelResponse(ResponseEvent $event): void {
         $response = $event->getResponse();
 
         $response->headers->addCacheControlDirective('no-cache', true);
@@ -18,7 +16,7 @@ class ApiResponseSubscriber implements EventSubscriberInterface {
         $response->headers->addCacheControlDirective('no-store', true);
     }
 
-     static function getSubscribedEvents() {
+    public static function getSubscribedEvents() {
         return [
             KernelEvents::RESPONSE => 'onKernelResponse',
         ];

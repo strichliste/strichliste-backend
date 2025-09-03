@@ -2,125 +2,127 @@
 
 namespace App\Entity;
 
+use App\Repository\ArticleRepository;
+use DateTime;
+use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Persistence\Event\LifecycleEventArgs;
 
 #[ORM\HasLifecycleCallbacks]
-#[ORM\Entity(repositoryClass: "App\Repository\ArticleRepository")]
+#[ORM\Entity(repositoryClass: ArticleRepository::class)]
 class Article {
-
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(type: "integer")]
+    #[ORM\Column(type: 'integer')]
     private $id;
 
-    #[ORM\Column(type: "string", length: 255)]
+    #[ORM\Column(type: 'string', length: 255)]
     private $name;
 
-    #[ORM\Column(type: "string", length: 32, nullable: true)]
-    private $barcode = null;
+    #[ORM\Column(type: 'string', length: 32, nullable: true)]
+    private $barcode;
 
-    #[ORM\Column(type: "integer")]
+    #[ORM\Column(type: 'integer')]
     private $amount;
 
-    #[ORM\OneToOne(targetEntity: "App\Entity\Article")]
-    private $precursor = null;
+    #[ORM\OneToOne(targetEntity: self::class)]
+    private $precursor;
 
-    #[ORM\Column(type: "boolean")]
+    #[ORM\Column(type: 'boolean')]
     private $active = true;
 
-    #[ORM\Column(type: "datetime")]
+    #[ORM\Column(type: 'datetime')]
     private $created;
 
-    #[ORM\Column(type: "integer")]
+    #[ORM\Column(type: 'integer')]
     private $usageCount = 0;
 
-    function getId(): ?int {
+    public function getId(): ?int {
         return $this->id;
     }
 
-    function getName(): ?string {
+    public function getName(): ?string {
         return $this->name;
     }
 
-    function setName(string $name): self {
+    public function setName(string $name): self {
         $this->name = $name;
 
         return $this;
     }
 
-    function getBarcode(): ?string {
+    public function getBarcode(): ?string {
         return $this->barcode;
     }
 
-    function setBarcode(?string $barcode): self {
+    public function setBarcode(?string $barcode): self {
         $this->barcode = $barcode;
 
         return $this;
     }
 
-    function getAmount(): int {
+    public function getAmount(): int {
         return $this->amount;
     }
 
-    function setAmount(int $amount): self {
+    public function setAmount(int $amount): self {
         $this->amount = $amount;
 
         return $this;
     }
 
-    function getPrecursor(): ?self {
+    public function getPrecursor(): ?self {
         return $this->precursor;
     }
 
-    function setPrecursor(?self $precursor): self {
+    public function setPrecursor(?self $precursor): self {
         $this->precursor = $precursor;
 
         return $this;
     }
 
-    function isActive(): ?bool {
+    public function isActive(): ?bool {
         return $this->active;
     }
 
-    function setActive(bool $active): self {
+    public function setActive(bool $active): self {
         $this->active = $active;
 
         return $this;
     }
 
-    function getCreated(): ?\DateTimeInterface {
+    public function getCreated(): ?DateTimeInterface {
         return $this->created;
     }
 
-    function setCreated(\DateTimeInterface $created): self {
+    public function setCreated(DateTimeInterface $created): self {
         $this->created = $created;
 
         return $this;
     }
 
-    function getUsageCount(): ?int {
+    public function getUsageCount(): ?int {
         return $this->usageCount;
     }
 
-    function setUsageCount(int $usageCount): self {
+    public function setUsageCount(int $usageCount): self {
         $this->usageCount = $usageCount;
 
         return $this;
     }
 
-    function incrementUsageCount() {
-        $this->usageCount++;
+    public function incrementUsageCount(): void {
+        ++$this->usageCount;
     }
 
-    function decrementUsageCount() {
-        $this->usageCount--;
+    public function decrementUsageCount(): void {
+        --$this->usageCount;
     }
 
     #[ORM\PrePersist]
-    function setHistoryColumnsOnPrePersist(LifecycleEventArgs $event) {
-        if (!$this->getCreated()) {
-            $this->setCreated(new \DateTime());
+    public function setHistoryColumnsOnPrePersist(LifecycleEventArgs $event): void {
+        if (!$this->getCreated() instanceof DateTimeInterface) {
+            $this->setCreated(new DateTime());
         }
     }
 }

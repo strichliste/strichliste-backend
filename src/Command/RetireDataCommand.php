@@ -12,15 +12,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 class RetireDataCommand extends Command {
-
-    /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
-
-    function __construct(EntityManagerInterface $entityManager) {
+    public function __construct(private readonly EntityManagerInterface $entityManager) {
         parent::__construct();
-        $this->entityManager = $entityManager;
     }
 
     protected function configure() {
@@ -39,7 +32,7 @@ class RetireDataCommand extends Command {
 
         $skipQuestion = $input->getOption('confirm');
         if (!$skipQuestion) {
-            $question = new ConfirmationQuestion(sprintf("Delete all transactions before '%s'? [y/N]", $dateTime->format('Y-m-d H:i:s')), false);
+            $question = new ConfirmationQuestion(\sprintf("Delete all transactions before '%s'? [y/N]", $dateTime->format('Y-m-d H:i:s')), false);
 
             if (!$helper->ask($input, $output, $question)) {
                 return Command::FAILURE;

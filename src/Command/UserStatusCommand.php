@@ -11,15 +11,8 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class UserStatusCommand extends Command {
-
-    /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
-
-    function __construct(EntityManagerInterface $entityManager) {
+    public function __construct(private readonly EntityManagerInterface $entityManager) {
         parent::__construct();
-        $this->entityManager = $entityManager;
     }
 
     protected function configure() {
@@ -42,9 +35,9 @@ class UserStatusCommand extends Command {
         $user->setDisabled($disabled);
 
         if ($disabled) {
-            $output->writeln(sprintf("User '%s' (%d) has been activated", $user->getName(), $user->getId()));
+            $output->writeln(\sprintf("User '%s' (%d) has been activated", $user->getName(), $user->getId()));
         } else {
-            $output->writeln(sprintf("User '%s' (%d) has been deactivated", $user->getName(), $user->getId()));
+            $output->writeln(\sprintf("User '%s' (%d) has been deactivated", $user->getName(), $user->getId()));
         }
 
         $this->entityManager->persist($user);

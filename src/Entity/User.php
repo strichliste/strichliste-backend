@@ -2,6 +2,9 @@
 
 namespace App\Entity;
 
+use App\Repository\UserRepository;
+use DateTime;
+use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
@@ -9,106 +12,105 @@ use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Persistence\Event\LifecycleEventArgs;
 
 #[ORM\HasLifecycleCallbacks]
-#[ORM\Table(name: "`user`")]
-#[ORM\Index(name: "disabled_updated", columns: ["disabled", "updated"])]
-#[ORM\Entity(repositoryClass: "App\Repository\UserRepository")]
+#[ORM\Table(name: '`user`')]
+#[ORM\Index(name: 'disabled_updated', columns: ['disabled', 'updated'])]
+#[ORM\Entity(repositoryClass: UserRepository::class)]
 class User {
-
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(type: "integer")]
+    #[ORM\Column(type: 'integer')]
     private $id;
 
-    #[ORM\Column(type: "string", length: 64, unique: true)]
+    #[ORM\Column(type: 'string', length: 64, unique: true)]
     private $name;
 
-    #[ORM\Column(type: "string", length: 255, nullable: true)]
-    private $email = null;
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private $email;
 
-    #[ORM\Column(type: "integer")]
+    #[ORM\Column(type: 'integer')]
     private $balance = 0;
 
-    #[ORM\Column(type: "boolean")]
+    #[ORM\Column(type: 'boolean')]
     private $disabled = false;
 
-    #[ORM\Column(type: "datetime")]
+    #[ORM\Column(type: 'datetime')]
     private $created;
 
-    #[ORM\Column(type: "datetime", nullable: true)]
+    #[ORM\Column(type: 'datetime', nullable: true)]
     private $updated;
 
-    #[ORM\OneToMany(targetEntity: "App\Entity\Transaction", mappedBy: "user")]
+    #[ORM\OneToMany(targetEntity: Transaction::class, mappedBy: 'user')]
     private $transactions;
 
-    function __construct() {
+    public function __construct() {
         $this->transactions = new ArrayCollection();
     }
 
-    function getId(): ?int {
+    public function getId(): ?int {
         return $this->id;
     }
 
-    function getName(): ?string {
+    public function getName(): ?string {
         return $this->name;
     }
 
-    function setName(string $name): self {
+    public function setName(string $name): self {
         $this->name = $name;
 
         return $this;
     }
 
-    function getEmail(): ?string {
+    public function getEmail(): ?string {
         return $this->email;
     }
 
-    function setEmail(?string $email): self {
+    public function setEmail(?string $email): self {
         $this->email = $email;
 
         return $this;
     }
 
-    function getBalance() {
+    public function getBalance() {
         return $this->balance;
     }
 
-    function setBalance($balance): self {
+    public function setBalance($balance): self {
         $this->balance = $balance;
 
         return $this;
     }
 
-    function addBalance($amount): self {
+    public function addBalance($amount): self {
         $this->balance += $amount;
 
         return $this;
     }
 
-    function isDisabled(): bool {
+    public function isDisabled(): bool {
         return $this->disabled;
     }
 
-    function setDisabled(bool $disabled): self {
+    public function setDisabled(bool $disabled): self {
         $this->disabled = $disabled;
 
         return $this;
     }
 
-    function getCreated(): ?\DateTimeInterface {
+    public function getCreated(): ?DateTimeInterface {
         return $this->created;
     }
 
-    function setCreated(\DateTimeInterface $created): self {
+    public function setCreated(DateTimeInterface $created): self {
         $this->created = $created;
 
         return $this;
     }
 
-    function getUpdated(): ?\DateTimeInterface {
+    public function getUpdated(): ?DateTimeInterface {
         return $this->updated;
     }
 
-    function setUpdated(?\DateTimeInterface $updated): self {
+    public function setUpdated(?DateTimeInterface $updated): self {
         $this->updated = $updated;
 
         return $this;
@@ -117,21 +119,21 @@ class User {
     /**
      * @return Collection|Transaction[]
      */
-    function getTransactions(): Collection {
+    public function getTransactions(): Collection {
         return $this->transactions;
     }
 
     #[ORM\PrePersist]
-    function setHistoryColumnsOnPrePersist(LifecycleEventArgs $event) {
-        if (!$this->getCreated()) {
-            $this->setCreated(new \DateTime());
+    public function setHistoryColumnsOnPrePersist(LifecycleEventArgs $event): void {
+        if (!$this->getCreated() instanceof DateTimeInterface) {
+            $this->setCreated(new DateTime());
         }
     }
 
     #[ORM\PreUpdate]
-    function setHistoryColumnsOnPreUpdate(PreUpdateEventArgs $event) {
+    public function setHistoryColumnsOnPreUpdate(PreUpdateEventArgs $event): void {
         if (!$event->hasChangedField('updated')) {
-            $this->setUpdated(new \DateTime());
+            $this->setUpdated(new DateTime());
         }
     }
 }
