@@ -155,6 +155,10 @@ class TransactionService {
                 throw new TransactionNotFoundException($transactionId);
             }
 
+            if ($transaction->isDeleted()) {
+                throw new TransactionNotDeletableException($transactionId);
+            }
+
             $article = $transaction->getArticle();
             if ($article) {
                 $article->decrementUsageCount();
