@@ -11,6 +11,7 @@ use App\Exception\ArticleNotFoundException;
 use App\Exception\ParameterNotFoundException;
 use App\Exception\TransactionBoundaryException;
 use App\Exception\TransactionInvalidException;
+use App\Exception\TransactionNotDeletableException;
 use App\Exception\TransactionNotFoundException;
 use App\Exception\UserNotFoundException;
 use Doctrine\DBAL\LockMode;
