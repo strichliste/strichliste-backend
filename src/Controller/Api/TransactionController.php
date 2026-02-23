@@ -52,11 +52,11 @@ class TransactionController extends AbstractController {
     function createUserTransactions($userId, Request $request, TransactionService $transactionService, EntityManagerInterface $entityManager) {
         $amount = $request->request->get('amount');
         $quantity = $request->request->get('quantity');
-        $comment = $request->request->get('comment') ?? '';
+        $comment = $request->request->get('comment');
         $recipientId = $request->request->get('recipientId');
         $articleId = $request->request->get('articleId');
 
-        if (mb_strlen($comment) > 255) {
+        if (mb_strlen($comment ?? '') > 255) {
             throw new ParameterInvalidException('comment');
         }
 
