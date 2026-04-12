@@ -35,7 +35,7 @@ jobs:
       - name: Build
         uses: php-actions/composer@v6
         with:
-          php_version: "8.0"
+          php_version: "8.2"
           dev: no
           args: --optimize-autoloader
           working_dir: build
