@@ -11,6 +11,7 @@ use App\Exception\ArticleNotFoundException;
 use App\Exception\ParameterNotFoundException;
 use App\Exception\TransactionBoundaryException;
 use App\Exception\TransactionInvalidException;
+use App\Exception\TransactionNotDeletableException;
 use App\Exception\TransactionNotFoundException;
 use App\Exception\UserNotFoundException;
 use Doctrine\DBAL\LockMode;
@@ -69,13 +70,13 @@ class TransactionService {
      * @throws ParameterNotFoundException
      * @return Transaction
      */
-    function doTransaction(User $user, ?int $amount, string $comment = null, ?int $quantity = 1, ?int $articleId = null, ?int $recipientId = null): Transaction {
+    function doTransaction(User $user, ?int $amount, ?string $comment = null, ?int $quantity = 1, ?int $articleId = null, ?int $recipientId = null): Transaction {
 
         if (($recipientId || $articleId) && $amount > 0) {
             throw new TransactionInvalidException('Amount can\'t be positive when sending money or buying an article');
         }
 
-        return $this->entityManager->transactional(function () use ($user, $amount, $comment, $quantity, $articleId, $recipientId) {
+        return $this->entityManager->wrapInTransaction(function () use ($user, $amount, $comment, $quantity, $articleId, $recipientId) {
             $transaction = new Transaction();
             $transaction->setUser($user);
             $transaction->setComment($comment);
@@ -148,11 +149,15 @@ class TransactionService {
      * @return Transaction
      */
     function revertTransaction(int $transactionId): Transaction {
-        return $this->entityManager->transactional(function () use ($transactionId) {
+        return $this->entityManager->wrapInTransaction(function () use ($transactionId) {
 
             $transaction = $this->entityManager->getRepository(Transaction::class)->find($transactionId, LockMode::PESSIMISTIC_WRITE);
             if (!$transaction) {
                 throw new TransactionNotFoundException($transactionId);
+            }
+
+            if ($transaction->isDeleted()) {
+                throw new TransactionNotDeletableException($transactionId);
             }
 
             $article = $transaction->getArticle();

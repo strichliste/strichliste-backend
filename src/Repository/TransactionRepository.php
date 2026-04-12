@@ -19,7 +19,7 @@ class TransactionRepository extends ServiceEntityRepository {
         parent::__construct($registry, Transaction::class);
     }
 
-    function findAll($limit = null, $offset = null) {
+    function findAllPaginated($limit = null, $offset = null) {
         return $this->createQueryBuilder('t')
             ->setFirstResult($offset)
             ->setMaxResults($limit)

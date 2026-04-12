@@ -6,7 +6,6 @@ use App\Entity\Article;
 use App\Entity\Transaction;
 use App\Entity\User;
 use Doctrine\DBAL\DriverManager;
-use Doctrine\DBAL\FetchMode;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -51,15 +50,13 @@ class ImportCommand extends Command {
         $entityManager->createQueryBuilder()->delete(Article::class)->getQuery()->execute();
 
         try {
-            $stmt = $connection->query('select id, name, mailAddress, createDate from users');
+            $result = $connection->executeQuery('select id, name, mailAddress, createDate from users');
         } catch (\Exception $e) {
-            $stmt = $connection->query("select id, name, '' as mailAddress, createDate from users");
+            $result = $connection->executeQuery("select id, name, '' as mailAddress, createDate from users");
         }
 
-        $stmt->execute();
-
         $userMapping = [];
-        foreach ($stmt as $user) {
+        foreach ($result->iterateAssociative() as $user) {
             $id = (int)$user['id'];
             $name = $user['name'];
 
@@ -86,15 +83,13 @@ class ImportCommand extends Command {
         }
 
         try {
-            $stmt = $connection->query('select t.userId, value, t.comment, t.createDate from transactions as t join users on users.id = t.userId');
+            $result = $connection->executeQuery('select t.userId, value, t.comment, t.createDate from transactions as t join users on users.id = t.userId');
         } catch (\Exception $e) {
-            $stmt = $connection->query("select t.userId, value, '' as comment, t.createDate from transactions as t join users on users.id = t.userId");
+            $result = $connection->executeQuery("select t.userId, value, '' as comment, t.createDate from transactions as t join users on users.id = t.userId");
         }
 
-        $stmt->execute();
-
         $count = 0;
-        foreach ($stmt as $transaction) {
+        foreach ($result->iterateAssociative() as $transaction) {
             $userId = (int)$transaction['userId'];
             $user = $userMapping[$userId];
 
