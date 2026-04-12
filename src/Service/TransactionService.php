@@ -15,6 +15,7 @@ use App\Exception\TransactionNotDeletableException;
 use App\Exception\TransactionNotFoundException;
 use App\Exception\UserNotFoundException;
 use Doctrine\DBAL\LockMode;
+use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\ORM\EntityManagerInterface;
 
 class TransactionService {
@@ -34,6 +35,28 @@ class TransactionService {
         $this->settingsService = $settingsService;
     }
 
+    private function isSqlite(): bool {
+        return $this->entityManager->getConnection()->getDatabasePlatform() instanceof SqlitePlatform;
+    }
+
+    private function getLockMode(): ?int {
+        if ($this->isSqlite()) {
+            return null;
+        }
+
+        return LockMode::PESSIMISTIC_WRITE;
+    }
+
+    private function wrapInTransaction(callable $func): mixed {
+        if ($this->isSqlite()) {
+            $result = $func($this->entityManager);
+            $this->entityManager->flush();
+
+            return $result;
+        }
+
+        return $this->entityManager->wrapInTransaction($func);
+    }
 
     function isDeletable(Transaction $transaction): bool {
         if ($transaction->isDeleted()) {
@@ -76,7 +99,7 @@ class TransactionService {
             throw new TransactionInvalidException('Amount can\'t be positive when sending money or buying an article');
         }
 
-        return $this->entityManager->wrapInTransaction(function () use ($user, $amount, $comment, $quantity, $articleId, $recipientId) {
+        return $this->wrapInTransaction(function () use ($user, $amount, $comment, $quantity, $articleId, $recipientId) {
             $transaction = new Transaction();
             $transaction->setUser($user);
             $transaction->setComment($comment);
@@ -106,7 +129,7 @@ class TransactionService {
 
             $recipient = null;
             if ($recipientId) {
-                $recipient = $this->entityManager->getRepository(User::class)->find($recipientId, LockMode::PESSIMISTIC_WRITE);
+                $recipient = $this->entityManager->getRepository(User::class)->find($recipientId, $this->getLockMode());
                 if (!$recipient) {
                     throw new UserNotFoundException($recipientId);
                 }
@@ -149,9 +172,9 @@ class TransactionService {
      * @return Transaction
      */
     function revertTransaction(int $transactionId): Transaction {
-        return $this->entityManager->wrapInTransaction(function () use ($transactionId) {
+        return $this->wrapInTransaction(function () use ($transactionId) {
 
-            $transaction = $this->entityManager->getRepository(Transaction::class)->find($transactionId, LockMode::PESSIMISTIC_WRITE);
+            $transaction = $this->entityManager->getRepository(Transaction::class)->find($transactionId, $this->getLockMode());
             if (!$transaction) {
                 throw new TransactionNotFoundException($transactionId);
             }
