@@ -125,8 +125,14 @@ class User {
 
     #[ORM\PrePersist]
     function setHistoryColumnsOnPrePersist(PrePersistEventArgs $event) {
+        $now = new \DateTime();
+  
         if (!$this->getCreated()) {
-            $this->setCreated(new \DateTime());
+            $this->setCreated($now);
+        }
+
+        if(!$this->getUpdated()) {
+            $this->setUpdated($now);
         }
     }
 
