@@ -2,8 +2,8 @@
 
 namespace App\Entity;
 
-use Doctrine\ORM\Event\LifecycleEventArgs;
 use App\Repository\ArticleRepository;
+use Doctrine\ORM\Event\PrePersistEventArgs;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ArticleRepository::class)]
@@ -118,8 +118,8 @@ class Article {
         $this->usageCount--;
     }
 
-    function setHistoryColumnsOnPrePersist(LifecycleEventArgs $event) {
     #[ORM\PrePersist]
+    function setHistoryColumnsOnPrePersist(PrePersistEventArgs $event) {
         if (!$this->getCreated()) {
             $this->setCreated(new \DateTime());
         }

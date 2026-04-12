@@ -5,7 +5,7 @@ namespace App\Entity;
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\Event\LifecycleEventArgs;
+use Doctrine\ORM\Event\PrePersistEventArgs;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -123,8 +123,8 @@ class User {
         return $this->transactions;
     }
 
-    function setHistoryColumnsOnPrePersist(LifecycleEventArgs $event) {
     #[ORM\PrePersist]
+    function setHistoryColumnsOnPrePersist(PrePersistEventArgs $event) {
         if (!$this->getCreated()) {
             $this->setCreated(new \DateTime());
         }

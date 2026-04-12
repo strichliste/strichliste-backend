@@ -2,8 +2,8 @@
 
 namespace App\Entity;
 
-use Doctrine\ORM\Event\LifecycleEventArgs;
 use App\Repository\TransactionRepository;
+use Doctrine\ORM\Event\PrePersistEventArgs;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: TransactionRepository::class)]
@@ -141,8 +141,8 @@ class Transaction {
         return $this;
     }
 
-    function setHistoryColumnsOnPrePersist(LifecycleEventArgs $event) {
     #[ORM\PrePersist]
+    function setHistoryColumnsOnPrePersist(PrePersistEventArgs $event) {
         if (!$this->getCreated()) {
             $this->setCreated(new \DateTime());
         }
