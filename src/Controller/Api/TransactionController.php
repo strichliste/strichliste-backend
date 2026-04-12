@@ -32,7 +32,7 @@ class TransactionController extends AbstractController {
         $offset = $request->query->get('offset');
 
         $count = $entityManager->getRepository(Transaction::class)->count([]);
-        $transactions = $entityManager->getRepository(Transaction::class)->findAll($limit, $offset);
+        $transactions = $entityManager->getRepository(Transaction::class)->findAllPaginated($limit, $offset);
 
         return $this->json([
             'count' => $count,
