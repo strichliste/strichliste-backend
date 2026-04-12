@@ -2,62 +2,45 @@
 
 namespace App\Entity;
 
+use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\HasLifecycleCallbacks()
- * @ORM\Table(name="`user`", indexes={
- *     @ORM\Index(name="disabled_updated", columns={"disabled", "updated"})
- * })
- * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
- */
+#[ORM\Entity(repositoryClass: UserRepository::class)]
+#[ORM\Table(name: '`user`')]
+#[ORM\Index(name: 'disabled_updated', columns: ['disabled', 'updated'])]
+#[ORM\HasLifecycleCallbacks]
 class User {
 
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
-    private $id;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
+    private ?int $id = null;
 
-    /**
-     * @ORM\Column(type="string", length=64, unique=true)
-     */
-    private $name;
+    #[ORM\Column(type: 'string', length: 64, unique: true)]
+    private ?string $name = null;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private $email = null;
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $email = null;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
-    private $balance = 0;
+    #[ORM\Column(type: 'integer')]
+    private int $balance = 0;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
-    private $disabled = false;
+    #[ORM\Column(type: 'boolean')]
+    private bool $disabled = false;
 
-    /**
-     * @ORM\Column(type="datetime")
-     */
-    private $created;
+    #[ORM\Column(type: 'datetime')]
+    private ?\DateTimeInterface $created = null;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
-    private $updated;
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $updated = null;
 
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Transaction", mappedBy="user")
-     */
-    private $transactions;
+    /** @var Collection<int, Transaction> */
+    #[ORM\OneToMany(targetEntity: Transaction::class, mappedBy: 'user')]
+    private Collection $transactions;
 
     function __construct() {
         $this->transactions = new ArrayCollection();
@@ -140,20 +123,14 @@ class User {
         return $this->transactions;
     }
 
-    /**
-     * @ORM\PrePersist()
-     * @param LifecycleEventArgs $event
-     */
     function setHistoryColumnsOnPrePersist(LifecycleEventArgs $event) {
+    #[ORM\PrePersist]
         if (!$this->getCreated()) {
             $this->setCreated(new \DateTime());
         }
     }
 
-    /**
-     * @ORM\PreUpdate()
-     * @param PreUpdateEventArgs $event
-     */
+    #[ORM\PreUpdate]
     function setHistoryColumnsOnPreUpdate(PreUpdateEventArgs $event) {
         if (!$event->hasChangedField('updated')) {
             $this->setUpdated(new \DateTime());
