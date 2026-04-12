@@ -2,74 +2,50 @@
 
 namespace App\Entity;
 
-use Doctrine\ORM\Event\LifecycleEventArgs;
+use App\Repository\TransactionRepository;
+use Doctrine\ORM\Event\PrePersistEventArgs;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\HasLifecycleCallbacks()
- * @Orm\Table(name="transactions")
- * @ORM\Entity(repositoryClass="App\Repository\TransactionRepository")
- */
+#[ORM\Entity(repositoryClass: TransactionRepository::class)]
+#[ORM\Table(name: 'transactions')]
+#[ORM\HasLifecycleCallbacks]
 class Transaction {
 
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
-    private $id;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
+    private ?int $id = null;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\User", fetch="EAGER", inversedBy="transactions")
-     * @ORM\JoinColumn(nullable=false)
-     */
-    private $user;
+    #[ORM\ManyToOne(targetEntity: User::class, fetch: 'EAGER', inversedBy: 'transactions')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $user = null;
 
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
-    private $quantity = null;
+    #[ORM\Column(type: 'integer', nullable: true)]
+    private ?int $quantity = null;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Article", fetch="EAGER")
-     * @ORM\JoinColumn(nullable=true)
-     */
-    private $article = null;
+    #[ORM\ManyToOne(targetEntity: Article::class, fetch: 'EAGER')]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?Article $article = null;
 
-    /**
-     * @ORM\OneToOne(targetEntity="App\Entity\Transaction", fetch="EAGER", cascade={"persist", "remove"})
-     * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
-     * @var Transaction
-     */
-    private $recipientTransaction = null;
+    #[ORM\OneToOne(targetEntity: Transaction::class, fetch: 'EAGER', cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'CASCADE')]
+    private ?Transaction $recipientTransaction = null;
 
-    /**
-     * @ORM\OneToOne(targetEntity="App\Entity\Transaction", fetch="EAGER", cascade={"persist", "remove"})
-     * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
-     * @var Transaction
-     */
-    private $senderTransaction = null;
+    #[ORM\OneToOne(targetEntity: Transaction::class, fetch: 'EAGER', cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'CASCADE')]
+    private ?Transaction $senderTransaction = null;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private $comment = null;
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $comment = null;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
-    private $amount;
+    #[ORM\Column(type: 'integer')]
+    private ?int $amount = null;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
-    private $deleted = false;
+    #[ORM\Column(type: 'boolean')]
+    private bool $deleted = false;
 
-    /**
-     * @ORM\Column(type="datetime")
-     * @var \DateTime
-     */
-    private $created;
+    #[ORM\Column(type: 'datetime')]
+    private ?\DateTimeInterface $created = null;
 
     function getId(): ?int {
         return $this->id;
@@ -165,11 +141,8 @@ class Transaction {
         return $this;
     }
 
-    /**
-     * @ORM\PrePersist()
-     * @param LifecycleEventArgs $event
-     */
-    function setHistoryColumnsOnPrePersist(LifecycleEventArgs $event) {
+    #[ORM\PrePersist]
+    function setHistoryColumnsOnPrePersist(PrePersistEventArgs $event) {
         if (!$this->getCreated()) {
             $this->setCreated(new \DateTime());
         }
