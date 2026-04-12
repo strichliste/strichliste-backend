@@ -157,7 +157,7 @@ class TransactionService {
             }
 
             if ($transaction->isDeleted()) {
-                throw new TransactionNotDeletableException($transactionId);
+                throw new TransactionNotDeletableException($transaction);
             }
 
             $article = $transaction->getArticle();
