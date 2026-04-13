@@ -59,7 +59,7 @@ class ArticleService {
 
         $article->setActive(false);
 
-        $this->entityManager->transactional(function () use ($article, $newArticle) {
+        $this->entityManager->wrapInTransaction(function () use ($article, $newArticle) {
             $this->entityManager->persist($article);
             $this->entityManager->persist($newArticle);
         });
