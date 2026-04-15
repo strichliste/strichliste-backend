@@ -27,7 +27,7 @@ jobs:
           echo ::set-output name=SOURCE_TAG::${GITHUB_REF#refs/tags/}
 
       - name: Cache Composer dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: /tmp/composer-cache
           key: ${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
