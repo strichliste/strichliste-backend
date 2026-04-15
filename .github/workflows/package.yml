@@ -39,6 +39,7 @@ jobs:
           dev: no
           args: --optimize-autoloader
           working_dir: build
+          php_extensions: pdo_sqlite pdo_mysql
 
       - name: Package
         run: |
