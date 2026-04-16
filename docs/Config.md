@@ -8,9 +8,9 @@ The configuration can be found in `config/strichliste.yaml`. This is also reacha
 
 ## common
 
-| field      | datatype | default    | description          |
-|------------|----------|------------|----------------------|
-| idleTimer  | int      | 30000      | Time in milliseconds |
+| field        | datatype | default    | description          |
+|--------------|----------|------------|----------------------|
+| idleTimeout  | int      | 30000      | Time in milliseconds |
 
 ## paypal
 
@@ -104,7 +104,7 @@ A new strichliste2 feature is transferring money to other accounts with an optio
 
 #### timeperiod
 
-For format see http://de.php.net/manual/en/datetime.formats.relative.php
+For format see: https://www.php.net/manual/en/datetime.formats.php#datetime.formats.relative
 
 #### money
 
