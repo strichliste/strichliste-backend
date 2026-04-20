@@ -89,12 +89,9 @@ class ArticleService {
             throw new ParameterMissingException('amount');
         }
 
-        $active = $request->request->getBoolean('active', true);
-
         $article = new Article();
         $article->setName(trim($name));
         $article->setAmount($amount);
-        $article->setActive($active);
 
         return $article;
     }
