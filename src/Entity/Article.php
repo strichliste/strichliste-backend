@@ -140,18 +140,6 @@ class Article {
         return $this;
     }
 
-    function isActivatable(): bool {
-        if ($this->isActive()) {
-            return false;
-        }
-
-        if ($this->getPrecursor()) {
-            return false;
-        }
-
-        return true;
-    }
-
     function getCreated(): ?\DateTimeInterface {
         return $this->created;
     }

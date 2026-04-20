@@ -36,10 +36,6 @@ class ArticleService {
             $article->setName($newArticle->getName());
             $article->setAmount($newArticle->getAmount());
 
-            if ($article->isActivatable() && $newArticle->isActive()) {
-                $article->setActive(true);
-            }
-
             $this->entityManager->persist($article);
             $this->entityManager->flush();
 
