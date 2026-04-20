@@ -27,7 +27,7 @@ class Barcode {
     #[ORM\Column(type: 'datetime')]
     private ?\DateTime $created = null;
 
-    function __construct(string $barcode = '') {
+    function __construct(string $barcode) {
         $this->barcode = $barcode;
     }
 
