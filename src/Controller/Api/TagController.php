@@ -13,6 +13,7 @@ use App\Serializer\ArticleSerializer;
 use App\Serializer\TagSerializer;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -23,7 +24,7 @@ class TagController extends AbstractController {
     }
 
     #[Route('/tag', methods: ['GET'])]
-    function listTags(EntityManagerInterface $entityManager) {
+    function listTags(EntityManagerInterface $entityManager): JsonResponse {
         $tags = $entityManager->getRepository(Tag::class)->findAll();
 
         usort($tags, fn (Tag $a, Tag $b) =>
@@ -40,7 +41,7 @@ class TagController extends AbstractController {
     }
 
     #[Route('/article/{articleId}/tag', methods: ['GET'])]
-    function listArticleTags(int $articleId, EntityManagerInterface $entityManager) {
+    function listArticleTags(int $articleId, EntityManagerInterface $entityManager): JsonResponse {
         $article = $entityManager->getRepository(Article::class)->find($articleId);
         if (!$article) {
             throw new ArticleNotFoundException($articleId);
@@ -57,7 +58,7 @@ class TagController extends AbstractController {
     }
 
     #[Route('/article/{articleId}/tag/{tagId}', methods: ['GET'])]
-    function getArticleTag(int $articleId, int $tagId, EntityManagerInterface $entityManager) {
+    function getArticleTag(int $articleId, int $tagId, EntityManagerInterface $entityManager): JsonResponse {
         $article = $entityManager->getRepository(Article::class)->find($articleId);
         if (!$article) {
             throw new ArticleNotFoundException($articleId);
@@ -74,7 +75,7 @@ class TagController extends AbstractController {
     }
 
     #[Route('/article/{articleId}/tag', methods: ['POST'])]
-    function addArticleTag(int $articleId, Request $request, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager) {
+    function addArticleTag(int $articleId, Request $request, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager): JsonResponse {
         $tag = $request->request->get('tag');
 
         if (!$tag) {
@@ -107,7 +108,7 @@ class TagController extends AbstractController {
     }
 
     #[Route('/article/{articleId}/tag/{tagId}', methods: ['DELETE'])]
-    function deleteArticleTag(int $articleId, int $tagId, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager) {
+    function deleteArticleTag(int $articleId, int $tagId, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager): JsonResponse {
         $article = $entityManager->getRepository(Article::class)->find($articleId);
         if (!$article) {
             throw new ArticleNotFoundException($articleId);
