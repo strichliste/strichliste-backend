@@ -7,6 +7,7 @@ use App\Entity\ArticleTag;
 use App\Entity\Tag;
 use App\Exception\ArticleNotFoundException;
 use App\Exception\ArticleTagAlreadyExistsException;
+use App\Exception\ParameterInvalidException;
 use App\Exception\TagNotFoundException;
 use App\Serializer\ArticleSerializer;
 use App\Serializer\TagSerializer;
@@ -57,19 +58,28 @@ class TagController extends AbstractController {
 
     #[Route('/article/{articleId}/tag/{tagId}', methods: ['GET'])]
     function getArticleTag(int $articleId, int $tagId, EntityManagerInterface $entityManager) {
-        $tag = $entityManager->getRepository(Tag::class)->find($tagId);
-        if (!$tag) {
+        $article = $entityManager->getRepository(Article::class)->find($articleId);
+        if (!$article) {
+            throw new ArticleNotFoundException($articleId);
+        }
+
+        $articleTag = $entityManager->getRepository(ArticleTag::class)->findOneBy(['article' => $articleId, 'tag' => $tagId]);
+        if (!$articleTag) {
             throw new TagNotFoundException($tagId);
         }
 
         return $this->json([
-            'tag' => $this->tagSerializer->serialize($tag)
+            'tag' => $this->tagSerializer->serialize($articleTag->getTag())
         ]);
     }
 
     #[Route('/article/{articleId}/tag', methods: ['POST'])]
     function addArticleTag(int $articleId, Request $request, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager) {
         $tag = $request->request->get('tag');
+
+        if (!$tag) {
+            throw new ParameterInvalidException('tag');
+        }
 
         $article = $entityManager->getRepository(Article::class)->find($articleId);
         if (!$article) {
@@ -96,17 +106,16 @@ class TagController extends AbstractController {
         ]);
     }
 
-    #[Route('/article/{articleId}/tag/{articleTagId}', methods: ['DELETE'])]
-    function deleteArticleTag(int $articleId, int $articleTagId, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager) {
+    #[Route('/article/{articleId}/tag/{tagId}', methods: ['DELETE'])]
+    function deleteArticleTag(int $articleId, int $tagId, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager) {
         $article = $entityManager->getRepository(Article::class)->find($articleId);
         if (!$article) {
             throw new ArticleNotFoundException($articleId);
         }
 
-        /** @var ArticleTag $articleTag */
-        $articleTag = $entityManager->getRepository(ArticleTag::class)->find($articleTagId);
+        $articleTag = $entityManager->getRepository(ArticleTag::class)->findOneBy(['article' => $articleId, 'tag' => $tagId]);
         if (!$articleTag) {
-            throw new TagNotFoundException($articleTagId);
+            throw new TagNotFoundException($tagId);
         }
 
         $entityManager->wrapInTransaction(function () use ($entityManager, $articleTag) {
