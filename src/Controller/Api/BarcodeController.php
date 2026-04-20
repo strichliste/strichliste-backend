@@ -52,8 +52,13 @@ class BarcodeController extends AbstractController {
 
     #[Route('/article/{articleId}/barcode/{barcodeId}', methods: ['GET'])]
     function getArticleBarcode(int $articleId, int $barcodeId, EntityManagerInterface $entityManager) {
+        $article = $entityManager->getRepository(Article::class)->find($articleId);
+        if (!$article) {
+            throw new ArticleNotFoundException($articleId);
+        }
+
         $barcode = $entityManager->getRepository(Barcode::class)->find($barcodeId);
-        if (!$barcode) {
+        if (!$barcode || $barcode->getArticle()->getId() !== $articleId) {
             throw new BarcodeNotFoundException($barcodeId);
         }
 
@@ -99,7 +104,7 @@ class BarcodeController extends AbstractController {
         }
 
         $existingBarcode = $entityManager->getRepository(Barcode::class)->find($barcodeId);
-        if (!$existingBarcode) {
+        if (!$existingBarcode || $existingBarcode->getArticle()->getId() !== $articleId) {
             throw new BarcodeNotFoundException($barcodeId);
         }
 
