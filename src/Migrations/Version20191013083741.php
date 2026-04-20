@@ -76,6 +76,7 @@ final class Version20191013083741 extends AbstractMigration {
     private function upPostgreSQL() {
         $this->addSql('CREATE SEQUENCE barcode_id_seq INCREMENT BY 1 MINVALUE 1 START 1');
         $this->addSql('CREATE SEQUENCE tag_id_seq INCREMENT BY 1 MINVALUE 1 START 1');
+        $this->addSql('CREATE SEQUENCE article_tag_id_seq INCREMENT BY 1 MINVALUE 1 START 1');
 
         $this->addSql('CREATE TABLE barcode (id INT NOT NULL, article_id INT NOT NULL, barcode VARCHAR(32) NOT NULL, created TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE INDEX IDX_97AE02667294869C ON barcode (article_id)');
