@@ -4,7 +4,6 @@ namespace App\Service;
 
 
 use App\Entity\Article;
-use App\Exception\ArticleBarcodeAlreadyExistsException;
 use App\Exception\ParameterMissingException;
 use App\Repository\TransactionRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -32,11 +31,14 @@ class ArticleService {
 
         $referenceCount = $this->transactionRepository->getArticleReferenceCount($article);
 
+        // Article is not used before, just update the fields
         if ($referenceCount == 0) {
             $article->setName($newArticle->getName());
             $article->setAmount($newArticle->getAmount());
-            $article->setActive($newArticle->isActive());
-            $article->setBarcode($newArticle->getBarcode());
+
+            if ($article->isActivatable() && $newArticle->isActive()) {
+                $article->setActive(true);
+            }
 
             $this->entityManager->persist($article);
             $this->entityManager->flush();
@@ -47,14 +49,15 @@ class ArticleService {
         $newArticle->setPrecursor($article);
         $newArticle->setUsageCount($article->getUsageCount());
 
-        if ($newArticle->getBarcode()) {
-            $existingArticle = $this->entityManager->getRepository(Article::class)->findOneActiveBy([
-                'barcode' => $newArticle->getBarcode()
-            ]);
+        // Reference all "old" barcodes to the new article
+        foreach ($article->getBarcodes() as $barcode) {
+            $barcode->setArticle($newArticle);
+        }
 
-            if ($existingArticle && $existingArticle->getId() != $article->getId()) {
-                throw new ArticleBarcodeAlreadyExistsException($existingArticle);
-            }
+        // Reference all "old" tags to the new article
+        foreach ($article->getArticleTags() as $articleTag) {
+            $articleTag->setArticle($newArticle);
+            $this->entityManager->persist($articleTag);
         }
 
         $article->setActive(false);
@@ -86,14 +89,12 @@ class ArticleService {
             throw new ParameterMissingException('amount');
         }
 
+        $active = $request->request->getBoolean('active', true);
+
         $article = new Article();
         $article->setName(trim($name));
         $article->setAmount($amount);
-
-        $barcode = $request->request->get('barcode');
-        if ($barcode) {
-            $article->setBarcode(trim($barcode));
-        }
+        $article->setActive($active);
 
         return $article;
     }
