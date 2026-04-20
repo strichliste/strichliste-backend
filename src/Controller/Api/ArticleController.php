@@ -186,9 +186,12 @@ class ArticleController extends AbstractController {
             throw new ArticleNotFoundException($articleId);
         }
 
+        foreach ($article->getBarcodes() as $barcode) {
+            $entityManager->remove($barcode);
+        }
+
         $article->setActive(false);
 
-        $entityManager->persist($article);
         $entityManager->flush();
 
         return $this->json([
