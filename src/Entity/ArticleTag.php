@@ -17,10 +17,12 @@ class ArticleTag {
     private ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: Article::class, cascade: ['persist'], inversedBy: 'articleTags')]
-    private ?Article $article = null;
+    #[ORM\JoinColumn(nullable: false)]
+    private Article $article;
 
     #[ORM\ManyToOne(targetEntity: Tag::class, cascade: ['persist'], fetch: 'EAGER', inversedBy: 'articleTags')]
-    private ?Tag $tag = null;
+    #[ORM\JoinColumn(nullable: false)]
+    private Tag $tag;
 
     #[ORM\Column(type: 'datetime')]
     private ?\DateTime $created = null;

@@ -21,8 +21,8 @@ class Barcode {
     private string $barcode;
 
     #[ORM\ManyToOne(targetEntity: Article::class, inversedBy: 'barcodes', fetch: 'EAGER')]
-    #[ORM\JoinColumn(name: 'article_id', referencedColumnName: 'id')]
-    private ?Article $article = null;
+    #[ORM\JoinColumn(name: 'article_id', referencedColumnName: 'id', nullable: false)]
+    private Article $article;
 
     #[ORM\Column(type: 'datetime')]
     private ?\DateTime $created = null;
