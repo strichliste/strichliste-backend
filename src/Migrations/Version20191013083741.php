@@ -43,7 +43,7 @@ final class Version20191013083741 extends AbstractMigration {
         $this->addSql('CREATE TABLE barcode (id INT AUTO_INCREMENT NOT NULL, article_id INT NOT NULL, barcode VARCHAR(32) NOT NULL, created DATETIME NOT NULL, INDEX IDX_97AE02667294869C (article_id), UNIQUE INDEX UNIQ_barcode (barcode), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB');
         $this->addSql('ALTER TABLE barcode ADD CONSTRAINT FK_97AE02667294869C FOREIGN KEY (article_id) REFERENCES article (id)');
 
-        $this->addSql('CREATE TABLE tag (id INT AUTO_INCREMENT NOT NULL, article_id INT DEFAULT NULL, tag VARCHAR(255) NOT NULL, created DATETIME NOT NULL, INDEX IDX_389B7837294869C (article_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB');
+        $this->addSql('CREATE TABLE tag (id INT AUTO_INCREMENT NOT NULL, tag VARCHAR(255) NOT NULL, created DATETIME NOT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB');
 
         $this->addSql('CREATE TABLE article_tag (id INT AUTO_INCREMENT NOT NULL, article_id INT NOT NULL, tag_id INT NOT NULL, created DATETIME NOT NULL, INDEX IDX_919694F97294869C (article_id), INDEX IDX_919694F9BAD26311 (tag_id), UNIQUE INDEX UNIQ_article_tag (article_id, tag_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB');
         $this->addSql('ALTER TABLE article_tag ADD CONSTRAINT FK_919694F97294869C FOREIGN KEY (article_id) REFERENCES article (id)');
