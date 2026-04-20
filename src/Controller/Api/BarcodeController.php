@@ -5,6 +5,7 @@ namespace App\Controller\Api;
 use App\Entity\Article;
 use App\Entity\Barcode;
 use App\Exception\ArticleBarcodeAlreadyExistsException;
+use App\Exception\ArticleInactiveException;
 use App\Exception\ArticleNotFoundException;
 use App\Exception\BarcodeInvalidException;
 use App\Exception\BarcodeNotFoundException;
@@ -78,6 +79,10 @@ class BarcodeController extends AbstractController {
         $article = $entityManager->getRepository(Article::class)->find($articleId);
         if (!$article) {
             throw new ArticleNotFoundException($articleId);
+        }
+
+        if (!$article->isActive()) {
+            throw new ArticleInactiveException($article);
         }
 
         $existingBarcode = $entityManager->getRepository(Barcode::class)->findByBarcode($barcode);
