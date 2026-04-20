@@ -25,9 +25,10 @@ class TagController extends AbstractController {
     function listTags(EntityManagerInterface $entityManager) {
         $tags = $entityManager->getRepository(Tag::class)->findAll();
 
-        usort($tags, function (Tag $a, Tag $b) {
-            return $a->getUsageCount() <=> $b->getUsageCount() && $a->getCreated() <=> $b->getCreated();
-        });
+        usort($tags, fn (Tag $a, Tag $b) =>
+            ($b->getUsageCount() <=> $a->getUsageCount())
+                ?: ($b->getCreated() <=> $a->getCreated())
+        );
 
         return $this->json([
             'count' => count($tags),
