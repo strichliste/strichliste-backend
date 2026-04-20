@@ -7,8 +7,8 @@ use App\Entity\Barcode;
 use App\Exception\ArticleBarcodeAlreadyExistsException;
 use App\Exception\ArticleInactiveException;
 use App\Exception\ArticleNotFoundException;
-use App\Exception\BarcodeInvalidException;
 use App\Exception\BarcodeNotFoundException;
+use App\Exception\ParameterInvalidException;
 use App\Serializer\ArticleSerializer;
 use App\Serializer\BarcodeSerializer;
 use Doctrine\ORM\EntityManagerInterface;
@@ -73,7 +73,7 @@ class BarcodeController extends AbstractController {
         $barcode = $request->request->get('barcode');
 
         if (!$barcode) {
-            throw new BarcodeInvalidException($barcode);
+            throw new ParameterInvalidException('barcode');
         }
 
         $article = $entityManager->getRepository(Article::class)->find($articleId);
