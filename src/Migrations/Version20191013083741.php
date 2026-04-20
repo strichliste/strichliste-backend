@@ -70,14 +70,7 @@ final class Version20191013083741 extends AbstractMigration {
         // Migrate barcodes
         $this->addSql("INSERT INTO barcode (article_id, barcode, created) SELECT id, barcode, date('now') FROM article WHERE barcode IS NOT NULL AND barcode <> '' AND active = 1");
 
-        // SQLITE does not support alter table add/remove column, so we have to copy the whole table with a temp table
-        $this->addSql('DROP INDEX UNIQ_23A0E66FA546BCC');
-        $this->addSql('CREATE TEMPORARY TABLE __temp__article AS SELECT id, precursor_id, name, amount, active, created, usage_count FROM article');
-        $this->addSql('DROP TABLE article');
-        $this->addSql('CREATE TABLE article (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, precursor_id INTEGER DEFAULT NULL, name VARCHAR(255) NOT NULL COLLATE BINARY, amount INTEGER NOT NULL, active BOOLEAN NOT NULL, created DATETIME NOT NULL, usage_count INTEGER NOT NULL, CONSTRAINT FK_23A0E66FA546BCC FOREIGN KEY (precursor_id) REFERENCES article (id) NOT DEFERRABLE INITIALLY IMMEDIATE)');
-        $this->addSql('INSERT INTO article (id, precursor_id, name, amount, active, created, usage_count) SELECT id, precursor_id, name, amount, active, created, usage_count FROM __temp__article');
-        $this->addSql('DROP TABLE __temp__article');
-        $this->addSql('CREATE UNIQUE INDEX UNIQ_23A0E66FA546BCC ON article (precursor_id)');
+        $this->addSql('ALTER TABLE article DROP COLUMN barcode');
     }
 
     private function upPostgreSQL() {
