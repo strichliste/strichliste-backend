@@ -102,7 +102,7 @@ class Article {
 
     function hasTag(Tag $tag): bool {
         foreach ($this->getTags() as $existingTag) {
-            if ($tag->getId() == $existingTag->getId()) {
+            if ($tag->getId() === $existingTag->getId()) {
                 return true;
             }
         }
