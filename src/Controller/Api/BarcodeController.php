@@ -13,6 +13,7 @@ use App\Serializer\ArticleSerializer;
 use App\Serializer\BarcodeSerializer;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -23,7 +24,7 @@ class BarcodeController extends AbstractController {
     }
 
     #[Route('/barcode', methods: ['GET'])]
-    function listBarcodes(EntityManagerInterface $entityManager) {
+    function listBarcodes(EntityManagerInterface $entityManager): JsonResponse {
         $barcodes = $entityManager->getRepository(Barcode::class)->findBy([], ['created' => 'DESC']);
 
         return $this->json([
@@ -35,7 +36,7 @@ class BarcodeController extends AbstractController {
     }
 
     #[Route('/article/{articleId}/barcode', methods: ['GET'])]
-    function listArticleBarcode(int $articleId, EntityManagerInterface $entityManager) {
+    function listArticleBarcode(int $articleId, EntityManagerInterface $entityManager): JsonResponse {
         $article = $entityManager->getRepository(Article::class)->find($articleId);
         if (!$article) {
             throw new ArticleNotFoundException($articleId);
@@ -52,7 +53,7 @@ class BarcodeController extends AbstractController {
     }
 
     #[Route('/article/{articleId}/barcode/{barcodeId}', methods: ['GET'])]
-    function getArticleBarcode(int $articleId, int $barcodeId, EntityManagerInterface $entityManager) {
+    function getArticleBarcode(int $articleId, int $barcodeId, EntityManagerInterface $entityManager): JsonResponse {
         $article = $entityManager->getRepository(Article::class)->find($articleId);
         if (!$article) {
             throw new ArticleNotFoundException($articleId);
@@ -69,7 +70,7 @@ class BarcodeController extends AbstractController {
     }
 
     #[Route('/article/{articleId}/barcode', methods: ['POST'])]
-    function addArticleBarcode(int $articleId, Request $request, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager) {
+    function addArticleBarcode(int $articleId, Request $request, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager): JsonResponse {
         $barcode = $request->request->get('barcode');
 
         if (!$barcode) {
@@ -102,7 +103,7 @@ class BarcodeController extends AbstractController {
     }
 
     #[Route('/article/{articleId}/barcode/{barcodeId}', methods: ['DELETE'])]
-    function deleteArticleBarcode(int $articleId, int $barcodeId, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager) {
+    function deleteArticleBarcode(int $articleId, int $barcodeId, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager): JsonResponse {
         $article = $entityManager->getRepository(Article::class)->find($articleId);
         if (!$article) {
             throw new ArticleNotFoundException($articleId);
