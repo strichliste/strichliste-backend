@@ -62,6 +62,7 @@ class ArticleController extends AbstractController {
         }
 
         $queryBuilder
+            ->groupBy('a1')
             ->setFirstResult($offset)
             ->setMaxResults($limit)
             ->orderBy('a1.name', 'ASC');
