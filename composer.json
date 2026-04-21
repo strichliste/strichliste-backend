@@ -1,7 +1,8 @@
 {
     "type": "project",
     "license": "MIT",
-    "version": "2.0.0",
+    "name": "strichliste/strichliste-backend",
+    "description": "Backend component of strichliste, a digital tallysheet",
     "require": {
         "php": "^8.2",
         "ext-ctype": "*",
