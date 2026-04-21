@@ -15,6 +15,8 @@ use App\Exception\TransactionNotDeletableException;
 use App\Exception\TransactionNotFoundException;
 use App\Exception\UserNotFoundException;
 use Doctrine\DBAL\LockMode;
+use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
+use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\ORM\EntityManagerInterface;
 
 class TransactionService {
@@ -32,6 +34,11 @@ class TransactionService {
     function __construct(SettingsService $settingsService, EntityManagerInterface $entityManager) {
         $this->entityManager = $entityManager;
         $this->settingsService = $settingsService;
+
+        $connection = $entityManager->getConnection();
+        if ($connection->getDatabasePlatform() instanceof AbstractMySQLPlatform) {
+            $connection->setTransactionIsolation(TransactionIsolationLevel::READ_COMMITTED);
+        }
     }
 
 
@@ -76,10 +83,25 @@ class TransactionService {
             throw new TransactionInvalidException('Amount can\'t be positive when sending money or buying an article');
         }
 
-        return $this->entityManager->wrapInTransaction(function () use ($user, $amount, $comment, $quantity, $articleId, $recipientId) {
+        $senderId = $user->getId();
+        return $this->entityManager->wrapInTransaction(function () use ($senderId, $amount, $comment, $quantity, $articleId, $recipientId) {
             $transaction = new Transaction();
-            $transaction->setUser($user);
             $transaction->setComment($comment);
+
+            $userRepo = $this->entityManager->getRepository(User::class);
+
+            $userIds = $recipientId ? [$senderId, $recipientId] : [$senderId];
+            sort($userIds, SORT_NUMERIC);
+
+            $lockedUsers = [];
+            foreach ($userIds as $id) {
+                $u = $userRepo->find($id);
+                if (!$u) {
+                    throw new UserNotFoundException($id);
+                }
+                $this->lockAndRefresh($u);
+                $lockedUsers[$id] = $u;
+            }
 
             $article = null;
             if ($articleId) {
@@ -87,6 +109,7 @@ class TransactionService {
                 if (!$article) {
                     throw new ArticleNotFoundException($articleId);
                 }
+                $this->lockAndRefresh($article);
 
                 if (!$article->isActive()) {
                     throw new ArticleInactiveException($article);
@@ -104,12 +127,8 @@ class TransactionService {
                 $this->entityManager->persist($article);
             }
 
-            $recipient = null;
             if ($recipientId) {
-                $recipient = $this->entityManager->getRepository(User::class)->find($recipientId, LockMode::PESSIMISTIC_WRITE);
-                if (!$recipient) {
-                    throw new UserNotFoundException($recipientId);
-                }
+                $recipient = $lockedUsers[$recipientId];
 
                 $recipientTransaction = new Transaction();
                 $recipientTransaction->setAmount($amount * -1);
@@ -127,14 +146,17 @@ class TransactionService {
                 $this->entityManager->persist($recipient);
             }
 
+            $sender = $lockedUsers[$senderId];
+
+            $transaction->setUser($sender);
             $transaction->setAmount($amount);
             $this->checkTransactionBoundary($amount);
 
-            $user->addBalance($amount);
-            $this->checkAccountBalanceBoundary($user);
+            $sender->addBalance($amount);
+            $this->checkAccountBalanceBoundary($sender);
 
             $this->entityManager->persist($transaction);
-            $this->entityManager->persist($user);
+            $this->entityManager->persist($sender);
 
             return $transaction;
         });
@@ -150,35 +172,64 @@ class TransactionService {
      */
     function revertTransaction(int $transactionId): Transaction {
         return $this->entityManager->wrapInTransaction(function () use ($transactionId) {
+            $txRepo = $this->entityManager->getRepository(Transaction::class);
 
-            $transaction = $this->entityManager->getRepository(Transaction::class)->find($transactionId, LockMode::PESSIMISTIC_WRITE);
-            if (!$transaction) {
+            $primaryTx = $txRepo->find($transactionId);
+            if (!$primaryTx) {
                 throw new TransactionNotFoundException($transactionId);
             }
 
-            if ($transaction->isDeleted()) {
-                throw new TransactionNotDeletableException($transaction);
+            $transactionIds = [$primaryTx->getId()];
+            $userIds = [$primaryTx->getUser()->getId()];
+
+            $pairedTx = $primaryTx->getRecipientTransaction() ?? $primaryTx->getSenderTransaction();
+            if ($pairedTx) {
+                $transactionIds[] = $pairedTx->getId();
+                $userIds[] = $pairedTx->getUser()->getId();
             }
 
-            $article = $transaction->getArticle();
-            if ($article) {
+            sort($transactionIds, SORT_NUMERIC);
+            sort($userIds, SORT_NUMERIC);
+
+            $lockedTx = [];
+            foreach ($transactionIds as $id) {
+                $t = $txRepo->find($id);
+                if (!$t) {
+                    throw new TransactionNotFoundException($id);
+                }
+                $this->lockAndRefresh($t);
+                $lockedTx[$id] = $t;
+            }
+
+            $userRepo = $this->entityManager->getRepository(User::class);
+            foreach ($userIds as $id) {
+                $u = $userRepo->find($id);
+                if (!$u) {
+                    throw new UserNotFoundException($id);
+                }
+                $this->lockAndRefresh($u);
+            }
+
+            $articleRef = $primaryTx->getArticle();
+            if ($articleRef) {
+                $article = $this->entityManager->getRepository(Article::class)->find($articleRef->getId());
+                if (!$article) {
+                    throw new ArticleNotFoundException($articleRef->getId());
+                }
+                $this->lockAndRefresh($article);
+
                 $article->decrementUsageCount();
                 $this->entityManager->persist($article);
             }
 
-            $recipientTransaction = $transaction->getRecipientTransaction();
-            if ($recipientTransaction) {
-                $this->undoTransaction($recipientTransaction);
+            foreach ($lockedTx as $t) {
+                if ($t->isDeleted()) {
+                    throw new TransactionNotDeletableException($t);
+                }
+                $this->undoTransaction($t);
             }
 
-            $senderTransaction = $transaction->getSenderTransaction();
-            if ($senderTransaction) {
-                $this->undoTransaction($senderTransaction);
-            }
-
-            $this->undoTransaction($transaction);
-
-            return $transaction;
+            return $lockedTx[$transactionId];
         });
     }
 
@@ -204,6 +255,17 @@ class TransactionService {
         }
 
         $this->entityManager->persist($user);
+    }
+
+    /**
+     * @param object $entity
+     * @return void
+     * @throws \Doctrine\ORM\Exception\ORMException
+     * @throws \Doctrine\ORM\PessimisticLockException
+     */
+    private function lockAndRefresh(object $entity) {
+        $this->entityManager->lock($entity, LockMode::PESSIMISTIC_WRITE);
+        $this->entityManager->refresh($entity);
     }
 
     /**
