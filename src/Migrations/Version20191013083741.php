@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DoctrineMigrations;
 
+use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
@@ -20,6 +21,28 @@ final class Version20191013083741 extends AbstractMigration {
         if (!$schema->getTable('article')->hasColumn('barcode')) {
             return;
         }
+
+        $duplicates = $this->connection->fetchFirstColumn(
+            "SELECT barcode
+               FROM article
+              WHERE barcode IS NOT NULL AND barcode <> '' AND active = :active
+              GROUP BY barcode
+             HAVING COUNT(*) > 1
+              ORDER BY barcode",
+            ['active' => true],
+            ['active' => ParameterType::BOOLEAN],
+        );
+
+        $this->abortIf(
+            $duplicates !== [],
+            sprintf(
+                "Cannot migrate: %d barcode value(s) appear on more than one active article. "
+                . "Remove duplicates in `article.barcode` first, then re-run the migration. "
+                . "Offending barcodes: %s",
+                count($duplicates),
+                implode(', ', $duplicates),
+            ),
+        );
 
         $platform = $this->connection->getDatabasePlatform();
 
