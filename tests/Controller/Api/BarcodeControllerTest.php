@@ -2,10 +2,20 @@
 
 namespace App\Tests\Controller\Api;
 
+use PHPUnit\Framework\Attributes\TestWith;
 use Symfony\Component\HttpFoundation\Response;
 
 class BarcodeControllerTest extends AbstractApplicationTestCase
 {
+    #[TestWith([null]), TestWith(['']), TestWith(['  '])]
+    public function testAddBarcodeRejectsBlankParameter(?string $barcode): void
+    {
+        $articleId = $this->createArticleDb('Club Mate', 150);
+
+        $this->client->request('POST', "/api/article/{$articleId}/barcode", ['barcode' => $barcode]);
+        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+    }
+
     public function testAddAndListBarcodeOnArticle(): void
     {
         $articleId = $this->createArticleDb('Club Mate', 150);

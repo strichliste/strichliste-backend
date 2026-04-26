@@ -42,7 +42,7 @@ class ArticleController extends AbstractController {
             ->where('a1.active = :active')
             ->setParameter('active', $active);
 
-        $barcode = $request->query->get('barcode');
+        $barcode = trim($request->query->get('barcode', ''));
         if ($barcode) {
             $queryBuilder
                 ->andWhere('b.barcode = :barcode')
@@ -94,8 +94,8 @@ class ArticleController extends AbstractController {
     function search(Request $request, EntityManagerInterface $entityManager) {
         $query = $request->query->get('query');
         $limit = $request->query->get('limit', 25);
-        $barcode = $request->query->get('barcode');
-        $tag = $request->query->get('tag');
+        $barcode = trim($request->query->get('barcode', ''));
+        $tag = trim($request->query->get('tag', ''));
 
         $queryBuilder = $entityManager
             ->getRepository(Article::class)
