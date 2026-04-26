@@ -99,7 +99,7 @@ final class Version20191013083741 extends AbstractMigration {
         $this->addSql('CREATE UNIQUE INDEX UNIQ_barcode ON barcode (barcode)');
 
         // Migrate barcodes
-        $this->addSql("INSERT INTO barcode (article_id, barcode, created) SELECT id, barcode, date('now') FROM article WHERE barcode IS NOT NULL AND barcode <> '' AND active = 1");
+        $this->addSql("INSERT INTO barcode (article_id, barcode, created) SELECT id, barcode, datetime('now') FROM article WHERE barcode IS NOT NULL AND barcode <> '' AND active = 1");
 
         $this->addSql('ALTER TABLE article DROP COLUMN barcode');
     }
