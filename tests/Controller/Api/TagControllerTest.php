@@ -2,8 +2,20 @@
 
 namespace App\Tests\Controller\Api;
 
+use PHPUnit\Framework\Attributes\TestWith;
+use Symfony\Component\HttpFoundation\Response;
+
 class TagControllerTest extends AbstractApplicationTestCase
 {
+    #[TestWith([null]), TestWith(['']), TestWith(['  '])]
+    public function testAddTagRejectsBlankParameter(?string $tag): void
+    {
+        $articleId = $this->createArticleDb('Club Mate', 150);
+
+        $this->client->request('POST', "/api/article/{$articleId}/tag", ['tag' => $tag]);
+        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+    }
+
     public function testTagIsReusedAndGarbageCollected(): void
     {
         $articleAId = $this->createArticleDb('Club Mate', 150);

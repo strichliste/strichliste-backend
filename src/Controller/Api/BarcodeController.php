@@ -71,8 +71,7 @@ class BarcodeController extends AbstractController {
 
     #[Route('/article/{articleId}/barcode', methods: ['POST'])]
     function addArticleBarcode(int $articleId, Request $request, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager): JsonResponse {
-        $barcode = $request->request->get('barcode');
-
+        $barcode = trim($request->request->get('barcode', ''));
         if (!$barcode) {
             throw new ParameterInvalidException('barcode');
         }
