@@ -131,5 +131,6 @@ final class Version20191013083741 extends AbstractMigration {
     }
 
     function down(Schema $schema): void {
+        $this->throwIrreversibleMigrationException();
     }
 }
