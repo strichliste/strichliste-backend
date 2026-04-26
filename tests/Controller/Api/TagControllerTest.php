@@ -1,0 +1,37 @@
+<?php
+
+namespace App\Tests\Controller\Api;
+
+class TagControllerTest extends AbstractApplicationTestCase
+{
+    public function testTagIsReusedAndGarbageCollected(): void
+    {
+        $articleAId = $this->createArticleDb('Club Mate', 150);
+        $articleBId = $this->createArticleDb('Flora Mate', 160);
+
+        $this->requestJson('POST', "/api/article/{$articleBId}/tag", ['tag' => 'cola']);
+        $this->requestJson('POST', "/api/article/{$articleBId}/tag", ['tag' => 'mate']);
+        $this->requestJson('POST', "/api/article/{$articleAId}/tag", ['tag' => 'mate']);
+
+        $tags = $this->requestJson('GET', '/api/tag');
+        $this->assertSame(2, $tags['count']);
+
+        // Ordered by usageCount DESC, so mate (2) comes before cola (1)
+        $this->assertSame(['mate', 'cola'], array_column($tags['tags'], 'tag'));
+        $this->assertSame(2, $tags['tags'][0]['usageCount']);
+        $this->assertSame(1, $tags['tags'][1]['usageCount']);
+
+        $mateTagId = $tags['tags'][0]['id'];
+
+        $this->requestJson('DELETE', "/api/article/{$articleAId}/tag/{$mateTagId}");
+
+        $mateAfter = $this->requestJson('GET', "/api/article/{$articleBId}/tag/{$mateTagId}", unpackKey: 'tag');
+        $this->assertSame(1, $mateAfter['usageCount']);
+
+        $this->requestJson('DELETE', "/api/article/{$articleBId}/tag/{$mateTagId}");
+
+        $tagsAfterGc = $this->requestJson('GET', '/api/tag');
+        $this->assertSame(1, $tagsAfterGc['count']);
+        $this->assertSame('cola', $tagsAfterGc['tags'][0]['tag']);
+    }
+}

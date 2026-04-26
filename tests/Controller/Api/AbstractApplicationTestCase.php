@@ -2,6 +2,7 @@
 
 namespace App\Tests\Controller\Api;
 
+use App\Entity\Article;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -40,5 +41,25 @@ abstract class AbstractApplicationTestCase extends WebTestCase
         $em->flush();
 
         return $user->getId();
+    }
+
+    protected function createArticleDb(string $name, int $amount): int
+    {
+        $em = static::getContainer()->get(EntityManagerInterface::class);
+        $article = new Article();
+        $article->setName($name);
+        $article->setAmount($amount);
+        $em->persist($article);
+        $em->flush();
+
+        return $article->getId();
+    }
+
+    protected function generateBarcode(): string
+    {
+        return implode('', array_map(
+            fn () => random_int(0, 9),
+            range(1, 13),
+        ));
     }
 }

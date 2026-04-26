@@ -2,9 +2,6 @@
 
 namespace App\Tests\Controller\Api;
 
-use App\Entity\User;
-use Doctrine\ORM\EntityManagerInterface;
-
 class ArticleControllerTest extends AbstractApplicationTestCase
 {
     private int $userId;
@@ -16,17 +13,32 @@ class ArticleControllerTest extends AbstractApplicationTestCase
         $this->userId = self::createUserDb('Alice');
     }
 
-    public function testBuyArticleUpdatePriceAndUndo(): void
+    public function testCreateArticle(): void
     {
-        $articleData = $this->requestJson('POST', '/api/article', [
-            'name' => 'Club Mate',
+        $article = $this->requestJson('POST', '/api/article', [
+            'name' => '  Club Mate  ', // Spaces are intentional and expected to be trim()ed
             'amount' => 150,
         ], 'article');
 
-        $articleId = $articleData['id'];
-        $this->assertSame(150, $articleData['amount']);
-        $this->assertSame(0, $articleData['usageCount']);
-        $this->assertTrue($articleData['isActive']);
+        $this->assertIsInt($article['id']);
+        $this->assertSame('Club Mate', $article['name']);
+        $this->assertSame(150, $article['amount']);
+        $this->assertTrue($article['isActive']);
+        $this->assertSame(0, $article['usageCount']);
+        $this->assertSame([], $article['barcodes']);
+        $this->assertSame([], $article['tags']);
+        $this->assertNull($article['precursor']);
+        $this->assertNotEmpty($article['created']);
+
+        $fetched = $this->requestJson('GET', "/api/article/{$article['id']}", unpackKey: 'article');
+        $this->assertSame($article['id'], $fetched['id']);
+        $this->assertSame('Club Mate', $fetched['name']);
+        $this->assertSame(150, $fetched['amount']);
+    }
+
+    public function testBuyArticleUpdatePriceAndUndo(): void
+    {
+        $articleId = $this->createArticleDb('Club Mate', 150);
 
         $buyData = $this->requestJson('POST', "/api/user/{$this->userId}/transaction", [
             'articleId' => $articleId,
@@ -39,7 +51,7 @@ class ArticleControllerTest extends AbstractApplicationTestCase
         $this->assertUserBalance($this->userId, -150);
 
         $afterBuy = $this->requestJson('GET', "/api/article/{$articleId}", unpackKey: 'article');
-        
+
         $this->assertSame(1, $afterBuy['usageCount']);
 
         $updated = $this->requestJson('POST', "/api/article/{$articleId}", [
@@ -54,8 +66,6 @@ class ArticleControllerTest extends AbstractApplicationTestCase
         $this->assertSame(1, $updated['usageCount']);
 
         $oldArticle = $this->requestJson('GET', "/api/article/{$articleId}", unpackKey: 'article');
-
-        $this->assertSame($articleId, $oldArticle['id']);
         $this->assertFalse($oldArticle['isActive']);
 
         $undoData = $this->requestJson(
@@ -71,5 +81,79 @@ class ArticleControllerTest extends AbstractApplicationTestCase
         $afterUndo = $this->requestJson('GET', "/api/article/{$articleId}", unpackKey: 'article');
 
         $this->assertSame(0, $afterUndo['usageCount']);
+    }
+
+    public function testArticleUpdateMigratesBarcodesAndTags(): void
+    {
+        $oldId = $this->createArticleDb('Club Mate', 150);
+
+        $barcode = $this->generateBarcode();
+        $this->requestJson('POST', "/api/article/{$oldId}/barcode", ['barcode' => $barcode]);
+        $this->requestJson('POST', "/api/article/{$oldId}/tag", ['tag' => 'mate']);
+        $this->requestJson('POST', "/api/article/{$oldId}/tag", ['tag' => 'caffeine']);
+
+        // Create transaction so article is not updated in place but a new article with precursor is created
+        $this->requestJson('POST', "/api/user/{$this->userId}/transaction", ['articleId' => $oldId]);
+
+        $updated = $this->requestJson('POST', "/api/article/{$oldId}", [
+            'name' => 'Club Mate',
+            'amount' => 200,
+        ], 'article');
+
+        $newId = $updated['id'];
+        $this->assertNotSame($oldId, $newId);
+        $this->assertSame($oldId, $updated['precursor']['id']);
+
+        $newArticle = $this->requestJson('GET', "/api/article/{$newId}", unpackKey: 'article');
+
+        $this->assertCount(1, $newArticle['barcodes']);
+        $this->assertSame($barcode, $newArticle['barcodes'][0]['barcode']);
+
+        $tags = array_column($newArticle['tags'], 'tag');
+        $this->assertEqualsCanonicalizing(['mate', 'caffeine'], $tags);
+
+        $oldArticle = $this->requestJson('GET', "/api/article/{$oldId}", unpackKey: 'article');
+        $this->assertFalse($oldArticle['isActive']);
+        $this->assertSame([], $oldArticle['barcodes']);
+        $this->assertSame([], $oldArticle['tags']);
+    }
+
+    public function testDeleteArticleRemovesBarcodesButKeepsTags(): void
+    {
+        $articleId = $this->createArticleDb('Club Mate', 150);
+        $barcode = $this->generateBarcode();
+
+        $this->requestJson('POST', "/api/article/{$articleId}/barcode", ['barcode' => $barcode]);
+        $this->requestJson('POST', "/api/article/{$articleId}/tag", ['tag' => 'mate']);
+
+        $deleted = $this->requestJson('DELETE', "/api/article/{$articleId}", unpackKey: 'article');
+
+        $this->assertFalse($deleted['isActive']);
+        $this->assertSame([], $deleted['barcodes']);
+        $this->assertCount(1, $deleted['tags']);
+        $this->assertSame('mate', $deleted['tags'][0]['tag']);
+
+        $list = $this->requestJson('GET', "/api/article/{$articleId}/barcode");
+        $this->assertSame(0, $list['count']);
+    }
+
+    public function testSearchByBarcode(): void
+    {
+        $articleId = $this->createArticleDb('Club Mate', 150);
+        $otherId = $this->createArticleDb('Flora Mate', 160);
+
+        $barcode = $this->generateBarcode();
+        $otherBarcode = $this->generateBarcode();
+
+        $this->requestJson('POST', "/api/article/{$articleId}/barcode", ['barcode' => $barcode]);
+        $this->requestJson('POST', "/api/article/{$otherId}/barcode", ['barcode' => $otherBarcode]);
+
+        // This endpoint is used by the frontend if an article is scanned,
+        // the result is then sent to POST /user/<id>/transaction
+
+        $hit = $this->requestJson('GET', '/api/article/search', ['barcode' => $barcode]);
+        $this->assertSame(1, $hit['count']);
+        $this->assertSame($articleId, $hit['articles'][0]['id']);
+        $this->assertSame($barcode, $hit['articles'][0]['barcodes'][0]['barcode']);
     }
 }
