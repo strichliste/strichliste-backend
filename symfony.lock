@@ -1,4 +1,13 @@
 {
+    "dama/doctrine-test-bundle": {
+        "version": "8.6",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "main",
+            "version": "8.3",
+            "ref": "dfc51177476fb39d014ed89944cde53dc3326d23"
+        }
+    },
     "doctrine/deprecations": {
         "version": "1.1",
         "recipe": {
@@ -47,6 +56,21 @@
             "config/packages/nelmio_cors.yaml"
         ]
     },
+    "phpunit/phpunit": {
+        "version": "11.5",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "11.1",
+            "ref": "ca0bc067abfb40a8de1b2561b96cbfc2b833c314"
+        },
+        "files": [
+            ".env.test",
+            "phpunit.dist.xml",
+            "tests/bootstrap.php",
+            "bin/phpunit"
+        ]
+    },
     "symfony/console": {
         "version": "5.4",
         "recipe": {
@@ -72,14 +96,15 @@
         ]
     },
     "symfony/framework-bundle": {
-        "version": "5.4",
+        "version": "7.4",
         "recipe": {
             "repo": "github.com/symfony/recipes",
             "branch": "main",
-            "version": "5.4",
-            "ref": "9697c048ade32e001e27dd52478ec2642eec7eae"
+            "version": "7.4",
+            "ref": "d5dcd308c8becd725c9d8b91e31aab1ff0bbc30b"
         },
         "files": [
+            ".editorconfig",
             "config/packages/cache.yaml",
             "config/packages/framework.yaml",
             "config/preload.php",
