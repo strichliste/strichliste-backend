@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity]
 #[ORM\HasLifecycleCallbacks]
 #[ORM\Table(name: 'article_tag')]
-#[ORM\UniqueConstraint(name: 'UNIQ_article_tag', columns: ['article_id', 'tag_id'])]
+#[ORM\UniqueConstraint(name: 'UNIQ_919694F97294869CBAD26311', columns: ['article_id', 'tag_id'])]
 class ArticleTag {
 
     #[ORM\Id]
