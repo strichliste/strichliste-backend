@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: BarcodeRepository::class)]
 #[ORM\HasLifecycleCallbacks]
 #[ORM\Table(name: 'barcode')]
-#[ORM\UniqueConstraint(name: 'UNIQ_barcode', columns: ['barcode'])]
+#[ORM\UniqueConstraint(name: 'UNIQ_97AE026697AE0266', columns: ['barcode'])]
 class Barcode {
 
     #[ORM\Id]
