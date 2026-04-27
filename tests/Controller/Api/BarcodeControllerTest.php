@@ -64,4 +64,19 @@ class BarcodeControllerTest extends AbstractApplicationTestCase
         $listB = $this->requestJson('GET', "/api/article/{$articleBId}/barcode");
         $this->assertSame(0, $listB['count']);
     }
+
+    #[TestWith(['GET']), TestWith(['DELETE'])]
+    public function testBarcodeOfOtherArticleIsNotAccessible(string $method): void
+    {
+        $articleAId = $this->createArticleDb('Club Mate', 150);
+        $articleBId = $this->createArticleDb('Flora Mate', 160);
+
+        $afterAdd = $this->requestJson('POST', "/api/article/{$articleAId}/barcode", [
+            'barcode' => $this->generateBarcode(),
+        ], 'article');
+        $barcodeId = $afterAdd['barcodes'][0]['id'];
+
+        $this->client->request($method, "/api/article/{$articleBId}/barcode/{$barcodeId}");
+        $this->assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
+    }
 }

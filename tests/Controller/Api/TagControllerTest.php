@@ -16,6 +16,21 @@ class TagControllerTest extends AbstractApplicationTestCase
         $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
     }
 
+    #[TestWith(['GET']), TestWith(['DELETE'])]
+    public function testTagOfOtherArticleIsNotAccessible(string $method): void
+    {
+        $articleAId = $this->createArticleDb('Club Mate', 150);
+        $articleBId = $this->createArticleDb('Flora Mate', 160);
+
+        $afterAdd = $this->requestJson('POST', "/api/article/{$articleAId}/tag", [
+            'tag' => 'mate',
+        ], 'article');
+        $tagId = $afterAdd['tags'][0]['id'];
+
+        $this->client->request($method, "/api/article/{$articleBId}/tag/{$tagId}");
+        $this->assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
+    }
+
     public function testTagIsReusedAndGarbageCollected(): void
     {
         $articleAId = $this->createArticleDb('Club Mate', 150);
