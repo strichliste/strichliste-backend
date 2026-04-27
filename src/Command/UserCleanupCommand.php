@@ -51,7 +51,8 @@ class UserCleanupCommand extends Command {
 
             $queryBuilder
                 ->update(User::class, 'u')
-                ->set('u.disabled', 1);
+                ->set('u.disabled', ':disabled')
+                ->setParameter('disabled', true);
         }
 
         if ($input->getOption('days') || $input->getOption('months') || $input->getOption('years')) {
