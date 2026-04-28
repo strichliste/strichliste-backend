@@ -2,11 +2,14 @@
 
 namespace App\Exception;
 
-use App\Entity\Article;
+use App\Entity\Barcode;
 
 class ArticleBarcodeAlreadyExistsException extends ApiException {
 
-    function __construct(Article $article) {
-        parent::__construct(sprintf("Active article (%d) with barcode '%s' already exists.", $article->getId(), $article->getBarcode()), 409);
+    function __construct(Barcode $barcode) {
+        $article = $barcode->getArticle();
+
+        parent::__construct(sprintf("Active article '%s' (%d) with barcode '%s' already exists.", $article->getName(),
+            $article->getId(), $barcode->getBarcode()), 409);
     }
 }
