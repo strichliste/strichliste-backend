@@ -43,7 +43,6 @@ jobs:
 
       - name: Package
         run: |
-          sudo cp .env.dist .env
           sudo rm -rf var/cache/*
           tar -czf strichliste-backend.tar.gz .env *
 
