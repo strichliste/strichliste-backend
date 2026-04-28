@@ -30,6 +30,7 @@ class UserCleanupCommand extends Command {
             ->addOption('days', null, InputOption::VALUE_OPTIONAL, 'Interval days', false)
             ->addOption('months', null, InputOption::VALUE_OPTIONAL, 'Interval month', false)
             ->addOption('years', null, InputOption::VALUE_OPTIONAL, 'Interval years', false)
+            ->addOption('delete', null, InputOption::VALUE_NONE, 'Delete instead of deactivate')
             ->addOption('confirm', null, InputOption::VALUE_NONE, 'Skip question')
             ->addOption('minBalance', null, InputOption::VALUE_OPTIONAL, 'Minimum balance', false)
             ->addOption('maxBalance', null, InputOption::VALUE_OPTIONAL, 'Maximum balance', false);
@@ -50,7 +51,8 @@ class UserCleanupCommand extends Command {
 
             $queryBuilder
                 ->update(User::class, 'u')
-                ->set('u.disabled', 1);
+                ->set('u.disabled', ':disabled')
+                ->setParameter('disabled', true);
         }
 
         if ($input->getOption('days') || $input->getOption('months') || $input->getOption('years')) {
