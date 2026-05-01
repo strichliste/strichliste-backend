@@ -2,6 +2,7 @@
 
 namespace App\Tests\Controller\Api;
 
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\Attributes\TestWith;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -17,6 +18,7 @@ class TagControllerTest extends AbstractApplicationTestCase
     }
 
     #[TestWith(['GET']), TestWith(['DELETE'])]
+    #[TestDox('$method tag returns 404 for wrong article')]
     public function testTagOfOtherArticleIsNotAccessible(string $method): void
     {
         $articleAId = $this->createArticleDb('Club Mate', 150);

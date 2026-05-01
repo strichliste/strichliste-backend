@@ -2,6 +2,7 @@
 
 namespace App\Tests\Controller\Api;
 
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\Attributes\TestWith;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -66,6 +67,7 @@ class BarcodeControllerTest extends AbstractApplicationTestCase
     }
 
     #[TestWith(['GET']), TestWith(['DELETE'])]
+    #[TestDox('$method barcode returns 404 for wrong article')]
     public function testBarcodeOfOtherArticleIsNotAccessible(string $method): void
     {
         $articleAId = $this->createArticleDb('Club Mate', 150);
