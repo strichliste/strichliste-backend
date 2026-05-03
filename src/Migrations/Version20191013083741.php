@@ -18,13 +18,6 @@ final class Version20191013083741 extends AbstractMigration {
     }
 
     function up(Schema $schema): void {
-        $this->abortIf(
-            !$schema->hasTable('article'),
-            "Cannot run migration: Base schema is missing. "
-            . "Create a fresh database with `bin/console doctrine:schema:create` first, "
-            . "then re-run the migration.",
-        );
-
         // Check if migration is already applied
         if (!$schema->getTable('article')->hasColumn('barcode')) {
             return;
