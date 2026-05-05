@@ -3,6 +3,9 @@
 namespace App\Controller\Api;
 
 use App\Entity\Article;
+use App\Entity\ArticleTag;
+use App\Entity\Barcode;
+use App\Entity\Tag;
 use App\Exception\ArticleBarcodeAlreadyExistsException;
 use App\Exception\ArticleInactiveException;
 use App\Exception\ArticleNotFoundException;
@@ -35,13 +38,14 @@ class ArticleController extends AbstractController {
         $queryBuilder = $entityManager->createQueryBuilder()
             ->select('a1')
             ->from(Article::class, 'a1')
+            ->leftJoin(Barcode::class, 'b', Join::WITH, 'b.article = a1')
             ->where('a1.active = :active')
             ->setParameter('active', $active);
 
-        $barcode = $request->query->get('barcode');
+        $barcode = trim($request->query->get('barcode', ''));
         if ($barcode) {
             $queryBuilder
-                ->andWhere('a1.barcode = :barcode')
+                ->andWhere('b.barcode = :barcode')
                 ->setParameter('barcode', $barcode);
         }
 
@@ -58,6 +62,7 @@ class ArticleController extends AbstractController {
         }
 
         $queryBuilder
+            ->groupBy('a1')
             ->setFirstResult($offset)
             ->setMaxResults($limit)
             ->orderBy('a1.name', 'ASC');
@@ -77,16 +82,6 @@ class ArticleController extends AbstractController {
     function createArticle(Request $request, ArticleService $articleService, EntityManagerInterface $entityManager) {
         $article = $articleService->createArticleByRequest($request);
 
-        if ($article->getBarcode()) {
-            $existingArticle = $entityManager->getRepository(Article::class)->findOneActiveBy([
-                'barcode' => $article->getBarcode()
-            ]);
-
-            if ($existingArticle) {
-                throw new ArticleBarcodeAlreadyExistsException($existingArticle);
-            }
-        }
-
         $entityManager->persist($article);
         $entityManager->flush();
 
@@ -99,31 +94,47 @@ class ArticleController extends AbstractController {
     function search(Request $request, EntityManagerInterface $entityManager) {
         $query = $request->query->get('query');
         $limit = $request->query->get('limit', 25);
-        $barcode = $request->query->get('barcode');
+        $barcode = trim($request->query->get('barcode', ''));
+        $tag = trim($request->query->get('tag', ''));
 
-        $queryBuilder = $entityManager->getRepository(Article::class)->createQueryBuilder('a');
+        $queryBuilder = $entityManager
+            ->getRepository(Article::class)
+            ->createQueryBuilder('a')
+            ->leftJoin(Barcode::class, 'b', Join::WITH, 'b.article = a')
+            ->leftJoin(ArticleTag::class, 'at', Join::WITH, 'at.article = a')
+            ->leftJoin(Tag::class, 't', Join::WITH, 'at.tag = t');
 
         if ($barcode) {
             $query = false;
 
             $queryBuilder
-                ->where('a.barcode = :barcode')
+                ->where('b.barcode = :barcode')
                 ->setParameter('barcode', $barcode);
+        }
+
+        if ($tag) {
+            $query = false;
+
+            $queryBuilder
+                ->where('t.tag = :tag')
+                ->setParameter('tag', $tag);
         }
 
         if ($query) {
             $queryBuilder
-                ->where('a.barcode = :barcode')
+                ->where('b.barcode = :barcode')
+                ->orWhere('t.tag = :tag')
                 ->orWhere('a.name LIKE :query')
                 ->setParameter('barcode', $query)
+                ->setParameter('tag', $query)
                 ->setParameter('query', '%' . $query . '%');
         }
-
 
         $results = $queryBuilder
             ->andWhere('a.active = true')
             ->orderBy('a.name')
             ->setMaxResults($limit)
+            ->groupBy('a')
             ->getQuery()
             ->getResult();
 
@@ -175,9 +186,12 @@ class ArticleController extends AbstractController {
             throw new ArticleNotFoundException($articleId);
         }
 
+        foreach ($article->getBarcodes() as $barcode) {
+            $entityManager->remove($barcode);
+        }
+
         $article->setActive(false);
 
-        $entityManager->persist($article);
         $entityManager->flush();
 
         return $this->json([

@@ -2,9 +2,6 @@
 
 namespace App\Tests\Controller\Api;
 
-use App\Entity\User;
-use Doctrine\ORM\EntityManagerInterface;
-
 class TransactionControllerTest extends AbstractApplicationTestCase
 {
     private int $userId;
