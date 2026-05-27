@@ -1,27 +1,11 @@
-
-###> symfony/framework-bundle ###
-/.env.local
-/.env.local.php
-/.env.*.local
-/public/bundles/
-/var/
-/vendor/
-###< symfony/framework-bundle ###
-
-###> symfony/web-server-bundle ###
-/.web-server-pid
-###< symfony/web-server-bundle ###
-
 /.idea
-data.sqlite
 
-
-###> phpunit/phpunit ###
-/phpunit.xml
-/.phpunit.cache/
-###< phpunit/phpunit ###
+# Local env overrides
+/.env
+/.env.local
 
 # Go
 /strichliste
 /cmd/strichliste/strichliste
 *.test
+*.out
