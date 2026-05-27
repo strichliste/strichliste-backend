@@ -121,6 +121,18 @@ func (s *Serializer) Article(a *model.Article, depth int) map[string]any {
 	}
 }
 
+// Tag renders the standalone tag object used by the /tag endpoints. usageCount
+// is the number of article_tag rows referencing the tag (len of the preloaded
+// ArticleTags association).
+func (s *Serializer) Tag(t *model.Tag) map[string]any {
+	return map[string]any{
+		"id":         t.ID,
+		"tag":        t.Tag,
+		"usageCount": len(t.ArticleTags),
+		"created":    formatTime(t.Created),
+	}
+}
+
 // Transaction renders a transaction object.
 func (s *Serializer) Transaction(t *model.Transaction) map[string]any {
 	var article any
