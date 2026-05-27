@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/strichliste/strichliste-backend/internal/apierror"
 	"github.com/strichliste/strichliste-backend/internal/config"
+	"github.com/strichliste/strichliste-backend/internal/serializer"
 	"github.com/strichliste/strichliste-backend/internal/settings"
 	"gorm.io/gorm"
 )
@@ -16,11 +17,12 @@ type Server struct {
 	db       *gorm.DB
 	settings *settings.Settings
 	cfg      *config.Config
+	ser      *serializer.Serializer
 }
 
 // New builds a Server and its configured Gin engine.
 func New(db *gorm.DB, s *settings.Settings, cfg *config.Config) *Server {
-	return &Server{db: db, settings: s, cfg: cfg}
+	return &Server{db: db, settings: s, cfg: cfg, ser: serializer.New(s)}
 }
 
 // Engine constructs the Gin engine with middleware and routes registered.
