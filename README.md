@@ -35,7 +35,29 @@ live in `config/strichliste.yaml` and are exposed verbatim at `GET /api/settings
 
 See `.env.example` for a starting point.
 
-## Build & run
+## Run with Docker (recommended)
+
+The repository ships a multi-stage `Dockerfile` and a `docker-compose.yml` that
+starts the app together with PostgreSQL:
+
+```sh
+docker compose up --build
+```
+
+The API is then available on http://localhost:8080 (e.g. `GET /api/settings`).
+Postgres data persists in the `pgdata` volume; stop and wipe it with
+`docker compose down -v`.
+
+To build just the image:
+
+```sh
+docker build -t strichliste-backend .
+docker run --rm -p 8080:8080 \
+  -e DATABASE_URL="postgres://user:pass@host:5432/strichliste?sslmode=disable" \
+  strichliste-backend
+```
+
+## Build & run locally (without Docker)
 
 ```sh
 go build -o strichliste ./cmd/strichliste

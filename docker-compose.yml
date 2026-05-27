@@ -1,0 +1,31 @@
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: strichliste
+      POSTGRES_PASSWORD: strichliste
+      POSTGRES_DB: strichliste
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U strichliste"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    # Expose the database on the host too (optional, handy for psql / tests).
+    ports:
+      - "5432:5432"
+
+  app:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://strichliste:strichliste@db:5432/strichliste?sslmode=disable
+      LISTEN_ADDR: ":8080"
+    ports:
+      - "8080:8080"
+
+volumes:
+  pgdata:

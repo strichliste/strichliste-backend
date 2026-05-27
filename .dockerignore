@@ -1,0 +1,11 @@
+.git
+.github
+.idea
+.env
+.env.local
+/strichliste
+/cmd/strichliste/strichliste
+*.test
+*.out
+specs
+docs
