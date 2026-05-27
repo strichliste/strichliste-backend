@@ -20,3 +20,8 @@ data.sqlite
 /phpunit.xml
 /.phpunit.cache/
 ###< phpunit/phpunit ###
+
+# Go
+/strichliste
+/cmd/strichliste/strichliste
+*.test
