@@ -34,6 +34,9 @@ func (s *Server) Engine() *gin.Engine {
 	r.Use(cors())
 
 	r.GET("/", s.index)
+	if s.cfg.Webroot != "" {
+		r.NoRoute(s.serveStatic)
+	}
 
 	api := r.Group("/api")
 	s.registerSettings(api)

@@ -24,8 +24,11 @@ services:
     environment:
       DATABASE_URL: postgres://strichliste:strichliste@db:5432/strichliste?sslmode=disable
       LISTEN_ADDR: ":8080"
+      WEBROOT: /app/wwwroot
     ports:
       - "8080:8080"
+    volumes:
+      - ./wwwroot:/app/wwwroot:ro
 
 volumes:
   pgdata:
