@@ -3,6 +3,9 @@ package db
 
 import (
 	"fmt"
+	"log"
+	"os"
+	"time"
 
 	"github.com/strichliste/strichliste-backend/internal/model"
 	"gorm.io/driver/postgres"
@@ -23,7 +26,11 @@ var AllModels = []any{
 // Open connects to PostgreSQL using the given connection URL.
 func Open(databaseURL string) (*gorm.DB, error) {
 	gdb, err := gorm.Open(postgres.Open(databaseURL), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Warn),
+		Logger: logger.New(log.New(os.Stderr, "\r\n", log.LstdFlags), logger.Config{
+			SlowThreshold:             200 * time.Millisecond,
+			LogLevel:                  logger.Warn,
+			IgnoreRecordNotFoundError: true,
+		}),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("connecting to database: %w", err)
