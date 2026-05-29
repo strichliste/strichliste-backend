@@ -1,0 +1,307 @@
+/* Self-hosted Inter (subset of weights actually used). AssetMapper rewrites
+   the url() to the hashed `/assets/fonts/...` path at build time. */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url('../fonts/Inter-Light.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../fonts/Inter-Regular.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('../fonts/Inter-Medium.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('../fonts/Inter-SemiBold.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../fonts/Inter-Bold.woff2') format('woff2');
+}
+/* Variable axis covers any weight not pinned above (e.g. font-weight: lighter
+   on h1-h3 → ~300). Listed last so the explicit weights win for matched files. */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('../fonts/Inter-roman.woff2') format('woff2');
+}
+
+/* Responsive breakpoints live inline in app.css @media rules. Standard CSS
+   custom properties can't be used inside @media query conditions, so there is
+   no single-token source of truth to express here — the canonical value is
+   48em (tablet), used consistently across app.css. */
+
+/* Accessibility: visible keyboard focus indicator across the app. */
+:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Skip link: visually hidden until focused, then revealed at top-left. */
+.skip-link {
+  position: absolute;
+  left: 0.5rem;
+  top: -3rem;
+  z-index: 1000;
+  padding: 0.5rem 1rem;
+  background: var(--primary, #28333d);
+  color: #fff;
+  border-radius: var(--borderRadius, 4px);
+  transition: top 0.15s ease-in-out;
+}
+
+.skip-link:focus {
+  top: 0.5rem;
+}
+
+/* Don't strip focus from the main landmark when it receives programmatic focus. */
+main:focus {
+  outline: none;
+}
+
+/* Visually hidden but exposed to screen readers (WCAG sufficient pattern). */
+.sr-only,
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+html {
+  --borderRadius: 4px;
+  /* Diameter of the round icon buttons (.fab / cancel / accept / participant
+     remove) and the basis for how far the floating FAB hangs off the wrapper. */
+  --fab-size: 2rem;
+  --buttonDisabled: #bababa;
+  --border: #e5e6e5;
+  --componentBackgroundDark: #fff;
+  --componentBackgroundLight: #fff;
+  --greenLight: #cfe9d1;
+  --mainBackground: #f2f3f2;
+  --primary: #28333d;
+  --redLight: #ffdce0;
+  --text: #343434;
+  /* WCAG AA: #646e7a clears 4.5:1 on both #fff cards and the #f2f3f2 page for
+     dates, placeholders, pagination status and other informational subtext. */
+  --textSubtile: #646e7a;
+  --headerBackground: #fff;
+  --buttonCancelBackground: #e86c76;
+  /* Accent text/button-font tokens are per-theme (not shared) so each clears
+     4.5:1 on its own background: dark accents on the light surfaces here, light
+     accents on the dark surfaces below. */
+  --greenText: #0a7029;
+  --redText: #b00020;
+  --buttonGreenFont: #0a7029;
+  --buttonRedFont: #b00020;
+  --buttonHighlightFont: #e8eaeb;
+  --buttonHighlightBackground: #213440;
+  --buttonGreenBackground: #cbf5d7;
+  --buttonRedBackground: #ffdce0;
+  --buttonDefaultBackground: #fff;
+  --buttonDefaultFont: #58697d;
+  /* Subtle resting elevation. Components promote level1 -> level2 on hover; a
+     real (if faint) shadow makes that lift read as a change from a baseline. */
+  --level1: 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --level2: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2),
+    0 1px 5px 0 rgba(0, 0, 0, 0.12);
+  --level3: 0 3px 4px 0 rgba(0, 0, 0, 0.14), 0 3px 3px -2px rgba(0, 0, 0, 0.2),
+    0 1px 8px 0 rgba(0, 0, 0, 0.12);
+  font-family: 'Inter', sans-serif;
+}
+
+/* The cancel-button font is the same on both themes (its background is a mid
+   red in both). The green/red accents are theme-specific (see above / below). */
+html,
+html[data-theme='dark'] {
+  --buttonCancelFont: #ffedf0;
+}
+
+html[data-theme='dark'] {
+  --border: #59687c;
+  --componentBackgroundDark: #1d2832;
+  --componentBackgroundLight: #2e3d4d;
+  --greenLight: #2b584a;
+  --mainBackground: #25333f;
+  --primary: #fdfdfd;
+  /* Dark desaturated red so error/disabled banners read as red (not purple)
+     behind --redText. */
+  --redLight: #4a2730;
+  --text: #fdfdfd;
+  /* WCAG AA on the dark surfaces (#1d2832 / #2e3d4d / #25333f). */
+  --textSubtile: #9aa7b5;
+  --greenText: #46d96a;
+  --redText: #ff7d90;
+  --headerBackground: #1d2832;
+  --buttonCancelBackground: #f54963;
+  --buttonHighlightFont: #353535;
+  --buttonHighlightBackground: #f2f3f2;
+  --buttonGreenBackground: #155949;
+  --buttonRedBackground: #544052;
+  --buttonGreenFont: #9be7ad;
+  --buttonRedFont: #ffb3c0;
+  --buttonDefaultBackground: #2a3e4f;
+  --buttonDefaultFont: #eaebed;
+}
+
+/* reset */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  outline-color: var(--primary);
+}
+
+html {
+  background: var(--mainBackground);
+  color: var(--text);
+  font-size: 18px;
+  min-height: 100vh;
+}
+
+label {
+  display: block;
+}
+h1,
+h2,
+h3 {
+  /* SPA uses mixed-case for headings; uppercase is reserved for tab labels and
+     KPI card labels via explicit class. */
+  text-transform: none;
+  font-weight: lighter;
+}
+
+button,
+input[type='reset'],
+input[type='button'],
+input[type='submit'] {
+  overflow: visible;
+  width: auto;
+}
+blockquote, body, dd, dl, dt, fieldset, figure,
+h1, h2, h3, h4, h5, h6, hr, html, iframe, legend,
+li, ol, p, pre, textarea, ul {
+  margin: 0;
+  padding: 0;
+}
+h1, h2, h3, h4, h5, h6 {
+  font-size: 100%;
+  font-weight: 400;
+}
+ul {
+  list-style: none;
+}
+audio, embed, iframe, img, object, video {
+  height: auto;
+  max-width: 100%;
+}
+iframe {
+  border: 0;
+}
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+td, th {
+  padding: 0;
+  text-align: left;
+}
+select[multiple] {
+  vertical-align: top;
+}
+button, input, label, select, textarea {
+  margin: 0;
+  border: 0;
+  padding: 0;
+  display: inline-block;
+  vertical-align: middle;
+  white-space: normal;
+  background: 0 0;
+  line-height: 1;
+  font-size: 0.8rem;
+  font-family: 'Inter', sans-serif;
+}
+select[multiple], textarea {
+  vertical-align: top;
+}
+input[type='checkbox'], input[type='radio'] {
+  width: 1rem;
+  height: 1rem;
+}
+textarea {
+  overflow: auto;
+}
+body {
+  min-height: 100vh;
+}
+
+input {
+  padding: 0.5rem;
+  font-family: 'Inter', sans-serif;
+  width: 100%;
+  border-radius: 2px;
+}
+input, button {
+  align-items: center;
+  align-content: center;
+}
+
+a:visited,
+a:hover,
+a {
+  text-decoration: none;
+  color: var(--primary);
+}
+
+svg {
+  fill: var(--primary);
+}
+
+@media (hover: none) and (pointer: coarse) {
+  body {
+    user-select: none;
+  }
+}
+
+/* Safari-specific input resets (matches SPA reset). */
+input[type='search'] {
+  -webkit-appearance: textfield;
+  -webkit-box-sizing: content-box;
+}
+::-webkit-search-decoration { display: none; }
+::-webkit-file-upload-button { padding: 0; border: 0; background: 0 0; }

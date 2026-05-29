@@ -1,0 +1,10 @@
+{% props title, subtitle = null %}
+<div class="page-header">
+    <div>
+        <h1>{{ title }}</h1>
+        {% if subtitle %}<div class="page-header__subtitle">{{ subtitle }}</div>{% endif %}
+    </div>
+    <div class="page-header__actions">
+        {% block actions %}{% endblock %}
+    </div>
+</div>

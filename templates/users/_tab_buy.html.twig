@@ -1,0 +1,40 @@
+{# BUY ARTICLE tab — SPA's centered pill picker.
+   The search input is a pure client-side name filter. The barcode scanner is
+   document-level on the user detail page (see `barcode-listener` in detail.html.twig)
+   so the operator never needs to focus a field to scan. #}
+<section class="buy-tab" data-controller="article-filter"
+         data-article-filter-results-label-value="{{ 'user.buy.results_label'|trans }}"
+         data-article-filter-no-results-label-value="{{ 'user.buy.no_results_label'|trans }}">
+    <div class="buy-tab__search">
+        <label class="visually-hidden" for="buy-search">{{ 'user.buy.search_label'|trans }}</label>
+        <input type="text" id="buy-search"
+               class="buy-tab__search-input"
+               placeholder="{{ 'user.buy.search_placeholder'|trans }}"
+               autocomplete="off"
+               data-article-filter-target="input"
+               data-action="input->article-filter#filter">
+        <twig:CancelCircle href="{{ path('users_detail', {id: user.id}) }}" label="{{ 'common.close'|trans }}" />
+    </div>
+
+    <p class="visually-hidden" role="status" aria-live="polite" data-article-filter-target="status"></p>
+
+    {% if buy.articles is empty %}
+        <twig:EmptyState>{{ 'user.buy.picker.empty'|trans }}</twig:EmptyState>
+    {% else %}
+        <div class="buy-tab__pills">
+            {% for a in buy.articles %}
+                <form method="post" action="{{ path('transactions_buy', {id: user.id}) }}"
+                      class="buy-tab__pill-form" data-article-filter-target="item"
+                      data-article-name="{{ a.name|lower }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('buy' ~ user.id) }}">
+                    <input type="hidden" name="articleId" value="{{ a.id }}">
+                    <button type="submit" class="buy-tab__pill">
+                        <span class="buy-tab__pill-name">{{ a.name }}</span>
+                        <span class="buy-tab__pill-sep" aria-hidden="true">|</span>
+                        <span class="buy-tab__pill-price">{{ a.amount|currency_format(currency, false) }}</span>
+                    </button>
+                </form>
+            {% endfor %}
+        </div>
+    {% endif %}
+</section>

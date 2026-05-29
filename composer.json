@@ -13,12 +13,24 @@
         "doctrine/doctrine-migrations-bundle": "^3.3",
         "doctrine/orm": "^3.3",
         "nelmio/cors-bundle": "^2.6",
+        "symfony/asset": "^7.4",
+        "symfony/asset-mapper": "^7.4",
         "symfony/console": "^7.4",
         "symfony/dotenv": "^7.4",
         "symfony/flex": "^2.4",
+        "symfony/form": "^7.4",
         "symfony/framework-bundle": "^7.4",
         "symfony/runtime": "^7.4",
-        "symfony/yaml": "^7.4"
+        "symfony/security-csrf": "^7.4",
+        "symfony/stimulus-bundle": "*",
+        "symfony/translation": "^7.4",
+        "symfony/twig-bundle": "^7.4",
+        "symfony/ux-turbo": "*",
+        "symfony/ux-twig-component": "*",
+        "symfony/validator": "^7.4",
+        "symfony/yaml": "^7.4",
+        "twig/extra-bundle": "*",
+        "twig/intl-extra": "*"
     },
     "require-dev": {
         "dama/doctrine-test-bundle": "^8.6",
@@ -60,7 +72,8 @@
     "scripts": {
         "auto-scripts": {
             "cache:clear": "symfony-cmd",
-            "assets:install %PUBLIC_DIR%": "symfony-cmd"
+            "assets:install %PUBLIC_DIR%": "symfony-cmd",
+            "importmap:install": "symfony-cmd"
         },
         "post-install-cmd": [
             "@auto-scripts"

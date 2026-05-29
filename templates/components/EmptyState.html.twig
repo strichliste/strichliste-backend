@@ -1,0 +1,5 @@
+{% props title = null %}
+<div class="empty-state">
+    {% if title %}<div class="empty-state__title">{{ title }}</div>{% endif %}
+    <div>{% block content %}{% endblock %}</div>
+</div>

@@ -24,14 +24,6 @@ class UserRepository extends ServiceEntityRepository {
             ->getResult();
     }
 
-    function findAllDisabled(): array {
-        return $this->createQueryBuilder('u')
-            ->where('u.disabled = true')
-            ->orderBy('u.name')
-            ->getQuery()
-            ->getResult();
-    }
-
     function findAllInactive(\DateTime $since): array {
         return $this->getBaseQueryBuilder()
             ->andWhere('(u.updated IS NULL or u.updated <= :since)')
@@ -47,6 +39,51 @@ class UserRepository extends ServiceEntityRepository {
             ->setParameter('since', $since)
             ->getQuery()
             ->getResult();
+    }
+
+    /**
+     * Paginated + alphabetically sorted at the DB level, with a count.
+     *
+     * @return array{users: User[], total: int}
+     */
+    function findAllActivePaginated(\DateTime $since, int $limit, int $offset): array {
+        $base = $this->getBaseQueryBuilder()
+            ->andWhere('u.updated IS NOT NULL')
+            ->andWhere('u.updated >= :since')
+            ->setParameter('since', $since);
+
+        $total = (int) (clone $base)
+            ->select('COUNT(u.id)')
+            ->resetDQLPart('orderBy')
+            ->getQuery()->getSingleScalarResult();
+
+        $users = $base
+            ->setFirstResult($offset)
+            ->setMaxResults($limit)
+            ->getQuery()->getResult();
+
+        return ['users' => $users, 'total' => $total];
+    }
+
+    /**
+     * @return array{users: User[], total: int}
+     */
+    function findAllInactivePaginated(\DateTime $since, int $limit, int $offset): array {
+        $base = $this->getBaseQueryBuilder()
+            ->andWhere('(u.updated IS NULL or u.updated <= :since)')
+            ->setParameter('since', $since);
+
+        $total = (int) (clone $base)
+            ->select('COUNT(u.id)')
+            ->resetDQLPart('orderBy')
+            ->getQuery()->getSingleScalarResult();
+
+        $users = $base
+            ->setFirstResult($offset)
+            ->setMaxResults($limit)
+            ->getQuery()->getResult();
+
+        return ['users' => $users, 'total' => $total];
     }
 
     function findByIdentifier($identifier): ?User {

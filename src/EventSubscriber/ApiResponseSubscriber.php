@@ -10,6 +10,13 @@ use Symfony\Component\HttpKernel\KernelEvents;
 class ApiResponseSubscriber implements EventSubscriberInterface {
 
     function onKernelResponse(ResponseEvent $event) {
+        // Only the JSON API must be uncacheable. Stamping no-store on the
+        // server-rendered Twig UI would defeat the browser back/forward cache
+        // and Turbo's page reuse, so leave those responses to framework defaults.
+        if (!str_starts_with($event->getRequest()->getPathInfo(), '/api')) {
+            return;
+        }
+
         $response = $event->getResponse();
 
         $response->headers->addCacheControlDirective('no-cache', true);

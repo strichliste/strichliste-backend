@@ -1,0 +1,8 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'user.edit.title'|trans }} · {{ user.name }} · Strichliste{% endblock %}
+
+{% block main %}
+    <twig:PageHeader title="{{ 'user.edit.title'|trans({'%name%': user.name}) }}" />
+    {% include 'users/_edit_form.html.twig' with {form: form, user: user} %}
+{% endblock %}

@@ -15,6 +15,16 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\HasLifecycleCallbacks]
 class User {
 
+    /**
+     * Strips ASCII control characters (NUL through US, plus DEL) from a name
+     * and trims surrounding whitespace. Same character class is rejected by
+     * `CreateUserType` / `EditUserType` at validation time — this helper is
+     * for the API/UI paths that handle name input outside of form validation.
+     */
+    public static function sanitizeName(string $name): string {
+        return preg_replace('/[\x00-\x1F\x7F]/u', '', trim($name));
+    }
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
@@ -70,17 +80,17 @@ class User {
         return $this;
     }
 
-    function getBalance() {
+    function getBalance(): int {
         return $this->balance;
     }
 
-    function setBalance($balance): self {
+    function setBalance(int $balance): self {
         $this->balance = $balance;
 
         return $this;
     }
 
-    function addBalance($amount): self {
+    function addBalance(int $amount): self {
         $this->balance += $amount;
 
         return $this;

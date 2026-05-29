@@ -1,0 +1,29 @@
+{%- set fee = setting('paypal.fee', 0) -%}
+{%- set sandbox = setting('paypal.sandbox', true) -%}
+{%- set currencySymbol = setting('i18n.currency.symbol', '€') -%}
+
+<div class="card tab-panel__card">
+    <div class="tab-panel__header">
+        <h3 class="tab-panel__heading">{{ 'paypal.tab.title'|trans }}</h3>
+        <a class="tab-panel__close" href="{{ path('users_detail', {id: user.id}) }}" aria-label="{{ 'common.close'|trans }}"><span aria-hidden="true">×</span></a>
+    </div>
+
+    <p>{{ 'paypal.tab.intro'|trans }}</p>
+    <form method="post" action="{{ path('paypal_start', {id: user.id}) }}" class="form-card">
+        <input type="hidden" name="_token" value="{{ csrf_token('paypal_start' ~ user.id) }}">
+
+        <label for="paypal-amount">{{ 'paypal.tab.amount_label'|trans }} ({{ currencySymbol }})</label>
+        <input type="number" id="paypal-amount" name="amount" min="0.01" step="0.01" required>
+
+        {% if fee > 0 %}
+            <p class="form-help">{{ 'paypal.tab.fee_preview'|trans({'%fee%': fee}) }}</p>
+        {% endif %}
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn--highlight">{{ 'paypal.tab.submit'|trans }}</button>
+        </div>
+    </form>
+    <p class="form-help">
+        <small>{{ 'paypal.tab.mode'|trans({'%mode%': sandbox ? 'sandbox' : 'production'}) }}</small>
+    </p>
+</div>

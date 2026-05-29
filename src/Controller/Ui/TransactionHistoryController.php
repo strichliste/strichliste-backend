@@ -1,0 +1,55 @@
+<?php
+
+namespace App\Controller\Ui;
+
+use App\Repository\TransactionRepository;
+use App\Repository\UserRepository;
+use App\Service\SettingsService;
+use App\Service\TransactionService;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Routing\Attribute\Route;
+
+class TransactionHistoryController extends AbstractController {
+
+    private const PAGE_SIZE = 15;
+
+    public function __construct(
+        private UserRepository $userRepository,
+        private TransactionRepository $transactionRepository,
+        private SettingsService $settings,
+        private TransactionService $transactionService,
+    ) {
+    }
+
+    #[Route('/user/{id}/transactions', name: 'users_transactions', methods: ['GET'], requirements: ['id' => '\d+'])]
+    public function index(int $id, Request $request): Response {
+        $user = $this->userRepository->find($id);
+        if (!$user) {
+            throw new NotFoundHttpException();
+        }
+
+        $page = max(1, (int) $request->query->get('page', 1));
+        $total = $this->transactionRepository->countByUser($user);
+        $totalPages = $total > 0 ? (int) ceil($total / self::PAGE_SIZE) : 1;
+        $page = min($page, $totalPages);
+        $offset = ($page - 1) * self::PAGE_SIZE;
+
+        $transactions = $this->transactionRepository->findByUser($user, self::PAGE_SIZE, $offset);
+        $rows = array_map(fn($tx) => [
+            'tx' => $tx,
+            'deletable' => $this->transactionService->isDeletable($tx),
+        ], $transactions);
+
+        return $this->render('transactions/history.html.twig', [
+            'user' => $user,
+            'rows' => $rows,
+            'page' => $page,
+            'totalPages' => $totalPages,
+            'total' => $total,
+            'currencySymbol' => $this->settings->getOrDefault('i18n.currency.symbol', '€'),
+        ]);
+    }
+}

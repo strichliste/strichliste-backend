@@ -1,0 +1,52 @@
+{
+  "[class*=\"modal\"]": [],
+  "[class*=\"ArticleListItem\"]": [],
+  "[class*=\"articleScanner\"]": [],
+  "[class*=\"ArticleScanner\"]": [],
+  "[class*=\"ArticleSelection\"]": [],
+  "[class*=\"ArticleTransaction\"]": [],
+  "[class*=\"article-list\"]": [],
+  "[class*=\"input\"]": [
+    {
+      "tag": "input",
+      "classes": "input_input__1ZsCO",
+      "display": "block",
+      "padding": "8px",
+      "margin": "0px",
+      "background-color": "rgb(255, 255, 255)",
+      "box-shadow": "none",
+      "font-size": "12.8px",
+      "font-weight": "400",
+      "text-transform": "none",
+      "border-radius": "4px",
+      "grid-template-columns": "none",
+      "grid-template-rows": "none",
+      "gap": "normal",
+      "border": "1px solid rgba(0, 0, 0, 0)",
+      "width": "400px",
+      "height": "33px",
+      "position": "static"
+    },
+    {
+      "tag": "input",
+      "classes": "input_input__1ZsCO",
+      "display": "block",
+      "padding": "8px",
+      "margin": "0px",
+      "background-color": "rgb(255, 255, 255)",
+      "box-shadow": "none",
+      "font-size": "12.8px",
+      "font-weight": "400",
+      "text-transform": "none",
+      "border-radius": "4px",
+      "grid-template-columns": "none",
+      "grid-template-rows": "none",
+      "gap": "normal",
+      "border": "1px solid rgba(0, 0, 0, 0)",
+      "width": "176px",
+      "height": "33px",
+      "position": "static"
+    }
+  ],
+  "[class*=\"UserArticleTransaction\"]": []
+}

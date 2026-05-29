@@ -1,0 +1,15 @@
+<div class="edit-form form-card">
+    {{ form_start(form, {action: path('users_edit', {id: user.id}), attr: {novalidate: 'novalidate'}}) }}
+        {{ form_row(form.name) }}
+        {{ form_row(form.email) }}
+        <div class="edit-form__checkbox-row">
+            {{ form_widget(form.isDisabled) }}
+            {{ form_label(form.isDisabled) }}
+            {{ form_errors(form.isDisabled) }}
+        </div>
+        <div class="form-actions form-actions--circles">
+            <twig:CancelCircle href="{{ path('users_detail', {id: user.id}) }}" label="{{ 'common.cancel'|trans }}" />
+            <twig:AcceptCheck label="{{ 'user.edit.submit'|trans }}" />
+        </div>
+    {{ form_end(form) }}
+</div>

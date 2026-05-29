@@ -1,0 +1,10 @@
+{#- A round red × FAB-style cancel button.
+    Renders as <a> when href is set, otherwise as <button type="button">.
+    Reuses .form-cancel-circle chrome. -#}
+{% props href = null, label = 'Cancel' %}
+{%- set tag = href ? 'a' : 'button' -%}
+<{{ tag }} class="form-cancel-circle"
+   {%- if href %} href="{{ href }}"{% else %} type="button"{% endif %}
+   aria-label="{{ label }}">
+    <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 3L13 13M13 3L3 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+</{{ tag }}>

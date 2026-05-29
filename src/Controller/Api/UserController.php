@@ -60,9 +60,7 @@ class UserController extends AbstractController {
             throw new ParameterMissingException('name');
         }
 
-        // TODO: Use sanitize-helper
-        $name = trim($name);
-        $name = preg_replace('/[\x00-\x1F\x7F]/u', '', $name);
+        $name = User::sanitizeName($name);
 
         if (!$name || mb_strlen($name) > 64) {
             throw new ParameterInvalidException('name');
@@ -139,8 +137,7 @@ class UserController extends AbstractController {
         }
 
         if ($name) {
-            $name = trim($name);
-            $name = preg_replace('/[\x00-\x1F\x7F]/u', '', $name);
+            $name = User::sanitizeName($name);
 
             if ($name !== $user->getName() && $entityManager->getRepository(User::class)->findByName($name)) {
                 throw new UserAlreadyExistsException($name);

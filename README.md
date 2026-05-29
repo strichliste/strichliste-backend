@@ -1,29 +1,54 @@
-# strichliste-backend  [![Build Status](https://travis-ci.org/strichliste/strichliste-backend.svg?branch=master)](https://travis-ci.org/strichliste/strichliste-backend)
+# strichliste
 
-strichliste ([ʃtʀɪçˈlɪstə], German word for tally sheet) is a tool to replace a tally sheet inside a hackerspace. It is the first project developed by the hackerspace bootstrap organization.
-It’s aim is to provide a no-frills, easy-to-setup and -to-use solution for managing your organization’s snack bar. 
+strichliste ([ʃtʀɪçˈlɪstə], German word for tally sheet) is a tool to replace a tally sheet inside a hackerspace.
 
-## How it works?
+## Architecture
 
-The processes implemented by strichliste inherently assumes to be used by a trusted audience. Each user intending to buy something from your kiosk is required to have a user account with strichliste. This can be done by registering your username (no other data is required).
+This repository is a **single Symfony 7.4 application** that serves:
 
-Once an account is available, buying an item is as simple as deducting the equivalent value of the item from your account. Administrators of strichliste can define a lower or upper bound for the users’ credit balance. For example, administrators can configure that it is not allowed to have a negative balance.
+- **The UI** as server-rendered Twig pages at the real user-facing routes
+  (`/`, `/user/active`, `/user/{id}`, `/articles/*`, `/split-invoice`, `/metrics`,
+  `/search-results`, `/settings`). The UI is the **primary** way to use
+  the application — it is operable without JavaScript (kiosk-grade
+  progressive enhancement via Symfony UX: Turbo, Stimulus, twig-component).
+- **The legacy REST API** at `/api/*` for any external client
+  (Android apps, third-party kiosk software, etc.). The API contract is
+  **frozen** at the shape it had before the Twig UI shipped.
 
-Cashing your account works the same as the inverse of buying an item: Simply charge your account with the given amount and it will take effect immediately.
+The previous standalone React SPA (`strichliste-web-frontend/`) has been
+removed; its README and roadmap are preserved under `../specs/_archive/`
+for historical reference.
 
-It’s as simple as that!
+## Run locally
+
+```
+composer install
+php bin/console doctrine:migrations:migrate
+php bin/console importmap:install
+APP_ENV=dev APP_DEBUG=1 symfony serve
+```
+
+Open `http://127.0.0.1:8000`.
+
+For production:
+
+```
+composer install --no-dev --optimize-autoloader
+php bin/console asset-map:compile
+```
+
+## Configuration
+
+All app-level settings live in `config/strichliste.yaml` (currency, idle
+timeout, deposit/dispense step buttons, account boundaries, PayPal,
+etc.). The same settings power both the Twig UI and the `/api/settings`
+endpoint.
+
+## Tests
+
+- `php bin/phpunit` runs the existing API tests; the API contract must
+  stay byte-identical after any UI change.
 
 ## Demo
 
-Curious to see how it works? Check out our Demo at https://demo.strichliste.org
-
-## API Documentation
-
-For a full documentation or the strichliste2 API, please see the API.md file.
-
-
-## Config Documentation
-
-For documentation of the config parameters in `config/services.yml`, please read the Config.md file.
-
-
+[demo.strichliste.org](https://demo.strichliste.org)

@@ -1,0 +1,50 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'metrics.user.title'|trans({'%name%': user.name}) }} · Strichliste{% endblock %}
+
+{% block main %}
+    <twig:PageHeader title="{{ 'metrics.user.title'|trans({'%name%': user.name}) }}">
+        <twig:block name="actions">
+            <a class="btn" href="{{ path('users_detail', {id: user.id}) }}">&larr; {{ user.name }}</a>
+        </twig:block>
+    </twig:PageHeader>
+
+    <div class="kpi-row">
+        <div class="kpi">
+            <div class="kpi__label">{{ 'metrics.user.card.transactions'|trans }}</div>
+            <div class="kpi__value">{{ txCount }}</div>
+            <ul class="kpi__sublist">
+                <li>{{ 'metrics.user.card.incoming'|trans }}: {{ incoming.cnt }} ({{ incoming.amount|currency_format(currencySymbol) }})</li>
+                <li>{{ 'metrics.user.card.outgoing'|trans }}: {{ outgoing.cnt }} ({{ outgoing.amount|currency_format(currencySymbol) }})</li>
+            </ul>
+        </div>
+        <div class="kpi">
+            <div class="kpi__label">{{ 'metrics.user.card.articles'|trans }}</div>
+            <div class="kpi__value">{{ articles|length }}</div>
+        </div>
+    </div>
+
+    <h2>{{ 'metrics.user.articles_table.heading'|trans }}</h2>
+    {% if articles is empty %}
+        <twig:EmptyState>{{ 'metrics.user.articles_table.empty'|trans }}</twig:EmptyState>
+    {% else %}
+        <table class="metrics-table">
+            <thead>
+                <tr>
+                    <th>{{ 'metrics.user.articles_table.col.article'|trans }}</th>
+                    <th>{{ 'metrics.user.articles_table.col.count'|trans }}</th>
+                    <th>{{ 'metrics.user.articles_table.col.spent'|trans }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in articles %}
+                    <tr>
+                        <td><a href="{{ path('articles_edit', {id: row.article.id}) }}">{{ row.article.name }}</a></td>
+                        <td>{{ row.cnt }}</td>
+                        <td>{{ row.amt|currency_format(currencySymbol) }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+{% endblock %}

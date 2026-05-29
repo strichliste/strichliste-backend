@@ -1,0 +1,5 @@
+{% props user, currency = null %}
+<a class="user-card{% if user.disabled %} user-card--disabled{% endif %}" href="{{ path('users_detail', {id: user.id}) }}">
+    <span class="user-card__name">{{ user.name }}</span>
+    <twig:BalancePill amount="{{ user.balance }}" currency="{{ currency }}" />
+</a>

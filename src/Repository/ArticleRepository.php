@@ -22,12 +22,6 @@ class ArticleRepository extends ServiceEntityRepository {
         return $this->findOneBy(['active' => true, 'id' => $id]);
     }
 
-    function findOneActiveBy(array $criteria): ?Article {
-        $criteria = array_merge(['active' => true], $criteria);
-
-        return $this->findOneBy($criteria);
-    }
-
     function countActive(): int {
         return $this->count([
             'active' => true

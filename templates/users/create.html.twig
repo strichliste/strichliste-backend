@@ -1,0 +1,17 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'user.create.title'|trans }} · Strichliste{% endblock %}
+
+{% block main %}
+    <h1 class="visually-hidden">{{ 'user.create.title'|trans }}</h1>
+    <div class="card article-form">
+        <h2 class="article-form__subhead">{{ 'user.create.title'|trans|upper }}</h2>
+        {{ form_start(form, {attr: {novalidate: 'novalidate'}}) }}
+            {{ form_row(form.name) }}
+            <div class="form-actions form-actions--circles">
+                <twig:CancelCircle href="{{ path('users_active') }}" label="{{ 'user.create.cancel'|trans }}" />
+                <twig:AcceptCheck label="{{ 'user.create.submit'|trans }}" />
+            </div>
+        {{ form_end(form) }}
+    </div>
+{% endblock %}

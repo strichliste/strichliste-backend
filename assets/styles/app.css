@@ -1,0 +1,1602 @@
+@import './theme.css';
+
+/* =============================================================================
+   strichliste — app stylesheet
+   -----------------------------------------------------------------------------
+   Sections (search the line markers below to jump):
+     - layout              body, main wrapper
+     - header              app-header (fixed top bar)
+     - flash messages      .flashes / .flash
+     - card                .card (white surface block)
+     - page header         .page-header (h1 + actions row)
+     - buttons             .btn / .btn--highlight / .btn--green / .btn--red / .btn--cancel / .btn--add
+     - user grid + cards   .user-grid / .user-card (list pages)
+     - balance pill        .balance-pill (positive / negative coloring)
+     - pagination          .pagination
+     - floating "+"        .fab / .fab--floating
+     - footer              .app-footer
+     - empty state         .empty-state
+     - forms               .form-card + form-actions + round cancel/check buttons
+     - article-form        article-form chrome (create/edit pages)
+     - edit-form           .edit-form (user edit panel)
+     - banner              .banner / .banner--disabled / .banner--info
+     - transaction rows    .transaction-list / .transaction-row
+     - user hero + tabs    .user-hero / .user-tabs
+     - user-detail layout  .user-detail-grid + .step-grid + step buttons
+     - send-money tab      .send-form-wrap (compact composer)
+     - accept-circle       round dark check submit (shared with form-cancel-circle)
+     - article rows        flat list rows on /articles pages
+     - tag filter + chips  .tag-filter / .tag-chip / .chip (edit page)
+     - buy-article tab     .buy-tab pill picker
+     - search page         .search-page-form / .search-section
+     - split-invoice       natural-language flow
+     - metrics             KPI cards + chart canvas
+     - error page          .error-page
+   ============================================================================= */
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--mainBackground);
+  color: var(--text);
+}
+
+main {
+  flex: 1;
+  padding: 1rem;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  /* Position anchor for the floating add-user/add-article FAB on tablet+. */
+  position: relative;
+}
+
+/* ---------- header ---------- */
+.app-header {
+  background: var(--headerBackground);
+  /* SPA: fixed 4rem-tall header at top of viewport, z-index above modal backdrop. */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4rem;
+  z-index: 200;
+  padding: 0 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+/* Body padding-top reserves space for the fixed header. */
+body { padding-top: 4rem; }
+
+.app-header__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.95rem;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--textSubtile);
+}
+
+.app-header__brand:hover,
+.app-header__brand[aria-current="page"] {
+  color: var(--text);
+}
+
+.app-header__brand-icon {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+}
+
+.app-header__nav {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+  flex: 1;
+}
+
+.app-header__nav a {
+  padding: 0.4rem 0;
+  color: var(--textSubtile);
+  font-size: 0.8rem;
+  background: transparent;
+  border-radius: 0;
+}
+
+/* SPA: active and hover both go from --textSubtile to --primary, no weight change. */
+.app-header__nav a:hover,
+.app-header__nav a[aria-current="page"] {
+  color: var(--primary);
+  background: transparent;
+}
+
+.app-header__search {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--textSubtile);
+}
+
+.app-header__search input {
+  width: 9rem;
+  border: 0;
+  background: transparent;
+  color: var(--textSubtile);
+  font-size: 1rem;
+  padding: 0;
+}
+
+.app-header__search input::placeholder {
+  color: var(--textSubtile);
+  opacity: 1;
+}
+
+.app-header__search input:focus {
+  color: var(--text);
+}
+
+.app-header__search input:focus::placeholder {
+  color: transparent;
+}
+
+.app-header__search button {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  color: var(--text);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.app-header__search button svg {
+  width: 1.1rem;
+  height: 1.1rem;
+  fill: currentColor;
+}
+
+/* ---------- flash messages ---------- */
+.flashes {
+  margin: 0 auto 1rem;
+  max-width: 1200px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0 1rem;
+}
+
+.flash {
+  padding: 0.75rem 1rem;
+  border-radius: var(--borderRadius);
+  box-shadow: var(--level1);
+}
+
+.flash--success {
+  background: var(--greenLight);
+  color: var(--greenText);
+}
+
+.flash--error {
+  background: var(--redLight);
+  color: var(--redText);
+}
+
+.flash--info {
+  background: var(--componentBackgroundLight);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+/* ---------- card ---------- */
+.card {
+  background: var(--componentBackgroundLight);
+  border-radius: var(--borderRadius);
+  box-shadow: var(--level2);
+  padding: 1rem;
+}
+
+/* ---------- page header ---------- */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.page-header h1 {
+  font-size: 1.5rem;
+}
+
+.page-header__subtitle {
+  font-size: 0.85rem;
+  color: var(--textSubtile);
+  margin-top: 0.25rem;
+}
+
+/* Tab strip: per-tab margin-right (no flex gap), uppercase 1rem labels with
+   0.625rem padding. Active tab gets the card background pill via aria-current. */
+.tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 1.5rem;
+  align-items: center;
+}
+
+.tabs a {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.625rem;
+  margin-right: 1.875rem;
+  border-radius: var(--borderRadius);
+  color: var(--buttonDefaultFont);
+  font-size: 1rem;
+  font-weight: 400;
+  text-transform: uppercase;
+  background: transparent;
+}
+
+.tabs a:last-child {
+  margin-right: 0;
+}
+
+.tabs a svg {
+  fill: var(--buttonDefaultFont);
+  margin-right: 0.5rem;
+  max-width: 1rem;
+  max-height: 1rem;
+}
+
+.tabs a[aria-current="page"] {
+  color: var(--primary);
+  background: var(--componentBackgroundLight);
+}
+
+/* ---------- buttons ---------- */
+.btn {
+  display: inline-block;
+  padding: 0.5rem;
+  border-radius: var(--borderRadius);
+  background: var(--buttonDefaultBackground);
+  color: var(--buttonDefaultFont);
+  font-family: inherit;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0;
+  cursor: pointer;
+  border: 0;
+  box-shadow: var(--level1);
+}
+
+.btn:hover:not(:disabled) {
+  background: var(--mainBackground);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn--highlight {
+  background: var(--buttonHighlightBackground);
+  color: var(--buttonHighlightFont);
+  border-color: transparent;
+}
+
+.btn--green {
+  background: var(--buttonGreenBackground);
+  color: var(--buttonGreenFont);
+  border-color: transparent;
+}
+
+.btn--green:hover:not(:disabled) {
+  filter: brightness(0.97);
+}
+
+.btn--red {
+  background: var(--buttonRedBackground);
+  color: var(--buttonRedFont);
+  border-color: transparent;
+}
+
+.btn--red:hover:not(:disabled) {
+  filter: brightness(0.97);
+}
+
+.btn--cancel {
+  background: var(--buttonCancelBackground);
+  color: var(--buttonCancelFont);
+  border-color: transparent;
+}
+
+/* SPA "add tag/barcode" button: light card-bg pill with a `+` prefix. */
+.btn--add {
+  background: var(--componentBackgroundLight);
+  color: var(--buttonDefaultFont);
+  border-color: transparent;
+}
+
+/* ---------- user grid + cards (SPA: cardGrid, userCard) ---------- */
+.user-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr));
+  grid-auto-rows: minmax(5rem, auto);
+  gap: 1rem;
+  margin: 1rem;
+}
+
+.user-card {
+  background: var(--componentBackgroundLight);
+  border-radius: var(--borderRadius);
+  color: var(--primary);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 6rem;
+  cursor: pointer;
+  text-decoration: none;
+  border: 0;
+}
+
+/* SPA: only the user-card gets the elevated hover shadow. */
+.user-card:hover {
+  box-shadow: var(--level3);
+}
+
+.user-card__name {
+  /* SPA: mixed-case names, normal weight, dark text. */
+  text-transform: none;
+  font-weight: 500;
+  font-size: 0.95rem;
+  color: var(--text);
+  /* Truncate long names to a single line with ellipsis (SPA does this). */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-card--disabled {
+  opacity: 0.5;
+}
+
+/* ---------- balance pill (now bare colored text, no background) ---------- */
+.balance-pill {
+  display: inline-block;
+  padding: 0;
+  border-radius: 0;
+  font-weight: 600;
+  font-size: 1rem;
+  font-variant-numeric: tabular-nums;
+  background: transparent;
+  /* Prevent the sign / symbol / number from breaking onto separate lines
+     in narrow user-card columns. */
+  white-space: nowrap;
+}
+
+/* SPA treats zero balance as "fine" — same green as positive. */
+.balance-pill.is-positive,
+.balance-pill.is-zero { color: var(--greenText); }
+.balance-pill.is-negative { color: var(--redText); }
+
+/* ---------- pagination ---------- */
+.pagination {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  align-items: center;
+  margin-top: 1.5rem;
+}
+
+.pagination__link {
+  padding: 0.4rem 0.75rem;
+  border-radius: var(--borderRadius);
+  background: var(--componentBackgroundLight);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 0.85rem;
+}
+
+.pagination__link:hover {
+  background: var(--mainBackground);
+}
+
+.pagination__link[aria-current="page"] {
+  background: var(--buttonHighlightBackground);
+  color: var(--buttonHighlightFont);
+  border-color: transparent;
+}
+
+.pagination__status {
+  font-size: 0.85rem;
+  color: var(--textSubtile);
+}
+
+/* ---------- round icon buttons (shared chrome) ----------
+   Geometry + elevation shared by the floating "+" FAB, the red cancel circle,
+   the dark accept-check circle, and the split-invoice participant remove button.
+   Each variant rule sets only its background/foreground (and glyph sizing). */
+.circle-btn,
+.fab,
+.form-cancel-circle,
+.accept-circle,
+.participants__remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--fab-size);
+  height: var(--fab-size);
+  border-radius: 50%;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  box-shadow: var(--level2);
+  flex-shrink: 0;
+}
+
+/* ---------- floating "+" button (SPA add-user / add-article affordance) ----------
+   On the user list at >= 48em it lifts out of the toolbar and floats absolute
+   off the left edge of the wrapper. The :visited/:hover variants keep the white
+   "+" from inheriting the generic visited-link color. */
+.fab,
+.fab:visited,
+.fab:hover {
+  background: var(--buttonHighlightBackground);
+  color: var(--buttonHighlightFont);
+  text-decoration: none;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+/* Floating add-user/add-article FAB: bottom-left on mobile, hangs off the
+   wrapper on tablet+. */
+.fab--floating {
+  position: fixed;
+  bottom: 1rem;
+  left: 1rem;
+  z-index: 10;
+}
+
+@media (min-width: 48em) {
+  .fab--floating {
+    position: absolute;
+    bottom: auto;
+    left: auto;
+    /* margin-top clears the fixed header + toolbar; margin-left hangs the FAB
+       one diameter off the wrapper's left edge. The 8rem wrapper gutter below
+       is what reserves room for it. */
+    margin-top: 6rem;
+    margin-left: calc(-1 * var(--fab-size));
+  }
+}
+
+/* List-page toolbar: tab strip only (FAB floats separately at .fab--floating). */
+.list-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 0 1rem 1.5rem;
+}
+
+.list-toolbar .tabs {
+  margin-bottom: 0;
+}
+
+/* Shift the list wrapper right on tablet+ to make room for the absolute FAB. */
+@media (min-width: 48em) {
+  .list-toolbar { margin-left: 8rem; }
+  .user-grid { margin-left: 8rem; }
+  .article-rows { margin-left: 8rem; }
+}
+
+/* ---------- footer (SPA: small grey line, MIT credit + Code link) ---------- */
+.app-footer {
+  font-size: 0.8rem;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  color: var(--textSubtile);
+}
+.app-footer a {
+  color: var(--textSubtile);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  text-decoration: none;
+}
+.app-footer__icon {
+  width: 0.9rem;
+  height: 0.9rem;
+}
+
+/* ---------- empty state ---------- */
+.empty-state {
+  padding: 2rem;
+  text-align: center;
+  color: var(--textSubtile);
+  background: var(--componentBackgroundLight);
+  border-radius: var(--borderRadius);
+  border: 1px dashed var(--border);
+}
+
+.empty-state__title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--text);
+}
+
+/* ---------- forms ---------- */
+.form-card {
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+/* SPA article-form layout: bare, no card wrapper, uppercase subhead with
+   bottom border, single-column on mobile / two-column on tablet+ for the
+   edit page. */
+.article-form {
+  max-width: 30rem;
+  margin: 0 auto 1.5rem;
+}
+.article-form__name {
+  font-size: 1rem;
+  font-weight: 400;
+  text-transform: none;
+  margin: 0 0 1.5rem;
+  color: var(--text);
+}
+.article-form__subhead {
+  font-size: 0.85rem;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--textSubtile);
+  padding-bottom: 0.5rem;
+  margin: 0 0 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.article-form-grid {
+  display: grid;
+  gap: 2rem;
+}
+@media (min-width: 48em) {
+  .article-form-grid {
+    grid-template-columns: 1fr 1fr;
+    max-width: 60rem;
+    margin: 0 auto;
+  }
+  .article-form-grid .article-form {
+    margin: 0 0 2rem;
+    max-width: none;
+  }
+}
+.article-form-archive {
+  max-width: 30rem;
+  margin: 3rem auto 1rem;
+  text-align: left;
+}
+@media (min-width: 48em) {
+  .article-form-archive {
+    max-width: 60rem;
+  }
+}
+.article-form label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--textSubtile);
+  display: block;
+  margin: 0.75rem 0 0.25rem;
+}
+.article-form input[type="text"],
+.article-form input[type="number"] {
+  width: 100%;
+  padding: 0.5rem;
+  background: var(--componentBackgroundDark);
+  border: 1px solid transparent;
+  border-radius: var(--borderRadius);
+  color: var(--text);
+  font-size: 0.9rem;
+}
+.article-form ul {
+  list-style: none;
+  padding: 0;
+  margin: 0.25rem 0 0;
+  color: var(--redText);
+  font-size: 0.85rem;
+}
+
+.form-card label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--textSubtile);
+  margin-bottom: 0.25rem;
+  margin-top: 0.75rem;
+}
+
+.form-card input[type="text"],
+.form-card input[type="email"],
+.form-card input[type="number"],
+.form-card textarea {
+  width: 100%;
+  border: 1px solid var(--border);
+  background: var(--componentBackgroundLight);
+  color: var(--text);
+  font-size: 1rem;
+}
+
+.form-card input[type="checkbox"] {
+  margin-right: 0.5rem;
+  width: 1rem;
+  height: 1rem;
+}
+
+.form-card .form-help {
+  font-size: 0.8rem;
+  color: var(--textSubtile);
+}
+
+.form-card ul {
+  list-style: none;
+  padding: 0;
+  color: var(--redText);
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+}
+
+.form-actions {
+  margin-top: 1rem;
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+/* Round FAB-style buttons — chrome shared between several pages:
+   - `.form-cancel-circle` (red ×, rendered by `<twig:CancelCircle>`)
+   - `.accept-circle` (dark ✓, rendered by `<twig:AcceptCheck>`)
+   Used together in `.form-actions--circles` on user-edit / user-create /
+   article-create / article-edit / split-invoice / send-money. */
+.form-actions--circles {
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.form-cancel-circle {
+  background: var(--buttonCancelBackground);
+  color: var(--buttonCancelFont);
+  text-decoration: none;
+}
+.form-cancel-circle svg {
+  width: 0.7rem;
+  height: 0.7rem;
+}
+
+.accept-circle {
+  background: var(--buttonHighlightBackground);
+  color: var(--buttonHighlightFont);
+}
+.accept-circle svg {
+  width: 0.9rem;
+  height: 0.65rem;
+  fill: currentColor;
+}
+.accept-circle:disabled {
+  background: transparent;
+  color: var(--buttonDisabled);
+  border: 2px solid var(--buttonDisabled);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+/* Edit form: no card wrapper, inline checkbox row. */
+.edit-form {
+  max-width: 30rem;
+  margin: 0 auto 1.5rem;
+}
+.edit-form__checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+.edit-form__checkbox-row label {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--textSubtile);
+}
+.edit-form__checkbox-row input[type="checkbox"] {
+  width: 1rem;
+  height: 1rem;
+  margin: 0;
+}
+
+/* ---------- disabled banner ---------- */
+.banner {
+  padding: 0.75rem 1rem;
+  border-radius: var(--borderRadius);
+  margin-bottom: 1rem;
+}
+
+.banner--disabled {
+  background: var(--redLight);
+  color: var(--redText);
+}
+
+/* ---------- transaction rows ---------- */
+/* Flat rows separated by a hairline bottom border — no per-row card chrome. */
+.transaction-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.transaction-row {
+  display: grid;
+  grid-template-columns: minmax(100px, max-content) 1fr auto;
+  gap: 0.75rem;
+  align-items: center;
+  background: transparent;
+  padding: 1rem 0;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  border-radius: 0;
+  font-size: 0.9rem;
+}
+
+.transaction-row--deleted {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
+.transaction-row__date {
+  font-size: 0.75rem;
+  color: var(--textSubtile);
+  font-variant-numeric: tabular-nums;
+}
+
+.transaction-row__comment {
+  color: var(--textSubtile);
+}
+
+.transfer-address--to { color: var(--greenText); }
+.transfer-address--from { color: var(--text); }
+.transfer-address a { color: inherit; text-decoration: none; }
+.transfer-address a:hover { text-decoration: underline; }
+
+.article-badge a { text-decoration: underline; }
+
+/* SPA: user-details-header h2/h3 { text-transform:none; font-size:2rem;
+   text-align:center; margin:1rem auto }; wrapper capped at 30rem on tablet+. */
+.user-hero {
+  text-align: center;
+  margin: 0 auto;
+  padding: 0 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+@media (min-width: 48em) {
+  .user-hero {
+    width: 30rem;
+  }
+}
+
+.user-hero__name {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 2rem;
+  font-weight: 300;
+  text-transform: none;
+  color: var(--text);
+  margin: 0 auto;
+  line-height: 1.2;
+}
+
+.user-hero__balance .balance-pill {
+  font-size: 1.6rem;
+  font-weight: 300;
+}
+
+/* User-detail tab strip: same chrome as global .tabs but spread across
+   the panel and centered. SPA marks the active one with no decoration —
+   we just shift color to --primary for affordance. */
+.user-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin: 0 auto 1.5rem;
+}
+
+.user-tabs a {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem;
+  color: var(--buttonDefaultFont);
+  font-size: 0.8rem;
+  font-weight: 400;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.user-tabs a svg {
+  fill: var(--buttonDefaultFont);
+  margin-right: 0.5rem;
+  max-width: 1rem;
+  max-height: 1rem;
+}
+
+.user-tabs a[aria-current="page"] {
+  color: var(--primary);
+}
+
+.user-tabs a[aria-current="page"] svg {
+  fill: var(--primary);
+}
+
+/* ---------- user-detail layout ----------
+
+   Default state (no tab):
+     [ step buttons (always)   ] [ recent transactions (always) ]
+
+   Tab active:
+     [ tab form panel (full width above)           ]
+     [ step buttons (always)   ] [ recent transactions (always) ]
+*/
+/* SPA: 24rem fixed-width payment column + flexible transactions column,
+   3rem gap between, centered on tablet+. Single column below 48em. */
+.user-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin: 1rem;
+}
+
+@media (min-width: 48em) {
+  .user-detail-grid {
+    grid-template-columns: 24rem 1fr;
+    gap: 3rem;
+    justify-content: center;
+    align-items: start;
+    margin: 1rem auto;
+    max-width: 60rem;
+  }
+}
+
+.tab-panel {
+  margin-bottom: 1.5rem;
+}
+
+.tab-panel__card {
+  padding: 1.25rem 1.5rem;
+}
+
+.tab-panel__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.tab-panel__heading {
+  font-size: 1rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--textSubtile);
+  margin: 0;
+}
+
+.tab-panel__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  color: var(--textSubtile);
+  font-size: 1.3rem;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.tab-panel__close:hover {
+  background: var(--mainBackground);
+  color: var(--text);
+}
+
+.step-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.step-form {
+  display: contents;
+}
+
+.step-btn {
+  display: block;
+  width: 100%;
+  padding: 0.5rem;
+  border: 0;
+  border-radius: var(--borderRadius);
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.step-btn--green {
+  background: var(--buttonGreenBackground);
+  color: var(--buttonGreenFont);
+}
+
+.step-btn--red {
+  background: var(--buttonRedBackground);
+  color: var(--buttonRedFont);
+}
+
+.step-btn:hover:not(:disabled) { filter: brightness(0.97); }
+.step-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+details.custom-form {
+  margin: 0;
+}
+details.custom-form summary {
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--textSubtile);
+  padding: 0.5rem 0;
+  text-align: center;
+  list-style: none;
+}
+details.custom-form summary::-webkit-details-marker { display: none; }
+details.custom-form[open] summary { color: var(--text); }
+
+.custom-form__row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem 0;
+}
+
+/* ---------- SEND MONEY tab: compact 4-column composer ----------
+   `grid-template-columns: 4fr 1fr 4fr 1fr` — amount input and recipient pill
+   take the wide cells, the arrow and submit-circle take the narrow ones.
+   Notes input drops below. */
+.send-form-wrap {
+  max-width: 24rem;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.send-form {
+  display: grid;
+  grid-template-columns: 4fr 1fr 4fr 1fr;
+  gap: 1rem;
+  align-items: center;
+  margin: 1rem 0 0;
+}
+
+.send-form__amount {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  background: var(--componentBackgroundLight);
+  border: 1px solid var(--border);
+  border-radius: var(--borderRadius);
+  color: var(--text);
+  font-size: 0.95rem;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.send-form__amount::placeholder { color: var(--textSubtile); }
+
+.send-form__arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+}
+.send-form__arrow svg {
+  width: 0.9rem;
+  height: 0.9rem;
+  fill: currentColor;
+}
+
+.send-form__recipient {
+  width: 100%;
+  appearance: none;
+  -webkit-appearance: none;
+  padding: 0.5rem 0.75rem;
+  background: var(--componentBackgroundLight);
+  border: 0;
+  border-radius: var(--borderRadius);
+  color: var(--buttonDefaultFont);
+  font-family: inherit;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  text-align: center;
+  text-align-last: center;
+  cursor: pointer;
+  box-shadow: var(--level1);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.send-form__notes {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  background: var(--componentBackgroundLight);
+  border: 1px solid var(--border);
+  border-radius: var(--borderRadius);
+  color: var(--text);
+  font-size: 0.85rem;
+}
+.send-form__notes::placeholder { color: var(--textSubtile); }
+
+.undo-form { display: contents; }
+
+.undo-btn {
+  padding: 0.25rem 0.5rem;
+  font-size: 1rem;
+  line-height: 1;
+  background: transparent;
+  color: var(--textSubtile);
+  border: 0;
+  cursor: pointer;
+}
+.undo-btn:hover { color: var(--text); }
+
+/* recent-tx column on user-detail */
+.recent-tx { margin-top: 0; }
+.recent-tx__footer {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 0.5rem;
+  padding: 0.5rem 0.75rem;
+}
+.user-detail-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--primary);
+  text-decoration: none;
+}
+.user-detail-link:hover { text-decoration: underline; }
+.user-detail-link__icon {
+  width: 0.85rem;
+  height: 0.85rem;
+  fill: currentColor;
+}
+
+/* ---------- articles (flat row list, SPA style) ---------- */
+.article-rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* SPA: padding 1rem all sides; margin-bottom .2rem between rows. */
+.article-row {
+  margin-bottom: 0.2rem;
+}
+.article-row__link {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border-bottom: 1px solid var(--border);
+  color: inherit;
+  text-decoration: none;
+  gap: 1rem;
+}
+
+.article-row__link:hover {
+  background: var(--componentBackgroundLight);
+}
+
+.article-row__name {
+  font-size: 1.25rem;
+  color: var(--text);
+}
+
+.article-row__price {
+  font-size: 1.25rem;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.article-row--inactive { opacity: 0.55; }
+
+/* Used only on the search-results page (`templates/search/results.html.twig`). */
+.article-card__price {
+  color: var(--textSubtile);
+  font-variant-numeric: tabular-nums;
+}
+
+/* SPA: wrapper margin 2rem, per-chip margin .5rem. Chips render as bordered
+   buttons with `padding: 0.625rem; font-size: 1rem; border-radius: 4px`. */
+.tag-filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  margin: 2rem;
+}
+
+.tag-chip {
+  display: inline-block;
+  padding: 0.625rem;
+  margin: 0.5rem;
+  background: var(--componentBackgroundLight);
+  border: 0;
+  border-radius: 4px;
+  box-shadow: var(--level1);
+  font-size: 1rem;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--text);
+  text-decoration: none;
+}
+.tag-chip:hover {
+  box-shadow: var(--level2);
+}
+.tag-chip--active {
+  background: var(--buttonHighlightBackground);
+  color: var(--buttonHighlightFont);
+}
+
+/* Article-edit barcode/tag chips: flat full-width rows with a right-aligned
+   red round × button. Matches SPA's article-form chip pattern. */
+.chip-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1rem;
+  display: flex;
+  flex-direction: column;
+}
+.chip {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  border-radius: 0;
+  font-size: 0.95rem;
+}
+.chip__label {
+  color: var(--text);
+}
+.chip-list__empty {
+  color: var(--textSubtile);
+  font-size: 0.85rem;
+  padding: 0.5rem 0;
+}
+.chip__remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background: var(--buttonRedBackground);
+  color: var(--buttonRedFont);
+  border: 0;
+  cursor: pointer;
+  padding: 0;
+}
+.chip__remove svg {
+  width: 0.6rem;
+  height: 0.6rem;
+}
+.inline-form { display: contents; }
+.inline-add {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+.inline-add label { flex: 1; }
+
+.barcode-section,
+.tag-section {
+  margin-top: 1rem;
+}
+
+.banner--info {
+  background: var(--componentBackgroundLight);
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+/* ---------- BUY ARTICLE tab — SPA pill picker ----------
+   Centered search input + red round close, then a wrap of name|price pills. */
+.buy-tab {
+  margin: 0 auto 1.5rem;
+  padding: 0 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.buy-tab__search {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  max-width: 30rem;
+}
+
+.buy-tab__search-input {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  background: var(--componentBackgroundLight);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--borderRadius);
+  font-size: 0.95rem;
+}
+
+.buy-tab__search-input::placeholder {
+  color: var(--textSubtile);
+}
+
+.buy-tab__pills {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.6rem;
+  width: 100%;
+}
+
+.buy-tab__pill-form {
+  display: contents;
+}
+
+.buy-tab__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--componentBackgroundLight);
+  color: var(--buttonDefaultFont);
+  border: 0;
+  border-radius: var(--borderRadius);
+  box-shadow: var(--level1);
+  font-family: inherit;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.buy-tab__pill:hover {
+  box-shadow: var(--level2);
+}
+
+.buy-tab__pill-sep {
+  color: var(--textSubtile);
+  font-weight: 400;
+}
+
+.buy-tab__pill-price {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Hidden state used by the article-filter controller. */
+.buy-tab__pill-form[hidden] { display: none !important; }
+
+/* ---------- search page ---------- */
+.search-page-form {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+.search-page-form input { flex: 1; }
+.search-section { margin-bottom: 1.5rem; }
+.search-section h2 {
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.search-results { list-style: none; padding: 0; }
+.search-results li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  background: var(--componentBackgroundLight);
+  border-radius: var(--borderRadius);
+  border: 1px solid var(--border);
+  margin-bottom: 0.25rem;
+}
+
+/* ---------- split-invoice (SPA: natural-language flow, max-width 30em) ---------- */
+.split-invoice-wrapper {
+  max-width: 30em;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+.split-invoice__title {
+  text-align: center;
+  text-transform: uppercase;
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--text);
+  margin: 0 0 1rem;
+}
+.split-invoice-form {
+  display: block;
+}
+
+/* The headline grid: [amount input] [with] [recipient picker], equal columns. */
+.split-invoice-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1rem;
+  margin: 1rem 0;
+  align-items: center;
+  justify-content: center;
+}
+
+.split-invoice-conj {
+  text-align: center;
+  color: var(--text);
+  font-size: 1rem;
+}
+.split-invoice-conj--block {
+  margin: 1rem 0;
+}
+
+.split-invoice-input {
+  width: 100%;
+  padding: 0.5rem;
+  background: var(--componentBackgroundDark);
+  border: 1px solid transparent;
+  border-radius: var(--borderRadius);
+  color: var(--text);
+  font-size: 0.8rem;
+  font-family: inherit;
+}
+.split-invoice-input::placeholder { color: var(--textSubtile); }
+
+/* Native <select> styled to look like the SPA's recipient/participant button. */
+.split-invoice-pick {
+  appearance: none;
+  -webkit-appearance: none;
+  background: var(--componentBackgroundLight);
+  color: var(--buttonDefaultFont);
+  border: 0;
+  border-radius: var(--borderRadius);
+  padding: 0.5rem;
+  font-family: inherit;
+  font-size: 0.8rem;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  text-align: center;
+  text-align-last: center;
+  cursor: pointer;
+  width: 100%;
+  max-width: 190px;
+  margin: 0 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.split-invoice-participants {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+.split-invoice-participants-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+}
+.participants__row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  width: 100%;
+}
+.participants__row .split-invoice-pick {
+  margin: 0;
+}
+.participants__remove {
+  background: var(--buttonCancelBackground);
+  color: var(--buttonCancelFont);
+  font-size: 1rem;
+  line-height: 1;
+}
+.participants__remove[hidden] {
+  display: none !important;
+}
+
+/* Same button chrome as the picker; the action is JS-only. */
+.split-invoice-add {
+  background: var(--componentBackgroundLight);
+  color: var(--buttonDefaultFont);
+  border: 0;
+  border-radius: var(--borderRadius);
+  padding: 0.5rem;
+  font-family: inherit;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  cursor: pointer;
+  max-width: 190px;
+  width: 100%;
+  white-space: nowrap;
+}
+
+.split-invoice-actions {
+  margin: 2rem 0 0;
+  display: flex;
+  justify-content: center;
+}
+.row-error { color: var(--redText); font-size: 0.8rem; }
+
+/* ---------- metrics chart (Chart.js) ---------- */
+.metrics-chart {
+  margin: 1.5rem 0;
+}
+.metrics-chart h2 {
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--textSubtile);
+  margin-bottom: 0.75rem;
+}
+.metrics-chart__canvas-wrap {
+  position: relative;
+  height: 400px;
+  background: var(--componentBackgroundLight);
+  border-radius: var(--borderRadius);
+  box-shadow: var(--level1);
+  padding: 1rem;
+}
+.metrics-table-details summary {
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: var(--textSubtile);
+  padding: 0.5rem 0;
+  margin-top: 1rem;
+}
+.metrics-table-details[open] summary { color: var(--text); }
+
+/* ---------- metrics ---------- */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+.kpi {
+  background: var(--componentBackgroundLight);
+  border-radius: var(--borderRadius);
+  padding: 1rem;
+  box-shadow: var(--level1);
+}
+.kpi__label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--textSubtile);
+  margin-bottom: 0.15rem;
+}
+.kpi__value {
+  font-size: 1rem;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+
+.kpi__value.is-positive { color: var(--greenText); }
+.kpi__value.is-negative { color: var(--redText); }
+.kpi__sublist {
+  margin-top: 0.5rem;
+  list-style: none;
+  padding: 0;
+  font-size: 0.8rem;
+  color: var(--textSubtile);
+}
+
+.metrics-table {
+  width: 100%;
+  background: var(--componentBackgroundLight);
+  border-radius: var(--borderRadius);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+.metrics-table th,
+.metrics-table td {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.metrics-table th:first-child,
+.metrics-table td:first-child {
+  text-align: left;
+  font-variant-numeric: normal;
+}
+.metrics-table thead th {
+  background: var(--mainBackground);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.75rem;
+}
+.metrics-table tfoot th {
+  background: var(--mainBackground);
+  font-weight: 700;
+}
+
+/* ---------- error page ---------- */
+.error-page {
+  text-align: center;
+  padding: 3rem 1rem;
+}
+
+.error-page__code {
+  font-size: 4rem;
+  font-weight: 700;
+  color: var(--textSubtile);
+}
+
+.error-page__message {
+  font-size: 1.2rem;
+  margin-bottom: 1.5rem;
+}

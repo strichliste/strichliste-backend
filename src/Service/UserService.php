@@ -7,13 +7,7 @@ use App\Exception\ParameterNotFoundException;
 
 class UserService {
 
-    /**
-     * @var SettingsService
-     */
-    private $settingsService;
-
-    function __construct(SettingsService $settingsService) {
-        $this->settingsService = $settingsService;
+    function __construct(private SettingsService $settingsService) {
     }
 
     function isActive(User $user): bool {

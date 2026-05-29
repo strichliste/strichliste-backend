@@ -1,0 +1,47 @@
+{# SEND MONEY tab — SPA's compact 4-col composer:
+   [amount] → [recipient] [✓]
+   + notes input below.
+
+   Recipient is a normal <select> here (no modal), which works without JS and
+   visually matches the SPA's "USERNAME" placeholder button once styled. #}
+{%- set form = send.transfer_form -%}
+{{ form_start(form, {action: path('transactions_transfer', {id: user.id}), attr: {class: 'send-form-wrap'}}) }}
+    <div class="send-form">
+        <input class="send-form__amount"
+               type="text"
+               inputmode="decimal"
+               name="{{ form.amount.vars.full_name }}"
+               id="{{ form.amount.vars.id }}"
+               placeholder="0.00"
+               value=""
+               aria-label="{{ 'transactions.amount_label'|trans }}"
+               autofocus>
+
+        <span class="send-form__arrow" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 17l5-5-5-5v3H4v4h6v3z"/></svg>
+        </span>
+
+        <select class="send-form__recipient"
+                name="{{ form.recipient.vars.full_name }}"
+                id="{{ form.recipient.vars.id }}"
+                required
+                aria-label="{{ 'transactions.transfer.recipient_label'|trans }}">
+            <option value="">{{ 'transactions.transfer.recipient_placeholder'|trans }}</option>
+            {%- for choice in form.recipient.vars.choices -%}
+                <option value="{{ choice.value }}">{{ choice.label }}</option>
+            {%- endfor -%}
+        </select>
+
+        <twig:AcceptCheck label="{{ 'transactions.transfer.submit'|trans }}" />
+    </div>
+
+    <input class="send-form__notes"
+           type="text"
+           name="{{ form.comment.vars.full_name }}"
+           id="{{ form.comment.vars.id }}"
+           maxlength="255"
+           placeholder="{{ 'transactions.transfer.notes_placeholder'|trans }}"
+           value="">
+
+    {{ form_widget(form._token) }}
+{{ form_end(form, {render_rest: false}) }}

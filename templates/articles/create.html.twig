@@ -1,0 +1,18 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'articles.create.title'|trans }} · Strichliste{% endblock %}
+
+{% block main %}
+    <h1 class="visually-hidden">{{ 'articles.create.title'|trans }}</h1>
+    <div class="card article-form">
+        <h2 class="article-form__subhead">{{ 'articles.create.title'|trans|upper }}</h2>
+        {{ form_start(form) }}
+            {{ form_row(form.name) }}
+            {{ form_row(form.amount) }}
+            <div class="form-actions form-actions--circles">
+                <twig:CancelCircle href="{{ path('articles_active') }}" label="{{ 'common.cancel'|trans }}" />
+                <twig:AcceptCheck label="{{ 'articles.create.submit'|trans }}" />
+            </div>
+        {{ form_end(form) }}
+    </div>
+{% endblock %}

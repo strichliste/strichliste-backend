@@ -1,0 +1,15 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'articles.delete.confirm_title'|trans }} · Strichliste{% endblock %}
+
+{% block main %}
+    <twig:PageHeader title="{{ 'articles.delete.confirm_title'|trans }}" />
+    <div class="card">
+        <p>{{ 'articles.delete.confirm_body'|trans({'%name%': article.name}) }}</p>
+        <form method="post" action="{{ path('articles_delete', {id: article.id}) }}" class="form-actions">
+            <input type="hidden" name="_token" value="{{ csrf_token('delete_article' ~ article.id) }}">
+            <a class="btn" href="{{ path('articles_edit', {id: article.id}) }}">{{ 'common.cancel'|trans }}</a>
+            <button type="submit" class="btn btn--red">{{ 'articles.edit.archive_cta'|trans }}</button>
+        </form>
+    </div>
+{% endblock %}

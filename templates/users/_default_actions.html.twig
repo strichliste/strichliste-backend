@@ -1,0 +1,62 @@
+{# Deposit/dispense step buttons + custom amounts. ALWAYS visible on user detail
+   (the tab forms appear ABOVE this; clicking a tab again deselects). #}
+<div>
+    {% if send.deposit_enabled %}
+        <div class="step-grid" aria-label="{{ 'transactions.deposit.title'|trans }}">
+            {% for step in send.deposit_steps %}
+                <form method="post" action="{{ path('transactions_create', {id: user.id}) }}" class="step-form" data-controller="disable-on-submit">
+                    <input type="hidden" name="create_transaction[direction]" value="deposit">
+                    <input type="hidden" name="create_transaction[amount]" value="{{ (step.amount / 100)|number_format(2, '.', '') }}">
+                    <input type="hidden" name="create_transaction[_token]" value="{{ csrf_token('create_transaction' ~ user.id) }}">
+                    <button type="submit" class="step-btn step-btn--green"
+                            {% if step.disabled %}disabled aria-describedby="deposit-disabled-help"{% endif %}>
+                        {{ step.amount|currency_format(currency) }}
+                    </button>
+                </form>
+            {% endfor %}
+        </div>
+        {% if send.deposit_steps|filter(s => s.disabled)|length > 0 %}
+            <p id="deposit-disabled-help" class="form-help">{{ 'transactions.step_disabled_help'|trans }}</p>
+        {% endif %}
+    {% endif %}
+
+    {% if send.deposit_custom or send.dispense_custom %}
+        <details class="custom-form">
+            <summary>{{ 'transactions.custom_amount'|trans }}</summary>
+            {% if send.deposit_custom %}
+                {# direction is pre-bound in the controller — form_end emits the HiddenType. #}
+                {{ form_start(send.deposit_form, {action: path('transactions_create', {id: user.id}), attr: {class: 'custom-form__row'}}) }}
+                    {{ form_row(send.deposit_form.amount) }}
+                    {{ form_row(send.deposit_form.comment) }}
+                    <button type="submit" class="btn btn--green">{{ 'transactions.deposit.submit'|trans }}</button>
+                {{ form_end(send.deposit_form) }}
+            {% endif %}
+            {% if send.dispense_custom %}
+                {{ form_start(send.dispense_form, {action: path('transactions_create', {id: user.id}), attr: {class: 'custom-form__row'}}) }}
+                    {{ form_row(send.dispense_form.amount) }}
+                    {{ form_row(send.dispense_form.comment) }}
+                    <button type="submit" class="btn btn--red">{{ 'transactions.dispense.submit'|trans }}</button>
+                {{ form_end(send.dispense_form) }}
+            {% endif %}
+        </details>
+    {% endif %}
+
+    {% if send.dispense_enabled %}
+        <div class="step-grid" aria-label="{{ 'transactions.dispense.title'|trans }}">
+            {% for step in send.dispense_steps %}
+                <form method="post" action="{{ path('transactions_create', {id: user.id}) }}" class="step-form" data-controller="disable-on-submit">
+                    <input type="hidden" name="create_transaction[direction]" value="dispense">
+                    <input type="hidden" name="create_transaction[amount]" value="{{ (step.amount|abs / 100)|number_format(2, '.', '') }}">
+                    <input type="hidden" name="create_transaction[_token]" value="{{ csrf_token('create_transaction' ~ user.id) }}">
+                    <button type="submit" class="step-btn step-btn--red"
+                            {% if step.disabled %}disabled aria-describedby="dispense-disabled-help"{% endif %}>
+                        {{ step.amount|currency_format(currency) }}
+                    </button>
+                </form>
+            {% endfor %}
+        </div>
+        {% if send.dispense_steps|filter(s => s.disabled)|length > 0 %}
+            <p id="dispense-disabled-help" class="form-help">{{ 'transactions.step_disabled_help'|trans }}</p>
+        {% endif %}
+    {% endif %}
+</div>

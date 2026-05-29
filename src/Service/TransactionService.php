@@ -21,21 +21,11 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class TransactionService {
 
-    /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
-
-    /**
-     * @var SettingsService
-     */
-    private $settingsService;
-
-    function __construct(SettingsService $settingsService, EntityManagerInterface $entityManager) {
-        $this->entityManager = $entityManager;
-        $this->settingsService = $settingsService;
-
-        $connection = $entityManager->getConnection();
+    function __construct(
+        private SettingsService $settingsService,
+        private EntityManagerInterface $entityManager,
+    ) {
+        $connection = $this->entityManager->getConnection();
         if ($connection->getDatabasePlatform() instanceof AbstractMySQLPlatform) {
             $connection->setTransactionIsolation(TransactionIsolationLevel::READ_COMMITTED);
         }
@@ -163,6 +153,92 @@ class TransactionService {
     }
 
     /**
+     * Deposit (positive) or dispense (negative) cents on a single user account.
+     * Thin named facade over `doTransaction` so callers don't pass positional nulls.
+     */
+    public function createForUser(User $user, int $cents, ?string $comment = null): Transaction {
+        return $this->doTransaction($user, $cents, $comment);
+    }
+
+    /**
+     * Transfer `$cents` (negative — debits the sender) from $sender to $recipient.
+     */
+    public function transferBetween(User $sender, User $recipient, int $cents, ?string $comment = null): Transaction {
+        $debit = $cents > 0 ? -$cents : $cents;
+        return $this->doTransaction($sender, $debit, $comment, null, null, $recipient->getId());
+    }
+
+    /**
+     * Buy $quantity copies of $article for $user; amount derived from article price.
+     */
+    public function purchaseArticle(User $user, Article $article, int $quantity = 1, ?string $comment = null): Transaction {
+        return $this->doTransaction($user, null, $comment, $quantity, $article->getId());
+    }
+
+    /**
+     * Atomically transfer per-row amounts from each participant to `$recipient`.
+     * Wrapped in a single DB transaction; relies on `use_savepoints: true` for
+     * the inner `doTransaction` calls to nest cleanly. Any failure rolls back
+     * every transfer in the batch.
+     *
+     * The recipient is locked FIRST at the outer transaction level (in id-sorted
+     * order with every participant), so two concurrent splits with overlapping
+     * users acquire locks in the same order and can't deadlock.
+     *
+     * @param User[] $participants  non-empty list, one entry per row
+     * @param int[]  $perRowCents   per-row debit amount in cents, indexed parallel
+     *                              to $participants. Sum equals the operator's
+     *                              total (caller distributes the remainder).
+     * @return Transaction[] one transaction per participant (sender side)
+     * @throws TransactionInvalidException if the inputs are inconsistent
+     */
+    function doSplit(array $participants, User $recipient, array $perRowCents, ?string $comment = null): array {
+        if (count($participants) === 0) {
+            throw new TransactionInvalidException('split needs at least one participant');
+        }
+        if (count($participants) !== count($perRowCents)) {
+            throw new TransactionInvalidException('participants and perRowCents must align');
+        }
+        foreach ($perRowCents as $c) {
+            if (!is_int($c) || $c <= 0) {
+                throw new TransactionInvalidException('per-row amount must be a positive int');
+            }
+        }
+
+        return $this->entityManager->wrapInTransaction(function () use ($participants, $recipient, $perRowCents, $comment) {
+            // Acquire every lock upfront in sorted order to flatten deadlock
+            // risk. doTransaction below also locks its own (sender, recipient)
+            // pair — that re-lock is a no-op under savepoints because the row
+            // is already locked by this outer transaction.
+            $allIds = array_unique(array_merge(
+                [$recipient->getId()],
+                array_map(fn(User $u) => $u->getId(), $participants),
+            ));
+            sort($allIds, SORT_NUMERIC);
+            $userRepo = $this->entityManager->getRepository(User::class);
+            foreach ($allIds as $uid) {
+                $u = $userRepo->find($uid);
+                if ($u !== null) {
+                    $this->lockAndRefresh($u);
+                }
+            }
+
+            $results = [];
+            foreach ($participants as $idx => $participant) {
+                $results[] = $this->doTransaction(
+                    $participant,
+                    -$perRowCents[$idx],
+                    $comment,
+                    null,
+                    null,
+                    $recipient->getId(),
+                );
+            }
+            return $results;
+        });
+    }
+
+    /**
      * @param int $transactionId
      * @throws AccountBalanceBoundaryException
      * @throws TransactionBoundaryException
@@ -242,8 +318,12 @@ class TransactionService {
      */
     private function undoTransaction(Transaction $transaction) {
         $user = $transaction->getUser();
-        $this->checkTransactionBoundary($transaction->getAmount());
 
+        // No checkTransactionBoundary() here: the original transaction was
+        // already validated when created. Re-checking its amount against the
+        // *current* (mutable) per-transaction limits could permanently block a
+        // legitimate reversal if an operator later tightened those limits. The
+        // account-balance ceiling below is still enforced post-reversal.
         $user->addBalance($transaction->getAmount() * -1);
         $this->checkAccountBalanceBoundary($user);
 

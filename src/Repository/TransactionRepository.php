@@ -21,6 +21,9 @@ class TransactionRepository extends ServiceEntityRepository {
 
     function findAllPaginated($limit = null, $offset = null) {
         return $this->createQueryBuilder('t')
+            // Stable sort so paging can't skip or duplicate rows across requests
+            // (matches the id DESC ordering used by findByUser).
+            ->orderBy('t.id', 'DESC')
             ->setFirstResult($offset)
             ->setMaxResults($limit)
             ->getQuery()
@@ -37,14 +40,17 @@ class TransactionRepository extends ServiceEntityRepository {
         return $this->findBy(['user' => $user], ['id' => 'DESC'], $limit, $offset);
     }
 
-    function findByUserAndId(User $user, int $transactionId): ?Transaction {
-        return $this->findOneBy(['id' => $transactionId, 'user' => $user]);
-    }
-
+    /**
+     * Counts non-deleted transactions referencing this article. Drives the
+     * precursor-vs-in-place update decision in `ArticleService::update`:
+     * an article whose only references have been reverted is safe to edit
+     * in place rather than archive.
+     */
     function getArticleReferenceCount(Article $article): int {
-        return $this->createQueryBuilder('t')
+        return (int) $this->createQueryBuilder('t')
             ->select('count(t.id)')
             ->where('t.article = :article')
+            ->andWhere('t.deleted = false')
             ->setParameter('article', $article)
             ->getQuery()
             ->getSingleScalarResult();
