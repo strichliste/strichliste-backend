@@ -123,7 +123,9 @@ html {
      dates, placeholders, pagination status and other informational subtext. */
   --textSubtile: #646e7a;
   --headerBackground: #fff;
-  --buttonCancelBackground: #e86c76;
+  /* 3.34:1 against the shared #ffedf0 icon — WCAG 1.4.11 needs >= 3:1 for
+     meaningful graphics (the old #e86c76 was 2.72:1). */
+  --buttonCancelBackground: #e2515e;
   /* Accent text/button-font tokens are per-theme (not shared) so each clears
      4.5:1 on its own background: dark accents on the light surfaces here, light
      accents on the dark surfaces below. */
@@ -155,7 +157,9 @@ html {
     --border: #59687c;
     --componentBackgroundDark: #1d2832;
     --componentBackgroundLight: #2e3d4d;
-    --greenLight: #2b584a;
+    /* 4.94:1 under --greenText #46d96a (the old #2b584a was 4.39:1 — under
+       the documented 4.5:1 invariant). */
+    --greenLight: #27503f;
     --mainBackground: #25333f;
     --primary: #fdfdfd;
     /* Dark desaturated red so error/disabled banners read as red (not purple)
