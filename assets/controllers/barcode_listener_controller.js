@@ -43,13 +43,16 @@ export default class extends Controller {
   }
 
   onKey(e) {
-    // Don't intercept typing in real form fields, [contenteditable] regions, or
-    // when modifier keys are held — those are not scanner output.
+    // Don't intercept typing in real form fields, [contenteditable] regions,
+    // or on ANY interactive element — Enter on a focused button must activate
+    // the button, never commit a barcode buffer. Key autorepeat (a held key
+    // fires every ~30ms, well inside the scanner gap) and synthetic events
+    // are not scanner output either.
     const t = e.target;
-    if (t && (t.matches?.('input, textarea, select, [contenteditable="true"]'))) {
+    if (t && (t.matches?.('input, textarea, select, button, a, summary, [role="button"], [contenteditable="true"]'))) {
       return;
     }
-    if (e.metaKey || e.ctrlKey || e.altKey) {
+    if (e.metaKey || e.ctrlKey || e.altKey || e.repeat || !e.isTrusted) {
       return;
     }
 
@@ -80,8 +83,10 @@ export default class extends Controller {
       return;
     }
 
-    // Only printable single-character keys join the buffer.
-    if (e.key && e.key.length === 1) {
+    // Only characters from the barcode alphabet join the buffer — arbitrary
+    // printable keys (punctuation mashing, IME artifacts) don't accumulate
+    // toward a bogus purchase.
+    if (e.key && /^[0-9A-Za-z._-]$/.test(e.key)) {
       this.buffer += e.key;
     }
   }
