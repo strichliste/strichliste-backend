@@ -1,0 +1,102 @@
+name: Tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  lint:
+    name: lint (twig, yaml, container)
+    runs-on: ubuntu-latest
+    env:
+      # The kernel boots during lint:container / lint:twig; no connection is
+      # made, but the DSN must parse.
+      DATABASE_URL: "sqlite:////tmp/strichliste_lint.db"
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          extensions: ctype, iconv, json, intl, pdo_sqlite
+          coverage: none
+
+      - uses: actions/cache@v5
+        with:
+          path: ~/.cache/composer
+          key: ${{ runner.os }}-php8.4-composer-${{ hashFiles('composer.lock') }}
+
+      - run: composer validate --strict --no-check-publish
+
+      - run: composer install --no-interaction --prefer-dist
+
+      - run: php bin/console lint:twig templates
+      - run: php bin/console lint:yaml config translations
+      - run: php bin/console lint:container
+
+  phpunit:
+    name: phpunit (${{ matrix.db }}, php ${{ matrix.php }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        db: [sqlite, mariadb, pgsql]
+        # 8.2 is the composer.json floor; 8.4 matches the FrankenPHP image.
+        php: ["8.2", "8.4"]
+        include:
+          - db: sqlite
+            database_url: "sqlite:////tmp/strichliste_test.db"
+            php_extensions: pdo_sqlite
+          - db: mariadb
+            database_url: "mysql://strichliste:strichliste@127.0.0.1:3306/strichliste?serverVersion=mariadb-11.8.0"
+            php_extensions: pdo_mysql
+          - db: pgsql
+            database_url: "postgresql://strichliste:strichliste@127.0.0.1:5432/strichliste?serverVersion=16"
+            php_extensions: pdo_pgsql
+
+    services:
+      mariadb:
+        image: mariadb:11.8
+        env:
+          MARIADB_DATABASE: strichliste
+          MARIADB_USER: strichliste
+          MARIADB_PASSWORD: strichliste
+          MARIADB_ROOT_PASSWORD: root
+        ports: ["3306:3306"]
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=10s --health-timeout=5s --health-retries=10
+
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: strichliste
+          POSTGRES_USER: strichliste
+          POSTGRES_PASSWORD: strichliste
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd="pg_isready -U strichliste"
+          --health-interval=10s --health-timeout=5s --health-retries=10
+
+    env:
+      DATABASE_URL: ${{ matrix.database_url }}
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          # intl is required since the Twig UI (NumberFormatter in AppExtension).
+          extensions: ctype, iconv, json, intl, ${{ matrix.php_extensions }}
+          coverage: none
+
+      - uses: actions/cache@v5
+        with:
+          path: ~/.cache/composer
+          key: ${{ runner.os }}-php${{ matrix.php }}-composer-${{ hashFiles('composer.lock') }}
+
+      - run: composer install --no-interaction --prefer-dist
+
+      - run: vendor/bin/phpunit --testdox

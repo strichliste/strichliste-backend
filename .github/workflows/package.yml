@@ -1,0 +1,72 @@
+name: Package
+
+defaults:
+  run:
+    working-directory: build
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-package:
+    runs-on: ubuntu-latest
+    env:
+      APP_ENV: prod
+      # Console commands at build time boot the kernel but never connect.
+      DATABASE_URL: "sqlite:////tmp/strichliste_build.db"
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v6
+        with:
+          path: build
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          # Matches the FrankenPHP image and local dev.
+          php-version: "8.4"
+          extensions: ctype, iconv, json, intl, pdo_sqlite, pdo_mysql, pdo_pgsql
+          coverage: none
+
+      - name: Extract tag name
+        id: tag
+        run: echo "SOURCE_TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Set version in composer.json
+        run: |
+          VERSION=${{ steps.tag.outputs.SOURCE_TAG }}
+          VERSION=${VERSION#v}
+          jq --arg v "$VERSION" '{version: $v} + .' composer.json > composer.json.tmp
+          mv composer.json.tmp composer.json
+
+      - name: Sync composer.lock with the injected version
+        run: composer update --lock --no-install --no-scripts --no-interaction
+
+      - name: Install production dependencies
+        run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+
+      - name: Download importmap vendors and compile assets
+        # assets/vendor/ is gitignored — the tarball must ship the JS vendors
+        # and the hashed public/assets/ files the prod server serves.
+        run: |
+          php bin/console importmap:install
+          php bin/console asset-map:compile
+
+      - name: Package
+        run: |
+          sudo rm -rf var/cache/* var/log/* var/*.db
+          tar -czf strichliste-backend-${{ steps.tag.outputs.SOURCE_TAG }}.tar.gz .env *
+
+      - name: Create Release and Upload Artifact
+        uses: softprops/action-gh-release@v3
+        with:
+          draft: true
+          prerelease: false
+          name: Release ${{ steps.tag.outputs.SOURCE_TAG }}
+          tag_name: ${{ steps.tag.outputs.SOURCE_TAG }}
+          files: build/strichliste-backend-${{ steps.tag.outputs.SOURCE_TAG }}.tar.gz
