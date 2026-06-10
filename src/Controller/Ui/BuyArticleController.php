@@ -41,6 +41,13 @@ class BuyArticleController extends AbstractController {
             return $this->redirectToRoute('users_detail', ['id' => $id], Response::HTTP_SEE_OTHER);
         }
 
+        // The buy tab is hidden for disabled users, but hiding is not
+        // enforcement — reject the POST itself.
+        if ($user->isDisabled()) {
+            $this->addFlash('error', $this->translator->trans('transactions.errors.account_disabled'));
+            return $this->redirectToRoute('users_detail', ['id' => $id], Response::HTTP_SEE_OTHER);
+        }
+
         $articleId = $request->request->get('articleId');
         $code = trim((string) $request->request->get('barcode', ''));
 

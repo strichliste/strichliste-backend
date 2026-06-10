@@ -122,6 +122,7 @@ transactions:
         recipient_missing: Recipient was not found.
         self_transfer: You cannot transfer to yourself.
         recipient_disabled: Recipient is not available.
+        account_disabled: This account is disabled and cannot transact.
         generic: Something went wrong.
     flash:
         deposit_success: Deposit confirmed.

@@ -90,7 +90,7 @@ class UserController extends AbstractController {
             'editForm' => $editForm,
             'showSendTab' => $this->settings->getOrDefault('payment.transactions.enabled', true) && !$user->isDisabled(),
             'showBuyTab' => $this->settings->getOrDefault('article.enabled', true) && !$user->isDisabled(),
-            'showPaypalTab' => $this->settings->getOrDefault('paypal.enabled', false),
+            'showPaypalTab' => $this->settings->getOrDefault('paypal.enabled', false) && !$user->isDisabled(),
             'send' => $sendData,
             'buy' => $buyData,
         ]);

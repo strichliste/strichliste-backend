@@ -40,6 +40,13 @@ class TransactionWriteController extends AbstractController {
             throw new NotFoundHttpException();
         }
 
+        // The step buttons / custom forms are hidden for disabled users, but
+        // hiding is not enforcement — reject the POST itself.
+        if ($user->isDisabled()) {
+            $this->addFlash('error', $this->translator->trans('transactions.errors.account_disabled'));
+            return $this->redirectToRoute('users_detail', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
+        }
+
         $form = $this->createForm(CreateTransactionType::class, null, ['user_id' => $user->getId()]);
         $form->handleRequest($request);
 
@@ -80,6 +87,11 @@ class TransactionWriteController extends AbstractController {
         $user = $this->userRepository->find($id);
         if (!$user) {
             throw new NotFoundHttpException();
+        }
+
+        if ($user->isDisabled()) {
+            $this->addFlash('error', $this->translator->trans('transactions.errors.account_disabled'));
+            return $this->redirectToRoute('users_detail', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
         }
 
         $form = $this->createForm(TransferTransactionType::class, null, ['exclude_user' => $user]);

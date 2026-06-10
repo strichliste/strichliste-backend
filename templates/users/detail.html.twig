@@ -5,10 +5,13 @@
 {% block main %}
     {# The barcode scanner listens at document level on the whole user detail
        page (any tab). A USB-HID burst into the page commits a buy via the
-       hidden form POST built by the controller — no visible input. #}
-    <div data-controller="barcode-listener"
-         data-barcode-listener-action-value="{{ path('transactions_buy', {id: user.id}) }}"
-         data-barcode-listener-token-value="{{ csrf_token('buy' ~ user.id) }}"></div>
+       hidden form POST built by the controller — no visible input. Never armed
+       for disabled accounts, which must not transact. #}
+    {% if not user.disabled %}
+        <div data-controller="barcode-listener"
+             data-barcode-listener-action-value="{{ path('transactions_buy', {id: user.id}) }}"
+             data-barcode-listener-token-value="{{ csrf_token('buy' ~ user.id) }}"></div>
+    {% endif %}
 
     <section class="user-hero" aria-labelledby="user-hero-name">
         <h1 id="user-hero-name" class="user-hero__name">

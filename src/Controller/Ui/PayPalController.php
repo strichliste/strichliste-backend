@@ -63,6 +63,11 @@ class PayPalController extends AbstractController {
             return $this->redirectToRoute('users_detail', ['id' => $id], Response::HTTP_SEE_OTHER);
         }
 
+        if ($user->isDisabled()) {
+            $this->addFlash('error', $this->translator->trans('transactions.errors.account_disabled'));
+            return $this->redirectToRoute('users_detail', ['id' => $id], Response::HTTP_SEE_OTHER);
+        }
+
         $cents = $this->moneyParser->parseToCents($request->request->get('amount'));
         if ($cents === null || $cents <= 0) {
             $this->addFlash('error', $this->translator->trans('split_invoice.errors.invalid_amount'));
