@@ -26,21 +26,35 @@
     {% if send.deposit_custom or send.dispense_custom %}
         <details class="custom-form">
             <summary>{{ 'transactions.custom_amount'|trans }}</summary>
-            {% if send.deposit_custom %}
-                {# direction is pre-bound in the controller — form_end emits the HiddenType. #}
-                {{ form_start(send.deposit_form, {action: path('transactions_create', {id: user.id}), attr: {class: 'custom-form__row'}}) }}
-                    {{ form_row(send.deposit_form.amount) }}
-                    {{ form_row(send.deposit_form.comment) }}
-                    <button type="submit" class="btn btn--green">{{ 'transactions.deposit.submit'|trans }}</button>
-                {{ form_end(send.deposit_form) }}
-            {% endif %}
-            {% if send.dispense_custom %}
-                {{ form_start(send.dispense_form, {action: path('transactions_create', {id: user.id}), attr: {class: 'custom-form__row'}}) }}
-                    {{ form_row(send.dispense_form.amount) }}
-                    {{ form_row(send.dispense_form.comment) }}
-                    <button type="submit" class="btn btn--red">{{ 'transactions.dispense.submit'|trans }}</button>
-                {{ form_end(send.dispense_form) }}
-            {% endif %}
+            {# One composer for both directions: [Deposit] [amount] [Dispense],
+               comment below. The clicked submit button posts the direction. #}
+            {%- set form = send.custom_form -%}
+            {{ form_start(form, {action: path('transactions_create', {id: user.id}), attr: {class: 'custom-form__bar', 'data-controller': 'disable-on-submit'}}) }}
+                {% if send.deposit_custom %}
+                    <button type="submit" class="btn btn--green custom-form__submit"
+                            name="{{ form.direction.vars.full_name }}" value="deposit">{{ 'transactions.deposit.submit'|trans }}</button>
+                {% endif %}
+                <input type="text"
+                       inputmode="decimal"
+                       required
+                       class="custom-form__amount"
+                       name="{{ form.amount.vars.full_name }}"
+                       id="{{ form.amount.vars.id }}"
+                       placeholder="0.00"
+                       aria-label="{{ 'transactions.amount_label'|trans }}">
+                {% if send.dispense_custom %}
+                    <button type="submit" class="btn btn--red custom-form__submit"
+                            name="{{ form.direction.vars.full_name }}" value="dispense">{{ 'transactions.dispense.submit'|trans }}</button>
+                {% endif %}
+                <input type="text"
+                       class="custom-form__comment"
+                       name="{{ form.comment.vars.full_name }}"
+                       id="{{ form.comment.vars.id }}"
+                       maxlength="255"
+                       placeholder="{{ 'transactions.comment_label'|trans }}"
+                       aria-label="{{ 'transactions.comment_label'|trans }}">
+                {{ form_widget(form._token) }}
+            {{ form_end(form, {render_rest: false}) }}
         </details>
     {% endif %}
 

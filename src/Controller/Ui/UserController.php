@@ -118,8 +118,7 @@ class UserController extends AbstractController {
             return [
                 'deposit_enabled' => false, 'deposit_custom' => false, 'deposit_steps' => [],
                 'dispense_enabled' => false, 'dispense_custom' => false, 'dispense_steps' => [],
-                'deposit_form' => $this->createForm(CreateTransactionType::class, ['direction' => 'deposit'], ['user_id' => $user->getId()])->createView(),
-                'dispense_form' => $this->createForm(CreateTransactionType::class, ['direction' => 'dispense'], ['user_id' => $user->getId()])->createView(),
+                'custom_form' => $this->createForm(CreateTransactionType::class, null, ['user_id' => $user->getId()])->createView(),
                 'transfer_form' => $transferForm,
             ];
         }
@@ -145,11 +144,6 @@ class UserController extends AbstractController {
             (array) $this->settings->getOrDefault('payment.dispense.steps', [])
         );
 
-        // direction is pre-bound so the template doesn't have to inject a
-        // duplicate hidden field — form_end renders the HiddenType once.
-        $depositForm = $this->createForm(CreateTransactionType::class, ['direction' => 'deposit'], ['user_id' => $user->getId()])->createView();
-        $dispenseForm = $this->createForm(CreateTransactionType::class, ['direction' => 'dispense'], ['user_id' => $user->getId()])->createView();
-
         return [
             'deposit_enabled' => (bool) $this->settings->getOrDefault('payment.deposit.enabled', true),
             'deposit_custom' => (bool) $this->settings->getOrDefault('payment.deposit.custom', true),
@@ -157,8 +151,9 @@ class UserController extends AbstractController {
             'dispense_enabled' => (bool) $this->settings->getOrDefault('payment.dispense.enabled', true),
             'dispense_custom' => (bool) $this->settings->getOrDefault('payment.dispense.custom', true),
             'dispense_steps' => $dispenseSteps,
-            'deposit_form' => $depositForm,
-            'dispense_form' => $dispenseForm,
+            // One shared composer for both directions — the clicked submit
+            // button supplies create_transaction[direction].
+            'custom_form' => $this->createForm(CreateTransactionType::class, null, ['user_id' => $user->getId()])->createView(),
             'transfer_form' => $transferForm,
         ];
     }
