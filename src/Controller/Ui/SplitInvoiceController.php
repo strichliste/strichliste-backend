@@ -44,9 +44,22 @@ class SplitInvoiceController extends AbstractController {
             'participants' => [],
         ];
 
-        $renderArgs = fn() => [
-            'users' => $allUsers, 'formData' => $formData, 'errors' => $errors, 'rowErrors' => $rowErrors,
-        ];
+        // Captures by reference: $formData/$errors/$rowErrors are filled in as
+        // the POST is processed, and every render must see the current values
+        // (an `fn()` would freeze them at their initial empty state here).
+        // Always render at least one participant row so the form is usable
+        // without JS (the add-row button is a JS-only enhancement).
+        $renderArgs = function () use ($allUsers, &$formData, &$errors, &$rowErrors) {
+            $formData['participants'] = $formData['participants'] ?: [null];
+            return [
+                'users' => $allUsers, 'formData' => $formData, 'errors' => $errors, 'rowErrors' => $rowErrors,
+            ];
+        };
+
+        // Error re-renders are 422 — Turbo ignores non-redirect form responses
+        // that come back 200, so errors would never reach the screen.
+        $renderError = fn() => $this->render('split_invoice/index.html.twig', $renderArgs(),
+            new Response(status: Response::HTTP_UNPROCESSABLE_ENTITY));
 
         if (!$request->isMethod('POST')) {
             return $this->render('split_invoice/index.html.twig', $renderArgs());
@@ -54,7 +67,7 @@ class SplitInvoiceController extends AbstractController {
 
         if (!$this->isCsrfTokenValid('split_invoice', (string) $request->request->get('_token'))) {
             $errors[] = $this->translator->trans('transactions.errors.generic');
-            return $this->render('split_invoice/index.html.twig', $renderArgs());
+            return $renderError();
         }
 
         $recipientId = (int) $request->request->get('recipient', 0);
@@ -97,7 +110,8 @@ class SplitInvoiceController extends AbstractController {
             }
         }
 
-        return $this->render('split_invoice/index.html.twig', $renderArgs());
+        // Only reachable with at least one error (success redirects above).
+        return $renderError();
     }
 
     /**
