@@ -122,6 +122,10 @@ html {
   /* WCAG AA: #646e7a clears 4.5:1 on both #fff cards and the #f2f3f2 page for
      dates, placeholders, pagination status and other informational subtext. */
   --textSubtile: #646e7a;
+  /* Form control boundaries need >= 3:1 against adjacent surfaces (WCAG
+     1.4.11) — the decorative --border hairline is far too faint for that.
+     3.78:1 on #fff, 3.40:1 on #f2f3f2. */
+  --inputBorder: #7d848c;
   --headerBackground: #fff;
   /* 3.34:1 against the shared #ffedf0 icon — WCAG 1.4.11 needs >= 3:1 for
      meaningful graphics (the old #e86c76 was 2.72:1). */
@@ -168,6 +172,8 @@ html {
     --text: #fdfdfd;
     /* WCAG AA on the dark surfaces (#1d2832 / #2e3d4d / #25333f). */
     --textSubtile: #9aa7b5;
+    /* 3.87:1 on #2e3d4d cards, 4.51:1 on the #25333f page. */
+    --inputBorder: #8c9aab;
     --greenText: #46d96a;
     --redText: #ff7d90;
     --headerBackground: #1d2832;
@@ -194,7 +200,9 @@ html {
 html {
   background: var(--mainBackground);
   color: var(--text);
-  font-size: 18px;
+  /* 112.5% of the 16px default = 18px, but unlike a px value it scales when
+     the user raises their browser's default font size. */
+  font-size: 112.5%;
   min-height: 100vh;
 }
 

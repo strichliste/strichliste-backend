@@ -33,6 +33,7 @@ user:
         empty_title: Noch keine Benutzer
         empty_active: Lege einen neuen Benutzer an, um loszulegen.
         empty_inactive: Keine inaktiven Benutzer.
+        disabled_label: (deaktiviert)
         add_cta: Benutzer anlegen
         filter_aria: Benutzer-Statusfilter
     create:

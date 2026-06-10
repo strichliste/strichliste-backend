@@ -28,6 +28,7 @@
     {% if articles is empty %}
         <twig:EmptyState>{{ 'metrics.user.articles_table.empty'|trans }}</twig:EmptyState>
     {% else %}
+        <div class="table-scroll">
         <table class="metrics-table">
             <thead>
                 <tr>
@@ -46,5 +47,6 @@
                 {% endfor %}
             </tbody>
         </table>
+        </div>
     {% endif %}
 {% endblock %}
