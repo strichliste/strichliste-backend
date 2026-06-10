@@ -6,9 +6,16 @@
 <div class="split-invoice-wrapper">
     <h1 class="split-invoice__title">{{ 'split_invoice.title'|trans }}</h1>
 
-    {% for error in errors %}
-        <div class="flash flash--error" role="alert">{{ error }}</div>
-    {% endfor %}
+    {# data-controller="flash" copies these into the persistent live region —
+       a Turbo body swap of an already-populated role=alert node is not
+       reliably announced on its own. #}
+    {% if errors is not empty %}
+        <div data-controller="flash" data-turbo-temporary>
+            {% for error in errors %}
+                <div class="flash flash--error" data-flash-level="alert" role="alert">{{ error }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
 
     <form method="post" class="split-invoice-form" data-controller="disable-on-submit">
         <input type="hidden" name="_token" value="{{ csrf_token('split_invoice') }}">
@@ -65,14 +72,15 @@
                                 hidden>×</button>
                         <select class="split-invoice-pick"
                                 name="participants[]"
-                                aria-label="{{ 'split_invoice.participants.row_label'|trans }} {{ idx + 1 }}">
+                                aria-label="{{ 'split_invoice.participants.row_label'|trans }} {{ idx + 1 }}"
+                                {% if rowErrors[idx] is defined %}aria-invalid="true" aria-describedby="participant-error-{{ idx }}"{% endif %}>
                             <option value="">{{ 'split_invoice.participants.empty_slot'|trans }}</option>
                             {% for u in users %}
                                 <option value="{{ u.id }}" {% if p == u.id %}selected{% endif %}>{{ u.name }}</option>
                             {% endfor %}
                         </select>
                         {% if rowErrors[idx] is defined %}
-                            <span class="row-error">{{ rowErrors[idx] }}</span>
+                            <span class="row-error" id="participant-error-{{ idx }}">{{ rowErrors[idx] }}</span>
                         {% endif %}
                     </li>
                 {% endfor %}
