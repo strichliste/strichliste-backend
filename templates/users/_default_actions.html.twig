@@ -1,6 +1,9 @@
 {# Deposit/dispense step buttons + custom amounts. ALWAYS visible on user detail
-   (the tab forms appear ABOVE this; clicking a tab again deselects). #}
-<div>
+   (the tab forms appear ABOVE this; clicking a tab again deselects).
+   The guard keeps the card from rendering as an empty white box when nothing
+   is enabled (disabled user / payments turned off). #}
+{% if send.deposit_enabled or send.dispense_enabled or send.deposit_custom or send.dispense_custom %}
+<div class="step-card">
     {% if send.deposit_enabled %}
         <div class="step-grid" aria-label="{{ 'transactions.deposit.title'|trans }}">
             {% for step in send.deposit_steps %}
@@ -60,3 +63,4 @@
         {% endif %}
     {% endif %}
 </div>
+{% endif %}
