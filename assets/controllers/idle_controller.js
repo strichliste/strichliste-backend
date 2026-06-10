@@ -29,6 +29,14 @@ export default class extends Controller {
   reset() {
     this.clear();
     this.timer = setTimeout(() => {
+      // Already on the idle target (or a page it redirects to)? Re-visiting
+      // would loop the kiosk through an endless reload cycle while idle.
+      const target = new URL(this.redirectValue, window.location.origin);
+      const here = window.location.pathname;
+      if (here === target.pathname || (target.pathname === '/' && here === '/user/active')) {
+        this.reset();
+        return;
+      }
       // Prefer Turbo.visit when available so we stay inside the Turbo session;
       // fall back to a full navigation otherwise.
       if (typeof window.Turbo?.visit === 'function') {
