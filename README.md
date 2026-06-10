@@ -29,8 +29,30 @@ boots once and stays resident) plus Postgres 16.
 docker compose up -d --build
 ```
 
-Open `http://localhost:8080`. That's all — the entrypoint waits for the
-database and applies migrations automatically before serving traffic.
+Open **`https://localhost`**. Caddy serves TLS out of the box using its
+local CA, so browsers (which try HTTPS first these days) connect
+directly; plain `http://localhost` is redirected. On the first visit
+your browser shows a certificate warning — accept it once, or trust the
+CA root permanently:
+
+```
+docker compose cp app:/data/caddy/pki/authorities/local/root.crt .
+# then import root.crt into your OS/browser trust store
+```
+
+The CA lives in the `caddy_data` volume, so the exception survives
+container rebuilds. The entrypoint waits for the database and applies
+migrations automatically before serving traffic.
+
+If host ports 80/443 are already taken, remap them:
+
+```
+HTTP_PORT=8080 HTTPS_PORT=8443 docker compose up -d
+```
+
+then open `https://localhost:8443` directly (the HTTP→HTTPS redirect
+always targets the standard port 443, so skip the HTTP URL when ports
+are remapped).
 
 What the image does for you:
 
@@ -54,7 +76,8 @@ Environment knobs (set under `environment:` in `compose.yaml` or via
 | Variable | Default | Purpose |
 | --- | --- | --- |
 | `APP_SECRET` | dev value (publicly known!) | Set a unique secret for any real deployment — the entrypoint warns loudly if you don't. |
-| `SERVER_NAME` | `:80` (plain HTTP) | Set a hostname (e.g. `strichliste.example.com`) to let Caddy obtain TLS certificates automatically; also publish port 443. |
+| `SERVER_NAME` | `localhost` (self-signed TLS) | Set a real hostname (e.g. `strichliste.example.com`) for automatic Let's Encrypt certificates, or `":80"` for plain HTTP only (e.g. LAN-IP kiosks). |
+| `HTTP_PORT` / `HTTPS_PORT` | `80` / `443` | Host ports to publish. |
 | `DATABASE_URL` | Postgres from compose | Any Doctrine DSN. SQLite works for small setups (see below). |
 | `AUTO_MIGRATE` | `1` | Run pending migrations on container start. |
 | `FRANKENPHP_CONFIG` | `worker ./public/index.php` | Unset (empty) to fall back to classic one-process-per-request mode. |
@@ -63,12 +86,16 @@ Single container with SQLite instead of Postgres:
 
 ```
 docker build -t strichliste .
-docker run -d -p 8080:80 \
+docker run -d -p 80:80 -p 443:443 -p 443:443/udp \
+  -e SERVER_NAME=localhost \
   -e DATABASE_URL="sqlite:////app/var/data.db" \
   -e APP_SECRET="$(openssl rand -hex 16)" \
   -v strichliste-data:/app/var \
   strichliste
 ```
+
+(The bare image defaults to plain HTTP on `:80`; `SERVER_NAME=localhost`
+enables the same self-signed TLS the compose setup uses.)
 
 Note: the compose file publishes Postgres on `127.0.0.1:5433` (loopback
 only — it uses default credentials) so a non-Docker dev setup can share

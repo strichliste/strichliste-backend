@@ -2,19 +2,42 @@ services:
   app:
     build: .
     ports:
-      - "8080:80"
+      # Override host ports when 80/443 are taken: HTTP_PORT=8080 HTTPS_PORT=8443 docker compose up -d
+      - "${HTTP_PORT:-80}:80"
+      - "${HTTPS_PORT:-443}:443"
+      # HTTP/3
+      - "${HTTPS_PORT:-443}:443/udp"
     environment:
       DATABASE_URL: "postgresql://strichliste:strichliste@database:5432/strichliste?serverVersion=16&charset=utf8"
-      # Override these for a real deployment:
-      # APP_SECRET: change-me                  # the baked-in default is publicly known
-      # SERVER_NAME: strichliste.example.com   # enables automatic HTTPS (also publish 443)
+      # Browsers default to HTTPS — Caddy serves https://localhost with a
+      # certificate from its local CA and redirects HTTP there. Options:
+      #   SERVER_NAME: strichliste.example.com  -> automatic Let's Encrypt TLS
+      #   SERVER_NAME: ":80"                    -> plain HTTP only (LAN-IP kiosks)
+      SERVER_NAME: "${SERVER_NAME:-localhost}"
+      # Override for a real deployment — the baked-in default is publicly known:
+      # APP_SECRET: change-me
     # To customize app settings without rebuilding the image, mount your copy
     # (the entrypoint recompiles the container cache on boot so it is honored):
     # volumes:
     #   - ./config/strichliste.yaml:/app/config/strichliste.yaml:ro
+    volumes:
+      # Persists Caddy's local CA and certificates across restarts, so the
+      # browser exception (or trusted root) survives container recreation.
+      - caddy_data:/data
+      - caddy_config:/config
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "php", "-r", "exit(@file_get_contents('http://127.0.0.1/user/active') === false ? 1 : 0);"]
+      # Protocol-agnostic: tries HTTPS (self-signed local CA -> no peer
+      # verification) and falls back to plain HTTP for SERVER_NAME=":80".
+      test:
+        - CMD
+        - php
+        - -r
+        # $$ keeps docker compose from interpolating the PHP variable.
+        - >-
+          $$c = stream_context_create(['ssl' => ['verify_peer' => false, 'verify_peer_name' => false]]);
+          exit((@file_get_contents('https://localhost/user/active', false, $$c)
+            ?: @file_get_contents('http://localhost/user/active')) ? 0 : 1);
       interval: 30s
       timeout: 5s
       retries: 3
@@ -46,3 +69,5 @@ services:
 
 volumes:
   database_data:
+  caddy_data:
+  caddy_config:
