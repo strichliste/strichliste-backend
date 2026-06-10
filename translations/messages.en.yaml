@@ -115,6 +115,7 @@ transactions:
         direction_from: Received from
     undo:
         button_aria: 'Undo transaction from %when%'
+    reverted_label: (reverted)
     errors:
         boundary: This transaction would cross a configured boundary.
         invalid: The transaction is invalid.
