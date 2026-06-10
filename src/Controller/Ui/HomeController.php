@@ -29,29 +29,43 @@ class HomeController extends AbstractController {
 
     #[Route('/user/active', name: 'users_active', methods: ['GET'])]
     public function activeUsers(Request $request): Response {
-        $page = max(1, (int) $request->query->get('page', 1));
         $since = $this->userService->getStaleDateTime();
-        $result = $this->userRepository->findAllActivePaginated($since, self::PAGE_SIZE, ($page - 1) * self::PAGE_SIZE);
-        return $this->renderList($result['users'], $result['total'], $page, true);
+        return $this->renderList(
+            fn(int $offset) => $this->userRepository->findAllActivePaginated($since, self::PAGE_SIZE, $offset),
+            max(1, (int) $request->query->get('page', 1)),
+            true,
+        );
     }
 
     #[Route('/user/inactive', name: 'users_inactive', methods: ['GET'])]
     public function inactiveUsers(Request $request): Response {
-        $page = max(1, (int) $request->query->get('page', 1));
         $since = $this->userService->getStaleDateTime();
-        $result = $this->userRepository->findAllInactivePaginated($since, self::PAGE_SIZE, ($page - 1) * self::PAGE_SIZE);
-        return $this->renderList($result['users'], $result['total'], $page, false);
+        return $this->renderList(
+            fn(int $offset) => $this->userRepository->findAllInactivePaginated($since, self::PAGE_SIZE, $offset),
+            max(1, (int) $request->query->get('page', 1)),
+            false,
+        );
     }
 
-    private function renderList(array $users, int $total, int $page, bool $active): Response {
-        $totalPages = max(1, (int) ceil($total / self::PAGE_SIZE));
-        $page = min($page, $totalPages);
+    /**
+     * @param callable(int $offset): array{users: array, total: int} $fetch
+     */
+    private function renderList(callable $fetch, int $page, bool $active): Response {
+        $result = $fetch(($page - 1) * self::PAGE_SIZE);
+        $totalPages = max(1, (int) ceil($result['total'] / self::PAGE_SIZE));
+
+        // Clamping after the fetch would render an empty list with a wrong
+        // page indicator for out-of-range pages — re-fetch the real last page.
+        if ($page > $totalPages) {
+            $page = $totalPages;
+            $result = $fetch(($page - 1) * self::PAGE_SIZE);
+        }
 
         return $this->render('users/list.html.twig', [
-            'users' => $users,
+            'users' => $result['users'],
             'page' => $page,
             'totalPages' => $totalPages,
-            'total' => $total,
+            'total' => $result['total'],
             'active' => $active,
             'currencySymbol' => $this->settingsService->getOrDefault('i18n.currency.symbol', '€'),
         ]);
