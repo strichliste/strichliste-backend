@@ -48,7 +48,15 @@ RUN composer dump-autoload --no-dev --classmap-authoritative \
 
 COPY --chmod=755 docker/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
-EXPOSE 80 443
+# Run as non-root (https://frankenphp.dev/docs/docker/#running-as-a-non-root-user):
+# the capability lets the unprivileged user bind 80/443; Caddy state and the
+# Symfony var/ dir (cache recompiled on boot, logs, optional SQLite) must be
+# writable by it.
+RUN setcap CAP_NET_BIND_SERVICE=+eip /usr/local/bin/frankenphp \
+    && chown -R www-data:www-data /data /config /app/var
+USER www-data
+
+EXPOSE 80 443 443/udp
 
 ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["frankenphp", "run", "--config", "/etc/frankenphp/Caddyfile"]
