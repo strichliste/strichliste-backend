@@ -1340,6 +1340,24 @@ details.custom-form[open] summary { color: var(--text); }
 /* Hidden state used by the article-filter controller. */
 .buy-tab__pill-form[hidden] { display: none !important; }
 
+/* No-JS barcode fallback row (hidden by the controller when JS is alive). */
+.buy-tab__scan {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--textSubtile);
+}
+.buy-tab__scan input[type='text'] {
+  width: 11rem;
+  padding: 0.4rem 0.6rem;
+  background: var(--componentBackgroundLight);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--borderRadius);
+}
+.buy-tab__scan[hidden] { display: none !important; }
+
 /* ---------- search page ---------- */
 .search-page-form {
   display: flex;

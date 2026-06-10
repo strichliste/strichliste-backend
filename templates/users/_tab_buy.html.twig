@@ -21,6 +21,18 @@
 
     <p class="visually-hidden" role="status" aria-live="polite" data-article-filter-target="status"></p>
 
+    {# No-JS barcode path: the document-level scanner listener needs JS, so
+       give a scanner a real input to burst into. The controller hides this
+       once it connects — with JS the page-wide listener takes over. #}
+    <form method="post" action="{{ path('transactions_buy', {id: user.id}) }}"
+          class="buy-tab__scan" data-article-filter-target="scanForm"
+          data-controller="disable-on-submit">
+        <input type="hidden" name="_token" value="{{ csrf_token('buy' ~ user.id) }}">
+        <label for="buy-scan">{{ 'user.buy.scan.input_label'|trans }}</label>
+        <input type="text" id="buy-scan" name="barcode" maxlength="32" required autocomplete="off">
+        <button type="submit" class="btn">{{ 'user.buy.scan.submit'|trans }}</button>
+    </form>
+
     {% if buy.articles is empty %}
         <twig:EmptyState>{{ 'user.buy.picker.empty'|trans }}</twig:EmptyState>
     {% else %}

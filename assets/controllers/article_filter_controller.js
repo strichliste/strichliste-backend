@@ -11,13 +11,16 @@ import { Controller } from '@hotwired/stimulus';
  * which would otherwise be a silently blank area.
  */
 export default class extends Controller {
-  static targets = ['input', 'item', 'status'];
+  static targets = ['input', 'item', 'status', 'scanForm'];
   static values = { resultsLabel: String, noResultsLabel: String };
 
   connect() {
     // The search input is server-rendered `hidden` (it does nothing without
-    // JS); reveal it now that filtering works.
+    // JS); reveal it now that filtering works. The manual barcode form is the
+    // inverse: it is the no-JS fallback for the document-level scanner
+    // listener, so hide it once JS is alive.
     this.inputTarget.hidden = false;
+    if (this.hasScanFormTarget) this.scanFormTarget.hidden = true;
   }
 
   filter() {
