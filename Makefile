@@ -1,0 +1,58 @@
+# Executables
+DOCKER      := docker
+DOCKER_COMP := docker compose
+PHP         := php
+
+# OS Detection
+ifeq ($(OS),Windows_NT)
+    PLATFORM := windows
+else
+    UNAME := $(shell uname -s)
+    ifeq ($(UNAME),Darwin)
+        PLATFORM := mac
+    else
+        PLATFORM := linux
+    endif
+endif
+
+.DEFAULT_GOAL := help
+.PHONY: help up down build logs sh test lint tls tls-linux tls-mac tls-windows
+
+help: ## Show this help
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-12s\033[0m %s\n", $$1, $$2}'
+
+## —— Stack ——
+up: ## Build and start the stack (then open https://localhost)
+	@$(DOCKER_COMP) up -d --build
+
+down: ## Stop the stack
+	@$(DOCKER_COMP) down
+
+logs: ## Tail the app container logs
+	@$(DOCKER_COMP) logs -f app
+
+sh: ## Open a shell in the app container
+	@$(DOCKER_COMP) exec app sh
+
+## —— Quality ——
+test: ## Run the PHPUnit suite (local PHP)
+	@$(PHP) vendor/bin/phpunit
+
+lint: ## Run the twig/yaml/container lints (local PHP)
+	@$(PHP) bin/console lint:twig templates
+	@$(PHP) bin/console lint:yaml config translations
+	@$(PHP) bin/console lint:container
+
+## —— TLS ——
+tls: tls-$(PLATFORM) ## Trust Caddy's local CA so https://localhost shows no warning
+
+tls-linux: ## Trust Caddy TLS Authority for Linux
+	@$(DOCKER_COMP) cp app:/data/caddy/pki/authorities/local/root.crt /tmp/strichliste-root.crt
+	@sudo cp /tmp/strichliste-root.crt /usr/local/share/ca-certificates/strichliste-root.crt && sudo update-ca-certificates
+
+tls-mac: ## Trust Caddy TLS Authority for Mac
+	@$(DOCKER_COMP) cp app:/data/caddy/pki/authorities/local/root.crt /tmp/strichliste-root.crt
+	@sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain /tmp/strichliste-root.crt
+
+tls-windows: ## Trust Caddy TLS Authority for Windows
+	@$(DOCKER_COMP) cp app:/data/caddy/pki/authorities/local/root.crt %TEMP%/root.crt && certutil -addstore -f "ROOT" %TEMP%/root.crt

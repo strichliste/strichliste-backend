@@ -33,16 +33,16 @@ Open **`https://localhost`**. Caddy serves TLS out of the box using its
 local CA, so browsers (which try HTTPS first these days) connect
 directly; plain `http://localhost` is redirected. On the first visit
 your browser shows a certificate warning — accept it once, or trust the
-CA root permanently:
+CA root permanently (works on Linux, macOS and Windows):
 
 ```
-docker compose cp app:/data/caddy/pki/authorities/local/root.crt .
-# then import root.crt into your OS/browser trust store
+make tls
 ```
 
-The CA lives in the `caddy_data` volume, so the exception survives
+The CA lives in the `caddy_data` volume, so the trust survives
 container rebuilds. The entrypoint waits for the database and applies
-migrations automatically before serving traffic.
+migrations automatically before serving traffic. `make help` lists the
+other shortcuts (`make up`, `make logs`, `make test`, ...).
 
 If host ports 80/443 are already taken, remap them in `compose.yaml`
 (e.g. `"8443:443"`) and open `https://localhost:8443` directly.
