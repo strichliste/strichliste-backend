@@ -277,13 +277,6 @@ body { padding-top: 4rem; }
   margin-right: 0;
 }
 
-.tabs a svg {
-  fill: var(--buttonDefaultFont);
-  margin-right: 0.5rem;
-  max-width: 1rem;
-  max-height: 1rem;
-}
-
 .tabs a[aria-current="page"] {
   color: var(--primary);
   background: var(--componentBackgroundLight);
@@ -438,12 +431,6 @@ body { padding-top: 4rem; }
   background: var(--mainBackground);
 }
 
-.pagination__link[aria-current="page"] {
-  background: var(--buttonHighlightBackground);
-  color: var(--buttonHighlightFont);
-  border-color: transparent;
-}
-
 .pagination__status {
   font-size: 0.85rem;
   color: var(--textSubtile);
@@ -453,7 +440,6 @@ body { padding-top: 4rem; }
    Geometry + elevation shared by the floating "+" FAB, the red cancel circle,
    the dark accept-check circle, and the split-invoice participant remove button.
    Each variant rule sets only its background/foreground (and glyph sizing). */
-.circle-btn,
 .fab,
 .form-cancel-circle,
 .accept-circle,
@@ -522,6 +508,9 @@ body { padding-top: 4rem; }
   .list-toolbar { margin-left: 8rem; }
   .user-grid { margin-left: 8rem; }
   .article-rows { margin-left: 8rem; }
+  /* Shares the shifted rail — otherwise wrapping tag chips slide under the
+     absolutely-positioned FAB, which click-blocks them. */
+  .tag-filter { margin-left: 8rem; }
 }
 
 /* ---------- footer (SPA: small grey line, MIT credit + Code link) ---------- */
@@ -670,7 +659,8 @@ body { padding-top: 4rem; }
   height: 1rem;
 }
 
-.form-card .form-help {
+/* Emitted inside .form-card, .step-card and the PayPal tab alike. */
+.form-help {
   font-size: 0.8rem;
   color: var(--textSubtile);
 }
