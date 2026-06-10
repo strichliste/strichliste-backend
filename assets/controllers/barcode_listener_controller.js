@@ -33,6 +33,7 @@ export default class extends Controller {
   connect() {
     this.buffer = '';
     this.lastKeyAt = 0;
+    this.submitted = false;
     this.handler = (e) => this.onKey(e);
     document.addEventListener('keydown', this.handler, { capture: true });
   }
@@ -56,25 +57,27 @@ export default class extends Controller {
     const gap = now - this.lastKeyAt;
     this.lastKeyAt = now;
 
+    // If too much time passed since the previous key, the buffer is human
+    // typing (or leftovers), not a scanner burst — drop it. This applies to
+    // the terminating Enter too: a scanner sends Enter within the same tight
+    // window, so an Enter arriving late must not commit a stale buffer.
+    if (gap > this.gapValue) {
+      this.buffer = '';
+    }
+
     if (e.key === 'Enter') {
-      // Only commit if the buffer looks like a scanner burst:
-      //   - long enough to be a real barcode (>= minLength)
-      //   - delivered in a tight time window (avg gap small).
-      // A user pressing a single Enter on its own will have gap > 200ms and
-      // empty buffer, so this is a no-op.
+      // Only commit if the buffer looks like a scanner burst: long enough to
+      // be a real barcode AND delivered in a tight window (checked above).
       const code = this.buffer;
       this.buffer = '';
-      if (code.length >= this.minLengthValue) {
+      if (code.length >= this.minLengthValue && !this.submitted) {
+        // Re-entrancy guard: a double-trigger scan (two bursts before the
+        // page reloads) must buy exactly once.
+        this.submitted = true;
         this.submit(code);
         e.preventDefault();
       }
       return;
-    }
-
-    // If too much time passed since the previous key, treat this as the start
-    // of a new burst (probably human typing rather than scanning).
-    if (gap > this.gapValue) {
-      this.buffer = '';
     }
 
     // Only printable single-character keys join the buffer.
