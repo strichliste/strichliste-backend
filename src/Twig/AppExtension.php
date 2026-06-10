@@ -6,7 +6,6 @@ use App\Service\SettingsService;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
-use Twig\TwigTest;
 
 class AppExtension extends AbstractExtension {
 
@@ -17,12 +16,6 @@ class AppExtension extends AbstractExtension {
         return [
             new TwigFilter('currency_format', [$this, 'currencyFormat']),
             new TwigFilter('balance_class', [$this, 'balanceClass']),
-        ];
-    }
-
-    public function getTests(): array {
-        return [
-            new TwigTest('list_array', static fn($v) => is_array($v) && array_is_list($v)),
         ];
     }
 
