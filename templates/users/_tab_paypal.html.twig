@@ -4,7 +4,8 @@
 
 <div class="card tab-panel__card">
     <div class="tab-panel__header">
-        <h3 class="tab-panel__heading">{{ 'paypal.tab.title'|trans }}</h3>
+        {# h2: the page's h1 is the user-hero name; don't skip a level. #}
+        <h2 class="tab-panel__heading">{{ 'paypal.tab.title'|trans }}</h2>
         <a class="tab-panel__close" href="{{ path('users_detail', {id: user.id}) }}" aria-label="{{ 'common.close'|trans }}"><span aria-hidden="true">×</span></a>
     </div>
 

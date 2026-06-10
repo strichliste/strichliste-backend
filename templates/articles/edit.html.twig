@@ -28,7 +28,7 @@
             </div>
 
             <section class="card article-form barcode-section">
-                <h3 class="article-form__subhead">{{ 'articles.barcodes.heading'|trans|upper }}</h3>
+                <h3 class="article-form__subhead">{{ 'articles.barcodes.heading'|trans }}</h3>
                 <ul class="chip-list">
                     {% for barcode in article.barcodes %}
                         <li class="chip">
@@ -57,7 +57,7 @@
 
         <div>
             <section class="card article-form tag-section">
-                <h3 class="article-form__subhead">{{ 'articles.tags.heading'|trans|upper }}</h3>
+                <h3 class="article-form__subhead">{{ 'articles.tags.heading'|trans }}</h3>
                 <ul class="chip-list">
                     {% for tag in article.tags %}
                         <li class="chip">
