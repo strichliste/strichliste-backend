@@ -3,6 +3,9 @@ name: Tests
 on:
   push:
   pull_request:
+  schedule:
+    # Weekly run so new security advisories surface without waiting for a push.
+    - cron: "17 6 * * 1"
 
 jobs:
   lint:
@@ -29,6 +32,9 @@ jobs:
       - run: composer validate --strict --no-check-publish
 
       - run: composer install --no-interaction --prefer-dist
+
+      # Fails the build on known vulnerabilities in locked dependencies.
+      - run: composer audit
 
       - run: php bin/console lint:twig templates
       - run: php bin/console lint:yaml config translations
