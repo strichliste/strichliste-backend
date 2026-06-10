@@ -58,13 +58,13 @@ class SearchController extends AbstractController {
 
         $count = (int) $repo->createQueryBuilder('u')
             ->select('COUNT(u.id)')
-            ->where('u.name LIKE :q')
+            ->where("u.name LIKE :q ESCAPE '!'")
             ->andWhere('u.disabled = false')
             ->setParameter('q', $like)
             ->getQuery()->getSingleScalarResult();
 
         $results = $repo->createQueryBuilder('u')
-            ->where('u.name LIKE :q')
+            ->where("u.name LIKE :q ESCAPE '!'")
             ->andWhere('u.disabled = false')
             ->setParameter('q', $like)
             ->orderBy('u.name')
@@ -82,13 +82,13 @@ class SearchController extends AbstractController {
 
         $count = (int) $repo->createQueryBuilder('a')
             ->select('COUNT(a.id)')
-            ->where('a.name LIKE :q')
+            ->where("a.name LIKE :q ESCAPE '!'")
             ->andWhere('a.active = true')
             ->setParameter('q', $like)
             ->getQuery()->getSingleScalarResult();
 
         $results = $repo->createQueryBuilder('a')
-            ->where('a.name LIKE :q')
+            ->where("a.name LIKE :q ESCAPE '!'")
             ->andWhere('a.active = true')
             ->setParameter('q', $like)
             ->orderBy('a.name')
@@ -100,6 +100,9 @@ class SearchController extends AbstractController {
     }
 
     private function escapeLike(string $q): string {
-        return addcslashes($q, '%_\\');
+        // Explicit ESCAPE '!' in the DQL: backslash-as-escape is a
+        // Postgres/MySQL convention — SQLite has NO default escape character,
+        // so an escaped pattern silently mismatches there.
+        return str_replace(['!', '%', '_'], ['!!', '!%', '!_'], $q);
     }
 }
