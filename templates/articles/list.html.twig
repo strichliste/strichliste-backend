@@ -5,7 +5,11 @@
 {% block main %}
     <h1 class="visually-hidden">{{ (active ? 'articles.list.title.active' : 'articles.list.title.inactive')|trans }}</h1>
 
-    <a class="fab fab--floating" href="{{ path('articles_create') }}" aria-label="{{ 'articles.list.add_cta'|trans }}">+</a>
+    {# Creating belongs on the active list: the inactive list holds archived
+       articles and old price revisions, which can't be added by hand. #}
+    {% if active %}
+        <a class="fab fab--floating" href="{{ path('articles_create') }}" aria-label="{{ 'articles.list.add_cta'|trans }}">+</a>
+    {% endif %}
     <div class="list-toolbar">
         <nav class="tabs" aria-label="{{ 'articles.list.filter_aria'|trans }}">
             <a href="{{ path('articles_active') }}" {% if active %}aria-current="page"{% endif %}>{{ 'articles.list.title.active'|trans }}</a>
@@ -27,9 +31,13 @@
     {% endif %}
 
     {% if articles is empty %}
-        <twig:EmptyState title="{{ 'articles.list.empty'|trans }}">
-            <a class="fab" href="{{ path('articles_create') }}" aria-label="{{ 'articles.list.add_cta'|trans }}">+</a>
-        </twig:EmptyState>
+        {% if active %}
+            <twig:EmptyState title="{{ 'articles.list.empty'|trans }}">
+                <a class="fab" href="{{ path('articles_create') }}" aria-label="{{ 'articles.list.add_cta'|trans }}">+</a>
+            </twig:EmptyState>
+        {% else %}
+            <twig:EmptyState>{{ 'articles.list.empty_inactive'|trans }}</twig:EmptyState>
+        {% endif %}
     {% else %}
         <ul class="article-rows">
             {% for article in articles %}
