@@ -60,11 +60,10 @@ class MetricsService {
         $dateBegin = $begin->format('Y-m-d 00:00:00');
         $end = new \DateTime('tomorrow');
 
-        $emptyRow = $shape === 'api'
-            ? ['transactions' => 0, 'distinctUsers' => 0, 'balance' => 0,
-               'charged' => ['amount' => 0, 'transactions' => 0],
-               'spent' => ['amount' => 0, 'transactions' => 0]]
-            : ['transactions' => 0, 'distinctUsers' => 0, 'balance' => 0, 'charged' => 0, 'spent' => 0];
+        // Legacy API contract: days WITHOUT transactions carry scalar 0 for
+        // charged/spent; only days WITH transactions get the nested
+        // {amount, transactions} objects. The UI shape is scalar either way.
+        $emptyRow = ['transactions' => 0, 'distinctUsers' => 0, 'balance' => 0, 'charged' => 0, 'spent' => 0];
 
         $entries = [];
         $period = new \DatePeriod($begin, \DateInterval::createFromDateString('1 day'), $end);
@@ -114,22 +113,26 @@ class MetricsService {
     /**
      * Per-user article purchase breakdown, ordered by count desc.
      * Each row: {article: Article, count: int, amount: int (cents, positive)}
+     *
+     * @param bool $includeDeleted true preserves the legacy /api/user/{id}/metrics
+     *        numbers, which counted reverted purchases. The UI passes false so
+     *        undone buys don't inflate the ranking.
      */
-    public function userArticles(User $user, int $limit = 10): array {
-        return $this->em->createQueryBuilder()
+    public function userArticles(User $user, int $limit = 10, bool $includeDeleted = false): array {
+        $qb = $this->em->createQueryBuilder()
             ->select('COUNT(a.id) as cnt, SUM(t.amount) * -1 as amt, a as article')
             ->from(Transaction::class, 't')
             ->innerJoin(Article::class, 'a', Join::WITH, 'a = t.article')
             ->where('t.user = :user')
             ->andWhere('t.article IS NOT NULL')
-            // Exclude reverted (soft-deleted) purchases, matching every other
-            // per-user aggregate, so undone buys don't inflate the ranking.
-            ->andWhere('t.deleted = false')
             ->setParameter('user', $user)
             ->groupBy('a')
             ->orderBy('cnt', 'DESC')
-            ->setMaxResults($limit)
-            ->getQuery()->getResult();
+            ->setMaxResults($limit);
+        if (!$includeDeleted) {
+            $qb->andWhere('t.deleted = false');
+        }
+        return $qb->getQuery()->getResult();
     }
 
     public function userTransactionCount(User $user): int {

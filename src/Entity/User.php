@@ -22,7 +22,10 @@ class User {
      * for the API/UI paths that handle name input outside of form validation.
      */
     public static function sanitizeName(string $name): string {
-        return preg_replace('/[\x00-\x1F\x7F]/u', '', trim($name));
+        // preg_replace with /u returns null for invalid UTF-8 — coalesce to ''
+        // so callers' `!$name` checks produce a clean 400 instead of a
+        // TypeError 500.
+        return preg_replace('/[\x00-\x1F\x7F]/u', '', trim($name)) ?? '';
     }
 
     #[ORM\Id]

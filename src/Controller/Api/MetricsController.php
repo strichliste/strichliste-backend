@@ -20,7 +20,9 @@ class MetricsController extends AbstractController {
 
     #[Route('/api/metrics', methods: ['GET'])]
     function metrics(Request $request, ArticleRepository $articleRepository, ArticleSerializer $articleSerializer) {
-        $days = (int) $request->query->get('days', 30);
+        // Clamp: a huge value allocates one array row per day before any query
+        // (memory exhaustion), a negative one makes DateTime throw a 500.
+        $days = max(1, min(3650, (int) $request->query->get('days', 30)));
         $articles = $articleRepository->findBy(['active' => true], ['usageCount' => 'DESC']);
 
         return $this->json([
@@ -43,7 +45,7 @@ class MetricsController extends AbstractController {
             throw new UserNotFoundException($userId);
         }
 
-        $articles = $this->metrics->userArticles($user, PHP_INT_MAX); // API returns all, not just top 10
+        $articles = $this->metrics->userArticles($user, PHP_INT_MAX, includeDeleted: true); // legacy API: all rows, reverted purchases included
         $outgoing = $this->metrics->userOutgoing($user);
         $incoming = $this->metrics->userIncoming($user);
 

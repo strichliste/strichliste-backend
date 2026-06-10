@@ -21,9 +21,10 @@ class TransactionRepository extends ServiceEntityRepository {
 
     function findAllPaginated($limit = null, $offset = null) {
         return $this->createQueryBuilder('t')
-            // Stable sort so paging can't skip or duplicate rows across requests
-            // (matches the id DESC ordering used by findByUser).
-            ->orderBy('t.id', 'DESC')
+            // Stable sort so paging can't skip or duplicate rows across
+            // requests. ASC pins the order legacy /api/transaction clients
+            // observed (no ORDER BY, but engines returned PK ascending).
+            ->orderBy('t.id', 'ASC')
             ->setFirstResult($offset)
             ->setMaxResults($limit)
             ->getQuery()
