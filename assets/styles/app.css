@@ -163,6 +163,34 @@ body { padding-top: 4rem; }
   fill: currentColor;
 }
 
+/* Below ~580px the header's min-content width (brand + nav + 9rem search)
+   exceeds the viewport; a fixed box can't be scrolled into view, so the
+   search (and Metrics link) became unreachable. Let it flow and wrap. */
+@media (max-width: 36em) {
+  .app-header {
+    position: static;
+    height: auto;
+    flex-wrap: wrap;
+    padding: 0.5rem 1rem;
+    row-gap: 0.25rem;
+  }
+  .app-header__nav {
+    flex-wrap: wrap;
+    row-gap: 0;
+  }
+  .app-header__search {
+    flex: 1 1 100%;
+  }
+  .app-header__search input {
+    width: auto;
+    flex: 1;
+    min-width: 0;
+  }
+  body {
+    padding-top: 0;
+  }
+}
+
 /* ---------- flash messages ---------- */
 .flashes {
   margin: 0 auto 1rem;
