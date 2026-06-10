@@ -9,6 +9,7 @@ use App\Repository\UserRepository;
 use App\Service\MoneyParser;
 use App\Service\SettingsService;
 use App\Service\TransactionService;
+use App\Twig\AppExtension;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -38,6 +39,7 @@ class PayPalController extends AbstractController {
         private TranslatorInterface $translator,
         private UriSigner $uriSigner,
         private MoneyParser $moneyParser,
+        private AppExtension $appExtension,
     ) {
     }
 
@@ -176,7 +178,7 @@ class PayPalController extends AbstractController {
             unset($pending[$nonce]);
             $session->set(self::PENDING_SESSION_KEY, $pending);
             $this->addFlash('success', $this->translator->trans('paypal.return.success', [
-                '%amount%' => $amount,
+                '%amount%' => $this->appExtension->currencyFormat($amount, null, false),
             ]));
             $this->addFlash('transaction_success', '1');
         } catch (TransactionBoundaryException | AccountBalanceBoundaryException | TransactionInvalidException $e) {

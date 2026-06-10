@@ -4,6 +4,7 @@ namespace App\Controller\Ui;
 
 use App\Entity\User;
 use App\Repository\UserRepository;
+use App\Twig\AppExtension;
 use App\Service\MoneyParser;
 use App\Service\SettingsService;
 use App\Service\TransactionService;
@@ -24,6 +25,7 @@ class SplitInvoiceController extends AbstractController {
         private TransactionService $transactionService,
         private TranslatorInterface $translator,
         private MoneyParser $moneyParser,
+        private AppExtension $appExtension,
     ) {
     }
 
@@ -110,7 +112,7 @@ class SplitInvoiceController extends AbstractController {
                 $this->transactionService->doSplit(array_values($cleanParticipants), $recipient, $perRowAmounts, $comment);
                 $this->addFlash('success', $this->translator->trans('split_invoice.flash.success', [
                     '%count%' => count($cleanParticipants),
-                    '%amount%' => $amountCents,
+                    '%total%' => $this->appExtension->currencyFormat($amountCents, null, false),
                 ]));
                 $this->addFlash('transaction_success', '1');
                 return $this->redirectToRoute('users_detail', ['id' => $recipient->getId()], Response::HTTP_SEE_OTHER);

@@ -190,11 +190,11 @@ paypal:
         title: PayPal
         intro: Top up via PayPal. You will be redirected to PayPal to complete payment.
         amount_label: Amount
-        fee_preview: 'A %fee%%% PayPal fee will be added before payment.'
+        fee_preview: 'A %fee%% PayPal fee will be added before payment.'
         submit: Continue to PayPal
         mode: 'PayPal mode: %mode%'
     return:
-        success: Deposit confirmed.
+        success: 'Deposit of %amount% confirmed.'
         error_title: Deposit failed
         error_body: We could not record the deposit. Please contact an operator.
     cancel:
@@ -231,7 +231,7 @@ split_invoice:
         remove: Remove participant
     submit: Submit
     flash:
-        success: 'Created %count% transfers of %amount% each.'
+        success: 'Split %total% with one participant.|Split %total% with %count% participants.'
         rolled_back: No transfers created. Fix the highlighted rows and submit again.
     errors:
         recipient_missing: Pick a valid recipient.
