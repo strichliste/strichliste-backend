@@ -14,7 +14,7 @@
         {{ importmap('app') }}
     {% endblock %}
 </head>
-<body {% block body_attributes %}data-controller="idle" data-idle-timeout-value="{{ setting('common.idleTimeout', 0) }}"{% endblock %}>
+<body {% block body_attributes %}data-controller="idle" data-idle-timeout-value="{{ setting('common.idleTimeout', 0) }}" data-idle-warning-value="{{ 'app.idle_warning'|trans }}"{% endblock %}>
     {# Persistent ARIA live regions, preserved across Turbo visits via
        data-turbo-permanent. The `flash` controller copies messages here after
        the DOM is in place, so screen readers announce them even when Turbo
@@ -34,13 +34,6 @@
     {% block flashes %}
         {% include '_partials/flash_messages.html.twig' %}
     {% endblock %}
-
-    {# Idle-timeout warning: revealed by the idle controller before it
-       redirects, and mirrored into the assertive live region (WCAG 2.2.1 —
-       warn and give time to extend; any activity cancels). #}
-    <div class="flashes" hidden data-idle-target="warning">
-        <div class="flash flash--info">{{ 'app.idle_warning'|trans }}</div>
-    </div>
 
     {% if app.flashes('transaction_success') is not empty %}
         <div hidden aria-hidden="true"
