@@ -1084,7 +1084,7 @@ details.custom-form[open] summary { color: var(--text); }
   border-radius: var(--borderRadius);
   color: var(--buttonDefaultFont);
   font-family: inherit;
-  font-size: 0.8rem;
+  font-size: 0.889rem; /* >= 16px: avoid iOS zoom-on-focus */
   text-transform: uppercase;
   text-align: center;
   text-align-last: center;
@@ -1102,7 +1102,7 @@ details.custom-form[open] summary { color: var(--text); }
   border: 1px solid var(--border);
   border-radius: var(--borderRadius);
   color: var(--text);
-  font-size: 0.85rem;
+  font-size: 0.889rem; /* >= 16px: avoid iOS zoom-on-focus */
 }
 .send-form__notes::placeholder { color: var(--textSubtile); }
 
@@ -1456,7 +1456,7 @@ details.custom-form[open] summary { color: var(--text); }
   border: 1px solid transparent;
   border-radius: var(--borderRadius);
   color: var(--text);
-  font-size: 0.8rem;
+  font-size: 0.889rem; /* >= 16px: avoid iOS zoom-on-focus */
   font-family: inherit;
 }
 .split-invoice-input::placeholder { color: var(--textSubtile); }
@@ -1471,7 +1471,7 @@ details.custom-form[open] summary { color: var(--text); }
   border-radius: var(--borderRadius);
   padding: 0.5rem;
   font-family: inherit;
-  font-size: 0.8rem;
+  font-size: 0.889rem; /* >= 16px: avoid iOS zoom-on-focus */
   letter-spacing: 0;
   text-transform: uppercase;
   text-align: center;

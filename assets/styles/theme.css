@@ -256,6 +256,12 @@ button, input, label, select, textarea {
   font-size: 0.8rem;
   font-family: 'Inter', sans-serif;
 }
+/* iOS Safari zooms the page (and stays zoomed — kiosk-breaking) when a
+   focused text control computes under 16px. 0.889rem = 16px at the 18px
+   root. Buttons and labels don't trigger the zoom and keep 0.8rem. */
+input, select, textarea {
+  font-size: 0.889rem;
+}
 select[multiple], textarea {
   vertical-align: top;
 }
