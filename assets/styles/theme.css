@@ -142,41 +142,39 @@ html {
     0 1px 5px 0 rgba(0, 0, 0, 0.12);
   --level3: 0 3px 4px 0 rgba(0, 0, 0, 0.14), 0 3px 3px -2px rgba(0, 0, 0, 0.2),
     0 1px 8px 0 rgba(0, 0, 0, 0.12);
+  /* Same on both themes: its background is a mid red in both. */
+  --buttonCancelFont: #ffedf0;
   font-family: 'Inter', sans-serif;
 }
 
-/* The cancel-button font is the same on both themes (its background is a mid
-   red in both). The green/red accents are theme-specific (see above / below). */
-html,
-html[data-theme='dark'] {
-  --buttonCancelFont: #ffedf0;
-}
-
-html[data-theme='dark'] {
-  --border: #59687c;
-  --componentBackgroundDark: #1d2832;
-  --componentBackgroundLight: #2e3d4d;
-  --greenLight: #2b584a;
-  --mainBackground: #25333f;
-  --primary: #fdfdfd;
-  /* Dark desaturated red so error/disabled banners read as red (not purple)
-     behind --redText. */
-  --redLight: #4a2730;
-  --text: #fdfdfd;
-  /* WCAG AA on the dark surfaces (#1d2832 / #2e3d4d / #25333f). */
-  --textSubtile: #9aa7b5;
-  --greenText: #46d96a;
-  --redText: #ff7d90;
-  --headerBackground: #1d2832;
-  --buttonCancelBackground: #f54963;
-  --buttonHighlightFont: #353535;
-  --buttonHighlightBackground: #f2f3f2;
-  --buttonGreenBackground: #155949;
-  --buttonRedBackground: #544052;
-  --buttonGreenFont: #9be7ad;
-  --buttonRedFont: #ffb3c0;
-  --buttonDefaultBackground: #2a3e4f;
-  --buttonDefaultFont: #eaebed;
+/* Dark theme follows the OS preference — pure CSS, no JS involved. */
+@media (prefers-color-scheme: dark) {
+  html {
+    --border: #59687c;
+    --componentBackgroundDark: #1d2832;
+    --componentBackgroundLight: #2e3d4d;
+    --greenLight: #2b584a;
+    --mainBackground: #25333f;
+    --primary: #fdfdfd;
+    /* Dark desaturated red so error/disabled banners read as red (not purple)
+       behind --redText. */
+    --redLight: #4a2730;
+    --text: #fdfdfd;
+    /* WCAG AA on the dark surfaces (#1d2832 / #2e3d4d / #25333f). */
+    --textSubtile: #9aa7b5;
+    --greenText: #46d96a;
+    --redText: #ff7d90;
+    --headerBackground: #1d2832;
+    --buttonCancelBackground: #f54963;
+    --buttonHighlightFont: #353535;
+    --buttonHighlightBackground: #f2f3f2;
+    --buttonGreenBackground: #155949;
+    --buttonRedBackground: #544052;
+    --buttonGreenFont: #9be7ad;
+    --buttonRedFont: #ffb3c0;
+    --buttonDefaultBackground: #2a3e4f;
+    --buttonDefaultFont: #eaebed;
+  }
 }
 
 /* reset */

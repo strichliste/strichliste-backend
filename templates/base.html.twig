@@ -4,22 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {% block meta %}
-        <meta name="theme-color" content="#28333d">
+        {# Matches --headerBackground per theme (see theme.css). #}
+        <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+        <meta name="theme-color" content="#1d2832" media="(prefers-color-scheme: dark)">
     {% endblock %}
     <title>{% block title %}Strichliste{% endblock %}</title>
-    <script>
-        (function () {
-            try {
-                var dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-                document.documentElement.dataset.theme = dark ? 'dark' : 'light';
-            } catch (e) {}
-        })();
-    </script>
     {% block stylesheets %}
         {{ importmap('app') }}
     {% endblock %}
 </head>
-<body {% block body_attributes %}data-controller="theme idle" data-idle-timeout-value="{{ setting('common.idleTimeout', 0) }}"{% endblock %}>
+<body {% block body_attributes %}data-controller="idle" data-idle-timeout-value="{{ setting('common.idleTimeout', 0) }}"{% endblock %}>
     {# Persistent ARIA live regions, preserved across Turbo visits via
        data-turbo-permanent. The `flash` controller copies messages here after
        the DOM is in place, so screen readers announce them even when Turbo
