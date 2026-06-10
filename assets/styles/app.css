@@ -563,6 +563,11 @@ body { padding-top: 4rem; }
   max-width: 30rem;
   margin: 0 auto 1.5rem;
 }
+/* The create/edit dialogs: give the card more breathing room than the
+   generic 1rem card padding. */
+.card.article-form {
+  padding: 1.25rem 1.5rem 1.5rem;
+}
 .article-form__name {
   font-size: 1rem;
   font-weight: 400;
@@ -612,7 +617,7 @@ body { padding-top: 4rem; }
   letter-spacing: 0.04em;
   color: var(--textSubtile);
   display: block;
-  margin: 0.75rem 0 0.25rem;
+  margin: 1.25rem 0 0.5rem;
 }
 .article-form input[type="text"],
 .article-form input[type="number"] {
@@ -640,8 +645,8 @@ body { padding-top: 4rem; }
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: var(--textSubtile);
-  margin-bottom: 0.25rem;
-  margin-top: 0.75rem;
+  margin-bottom: 0.5rem;
+  margin-top: 1.25rem;
 }
 
 .form-card input[type="text"],
@@ -676,7 +681,7 @@ body { padding-top: 4rem; }
 }
 
 .form-actions {
-  margin-top: 1rem;
+  margin-top: 1.5rem;
   display: flex;
   gap: 0.5rem;
   justify-content: flex-end;
@@ -728,7 +733,7 @@ body { padding-top: 4rem; }
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  margin-top: 1rem;
+  margin-top: 1.25rem;
 }
 .edit-form__checkbox-row label {
   margin: 0;
