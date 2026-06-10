@@ -100,20 +100,22 @@ class TransactionWriteController extends AbstractController {
         $form = $this->createForm(TransferTransactionType::class, null, ['exclude_user' => $user]);
         $form->handleRequest($request);
 
+        // Error redirects reopen the SEND tab — bouncing to the bare detail
+        // page made the form (and the user's context) vanish behind a flash.
         if (!$form->isSubmitted() || !$form->isValid()) {
             $this->addFlash('error', $this->translator->trans('transactions.errors.invalid'));
-            return $this->redirectToRoute('users_detail', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('users_detail', ['id' => $user->getId(), 'tab' => 'send'], Response::HTTP_SEE_OTHER);
         }
 
         $data = $form->getData();
         $recipient = $data['recipient'];
         if ($recipient->getId() === $user->getId()) {
             $this->addFlash('error', $this->translator->trans('transactions.errors.self_transfer'));
-            return $this->redirectToRoute('users_detail', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('users_detail', ['id' => $user->getId(), 'tab' => 'send'], Response::HTTP_SEE_OTHER);
         }
         if ($recipient->isDisabled()) {
             $this->addFlash('error', $this->translator->trans('transactions.errors.recipient_disabled'));
-            return $this->redirectToRoute('users_detail', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('users_detail', ['id' => $user->getId(), 'tab' => 'send'], Response::HTTP_SEE_OTHER);
         }
 
         // amount is major units; transfer always debits the current user.
@@ -127,6 +129,7 @@ class TransactionWriteController extends AbstractController {
                 '%recipient%' => $recipient->getName(),
             ]));
             $this->addFlash('transaction_success', '1');
+            return $this->redirectToRoute('users_detail', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
         } catch (TransactionBoundaryException | AccountBalanceBoundaryException | TransactionInvalidException $e) {
             $this->addFlash('error', $this->translator->trans('transactions.errors.boundary'));
         } catch (UserNotFoundException $e) {
@@ -136,7 +139,7 @@ class TransactionWriteController extends AbstractController {
             $this->addFlash('error', $this->translator->trans('transactions.errors.generic'));
         }
 
-        return $this->redirectToRoute('users_detail', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
+        return $this->redirectToRoute('users_detail', ['id' => $user->getId(), 'tab' => 'send'], Response::HTTP_SEE_OTHER);
     }
 
     #[Route('/user/{id}/transactions/{txId}/undo', name: 'transactions_undo', methods: ['POST'], requirements: ['id' => '\d+', 'txId' => '\d+'])]
