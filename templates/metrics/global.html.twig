@@ -47,7 +47,7 @@
        island by escaping `<`, `>`, `&`, `'` as `\uXXXX`. #}
     <script id="metrics-days-json" type="application/json">{{ days|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }}</script>
 
-    <details class="metrics-table-details">
+    <details class="metrics-table-details" data-controller="disclosure">
         <summary>{{ 'metrics.global.table.show_table'|trans }}</summary>
     <table class="metrics-table">
         <thead>

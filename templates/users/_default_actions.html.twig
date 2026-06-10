@@ -24,7 +24,7 @@
     {% endif %}
 
     {% if send.deposit_custom or send.dispense_custom %}
-        <details class="custom-form">
+        <details class="custom-form" data-controller="disclosure">
             <summary>{{ 'transactions.custom_amount'|trans }}</summary>
             {# One composer for both directions: [Deposit] [amount] [Dispense],
                comment below. The clicked submit button posts the direction. #}
