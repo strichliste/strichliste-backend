@@ -1,4 +1,4 @@
-{% props tx, currency = null, deletable = false, ownerUserId = null %}
+{% props tx, currency = null, deletable = false, ownerUserId = null, returnTo = null %}
 {%- set classes = ['transaction-row'] -%}
 {%- if tx.deleted %}{% set classes = classes|merge(['transaction-row--deleted']) %}{% endif -%}
 <li class="{{ classes|join(' ') }}">
@@ -16,9 +16,9 @@
         {% if tx.comment %}<span class="transaction-row__comment">: {{ tx.comment }}</span>{% endif %}
     </span>
     {% if deletable and ownerUserId %}
-        <form method="post" action="{{ path('transactions_undo', {id: ownerUserId, txId: tx.id}) }}" class="undo-form">
+        <form method="post" action="{{ path('transactions_undo', {id: ownerUserId, txId: tx.id}) }}" class="undo-form" data-controller="disable-on-submit">
             <input type="hidden" name="_token" value="{{ csrf_token('undo' ~ ownerUserId ~ '_' ~ tx.id) }}">
-            <input type="hidden" name="return" value="history">
+            {% if returnTo %}<input type="hidden" name="return" value="{{ returnTo }}">{% endif %}
             <button type="submit" class="btn btn--cancel undo-btn" aria-label="{{ 'transactions.undo.button_aria'|trans({'%when%': tx.created|date('Y-m-d H:i:s')}) }}">↺</button>
         </form>
     {% else %}
