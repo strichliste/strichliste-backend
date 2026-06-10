@@ -64,7 +64,9 @@ export default class extends Controller {
       const btn = row.querySelector('.participants__remove');
       if (btn) {
         btn.hidden = !showRemove;
-        if (this.hasRemoveLabelValue) btn.setAttribute('aria-label', this.removeLabelValue);
+        // Number the name ("Remove participant 2") — identical accessible
+        // names on repeated controls are indistinguishable in a SR rotor.
+        if (this.hasRemoveLabelValue) btn.setAttribute('aria-label', `${this.removeLabelValue} ${i + 1}`);
       }
       const select = row.querySelector('.split-invoice-pick');
       if (select && this.hasRowLabelValue) {
