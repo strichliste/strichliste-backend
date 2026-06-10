@@ -8,6 +8,7 @@
         <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
         <meta name="theme-color" content="#1d2832" media="(prefers-color-scheme: dark)">
     {% endblock %}
+    <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
     <title>{% block title %}Strichliste{% endblock %}</title>
     {% block stylesheets %}
         {{ importmap('app') }}
