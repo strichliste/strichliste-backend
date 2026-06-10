@@ -1,0 +1,13 @@
+# HTTP->HTTPS redirect that carries the real external HTTPS port.
+#
+# Caddy's implicit auto-HTTPS redirect always targets the bare host (implied
+# port 443), which is unreachable when the container's HTTPS port is remapped
+# (e.g. -p 8443:8443). Defining the http:// sites explicitly replaces the
+# implicit redirect with one that appends {$HTTPS_PORT}.
+#
+# Inert unless TLS_REDIRECT_HOSTS is set (compose sets it to
+# "http://localhost, http://127.0.0.1"): the .invalid default never matches a
+# real Host header, so plain `docker run` keeps serving HTTP untouched.
+{$TLS_REDIRECT_HOSTS:http://redirect-disabled.invalid} {
+	redir https://{host}:{$HTTPS_PORT:443}{uri} 308
+}

@@ -47,6 +47,8 @@ RUN composer dump-autoload --no-dev --classmap-authoritative \
     && php bin/console cache:warmup
 
 COPY --chmod=755 docker/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+# Port-aware HTTP->HTTPS redirect, enabled via TLS_REDIRECT_HOSTS (see file).
+COPY docker/redirect.caddyfile /etc/frankenphp/Caddyfile.d/redirect.caddyfile
 
 EXPOSE 80 443
 

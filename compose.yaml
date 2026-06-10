@@ -3,17 +3,35 @@ services:
     build: .
     ports:
       # Override host ports when 80/443 are taken: HTTP_PORT=8080 HTTPS_PORT=8443 docker compose up -d
+      # Caddy is told the HTTPS port (https_port below), so it listens on it
+      # directly and the HTTP->HTTPS redirect targets the port browsers can
+      # actually reach — which is why the container port follows the host port.
       - "${HTTP_PORT:-80}:80"
-      - "${HTTPS_PORT:-443}:443"
+      - "${HTTPS_PORT:-443}:${HTTPS_PORT:-443}"
       # HTTP/3
-      - "${HTTPS_PORT:-443}:443/udp"
+      - "${HTTPS_PORT:-443}:${HTTPS_PORT:-443}/udp"
     environment:
       DATABASE_URL: "postgresql://strichliste:strichliste@database:5432/strichliste?serverVersion=16&charset=utf8"
-      # Browsers default to HTTPS — Caddy serves https://localhost with a
-      # certificate from its local CA and redirects HTTP there. Options:
+      # Browsers default to HTTPS — Caddy serves both https://localhost and
+      # https://127.0.0.1 with a certificate from its local CA and redirects
+      # HTTP there. Options:
       #   SERVER_NAME: strichliste.example.com  -> automatic Let's Encrypt TLS
-      #   SERVER_NAME: ":80"                    -> plain HTTP only (LAN-IP kiosks)
-      SERVER_NAME: "${SERVER_NAME:-localhost}"
+      #   SERVER_NAME: ":80"                    -> plain HTTP only (LAN-IP
+      #     kiosks; also set CADDY_EXTRA_CONFIG to an empty string)
+      SERVER_NAME: "${SERVER_NAME:-localhost, 127.0.0.1}"
+      # https_port moves Caddy's TLS listener to the published port, and
+      # default_sni serves the 127.0.0.1 certificate to clients that connect
+      # by IP (IP literals carry no SNI; without this the handshake fails).
+      CADDY_GLOBAL_OPTIONS: |
+        https_port ${HTTPS_PORT:-443}
+        default_sni 127.0.0.1
+      # Activates docker/redirect.caddyfile: replaces Caddy's implicit
+      # HTTP->HTTPS redirect (which always targets port 443) with one that
+      # carries the real external HTTPS port. Plain-HTTP mode: set it to
+      # "http://redirect-disabled.invalid".
+      TLS_REDIRECT_HOSTS: "${TLS_REDIRECT_HOSTS:-http://localhost, http://127.0.0.1}"
+      # Read by the redirect snippet and the healthcheck.
+      HTTPS_PORT: "${HTTPS_PORT:-443}"
       # Override for a real deployment — the baked-in default is publicly known:
       # APP_SECRET: change-me
     # To customize app settings without rebuilding the image, mount your copy
@@ -27,16 +45,17 @@ services:
       - caddy_config:/config
     restart: unless-stopped
     healthcheck:
-      # Protocol-agnostic: tries HTTPS (self-signed local CA -> no peer
-      # verification) and falls back to plain HTTP for SERVER_NAME=":80".
+      # Protocol-agnostic: tries HTTPS on the configured port (self-signed
+      # local CA -> no peer verification) and falls back to plain HTTP for
+      # SERVER_NAME=":80". $$ keeps compose from interpolating the PHP vars.
       test:
         - CMD
         - php
         - -r
-        # $$ keeps docker compose from interpolating the PHP variable.
         - >-
           $$c = stream_context_create(['ssl' => ['verify_peer' => false, 'verify_peer_name' => false]]);
-          exit((@file_get_contents('https://localhost/user/active', false, $$c)
+          $$p = getenv('HTTPS_PORT') ?: '443';
+          exit((@file_get_contents("https://localhost:$$p/user/active", false, $$c)
             ?: @file_get_contents('http://localhost/user/active')) ? 0 : 1);
       interval: 30s
       timeout: 5s
