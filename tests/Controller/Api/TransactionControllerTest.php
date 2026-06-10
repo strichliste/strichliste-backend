@@ -74,4 +74,17 @@ class TransactionControllerTest extends AbstractApplicationTestCase
         $this->assertUserBalance($this->userId, 0);
         $this->assertUserBalance($recipientId, 0);
     }
+
+    public function testGlobalListKeepsLegacyOldestFirstOrder(): void
+    {
+        $first = $this->requestJson('POST', "/api/user/{$this->userId}/transaction", ['amount' => 100], 'transaction');
+        $second = $this->requestJson('POST', "/api/user/{$this->userId}/transaction", ['amount' => 200], 'transaction');
+
+        $data = $this->requestJson('GET', '/api/transaction', unpackKey: 'transactions');
+
+        // Legacy /api/transaction had no ORDER BY; engines returned primary-key
+        // ascending, so existing paginating clients observed oldest-first.
+        $ids = array_column($data, 'id');
+        $this->assertSame([$first['id'], $second['id']], array_slice($ids, -2));
+    }
 }
