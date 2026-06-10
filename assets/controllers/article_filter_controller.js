@@ -3,8 +3,8 @@ import { Controller } from '@hotwired/stimulus';
 /*
  * Filters the BUY ARTICLE pill list client-side as the operator types in the
  * search input. Each pill carries `data-article-name` (lowercased) so we match
- * against that. Without JS, all pills stay visible — the server-side barcode
- * submit path still works.
+ * against that. Without JS, the (useless) search input stays hidden and all
+ * pills stay visible — the server-side barcode submit path still works.
  *
  * The visible count is mirrored into a polite live region so screen-reader and
  * keyboard users get feedback as they type — including the "no matches" case,
@@ -13,6 +13,12 @@ import { Controller } from '@hotwired/stimulus';
 export default class extends Controller {
   static targets = ['input', 'item', 'status'];
   static values = { resultsLabel: String, noResultsLabel: String };
+
+  connect() {
+    // The search input is server-rendered `hidden` (it does nothing without
+    // JS); reveal it now that filtering works.
+    this.inputTarget.hidden = false;
+  }
 
   filter() {
     const q = (this.inputTarget.value || '').trim().toLowerCase();

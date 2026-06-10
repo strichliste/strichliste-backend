@@ -7,12 +7,15 @@
          data-article-filter-no-results-label-value="{{ 'user.buy.no_results_label'|trans }}">
     <div class="buy-tab__search">
         <label class="visually-hidden" for="buy-search">{{ 'user.buy.search_label'|trans }}</label>
+        {# The filter is a JS-only enhancement — server-rendered `hidden` and
+           revealed by the controller so a no-JS visitor never sees a dead input. #}
         <input type="text" id="buy-search"
                class="buy-tab__search-input"
                placeholder="{{ 'user.buy.search_placeholder'|trans }}"
                autocomplete="off"
                data-article-filter-target="input"
-               data-action="input->article-filter#filter">
+               data-action="input->article-filter#filter"
+               hidden>
         <twig:CancelCircle href="{{ path('users_detail', {id: user.id}) }}" label="{{ 'common.close'|trans }}" />
     </div>
 

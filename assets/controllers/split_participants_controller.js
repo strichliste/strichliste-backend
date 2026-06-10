@@ -16,10 +16,13 @@ import { Controller } from '@hotwired/stimulus';
  * the template (already translated).
  */
 export default class extends Controller {
-  static targets = ['list', 'template'];
+  static targets = ['list', 'template', 'add'];
   static values = { rowLabel: String, removeLabel: String };
 
   connect() {
+    // The add-row button is server-rendered `hidden` (it does nothing without
+    // JS); reveal it now that it works.
+    if (this.hasAddTarget) this.addTarget.hidden = false;
     this.refresh();
   }
 
@@ -49,7 +52,7 @@ export default class extends Controller {
     const focusTarget =
       prev?.querySelector('.split-invoice-pick') ||
       next?.querySelector('.split-invoice-pick') ||
-      this.element.querySelector('.split-invoice-add');
+      (this.hasAddTarget ? this.addTarget : null);
     if (focusTarget) focusTarget.focus();
   }
 

@@ -92,9 +92,13 @@
                 </li>
             </template>
 
+            {# JS-only enhancement: revealed by the controller on connect so a
+               no-JS visitor never sees a dead button. #}
             <button type="button"
                     class="split-invoice-add"
-                    data-action="split-participants#add">
+                    data-split-participants-target="add"
+                    data-action="split-participants#add"
+                    hidden>
                 {{ 'split_invoice.participants.add'|trans }}
             </button>
         </div>
