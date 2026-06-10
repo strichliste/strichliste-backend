@@ -44,16 +44,8 @@ The CA lives in the `caddy_data` volume, so the exception survives
 container rebuilds. The entrypoint waits for the database and applies
 migrations automatically before serving traffic.
 
-If host ports 80/443 are already taken, remap them:
-
-```
-HTTP_PORT=8080 HTTPS_PORT=8443 docker compose up -d
-```
-
-Both `http://localhost:8080` and `http://127.0.0.1:8080` then redirect
-to the HTTPS site on the remapped port (`https://localhost:8443`) —
-the compose file teaches Caddy its external port so redirects stay
-reachable, and `127.0.0.1` is covered by the certificate too.
+If host ports 80/443 are already taken, remap them in `compose.yaml`
+(e.g. `"8443:443"`) and open `https://localhost:8443` directly.
 
 What the image does for you:
 
@@ -77,8 +69,7 @@ Environment knobs (set under `environment:` in `compose.yaml` or via
 | Variable | Default | Purpose |
 | --- | --- | --- |
 | `APP_SECRET` | dev value (publicly known!) | Set a unique secret for any real deployment — the entrypoint warns loudly if you don't. |
-| `SERVER_NAME` | `localhost, 127.0.0.1` (self-signed TLS) | Set a real hostname (e.g. `strichliste.example.com`) for automatic Let's Encrypt certificates, or `":80"` for plain HTTP only (e.g. LAN-IP kiosks — also set `TLS_REDIRECT_HOSTS=http://redirect-disabled.invalid` to drop the HTTPS redirect). |
-| `HTTP_PORT` / `HTTPS_PORT` | `80` / `443` | Host ports to publish. |
+| `SERVER_NAME` | `localhost` (self-signed TLS) | Set a real hostname (e.g. `strichliste.example.com`) for automatic Let's Encrypt certificates, or `":80"` for plain HTTP only (e.g. LAN-IP kiosks). |
 | `DATABASE_URL` | Postgres from compose | Any Doctrine DSN. SQLite works for small setups (see below). |
 | `AUTO_MIGRATE` | `1` | Run pending migrations on container start. |
 | `FRANKENPHP_CONFIG` | `worker ./public/index.php` | Unset (empty) to fall back to classic one-process-per-request mode. |
