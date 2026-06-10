@@ -23,15 +23,15 @@
         "symfony/framework-bundle": "^7.4",
         "symfony/runtime": "^7.4",
         "symfony/security-csrf": "^7.4",
-        "symfony/stimulus-bundle": "*",
+        "symfony/stimulus-bundle": "^2.35",
         "symfony/translation": "^7.4",
         "symfony/twig-bundle": "^7.4",
-        "symfony/ux-turbo": "*",
-        "symfony/ux-twig-component": "*",
+        "symfony/ux-turbo": "^2.35",
+        "symfony/ux-twig-component": "^2.35",
         "symfony/validator": "^7.4",
         "symfony/yaml": "^7.4",
-        "twig/extra-bundle": "*",
-        "twig/intl-extra": "*"
+        "twig/extra-bundle": "^3.24",
+        "twig/intl-extra": "^3.24"
     },
     "require-dev": {
         "dama/doctrine-test-bundle": "^8.6",
