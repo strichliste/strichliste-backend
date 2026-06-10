@@ -80,6 +80,15 @@ class SplitInvoiceController extends AbstractController {
         $formData['comment'] = $comment;
         $formData['participants'] = $participantIds;
 
+        // No-JS path of the "add participant" button: it is a real submit
+        // button; append an empty row and re-render without validating — the
+        // member is still composing the form. (With JS the Stimulus controller
+        // preventDefault()s the click and adds the row client-side instead.)
+        if ($request->request->has('add_row')) {
+            $formData['participants'][] = null;
+            return $renderError();
+        }
+
         $recipient = $recipientId > 0 ? $this->userRepository->find($recipientId) : null;
         if (!$recipient || $recipient->isDisabled()) {
             $errors[] = $this->translator->trans('split_invoice.errors.recipient_missing');

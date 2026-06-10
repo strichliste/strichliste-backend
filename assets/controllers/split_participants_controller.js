@@ -20,9 +20,6 @@ export default class extends Controller {
   static values = { rowLabel: String, removeLabel: String };
 
   connect() {
-    // The add-row button is server-rendered `hidden` (it does nothing without
-    // JS); reveal it now that it works.
-    if (this.hasAddTarget) this.addTarget.hidden = false;
     this.refresh();
   }
 

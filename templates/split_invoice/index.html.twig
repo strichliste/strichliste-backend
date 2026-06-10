@@ -12,6 +12,9 @@
 
     <form method="post" class="split-invoice-form" data-controller="disable-on-submit">
         <input type="hidden" name="_token" value="{{ csrf_token('split_invoice') }}">
+        {# Default button for implicit (Enter-key) submission — must precede
+           the add_row submit so Enter submits the split, not "add row". #}
+        <button type="submit" class="visually-hidden" tabindex="-1" aria-hidden="true"></button>
 
         <div class="split-invoice-grid">
             <input class="split-invoice-input"
@@ -92,13 +95,15 @@
                 </li>
             </template>
 
-            {# JS-only enhancement: revealed by the controller on connect so a
-               no-JS visitor never sees a dead button. #}
-            <button type="button"
+            {# Real submit button: without JS the server appends a row
+               (add_row branch in SplitInvoiceController); with JS the
+               controller preventDefault()s and adds the row client-side. #}
+            <button type="submit"
+                    name="add_row"
+                    value="1"
                     class="split-invoice-add"
                     data-split-participants-target="add"
-                    data-action="split-participants#add"
-                    hidden>
+                    data-action="split-participants#add">
                 {{ 'split_invoice.participants.add'|trans }}
             </button>
         </div>
