@@ -96,14 +96,14 @@ transactions:
         submit: Dispense
     transfer:
         recipient_label: Recipient
-        recipient_placeholder: USERNAME
+        recipient_placeholder: Select recipient
         notes_placeholder: Add notes to your transaction
         submit: Send
         # Screen-reader-only direction prefix on a transfer row.
         direction_to: Sent to
         direction_from: Received from
     undo:
-        button_aria: 'Undo transaction from %when%'
+        button_aria: 'Undo %amount% from %when%'
     reverted_label: (reverted)
     errors:
         boundary: This transaction would cross a configured boundary.

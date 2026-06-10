@@ -21,7 +21,18 @@
         <form method="post" action="{{ path('transactions_undo', {id: ownerUserId, txId: tx.id}) }}" class="undo-form" data-controller="disable-on-submit">
             <input type="hidden" name="_token" value="{{ csrf_token('undo' ~ ownerUserId ~ '_' ~ tx.id) }}">
             {% if returnTo %}<input type="hidden" name="return" value="{{ returnTo }}">{% endif %}
-            <button type="submit" class="undo-btn" aria-label="{{ 'transactions.undo.button_aria'|trans({'%when%': tx.created|date('Y-m-d H:i:s')}) }}">↺</button>
+            {#- Amount + counterpart in the name: two transactions created in
+                the same second (e.g. a split) otherwise announce identically. -#}
+            {%- set undoLabel = 'transactions.undo.button_aria'|trans({
+                '%amount%': tx.amount|currency_format(currency),
+                '%when%': tx.created|date('Y-m-d H:i:s'),
+            }) -%}
+            {%- if tx.senderTransaction -%}
+                {%- set undoLabel = undoLabel ~ ' (' ~ 'transactions.transfer.direction_from'|trans ~ ' ' ~ tx.senderTransaction.user.name ~ ')' -%}
+            {%- elseif tx.recipientTransaction -%}
+                {%- set undoLabel = undoLabel ~ ' (' ~ 'transactions.transfer.direction_to'|trans ~ ' ' ~ tx.recipientTransaction.user.name ~ ')' -%}
+            {%- endif -%}
+            <button type="submit" class="undo-btn" aria-label="{{ undoLabel }}">↺</button>
         </form>
     {% else %}
         <time class="transaction-row__date" datetime="{{ tx.created|date('c') }}">{{ tx.created|date('Y-m-d H:i:s') }}</time>

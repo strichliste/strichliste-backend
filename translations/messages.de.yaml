@@ -96,14 +96,14 @@ transactions:
         submit: Auszahlen
     transfer:
         recipient_label: Empfänger
-        recipient_placeholder: BENUTZERNAME
+        recipient_placeholder: Empfänger wählen
         notes_placeholder: Notiz zur Transaktion hinzufügen
         submit: Senden
         # Screen-Reader-Präfix für die Richtung einer Überweisung.
         direction_to: Gesendet an
         direction_from: Erhalten von
     undo:
-        button_aria: 'Transaktion vom %when% rückgängig machen'
+        button_aria: '%amount% vom %when% rückgängig machen'
     reverted_label: (storniert)
     errors:
         boundary: Diese Transaktion würde eine konfigurierte Grenze überschreiten.
