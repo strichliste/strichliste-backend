@@ -16,9 +16,11 @@
     {% if tags is not empty %}
         <div class="tag-filter">
             <a class="tag-chip {% if activeTag is null %}tag-chip--active{% endif %}"
+               {% if activeTag is null %}aria-current="true"{% endif %}
                href="{{ path(active ? 'articles_active' : 'articles_inactive') }}">{{ 'articles.list.filter.all'|trans }}</a>
             {% for tag in tags %}
                 <a class="tag-chip {% if activeTag == tag.tag %}tag-chip--active{% endif %}"
+                   {% if activeTag == tag.tag %}aria-current="true"{% endif %}
                    href="{{ path(active ? 'articles_active' : 'articles_inactive') }}?tag={{ tag.tag|url_encode }}">{{ tag.tag }}</a>
             {% endfor %}
         </div>

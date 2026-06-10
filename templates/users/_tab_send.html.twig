@@ -41,6 +41,7 @@
            id="{{ form.comment.vars.id }}"
            maxlength="255"
            placeholder="{{ 'transactions.transfer.notes_placeholder'|trans }}"
+           aria-label="{{ 'transactions.comment_label'|trans }}"
            value="">
 
     {{ form_widget(form._token) }}

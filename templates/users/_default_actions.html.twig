@@ -5,7 +5,7 @@
 {% if send.deposit_enabled or send.dispense_enabled or send.deposit_custom or send.dispense_custom %}
 <div class="step-card">
     {% if send.deposit_enabled %}
-        <div class="step-grid" aria-label="{{ 'transactions.deposit.title'|trans }}">
+        <div class="step-grid" role="group" aria-label="{{ 'transactions.deposit.title'|trans }}">
             {% for step in send.deposit_steps %}
                 <form method="post" action="{{ path('transactions_create', {id: user.id}) }}" class="step-form" data-controller="disable-on-submit">
                     <input type="hidden" name="create_transaction[direction]" value="deposit">
@@ -45,7 +45,7 @@
     {% endif %}
 
     {% if send.dispense_enabled %}
-        <div class="step-grid" aria-label="{{ 'transactions.dispense.title'|trans }}">
+        <div class="step-grid" role="group" aria-label="{{ 'transactions.dispense.title'|trans }}">
             {% for step in send.dispense_steps %}
                 <form method="post" action="{{ path('transactions_create', {id: user.id}) }}" class="step-form" data-controller="disable-on-submit">
                     <input type="hidden" name="create_transaction[direction]" value="dispense">
