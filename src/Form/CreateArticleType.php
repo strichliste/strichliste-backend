@@ -23,7 +23,7 @@ class CreateArticleType extends AbstractType {
                 'label' => 'articles.fields.amount',
                 'currency' => false,
                 'scale' => 2,
-                'constraints' => [new Assert\NotBlank(), new Assert\Positive()],
+                'constraints' => [new Assert\NotBlank(), new Assert\Positive(), new Assert\LessThanOrEqual(1000000)],
             ]);
     }
 

@@ -38,7 +38,7 @@ class TransferTransactionType extends AbstractType {
                 'label' => 'transactions.amount_label',
                 'currency' => false,
                 'scale' => 2,
-                'constraints' => [new Assert\NotBlank(), new Assert\Positive()],
+                'constraints' => [new Assert\NotBlank(), new Assert\Positive(), new Assert\LessThanOrEqual(1000000)],
             ])
             ->add('comment', TextareaType::class, [
                 'label' => 'transactions.comment_label',
