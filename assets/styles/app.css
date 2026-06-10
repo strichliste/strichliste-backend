@@ -525,15 +525,6 @@ body { padding-top: 4rem; }
   margin-bottom: 0;
 }
 
-@media (min-width: 48em) {
-  .list-toolbar { margin-left: 8rem; }
-  .user-grid { margin-left: 8rem; }
-  .article-rows { margin-left: 8rem; }
-  /* Shares the shifted rail — otherwise wrapping tag chips slide under the
-     absolutely-positioned FAB, which click-blocks them. */
-  .tag-filter { margin-left: 8rem; }
-}
-
 /* Shift the list wrapper right on tablet+ to make room for the absolute FAB. */
 /* ---------- footer (SPA: small grey line, MIT credit + Code link) ---------- */
 .app-footer {
@@ -1859,4 +1850,15 @@ details.custom-form[open] summary { color: var(--text); }
 .error-page__message {
   font-size: 1.2rem;
   margin-bottom: 1.5rem;
+}
+
+/* ---------- list gutter rail (kept at EOF: these must out-cascade the
+   components' own margin shorthands declared above) ---------- */
+@media (min-width: 48em) {
+  .list-toolbar { margin-left: 8rem; }
+  .user-grid { margin-left: 8rem; }
+  .article-rows { margin-left: 8rem; }
+  /* Shares the shifted rail — otherwise wrapping tag chips slide under the
+     absolutely-positioned FAB, which click-blocks them. */
+  .tag-filter { margin-left: 8rem; }
 }
