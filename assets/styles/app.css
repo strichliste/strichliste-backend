@@ -618,8 +618,10 @@ body { padding-top: 4rem; }
 .article-form input[type="number"] {
   width: 100%;
   padding: 0.5rem;
-  background: var(--componentBackgroundDark);
-  border: 1px solid transparent;
+  /* Grey tint + visible border: these inputs sit inside the white .card,
+     where a white background made them invisible. */
+  background: var(--mainBackground);
+  border: 1px solid var(--border);
   border-radius: var(--borderRadius);
   color: var(--text);
   font-size: 0.9rem;
@@ -1012,11 +1014,43 @@ details.custom-form summary {
 details.custom-form summary::-webkit-details-marker { display: none; }
 details.custom-form[open] summary { color: var(--text); }
 
-.custom-form__row {
-  display: flex;
-  flex-direction: column;
+/* Single-row composer: [Deposit] [amount] [Dispense], comment below. */
+.custom-form__bar {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
   gap: 0.5rem;
-  padding: 0.75rem 0;
+  align-items: stretch;
+  padding: 0.5rem 0 0.75rem;
+}
+
+.custom-form__submit {
+  white-space: nowrap;
+}
+
+.custom-form__amount {
+  width: 100%;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.custom-form__comment {
+  grid-column: 1 / -1;
+}
+
+/* Grey tint: the composer sits on the white step card, so the inputs need
+   their own surface to be visible at all. */
+.custom-form__amount,
+.custom-form__comment {
+  padding: 0.5rem 0.75rem;
+  background: var(--mainBackground);
+  border: 1px solid var(--border);
+  border-radius: var(--borderRadius);
+  color: var(--text);
+}
+
+.custom-form__amount::placeholder,
+.custom-form__comment::placeholder {
+  color: var(--textSubtile);
 }
 
 /* ---------- SEND MONEY tab: compact 4-column composer ----------
@@ -1192,7 +1226,11 @@ details.custom-form[open] summary { color: var(--text); }
   margin: 2rem;
 }
 
-.tag-chip {
+/* The :visited/:hover variants pin the color — the global `a:visited` rule
+   has higher specificity and painted visited active chips text-on-same-color. */
+.tag-chip,
+.tag-chip:visited,
+.tag-chip:hover {
   display: inline-block;
   padding: 0.625rem;
   margin: 0.5rem;
@@ -1210,7 +1248,9 @@ details.custom-form[open] summary { color: var(--text); }
 .tag-chip:hover {
   box-shadow: var(--level2);
 }
-.tag-chip--active {
+.tag-chip--active,
+.tag-chip--active:visited,
+.tag-chip--active:hover {
   background: var(--buttonHighlightBackground);
   color: var(--buttonHighlightFont);
 }
