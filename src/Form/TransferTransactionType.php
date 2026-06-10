@@ -20,7 +20,7 @@ class TransferTransactionType extends AbstractType {
                 'label' => 'transactions.transfer.recipient_label',
                 'class' => User::class,
                 'choice_label' => 'name',
-                'placeholder' => '— select —',
+                'placeholder' => 'transactions.transfer.recipient_placeholder',
                 'query_builder' => function (\App\Repository\UserRepository $repo) use ($excludeUser) {
                     $qb = $repo->createQueryBuilder('u')
                         ->where('u.disabled = false')
