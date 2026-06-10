@@ -12,13 +12,16 @@ use App\Repository\TransactionRepository;
 use App\Repository\UserRepository;
 use App\Service\SettingsService;
 use App\Service\TransactionService;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class UserController extends AbstractController {
 
@@ -31,7 +34,7 @@ class UserController extends AbstractController {
         private EntityManagerInterface $em,
         private TransactionService $transactionService,
         private ArticleRepository $articleRepository,
-        private \Symfony\Contracts\Translation\TranslatorInterface $translator,
+        private TranslatorInterface $translator,
     ) {
     }
 
@@ -168,7 +171,7 @@ class UserController extends AbstractController {
 
             $existing = $this->userRepository->findByName($name);
             if ($existing) {
-                $form->get('name')->addError(new \Symfony\Component\Form\FormError($this->translator->trans('user.create.errors.duplicate')));
+                $form->get('name')->addError(new FormError($this->translator->trans('user.create.errors.duplicate')));
             } else {
                 $user = (new User())->setName($name);
                 $this->em->persist($user);
@@ -176,10 +179,10 @@ class UserController extends AbstractController {
                     $this->em->flush();
                     $this->addFlash('success', $this->translator->trans('user.create.success', ['%name%' => $user->getName()]));
                     return $this->redirectToRoute('users_detail', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
-                } catch (\Doctrine\DBAL\Exception\UniqueConstraintViolationException $e) {
+                } catch (UniqueConstraintViolationException $e) {
                     // Name was taken between the findByName() check and flush()
                     // (concurrent create). Surface the same friendly error.
-                    $form->get('name')->addError(new \Symfony\Component\Form\FormError($this->translator->trans('user.create.errors.duplicate')));
+                    $form->get('name')->addError(new FormError($this->translator->trans('user.create.errors.duplicate')));
                 }
             }
         }
@@ -211,7 +214,7 @@ class UserController extends AbstractController {
 
             $existing = $this->userRepository->findByName($name);
             if ($existing && $existing->getId() !== $user->getId()) {
-                $form->get('name')->addError(new \Symfony\Component\Form\FormError($this->translator->trans('user.create.errors.duplicate')));
+                $form->get('name')->addError(new FormError($this->translator->trans('user.create.errors.duplicate')));
             } else {
                 $user->setName($name);
                 $user->setEmail($data['email'] ? trim($data['email']) : null);
@@ -228,9 +231,9 @@ class UserController extends AbstractController {
 
                     $this->addFlash('success', $this->translator->trans('user.edit.success'));
                     return $this->redirectToRoute('users_detail', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
-                } catch (\Doctrine\DBAL\Exception\UniqueConstraintViolationException $e) {
+                } catch (UniqueConstraintViolationException $e) {
                     // Name was taken between the findByName() check and flush().
-                    $form->get('name')->addError(new \Symfony\Component\Form\FormError($this->translator->trans('user.create.errors.duplicate')));
+                    $form->get('name')->addError(new FormError($this->translator->trans('user.create.errors.duplicate')));
                 }
             }
         }
