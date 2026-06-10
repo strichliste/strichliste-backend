@@ -8,6 +8,9 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: TransactionRepository::class)]
 #[ORM\Table(name: 'transactions')]
+// The metrics aggregation filters on `created` for every /metrics and
+// /api/metrics request — without this index it full-scans the table.
+#[ORM\Index(name: 'transactions_created_idx', columns: ['created'])]
 #[ORM\HasLifecycleCallbacks]
 class Transaction {
 
