@@ -155,6 +155,14 @@ class TransactionWriteController extends AbstractController {
             throw new NotFoundHttpException();
         }
 
+        // isDeletable() decides whether the undo button is rendered, but a
+        // stale tab keeps a valid CSRF token forever — enforce the configured
+        // undo window (payment.undo.*) on the POST itself.
+        if (!$this->transactionService->isDeletable($transaction)) {
+            $this->addFlash('error', $this->translator->trans('transactions.errors.not_deletable'));
+            return $this->redirectToRoute('users_detail', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
+        }
+
         try {
             $this->transactionService->revertTransaction($txId);
             $this->addFlash('success', $this->translator->trans('transactions.flash.undo_success'));
