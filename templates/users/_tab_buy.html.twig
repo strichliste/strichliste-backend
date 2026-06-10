@@ -27,7 +27,8 @@
         <div class="buy-tab__pills">
             {% for a in buy.articles %}
                 <form method="post" action="{{ path('transactions_buy', {id: user.id}) }}"
-                      class="buy-tab__pill-form" data-article-filter-target="item"
+                      class="buy-tab__pill-form" data-controller="disable-on-submit"
+                      data-article-filter-target="item"
                       data-article-name="{{ a.name|lower }}">
                     <input type="hidden" name="_token" value="{{ csrf_token('buy' ~ user.id) }}">
                     <input type="hidden" name="articleId" value="{{ a.id }}">

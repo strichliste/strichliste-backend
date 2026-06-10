@@ -10,7 +10,7 @@
         <div class="flash flash--error" role="alert">{{ error }}</div>
     {% endfor %}
 
-    <form method="post" class="split-invoice-form">
+    <form method="post" class="split-invoice-form" data-controller="disable-on-submit">
         <input type="hidden" name="_token" value="{{ csrf_token('split_invoice') }}">
 
         <div class="split-invoice-grid">
