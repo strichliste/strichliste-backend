@@ -23,8 +23,15 @@ document.addEventListener('turbo:load', () => {
     return;
   }
 
-  if (!document.querySelector('.flashes .flash')) {
-    const region = document.getElementById('flash-announcer-status');
-    if (region) region.textContent = document.title;
-  }
+  // One frame later: the outgoing page's flash controller disconnect()
+  // (which clears the regions) is processed after turbo:load — writing
+  // synchronously here would be wiped by it.
+  requestAnimationFrame(() => {
+    // :not([hidden]) — a hidden flash container (none today, but cheap to
+    // guard) must not suppress the title announcement.
+    if (!document.querySelector('.flashes:not([hidden]) .flash')) {
+      const region = document.getElementById('flash-announcer-status');
+      if (region) region.textContent = document.title;
+    }
+  });
 });
