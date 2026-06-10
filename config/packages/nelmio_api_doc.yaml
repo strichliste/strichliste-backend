@@ -1,0 +1,897 @@
+# OpenAPI documentation for the FROZEN legacy REST API (/api/*).
+#
+# The whole spec is maintained here, not as controller attributes: the
+# contract predates this codebase's UI rewrite and must stay byte-identical,
+# so the documentation lives in one reviewable file and the controllers stay
+# untouched. Shapes mirror src/Serializer/* and are pinned by
+# tests/Controller/Api/*.
+#
+# Browse at /api/doc (Swagger UI) — raw spec at /api/doc.json.
+nelmio_api_doc:
+    areas:
+        default:
+            path_patterns:
+                - ^/api(?!/doc)
+    documentation:
+        info:
+            title: strichliste API
+            description: |
+                Legacy REST API of strichliste, a digital tally sheet.
+
+                This contract is **frozen**: external clients (Android apps,
+                kiosk hardware) depend on the exact JSON shapes. All monetary
+                amounts are **integer cents**. Timestamps use the
+                `YYYY-MM-DD HH:MM:SS` format. Request bodies may be sent as
+                JSON or form-encoded.
+
+                Errors use a uniform envelope:
+                `{"error": {"class": "...", "code": 4xx, "message": "..."}}`.
+            version: '1.8'
+        components:
+            schemas:
+                User:
+                    type: object
+                    properties:
+                        id: { type: integer }
+                        name: { type: string }
+                        email: { type: string, nullable: true }
+                        balance: { type: integer, description: Balance in cents. }
+                        isActive: { type: boolean, description: Had a transaction within the staleness window. }
+                        isDisabled: { type: boolean }
+                        created: { type: string, example: '2026-06-10 12:34:56' }
+                        updated: { type: string, nullable: true, example: '2026-06-10 12:34:56' }
+                Barcode:
+                    type: object
+                    properties:
+                        id: { type: integer }
+                        barcode: { type: string }
+                        created: { type: string, example: '2026-06-10 12:34:56' }
+                ArticleTag:
+                    type: object
+                    description: Tag as embedded in an article.
+                    properties:
+                        id: { type: integer }
+                        tag: { type: string }
+                        created: { type: string, example: '2026-06-10 12:34:56' }
+                Tag:
+                    type: object
+                    properties:
+                        id: { type: integer }
+                        tag: { type: string }
+                        usageCount: { type: integer }
+                        created: { type: string, example: '2026-06-10 12:34:56' }
+                Article:
+                    type: object
+                    properties:
+                        id: { type: integer }
+                        name: { type: string }
+                        barcodes:
+                            type: array
+                            items: { $ref: '#/components/schemas/Barcode' }
+                        tags:
+                            type: array
+                            items: { $ref: '#/components/schemas/ArticleTag' }
+                        amount: { type: integer, description: Price in cents. }
+                        isActive: { type: boolean }
+                        usageCount: { type: integer }
+                        precursor:
+                            nullable: true
+                            description: Previous revision of this article (depth-limited; null at depth 0).
+                            allOf: [{ $ref: '#/components/schemas/Article' }]
+                        created: { type: string, example: '2026-06-10 12:34:56' }
+                Transaction:
+                    type: object
+                    properties:
+                        id: { type: integer }
+                        user: { $ref: '#/components/schemas/User' }
+                        quantity: { type: integer, nullable: true }
+                        article:
+                            nullable: true
+                            allOf: [{ $ref: '#/components/schemas/Article' }]
+                        sender:
+                            nullable: true
+                            description: Sending user when this transaction received a transfer.
+                            allOf: [{ $ref: '#/components/schemas/User' }]
+                        recipient:
+                            nullable: true
+                            description: Receiving user when this transaction sent a transfer.
+                            allOf: [{ $ref: '#/components/schemas/User' }]
+                        comment: { type: string, nullable: true }
+                        amount: { type: integer, description: Signed amount in cents. }
+                        isDeleted: { type: boolean }
+                        isDeletable: { type: boolean, description: Whether the undo window (payment.undo.*) still allows reverting. }
+                        created: { type: string, example: '2026-06-10 12:34:56' }
+                MetricsDay:
+                    type: object
+                    description: >
+                        Daily aggregate. On days WITHOUT transactions, `charged`
+                        and `spent` are the integer 0; on days with activity
+                        they are {amount, transactions} objects (legacy quirk).
+                    properties:
+                        date: { type: string, example: '2026-06-10' }
+                        transactions: { type: integer }
+                        distinctUsers: { type: integer }
+                        balance: { type: integer, description: Net amount of the day in cents. }
+                        charged:
+                            oneOf:
+                                - { type: integer, enum: [0] }
+                                - type: object
+                                  properties:
+                                      amount: { type: integer }
+                                      transactions: { type: integer }
+                        spent:
+                            oneOf:
+                                - { type: integer, enum: [0] }
+                                - type: object
+                                  properties:
+                                      amount: { type: integer }
+                                      transactions: { type: integer }
+                Error:
+                    type: object
+                    properties:
+                        error:
+                            type: object
+                            properties:
+                                class: { type: string, description: FQCN of the exception — the machine-readable discriminator., example: App\Exception\UserNotFoundException }
+                                code: { type: integer, example: 404 }
+                                message: { type: string }
+            responses:
+                Error:
+                    description: Error envelope (shape shared by all 4xx responses).
+                    content:
+                        application/json:
+                            schema: { $ref: '#/components/schemas/Error' }
+        paths:
+            /api/user:
+                get:
+                    tags: [user]
+                    summary: List users
+                    parameters:
+                        - name: active
+                          in: query
+                          required: false
+                          description: '"true" = users with recent activity, "false" = stale users, omitted = all.'
+                          schema: { type: string, enum: ['true', 'false'] }
+                    responses:
+                        '200':
+                            description: Users sorted naturally by name.
+                            content:
+                                application/json:
+                                    schema:
+                                        type: object
+                                        properties:
+                                            users:
+                                                type: array
+                                                items: { $ref: '#/components/schemas/User' }
+                post:
+                    tags: [user]
+                    summary: Create a user
+                    requestBody:
+                        required: true
+                        content:
+                            application/json:
+                                schema:
+                                    type: object
+                                    required: [name]
+                                    properties:
+                                        name: { type: string, maxLength: 64 }
+                                        email: { type: string, maxLength: 255 }
+                    responses:
+                        '200':
+                            description: The created user.
+                            content:
+                                application/json:
+                                    schema:
+                                        type: object
+                                        properties:
+                                            user: { $ref: '#/components/schemas/User' }
+                        '400': { $ref: '#/components/responses/Error' }
+                        '409': { $ref: '#/components/responses/Error' }
+            /api/user/search:
+                get:
+                    tags: [user]
+                    summary: Search enabled users by name
+                    parameters:
+                        - name: query
+                          in: query
+                          required: false
+                          schema: { type: string }
+                        - name: limit
+                          in: query
+                          required: false
+                          schema: { type: integer, default: 25 }
+                    responses:
+                        '200':
+                            description: Matching users.
+                            content:
+                                application/json:
+                                    schema:
+                                        type: object
+                                        properties:
+                                            count: { type: integer }
+                                            users:
+                                                type: array
+                                                items: { $ref: '#/components/schemas/User' }
+            /api/user/{userId}:
+                get:
+                    tags: [user]
+                    summary: Get a user by id or name
+                    parameters:
+                        - name: userId
+                          in: path
+                          required: true
+                          description: User id, or the exact user name.
+                          schema: { type: string }
+                    responses:
+                        '200':
+                            description: The user.
+                            content:
+                                application/json:
+                                    schema:
+                                        type: object
+                                        properties:
+                                            user: { $ref: '#/components/schemas/User' }
+                        '404': { $ref: '#/components/responses/Error' }
+                post:
+                    tags: [user]
+                    summary: Update a user
+                    parameters:
+                        - name: userId
+                          in: path
+                          required: true
+                          description: User id, or the exact user name.
+                          schema: { type: string }
+                    requestBody:
+                        required: true
+                        content:
+                            application/json:
+                                schema:
+                                    type: object
+                                    properties:
+                                        name: { type: string, maxLength: 64 }
+                                        email: { type: string, maxLength: 255 }
+                                        isDisabled: { type: boolean }
+                    responses:
+                        '200':
+                            description: The updated user.
+                            content:
+                                application/json:
+                                    schema:
+                                        type: object
+                                        properties:
+                                            user: { $ref: '#/components/schemas/User' }
+                        '400': { $ref: '#/components/responses/Error' }
+                        '404': { $ref: '#/components/responses/Error' }
+                        '409': { $ref: '#/components/responses/Error' }
+            /api/user/{userId}/metrics:
+                get:
+                    tags: [metrics]
+                    summary: Per-user metrics
+                    parameters:
+                        - name: userId
+                          in: path
+                          required: true
+                          description: User id, or the exact user name.
+                          schema: { type: string }
+                    responses:
+                        '200':
+                            description: >
+                                Balance, article purchase breakdown (reverted
+                                purchases included — legacy behavior) and
+                                transfer counters.
+                            content:
+                                application/json:
+                                    schema:
+                                        type: object
+                                        properties:
+                                            balance: { type: integer }
+                                            articles:
+                                                type: array
+                                                items:
+                                                    type: object
+                                                    properties:
+                                                        article: { $ref: '#/components/schemas/Article' }
+                                                        count: { type: integer }
+                                                        amount: { type: integer }
+                                            transactions:
+                                                type: object
+                                                properties:
+                                                    count: { type: integer }
+                                                    outgoing:
+                                                        type: object
+                                                        properties:
+                                                            count: { type: integer }
+                                                            amount: { type: integer }
+                                                    incoming:
+                                                        type: object
+                                                        properties:
+                                                            count: { type: integer }
+                                                            amount: { type: integer }
+                        '404': { $ref: '#/components/responses/Error' }
+            /api/user/{userId}/transaction:
+                get:
+                    tags: [transaction]
+                    summary: List a user's transactions (newest first)
+                    parameters:
+                        - name: userId
+                          in: path
+                          required: true
+                          description: User id, or the exact user name.
+                          schema: { type: string }
+                        - name: limit
+                          in: query
+                          required: false
+                          schema: { type: integer, default: 25 }
+                        - name: offset
+                          in: query
+                          required: false
+                          schema: { type: integer }
+                    responses:
+                        '200':
+                            description: Transactions with total count.
+                            content:
+                                application/json:
+                                    schema:
+                                        type: object
+                                        properties:
+                                            count: { type: integer }
+                                            transactions:
+                                                type: array
+                                                items: { $ref: '#/components/schemas/Transaction' }
+                        '404': { $ref: '#/components/responses/Error' }
+                post:
+                    tags: [transaction]
+                    summary: Create a transaction
+                    description: >
+                        Deposit/dispense (`amount`), article purchase
+                        (`articleId`, optional `quantity`) or transfer
+                        (`amount` + `recipientId`). Amounts are signed cents.
+                    parameters:
+                        - name: userId
+                          in: path
+                          required: true
+                          description: User id, or the exact user name.
+                          schema: { type: string }
+                    requestBody:
+                        required: true
+                        content:
+                            application/json:
+                                schema:
+                                    type: object
+                                    properties:
+                                        amount: { type: integer, description: Signed amount in cents. }
+                                        quantity: { type: integer }
+                                        comment: { type: string, maxLength: 255 }
+                                        recipientId: { type: integer }
+                                        articleId: { type: integer }
+                    responses:
+                        '200':
+                            description: The created transaction.
+                            content:
+                                application/json:
+                                    schema:
+                                        type: object
+                                        properties:
+                                            transaction: { $ref: '#/components/schemas/Transaction' }
+                        '400': { $ref: '#/components/responses/Error' }
+                        '404': { $ref: '#/components/responses/Error' }
+            /api/user/{userId}/transaction/{transactionId}:
+                get:
+                    tags: [transaction]
+                    summary: Get a single transaction
+                    parameters:
+                        - name: userId
+                          in: path
+                          required: true
+                          description: User id, or the exact user name.
+                          schema: { type: string }
+                        - name: transactionId
+                          in: path
+                          required: true
+                          schema: { type: integer }
+                    responses:
+                        '200':
+                            description: The transaction.
+                            content:
+                                application/json:
+                                    schema:
+                                        type: object
+                                        properties:
+                                            transaction: { $ref: '#/components/schemas/Transaction' }
+                        '404': { $ref: '#/components/responses/Error' }
+                delete:
+                    tags: [transaction]
+                    summary: Revert (undo) a transaction
+                    parameters:
+                        - name: userId
+                          in: path
+                          required: true
+                          description: User id, or the exact user name.
+                          schema: { type: string }
+                        - name: transactionId
+                          in: path
+                          required: true
+                          schema: { type: integer }
+                    responses:
+                        '200':
+                            description: The reverted transaction (isDeleted=true).
+                            content:
+                                application/json:
+                                    schema:
+                                        type: object
+                                        properties:
+                                            transaction: { $ref: '#/components/schemas/Transaction' }
+                        '400': { $ref: '#/components/responses/Error' }
+                        '404': { $ref: '#/components/responses/Error' }
+            /api/transaction:
+                get:
+                    tags: [transaction]
+                    summary: List all transactions (oldest first)
+                    parameters:
+                        - name: limit
+                          in: query
+                          required: false
+                          schema: { type: integer, default: 25 }
+                        - name: offset
+                          in: query
+                          required: false
+                          schema: { type: integer }
+                    responses:
+                        '200':
+                            description: Transactions with total count.
+                            content:
+                                application/json:
+                                    schema:
+                                        type: object
+                                        properties:
+                                            count: { type: integer }
+                                            transactions:
+                                                type: array
+                                                items: { $ref: '#/components/schemas/Transaction' }
+            /api/article:
+                get:
+                    tags: [article]
+                    summary: List articles
+                    parameters:
+                        - name: limit
+                          in: query
+                          required: false
+                          schema: { type: integer, default: 25 }
+                        - name: offset
+                          in: query
+                          required: false
+                          schema: { type: integer }
+                        - name: active
+                          in: query
+                          required: false
+                          schema: { type: boolean, default: true }
+                        - name: barcode
+                          in: query
+                          required: false
+                          schema: { type: string }
+                        - name: precursor
+                          in: query
+                          required: false
+                          description: false = only articles without a precursor.
+                          schema: { type: boolean, default: true }
+                        - name: ancestor
+                          in: query
+                          required: false
+                          description: '"true" = only articles that have a successor revision, "false" = only ones without.'
+                          schema: { type: string, enum: ['true', 'false'] }
+                    responses:
+                        '200':
+                            description: Articles; `count` is the total number of ACTIVE articles.
+                            content:
+                                application/json:
+                                    schema:
+                                        type: object
+                                        properties:
+                                            count: { type: integer }
+                                            articles:
+                                                type: array
+                                                items: { $ref: '#/components/schemas/Article' }
+                post:
+                    tags: [article]
+                    summary: Create an article
+                    requestBody:
+                        required: true
+                        content:
+                            application/json:
+                                schema:
+                                    type: object
+                                    required: [name, amount]
+                                    properties:
+                                        name: { type: string }
+                                        amount: { type: integer, description: Price in cents. }
+                    responses:
+                        '200':
+                            description: The created article.
+                            content:
+                                application/json:
+                                    schema:
+                                        type: object
+                                        properties:
+                                            article: { $ref: '#/components/schemas/Article' }
+                        '400': { $ref: '#/components/responses/Error' }
+            /api/article/search:
+                get:
+                    tags: [article]
+                    summary: Search active articles
+                    description: >
+                        With `barcode` or `tag` the match is exact on that
+                        field; otherwise `query` matches barcode, tag or name
+                        substring.
+                    parameters:
+                        - name: query
+                          in: query
+                          required: false
+                          schema: { type: string }
+                        - name: barcode
+                          in: query
+                          required: false
+                          schema: { type: string }
+                        - name: tag
+                          in: query
+                          required: false
+                          schema: { type: string }
+                        - name: limit
+                          in: query
+                          required: false
+                          schema: { type: integer, default: 25 }
+                    responses:
+                        '200':
+                            description: Matching active articles.
+                            content:
+                                application/json:
+                                    schema:
+                                        type: object
+                                        properties:
+                                            count: { type: integer }
+                                            articles:
+                                                type: array
+                                                items: { $ref: '#/components/schemas/Article' }
+            /api/article/{articleId}:
+                get:
+                    tags: [article]
+                    summary: Get an article
+                    parameters:
+                        - name: articleId
+                          in: path
+                          required: true
+                          schema: { type: integer }
+                        - name: depth
+                          in: query
+                          required: false
+                          description: How many precursor revisions to embed.
+                          schema: { type: integer, default: 1 }
+                    responses:
+                        '200':
+                            description: The article.
+                            content:
+                                application/json:
+                                    schema:
+                                        type: object
+                                        properties:
+                                            article: { $ref: '#/components/schemas/Article' }
+                        '404': { $ref: '#/components/responses/Error' }
+                post:
+                    tags: [article]
+                    summary: Update an article (creates a new revision)
+                    description: >
+                        The existing article becomes the inactive precursor of
+                        the returned revision; only active articles can be
+                        updated.
+                    parameters:
+                        - name: articleId
+                          in: path
+                          required: true
+                          schema: { type: integer }
+                    requestBody:
+                        required: true
+                        content:
+                            application/json:
+                                schema:
+                                    type: object
+                                    required: [name, amount]
+                                    properties:
+                                        name: { type: string }
+                                        amount: { type: integer, description: Price in cents. }
+                    responses:
+                        '200':
+                            description: The new active revision.
+                            content:
+                                application/json:
+                                    schema:
+                                        type: object
+                                        properties:
+                                            article: { $ref: '#/components/schemas/Article' }
+                        '400': { $ref: '#/components/responses/Error' }
+                        '404': { $ref: '#/components/responses/Error' }
+                delete:
+                    tags: [article]
+                    summary: Deactivate an article
+                    description: Soft-delete — sets isActive=false and removes its barcodes.
+                    parameters:
+                        - name: articleId
+                          in: path
+                          required: true
+                          schema: { type: integer }
+                    responses:
+                        '200':
+                            description: The deactivated article.
+                            content:
+                                application/json:
+                                    schema:
+                                        type: object
+                                        properties:
+                                            article: { $ref: '#/components/schemas/Article' }
+                        '404': { $ref: '#/components/responses/Error' }
+            /api/barcode:
+                get:
+                    tags: [barcode]
+                    summary: List all barcodes
+                    responses:
+                        '200':
+                            description: All barcodes.
+                            content:
+                                application/json:
+                                    schema:
+                                        type: object
+                                        properties:
+                                            count: { type: integer }
+                                            barcodes:
+                                                type: array
+                                                items: { $ref: '#/components/schemas/Barcode' }
+            /api/article/{articleId}/barcode:
+                get:
+                    tags: [barcode]
+                    summary: List an article's barcodes
+                    parameters:
+                        - name: articleId
+                          in: path
+                          required: true
+                          schema: { type: integer }
+                    responses:
+                        '200':
+                            description: The article's barcodes.
+                            content:
+                                application/json:
+                                    schema:
+                                        type: object
+                                        properties:
+                                            count: { type: integer }
+                                            barcodes:
+                                                type: array
+                                                items: { $ref: '#/components/schemas/Barcode' }
+                        '404': { $ref: '#/components/responses/Error' }
+                post:
+                    tags: [barcode]
+                    summary: Add a barcode to an article
+                    parameters:
+                        - name: articleId
+                          in: path
+                          required: true
+                          schema: { type: integer }
+                    requestBody:
+                        required: true
+                        content:
+                            application/json:
+                                schema:
+                                    type: object
+                                    required: [barcode]
+                                    properties:
+                                        barcode: { type: string }
+                    responses:
+                        '200':
+                            description: The article including the new barcode.
+                            content:
+                                application/json:
+                                    schema:
+                                        type: object
+                                        properties:
+                                            article: { $ref: '#/components/schemas/Article' }
+                        '400': { $ref: '#/components/responses/Error' }
+                        '404': { $ref: '#/components/responses/Error' }
+                        '409': { $ref: '#/components/responses/Error' }
+            /api/article/{articleId}/barcode/{barcodeId}:
+                get:
+                    tags: [barcode]
+                    summary: Get a single barcode
+                    parameters:
+                        - name: articleId
+                          in: path
+                          required: true
+                          schema: { type: integer }
+                        - name: barcodeId
+                          in: path
+                          required: true
+                          schema: { type: integer }
+                    responses:
+                        '200':
+                            description: The barcode.
+                            content:
+                                application/json:
+                                    schema:
+                                        type: object
+                                        properties:
+                                            barcode: { $ref: '#/components/schemas/Barcode' }
+                        '404': { $ref: '#/components/responses/Error' }
+                delete:
+                    tags: [barcode]
+                    summary: Remove a barcode from an article
+                    parameters:
+                        - name: articleId
+                          in: path
+                          required: true
+                          schema: { type: integer }
+                        - name: barcodeId
+                          in: path
+                          required: true
+                          schema: { type: integer }
+                    responses:
+                        '200':
+                            description: The article without the removed barcode.
+                            content:
+                                application/json:
+                                    schema:
+                                        type: object
+                                        properties:
+                                            article: { $ref: '#/components/schemas/Article' }
+                        '404': { $ref: '#/components/responses/Error' }
+            /api/tag:
+                get:
+                    tags: [tag]
+                    summary: List all tags
+                    responses:
+                        '200':
+                            description: All tags.
+                            content:
+                                application/json:
+                                    schema:
+                                        type: object
+                                        properties:
+                                            count: { type: integer }
+                                            tags:
+                                                type: array
+                                                items: { $ref: '#/components/schemas/Tag' }
+            /api/article/{articleId}/tag:
+                get:
+                    tags: [tag]
+                    summary: List an article's tags
+                    parameters:
+                        - name: articleId
+                          in: path
+                          required: true
+                          schema: { type: integer }
+                    responses:
+                        '200':
+                            description: The article's tags.
+                            content:
+                                application/json:
+                                    schema:
+                                        type: object
+                                        properties:
+                                            count: { type: integer }
+                                            tags:
+                                                type: array
+                                                items: { $ref: '#/components/schemas/Tag' }
+                        '404': { $ref: '#/components/responses/Error' }
+                post:
+                    tags: [tag]
+                    summary: Add a tag to an article
+                    parameters:
+                        - name: articleId
+                          in: path
+                          required: true
+                          schema: { type: integer }
+                    requestBody:
+                        required: true
+                        content:
+                            application/json:
+                                schema:
+                                    type: object
+                                    required: [tag]
+                                    properties:
+                                        tag: { type: string }
+                    responses:
+                        '200':
+                            description: The article including the new tag.
+                            content:
+                                application/json:
+                                    schema:
+                                        type: object
+                                        properties:
+                                            article: { $ref: '#/components/schemas/Article' }
+                        '400': { $ref: '#/components/responses/Error' }
+                        '404': { $ref: '#/components/responses/Error' }
+            /api/article/{articleId}/tag/{tagId}:
+                get:
+                    tags: [tag]
+                    summary: Get a single tag of an article
+                    parameters:
+                        - name: articleId
+                          in: path
+                          required: true
+                          schema: { type: integer }
+                        - name: tagId
+                          in: path
+                          required: true
+                          schema: { type: integer }
+                    responses:
+                        '200':
+                            description: The tag.
+                            content:
+                                application/json:
+                                    schema:
+                                        type: object
+                                        properties:
+                                            tag: { $ref: '#/components/schemas/Tag' }
+                        '404': { $ref: '#/components/responses/Error' }
+                delete:
+                    tags: [tag]
+                    summary: Remove a tag from an article
+                    parameters:
+                        - name: articleId
+                          in: path
+                          required: true
+                          schema: { type: integer }
+                        - name: tagId
+                          in: path
+                          required: true
+                          schema: { type: integer }
+                    responses:
+                        '200':
+                            description: The article without the removed tag.
+                            content:
+                                application/json:
+                                    schema:
+                                        type: object
+                                        properties:
+                                            article: { $ref: '#/components/schemas/Article' }
+                        '404': { $ref: '#/components/responses/Error' }
+            /api/settings:
+                get:
+                    tags: [settings]
+                    summary: Get the app settings
+                    responses:
+                        '200':
+                            description: >
+                                The full settings tree from
+                                config/strichliste.yaml (i18n, account/payment
+                                boundaries, deposit/dispense steps, paypal, …).
+                            content:
+                                application/json:
+                                    schema:
+                                        type: object
+                                        properties:
+                                            settings:
+                                                type: object
+                                                additionalProperties: true
+            /api/metrics:
+                get:
+                    tags: [metrics]
+                    summary: Global metrics
+                    parameters:
+                        - name: days
+                          in: query
+                          required: false
+                          description: Length of the per-day series (clamped to 1–3650).
+                          schema: { type: integer, default: 30 }
+                    responses:
+                        '200':
+                            description: Totals, the active articles by usage, and a per-day series (newest first).
+                            content:
+                                application/json:
+                                    schema:
+                                        type: object
+                                        properties:
+                                            balance: { type: integer }
+                                            transactionCount: { type: integer }
+                                            userCount: { type: integer }
+                                            articles:
+                                                type: array
+                                                items: { $ref: '#/components/schemas/Article' }
+                                            days:
+                                                type: array
+                                                items: { $ref: '#/components/schemas/MetricsDay' }

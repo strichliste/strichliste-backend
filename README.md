@@ -14,6 +14,9 @@ This repository is a **single Symfony 7.4 application** that serves:
 - **The legacy REST API** at `/api/*` for any external client
   (Android apps, third-party kiosk software, etc.). The API contract is
   **frozen** at the shape it had before the Twig UI shipped.
+  Interactive OpenAPI documentation is served at **`/api/doc`**
+  (Swagger UI; raw spec at `/api/doc.json`), maintained in
+  `config/packages/nelmio_api_doc.yaml`.
 
 The previous standalone React SPA (`strichliste-web-frontend/`) has been
 removed; its README and roadmap are preserved under `../specs/_archive/`
