@@ -56,15 +56,17 @@
   outline-offset: 2px;
 }
 
-/* Skip link: visually hidden until focused, then revealed at top-left. */
+/* Skip link: visually hidden until focused, then revealed at top-left.
+   Uses the highlight-button pair — --primary inverts per theme and made
+   the link white-on-white in dark mode. */
 .skip-link {
   position: absolute;
   left: 0.5rem;
   top: -3rem;
   z-index: 1000;
   padding: 0.5rem 1rem;
-  background: var(--primary, #28333d);
-  color: #fff;
+  background: var(--buttonHighlightBackground, #213440);
+  color: var(--buttonHighlightFont, #e8eaeb);
   border-radius: var(--borderRadius, 4px);
   transition: top 0.15s ease-in-out;
 }
