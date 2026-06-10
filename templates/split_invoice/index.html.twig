@@ -9,10 +9,14 @@
     {# data-controller="flash" copies these into the persistent live region —
        a Turbo body swap of an already-populated role=alert node is not
        reliably announced on its own. #}
+    {# No role="alert" on the visible copies: the flash controller routes the
+       text through the persistent assertive region; both would double-announce
+       on full loads (flash_messages.html.twig omits the role for the same
+       reason). #}
     {% if errors is not empty %}
         <div data-controller="flash" data-turbo-temporary>
             {% for error in errors %}
-                <div class="flash flash--error" data-flash-level="alert" role="alert">{{ error }}</div>
+                <div class="flash flash--error" data-flash-level="alert">{{ error }}</div>
             {% endfor %}
         </div>
     {% endif %}
