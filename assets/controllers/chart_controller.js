@@ -123,7 +123,9 @@ export default class extends Controller {
         animation: reducedMotion ? false : undefined,
         interaction: { mode: 'index', intersect: false },
         plugins: {
-          legend: { display: false },
+          // Text legend: the charged/spent series differ only by red vs.
+          // green otherwise — indistinguishable for color-blind users.
+          legend: { display: true, labels: { color: text } },
           tooltip: {
             callbacks: variant === 'users'
               ? { label: (ctx) => `${ctx.dataset.label}: ${ctx.parsed.y}` }
