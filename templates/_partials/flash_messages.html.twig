@@ -1,4 +1,6 @@
-{% set _flashes = app.flashes(['success', 'error', 'info']) %}
+{# app.flashes() returns every requested type, including empty ones — drop
+   those or the wrapper (and its margin) renders on every page. #}
+{% set _flashes = app.flashes(['success', 'error', 'info'])|filter(messages => messages is not empty) %}
 {% if _flashes is not empty %}
     {# Visual flash list only. Screen-reader announcement is delegated to the
        persistent live regions in base.html.twig (populated by the `flash`
