@@ -23,7 +23,7 @@ class UserCleanupCommand extends Command {
         $this->entityManager = $entityManager;
     }
 
-    protected function configure() {
+    protected function configure(): void {
         $this
             ->setName('app:user:cleanup')
             ->setDescription('Deletes or deactivated expired accounts after a given period of time')

@@ -25,7 +25,7 @@ class ApiResponseSubscriber implements EventSubscriberInterface {
         $response->headers->addCacheControlDirective('no-store', true);
     }
 
-     static function getSubscribedEvents() {
+     static function getSubscribedEvents(): array {
         return [
             KernelEvents::RESPONSE => 'onKernelResponse',
         ];

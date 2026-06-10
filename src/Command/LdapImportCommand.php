@@ -24,7 +24,7 @@ class LdapImportCommand extends Command {
         $this->entityManager = $entityManager;
     }
 
-    protected function configure() {
+    protected function configure(): void {
         $this
             ->setName('app:ldapimport')
             ->setDescription('Imports users from LDAP')

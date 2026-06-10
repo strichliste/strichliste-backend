@@ -22,7 +22,7 @@ class UserStatusCommand extends Command {
         $this->entityManager = $entityManager;
     }
 
-    protected function configure() {
+    protected function configure(): void {
         $this
             ->setName('app:user:status')
             ->setDescription('Updates User status')

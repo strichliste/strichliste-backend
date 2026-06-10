@@ -23,7 +23,7 @@ class RetireDataCommand extends Command {
         $this->entityManager = $entityManager;
     }
 
-    protected function configure() {
+    protected function configure(): void {
         $this
             ->setName('app:retire-data')
             ->setDescription('Deletes older data after a given period')
