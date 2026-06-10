@@ -20,8 +20,11 @@
     <form method="post" class="split-invoice-form" data-controller="disable-on-submit">
         <input type="hidden" name="_token" value="{{ csrf_token('split_invoice') }}">
         {# Default button for implicit (Enter-key) submission — must precede
-           the add_row submit so Enter submits the split, not "add row". #}
-        <button type="submit" class="visually-hidden" tabindex="-1" aria-hidden="true"></button>
+           the add_row submit so Enter submits the split, not "add row".
+           display:none (not aria-hidden: engines repair aria-hidden buttons
+           back into the a11y tree as nameless ghosts; a display:none submit
+           still receives implicit Enter submission). #}
+        <button type="submit" class="default-submit" tabindex="-1"></button>
 
         <div class="split-invoice-grid">
             <input class="split-invoice-input"

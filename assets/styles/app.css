@@ -1471,6 +1471,13 @@ details.custom-form[open] summary { color: var(--text); }
   display: block;
 }
 
+/* Invisible default submit for implicit Enter submission — display:none keeps
+   it out of the a11y tree AND out of the tab order while browsers still route
+   Enter-key submission to it. */
+.split-invoice-form .default-submit {
+  display: none;
+}
+
 /* The headline grid: [amount input] [with] [recipient picker], equal columns. */
 .split-invoice-grid {
   display: grid;
