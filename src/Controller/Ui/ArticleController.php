@@ -53,18 +53,22 @@ class ArticleController extends AbstractController {
     }
 
     private function renderList(bool $active, Request $request): Response {
-        $articles = $this->articleRepository->findBy(['active' => $active], ['name' => 'ASC']);
-        usort($articles, fn(Article $a, Article $b) => strnatcasecmp($a->getName() ?? '', $b->getName() ?? ''));
-
+        // The tag filter happens in SQL (the previous in-PHP filter lazy-loaded
+        // tags per article — an N+1). Natural sort ("Beer 2" < "Beer 10") has
+        // no portable SQL equivalent, so sorting and slicing stay in PHP; the
+        // article catalogue is operator-managed inventory, bounded in practice.
         $tag = trim((string) $request->query->get('tag', ''));
+        $qb = $this->articleRepository->createQueryBuilder('a')
+            ->where('a.active = :active')
+            ->setParameter('active', $active);
         if ($tag !== '') {
-            $articles = array_values(array_filter($articles, function (Article $a) use ($tag): bool {
-                foreach ($a->getTags() as $t) {
-                    if (strcasecmp($t->getTag(), $tag) === 0) return true;
-                }
-                return false;
-            }));
+            $qb->innerJoin('a.articleTags', 'at')
+                ->innerJoin('at.tag', 't')
+                ->andWhere('LOWER(t.tag) = LOWER(:tag)')
+                ->setParameter('tag', $tag);
         }
+        $articles = $qb->getQuery()->getResult();
+        usort($articles, fn(Article $a, Article $b) => strnatcasecmp($a->getName() ?? '', $b->getName() ?? ''));
 
         $allTags = $this->tagRepository->findAll();
         usort($allTags, fn(Tag $a, Tag $b) => $b->getUsageCount() <=> $a->getUsageCount());
