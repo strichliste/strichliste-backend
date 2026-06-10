@@ -103,7 +103,10 @@ class ArticleController extends AbstractController {
             return $this->redirectToRoute('articles_edit', ['id' => $article->getId()], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->render('articles/create.html.twig', ['form' => $form->createView()]);
+        // 422 on failed submits — Turbo ignores non-redirect form responses
+        // that come back 200, so errors would never reach the screen.
+        return $this->render('articles/create.html.twig', ['form' => $form->createView()],
+            new Response(status: $form->isSubmitted() ? Response::HTTP_UNPROCESSABLE_ENTITY : Response::HTTP_OK));
     }
 
     #[Route('/articles/{id}/edit', name: 'articles_edit', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
@@ -143,7 +146,7 @@ class ArticleController extends AbstractController {
             'form' => $form->createView(),
             'priceFrozen' => $referenceCount > 0,
             'currencySymbol' => $this->settings->getOrDefault('i18n.currency.symbol', '€'),
-        ]);
+        ], new Response(status: $form->isSubmitted() ? Response::HTTP_UNPROCESSABLE_ENTITY : Response::HTTP_OK));
     }
 
     #[Route('/articles/{id}/delete', name: 'articles_delete', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]

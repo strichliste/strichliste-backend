@@ -184,9 +184,11 @@ class UserController extends AbstractController {
             }
         }
 
+        // 422 on failed submits — Turbo ignores non-redirect form responses
+        // that come back 200, so errors would never reach the screen.
         return $this->render('users/create.html.twig', [
             'form' => $form->createView(),
-        ]);
+        ], new Response(status: $form->isSubmitted() ? Response::HTTP_UNPROCESSABLE_ENTITY : Response::HTTP_OK));
     }
 
     #[Route('/user/{id}/edit', name: 'users_edit', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
@@ -236,7 +238,7 @@ class UserController extends AbstractController {
         return $this->render('users/edit.html.twig', [
             'user' => $user,
             'form' => $form->createView(),
-        ]);
+        ], new Response(status: $form->isSubmitted() ? Response::HTTP_UNPROCESSABLE_ENTITY : Response::HTTP_OK));
     }
 
 }
