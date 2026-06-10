@@ -58,13 +58,13 @@ class SearchController extends AbstractController {
 
         $count = (int) $repo->createQueryBuilder('u')
             ->select('COUNT(u.id)')
-            ->where("u.name LIKE :q ESCAPE '!'")
+            ->where("LOWER(u.name) LIKE LOWER(:q) ESCAPE '!'")
             ->andWhere('u.disabled = false')
             ->setParameter('q', $like)
             ->getQuery()->getSingleScalarResult();
 
         $results = $repo->createQueryBuilder('u')
-            ->where("u.name LIKE :q ESCAPE '!'")
+            ->where("LOWER(u.name) LIKE LOWER(:q) ESCAPE '!'")
             ->andWhere('u.disabled = false')
             ->setParameter('q', $like)
             ->orderBy('u.name')
@@ -82,13 +82,13 @@ class SearchController extends AbstractController {
 
         $count = (int) $repo->createQueryBuilder('a')
             ->select('COUNT(a.id)')
-            ->where("a.name LIKE :q ESCAPE '!'")
+            ->where("LOWER(a.name) LIKE LOWER(:q) ESCAPE '!'")
             ->andWhere('a.active = true')
             ->setParameter('q', $like)
             ->getQuery()->getSingleScalarResult();
 
         $results = $repo->createQueryBuilder('a')
-            ->where("a.name LIKE :q ESCAPE '!'")
+            ->where("LOWER(a.name) LIKE LOWER(:q) ESCAPE '!'")
             ->andWhere('a.active = true')
             ->setParameter('q', $like)
             ->orderBy('a.name')
@@ -102,7 +102,9 @@ class SearchController extends AbstractController {
     private function escapeLike(string $q): string {
         // Explicit ESCAPE '!' in the DQL: backslash-as-escape is a
         // Postgres/MySQL convention — SQLite has NO default escape character,
-        // so an escaped pattern silently mismatches there.
+        // so an escaped pattern silently mismatches there. LOWER() on both
+        // sides keeps the match case-insensitive across engines (Postgres
+        // LIKE is case-sensitive, SQLite's is not).
         return str_replace(['!', '%', '_'], ['!!', '!%', '!_'], $q);
     }
 }
