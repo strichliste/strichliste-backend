@@ -1,0 +1,3 @@
+# Constraint messages resolve in the `validators` domain, not `messages` —
+# keys referenced from Assert\* constraints must live here.
+user.create.errors.invalid_name: Der Name enthält ungültige Zeichen.
