@@ -24,7 +24,13 @@
         <h2 id="metrics-chart-balance">{{ 'metrics.global.chart.balance_heading'|trans }}</h2>
         <div class="metrics-chart__canvas-wrap">
             <canvas role="img" aria-label="{{ 'metrics.global.chart.balance_alt'|trans }}"
-                    data-controller="chart" data-chart-data-id-value="metrics-days-json"></canvas>
+                    data-controller="chart" data-chart-data-id-value="metrics-days-json"
+                    data-chart-currency-value="{{ currencySymbol }}"
+                    data-chart-labels-value="{{ {
+                        charged: 'metrics.global.chart.series.charged'|trans,
+                        spent: 'metrics.global.chart.series.spent'|trans,
+                        net: 'metrics.global.chart.series.net'|trans,
+                    }|json_encode }}"></canvas>
         </div>
     </section>
 
@@ -32,7 +38,8 @@
         <h2 id="metrics-chart-users">{{ 'metrics.global.chart.users_heading'|trans }}</h2>
         <div class="metrics-chart__canvas-wrap">
             <canvas role="img" aria-label="{{ 'metrics.global.chart.users_alt'|trans }}"
-                    data-controller="chart" data-chart-data-id-value="metrics-days-json" data-chart-variant-value="users"></canvas>
+                    data-controller="chart" data-chart-data-id-value="metrics-days-json" data-chart-variant-value="users"
+                    data-chart-labels-value="{{ {users: 'metrics.global.chart.series.users'|trans}|json_encode }}"></canvas>
         </div>
     </section>
 

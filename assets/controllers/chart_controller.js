@@ -32,7 +32,14 @@ Chart.register(
  * `data-chart-data-id-value`.
  */
 export default class extends Controller {
-  static values = { dataId: String, variant: String };
+  static values = {
+    dataId: String,
+    variant: String,
+    // Translated series names and the configured currency symbol come from
+    // the template — nothing user-facing is hardcoded here.
+    labels: Object,
+    currency: { type: String, default: '€' },
+  };
 
   connect() {
     const source = document.getElementById(this.dataIdValue);
@@ -60,9 +67,10 @@ export default class extends Controller {
       window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     const variant = this.hasVariantValue ? this.variantValue : 'balance';
+    const L = { charged: 'Charged', spent: 'Spent', net: 'Net', users: 'Users', ...this.labelsValue };
     const datasets = variant === 'users'
       ? [{
-          label: 'Users',
+          label: L.users,
           data: days.map((d) => d.distinctUsers ?? 0),
           backgroundColor: greenText,
           borderColor: greenText,
@@ -71,7 +79,7 @@ export default class extends Controller {
         }]
       : [
           {
-            label: 'Charged',
+            label: L.charged,
             data: days.map((d) => d.charged / 100),
             backgroundColor: greenText,
             borderColor: greenText,
@@ -80,7 +88,7 @@ export default class extends Controller {
             barPercentage: 0.9,
           },
           {
-            label: 'Spent',
+            label: L.spent,
             data: days.map((d) => d.spent / 100),
             backgroundColor: redText,
             borderColor: redText,
@@ -89,7 +97,7 @@ export default class extends Controller {
             barPercentage: 0.9,
           },
           {
-            label: 'Net',
+            label: L.net,
             data: days.map((d) => d.balance / 100),
             type: 'line',
             // Use the theme text color so the net line stays visible in dark mode
@@ -119,7 +127,7 @@ export default class extends Controller {
           tooltip: {
             callbacks: variant === 'users'
               ? { label: (ctx) => `${ctx.dataset.label}: ${ctx.parsed.y}` }
-              : { label: (ctx) => `${ctx.dataset.label}: €${ctx.parsed.y.toFixed(2)}` },
+              : { label: (ctx) => `${ctx.dataset.label}: ${this.currencyValue}${ctx.parsed.y.toFixed(2)}` },
           },
         },
         scales: {
