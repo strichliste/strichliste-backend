@@ -14,18 +14,14 @@ balance:
 
 nav:
     main: Main navigation
-    users: Users
     articles: Article List
     split_invoice: Split Invoice
     metrics: Metrics
-    search_label: Search
     search:
         input_label: Search
         input_placeholder: Search
         submit: Search
 
-footer:
-    api_link: REST API
 
 user:
     active:
@@ -36,8 +32,6 @@ user:
         empty_title: No users yet
         empty_active: Create a new user to get started.
         empty_inactive: No inactive users.
-        toggle_active: Active
-        toggle_inactive: Inactive
         add_cta: Add user
         filter_aria: User status filter
     create:
@@ -55,7 +49,6 @@ user:
         email_label: Email address
         disable_label: Disable this account
         submit: Save changes
-        back: Back to user
         success: User updated.
         disabled_success: '%name% disabled.'
     detail:
@@ -72,11 +65,9 @@ user:
             paypal: PayPal
     buy:
         scan:
-            heading: Scan barcode
             input_label: Barcode
             submit: Buy
         picker:
-            heading: Pick an article
             empty: No active articles. Add one first.
         search_label: Search for article or scan barcode
         search_placeholder: search for article
@@ -98,14 +89,11 @@ transactions:
         count_other: '%count% transactions'
     deposit:
         title: Deposit
-        custom_label: Custom amount
         submit: Deposit
     dispense:
         title: Dispense
-        custom_label: Custom amount
         submit: Dispense
     transfer:
-        title: Send money to user
         recipient_label: Recipient
         recipient_placeholder: USERNAME
         notes_placeholder: Add notes to your transaction
@@ -137,14 +125,7 @@ pagination:
     next: Next
     page_of: 'Page %current% of %total%'
 
-settings:
-    title: Settings
-    intro: 'Read-only view of the current configuration. Source of truth: config/strichliste.yaml.'
 
-coming_soon:
-    title: Coming soon
-    body_with_epic: 'This page lands in Epic %epic%.'
-    body_generic: 'This page is not implemented yet.'
 
 metrics:
     global:
@@ -164,7 +145,6 @@ metrics:
             balance_alt: 'Bar chart of money charged and spent per day, with a net balance line, over the period. Exact daily figures are in the data table below.'
             users_alt: 'Bar chart of distinct active users per day over the period. Exact daily figures are in the data table below.'
         table:
-            heading: Activity — last 30 days
             show_table: Show data as table
             col:
                 date: Date
@@ -200,7 +180,6 @@ paypal:
         mode: 'PayPal mode: %mode%'
     return:
         success: 'Deposit of %amount% confirmed.'
-        error_title: Deposit failed
         error_body: We could not record the deposit. Please contact an operator.
     cancel:
         title: Payment cancelled
@@ -220,16 +199,13 @@ search:
 
 split_invoice:
     title: Split Invoice
-    intro: Distribute one bill across multiple users — each pays the recipient an equal share.
     fields:
         amount_placeholder: amount
         comment_placeholder: comment
         recipient_placeholder: select recipient
-        participant_placeholder: select participant
         with: with
         and: and
     participants:
-        heading: Participants
         empty_slot: select participant
         row_label: Participant
         add: add participant
@@ -258,7 +234,6 @@ articles:
         empty: No articles yet.
         filter_aria: Article status filter
         filter:
-            heading: Filter by tag
             all: All
     fields:
         name: Name
