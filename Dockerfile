@@ -3,7 +3,7 @@
 # Build:  docker build -t strichliste .
 # Run:    docker compose up  (see compose.yaml)
 
-FROM dunglas/frankenphp:1-php8.4 AS app
+FROM dunglas/frankenphp:1-php8.5 AS app
 
 # intl       -> NumberFormatter (currency display)
 # pdo_pgsql  -> default Postgres setup (pdo_sqlite is built in)

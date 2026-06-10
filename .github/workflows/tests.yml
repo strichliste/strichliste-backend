@@ -20,14 +20,14 @@ jobs:
 
       - uses: shivammathur/setup-php@v2
         with:
-          php-version: "8.4"
+          php-version: "8.5"
           extensions: ctype, iconv, json, intl, pdo_sqlite
           coverage: none
 
       - uses: actions/cache@v5
         with:
           path: ~/.cache/composer
-          key: ${{ runner.os }}-php8.4-composer-${{ hashFiles('composer.lock') }}
+          key: ${{ runner.os }}-php8.5-composer-${{ hashFiles('composer.lock') }}
 
       - run: composer validate --strict --no-check-publish
 
@@ -48,8 +48,8 @@ jobs:
       fail-fast: false
       matrix:
         db: [sqlite, mariadb, pgsql]
-        # 8.2 is the composer.json floor; 8.4 matches the FrankenPHP image.
-        php: ["8.2", "8.4"]
+        # 8.2 is the composer.json floor; 8.5 matches the FrankenPHP image.
+        php: ["8.2", "8.5"]
         include:
           - db: sqlite
             database_url: "sqlite:////tmp/strichliste_test.db"
