@@ -6,8 +6,19 @@ services:
     environment:
       DATABASE_URL: "postgresql://strichliste:strichliste@database:5432/strichliste?serverVersion=16&charset=utf8"
       # Override these for a real deployment:
-      # APP_SECRET: change-me
+      # APP_SECRET: change-me                  # the baked-in default is publicly known
       # SERVER_NAME: strichliste.example.com   # enables automatic HTTPS (also publish 443)
+    # To customize app settings without rebuilding the image, mount your copy
+    # (the entrypoint recompiles the container cache on boot so it is honored):
+    # volumes:
+    #   - ./config/strichliste.yaml:/app/config/strichliste.yaml:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "php", "-r", "exit(@file_get_contents('http://127.0.0.1/user/active') === false ? 1 : 0);"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
     depends_on:
       database:
         condition: service_healthy
@@ -18,10 +29,13 @@ services:
       POSTGRES_DB: strichliste
       POSTGRES_USER: strichliste
       POSTGRES_PASSWORD: strichliste
-    # Published on 5433 so a non-Docker `symfony serve` setup can use the same
-    # database — matches the DATABASE_URL default in .env.
+    # Bound to loopback only: the default credentials must not be reachable
+    # from the network. Published at all (on 5433) so a non-Docker
+    # `symfony serve` setup can use the same database — matches the
+    # DATABASE_URL default in .env.
     ports:
-      - "5433:5432"
+      - "127.0.0.1:5433:5432"
+    restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U strichliste -d strichliste"]
       interval: 3s
