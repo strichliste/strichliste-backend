@@ -10,6 +10,7 @@ use App\Service\MoneyParser;
 use App\Service\SettingsService;
 use App\Service\TransactionService;
 use App\Twig\AppExtension;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -40,6 +41,7 @@ class PayPalController extends AbstractController {
         private UriSigner $uriSigner,
         private MoneyParser $moneyParser,
         private AppExtension $appExtension,
+        private LoggerInterface $logger,
     ) {
     }
 
@@ -184,6 +186,8 @@ class PayPalController extends AbstractController {
         } catch (TransactionBoundaryException | AccountBalanceBoundaryException | TransactionInvalidException $e) {
             $this->addFlash('error', $this->translator->trans('transactions.errors.boundary'));
         } catch (\Throwable $e) {
+            // The member HAS paid at this point — this must never be silent.
+            $this->logger->critical('PayPal deposit could not be credited after payment.', ['exception' => $e, 'user' => $user->getId(), 'cents' => $amount]);
             $this->addFlash('error', $this->translator->trans('paypal.return.error_body'));
         }
 

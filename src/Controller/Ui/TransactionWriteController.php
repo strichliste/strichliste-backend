@@ -14,6 +14,7 @@ use App\Repository\TransactionRepository;
 use App\Repository\UserRepository;
 use App\Service\MoneyParser;
 use App\Service\TransactionService;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -30,6 +31,7 @@ class TransactionWriteController extends AbstractController {
         private TransactionService $transactionService,
         private TransactionRepository $transactionRepository,
         private TranslatorInterface $translator,
+        private LoggerInterface $logger,
     ) {
     }
 
@@ -76,6 +78,7 @@ class TransactionWriteController extends AbstractController {
         } catch (TransactionBoundaryException | AccountBalanceBoundaryException | TransactionInvalidException $e) {
             $this->addFlash('error', $this->translator->trans('transactions.errors.boundary'));
         } catch (\Throwable $e) {
+            $this->logger->error('Transaction create failed unexpectedly.', ['exception' => $e, 'user' => $user->getId()]);
             $this->addFlash('error', $this->translator->trans('transactions.errors.generic'));
         }
 
@@ -129,6 +132,7 @@ class TransactionWriteController extends AbstractController {
         } catch (UserNotFoundException $e) {
             $this->addFlash('error', $this->translator->trans('transactions.errors.recipient_missing'));
         } catch (\Throwable $e) {
+            $this->logger->error('Transfer failed unexpectedly.', ['exception' => $e, 'user' => $user->getId()]);
             $this->addFlash('error', $this->translator->trans('transactions.errors.generic'));
         }
 
@@ -172,6 +176,7 @@ class TransactionWriteController extends AbstractController {
         } catch (TransactionNotDeletableException $e) {
             $this->addFlash('error', $this->translator->trans('transactions.errors.not_deletable'));
         } catch (\Throwable $e) {
+            $this->logger->error('Undo failed unexpectedly.', ['exception' => $e, 'user' => $user->getId(), 'tx' => $txId]);
             $this->addFlash('error', $this->translator->trans('transactions.errors.generic'));
         }
 

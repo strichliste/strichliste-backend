@@ -5,6 +5,7 @@ namespace App\Controller\Ui;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Twig\AppExtension;
+use Psr\Log\LoggerInterface;
 use App\Service\MoneyParser;
 use App\Service\SettingsService;
 use App\Service\TransactionService;
@@ -26,6 +27,7 @@ class SplitInvoiceController extends AbstractController {
         private TranslatorInterface $translator,
         private MoneyParser $moneyParser,
         private AppExtension $appExtension,
+        private LoggerInterface $logger,
     ) {
     }
 
@@ -117,6 +119,7 @@ class SplitInvoiceController extends AbstractController {
                 $this->addFlash('transaction_success', '1');
                 return $this->redirectToRoute('users_detail', ['id' => $recipient->getId()], Response::HTTP_SEE_OTHER);
             } catch (\Throwable $e) {
+                $this->logger->error('Split invoice failed and was rolled back.', ['exception' => $e]);
                 $errors[] = $this->translator->trans('split_invoice.flash.rolled_back');
             }
         }

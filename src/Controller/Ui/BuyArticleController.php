@@ -11,6 +11,7 @@ use App\Repository\ArticleRepository;
 use App\Repository\BarcodeRepository;
 use App\Repository\UserRepository;
 use App\Service\TransactionService;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -26,6 +27,7 @@ class BuyArticleController extends AbstractController {
         private BarcodeRepository $barcodeRepository,
         private TransactionService $transactionService,
         private TranslatorInterface $translator,
+        private LoggerInterface $logger,
     ) {
     }
 
@@ -79,6 +81,7 @@ class BuyArticleController extends AbstractController {
         } catch (ArticleNotFoundException $e) {
             $this->addFlash('error', $this->translator->trans('articles.errors.not_found'));
         } catch (\Throwable $e) {
+            $this->logger->error('Article purchase failed unexpectedly.', ['exception' => $e, 'user' => $user->getId()]);
             $this->addFlash('error', $this->translator->trans('transactions.errors.generic'));
         }
 
