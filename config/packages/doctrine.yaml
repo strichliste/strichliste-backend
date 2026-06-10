@@ -8,9 +8,10 @@ parameters:
 doctrine:
     dbal:
         url: '%env(resolve:DATABASE_URL)%'
-        # Nested `wrapInTransaction` (doSplit -> doTransaction) relies on
-        # savepoints, which DBAL >= 3.10 always enables — the former
-        # `use_savepoints` toggle no longer exists in DoctrineBundle 2.18.
+        # Savepoints make `wrapInTransaction` reentrant — required for `doSplit`
+        # which calls `doTransaction` (already wrapped) in a loop under one outer
+        # tx, and required by dama/doctrine-test-bundle while we're on DBAL 3.
+        use_savepoints: true
     orm:
         # `auto_generate_proxy_classes` is gone in DoctrineBundle 2.18 — ORM
         # lazy-loading now uses PHP native lazy objects, nothing to configure.
