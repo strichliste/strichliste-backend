@@ -12,10 +12,6 @@ import { Controller } from '@hotwired/stimulus';
  */
 export default class extends Controller {
   connect() {
-    const regions = {
-      status: document.getElementById('flash-announcer-status'),
-      alert: document.getElementById('flash-announcer-alert'),
-    };
     const buckets = { status: [], alert: [] };
     this.element.querySelectorAll('.flash').forEach((el) => {
       const level = el.dataset.flashLevel === 'alert' ? 'alert' : 'status';
@@ -25,7 +21,16 @@ export default class extends Controller {
 
     // Defer one frame so the write lands after this element is connected,
     // guaranteeing the mutation (not the initial content) is what's announced.
+    // The region lookups MUST also happen inside the deferred callback:
+    // connect() fires inside Turbo's permanent-element swap, where the
+    // data-turbo-permanent regions are temporarily replaced by placeholders
+    // and getElementById returns null — resolving them here found nothing on
+    // every Turbo visit, i.e. on every single app action.
     this.frame = requestAnimationFrame(() => {
+      const regions = {
+        status: document.getElementById('flash-announcer-status'),
+        alert: document.getElementById('flash-announcer-alert'),
+      };
       Object.keys(buckets).forEach((level) => {
         if (regions[level] && buckets[level].length) {
           regions[level].textContent = buckets[level].join('. ');
