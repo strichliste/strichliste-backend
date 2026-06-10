@@ -208,6 +208,8 @@ body { padding-top: 4rem; }
   padding: 0.75rem 1rem;
   border-radius: var(--borderRadius);
   box-shadow: var(--level1);
+  /* Flashes interpolate user/article names (up to 64/255 unbroken chars). */
+  overflow-wrap: anywhere;
 }
 
 .flash--success {
@@ -246,6 +248,8 @@ body { padding-top: 4rem; }
 
 .page-header h1 {
   font-size: 1.5rem;
+  /* Page titles interpolate user/article names. */
+  overflow-wrap: anywhere;
 }
 
 .page-header__subtitle {
@@ -258,6 +262,7 @@ body { padding-top: 4rem; }
    0.625rem padding. Active tab gets the card background pill via aria-current. */
 .tabs {
   display: flex;
+  flex-wrap: wrap;
   gap: 0;
   margin-bottom: 1.5rem;
   align-items: center;
@@ -476,19 +481,31 @@ body { padding-top: 4rem; }
   line-height: 1;
 }
 
-/* Floating add-user/add-article FAB: bottom-left on mobile, hangs off the
-   wrapper on tablet+. */
+/* Floating add-user/add-article FAB: bottom-right on mobile (the standard
+   spot — list content is left-aligned and was being covered), in the list
+   gutter on tablet+. */
 .fab--floating {
   position: fixed;
   bottom: 1rem;
-  left: 1rem;
+  right: 1rem;
   z-index: 10;
+}
+
+/* Keep the footer's "Code" link reachable under the fixed FAB. */
+@media (max-width: 48em) {
+  .app-footer {
+    padding-right: 4.5rem;
+  }
+  main {
+    padding-bottom: 4rem;
+  }
 }
 
 @media (min-width: 48em) {
   .fab--floating {
     position: absolute;
     bottom: auto;
+    right: auto;
     /* Sits inside the 8rem left gutter that the list wrapper reserves below
        (margin-top clears the toolbar row so it aligns with the first cards). */
     left: 5rem;
@@ -508,7 +525,6 @@ body { padding-top: 4rem; }
   margin-bottom: 0;
 }
 
-/* Shift the list wrapper right on tablet+ to make room for the absolute FAB. */
 @media (min-width: 48em) {
   .list-toolbar { margin-left: 8rem; }
   .user-grid { margin-left: 8rem; }
@@ -518,6 +534,7 @@ body { padding-top: 4rem; }
   .tag-filter { margin-left: 8rem; }
 }
 
+/* Shift the list wrapper right on tablet+ to make room for the absolute FAB. */
 /* ---------- footer (SPA: small grey line, MIT credit + Code link) ---------- */
 .app-footer {
   font-size: 0.8rem;
@@ -557,7 +574,7 @@ body { padding-top: 4rem; }
 
 /* ---------- forms ---------- */
 .form-card {
-  max-width: 480px;
+  max-width: 27rem;
   margin: 0 auto;
 }
 
@@ -770,16 +787,19 @@ body { padding-top: 4rem; }
 /* Flat rows separated by a hairline bottom border — no per-row card chrome. */
 .transaction-list {
   list-style: none;
-  margin: 0;
+  margin: 0 auto;
   padding: 0;
   display: flex;
   flex-direction: column;
   gap: 0;
+  /* Caps the full-history page on wide screens; inside the user-detail
+     grid the column is narrower than this anyway. */
+  max-width: 64rem;
 }
 
 .transaction-row {
   display: grid;
-  grid-template-columns: minmax(100px, max-content) 1fr auto;
+  grid-template-columns: minmax(100px, max-content) minmax(0, 1fr) auto;
   gap: 0.75rem;
   align-items: center;
   background: transparent;
@@ -813,6 +833,11 @@ body { padding-top: 4rem; }
   color: var(--textSubtile);
 }
 
+/* Counterpart names and comments are user-supplied — wrap, don't overflow. */
+.transaction-row__desc {
+  overflow-wrap: anywhere;
+}
+
 .transfer-address--to { color: var(--greenText); }
 .transfer-address--from { color: var(--text); }
 /* Underlined: color alone cannot distinguish these from body text. */
@@ -834,7 +859,9 @@ body { padding-top: 4rem; }
 
 @media (min-width: 48em) {
   .user-hero {
-    width: 30rem;
+    /* max-, not fixed: a fixed width on a text container overflows with
+       long unbroken names. */
+    max-width: 30rem;
   }
 }
 
@@ -842,7 +869,10 @@ body { padding-top: 4rem; }
   display: inline-flex;
   align-items: center;
   gap: 0.6rem;
-  font-size: 2rem;
+  /* User names are up to 64 unbroken chars — wrap rather than overflow,
+     and scale down on phones (36px text wraps to towers at 320px). */
+  overflow-wrap: anywhere;
+  font-size: clamp(1.4rem, 5vw + 0.5rem, 2rem);
   font-weight: 300;
   text-transform: none;
   color: var(--text);
@@ -860,6 +890,9 @@ body { padding-top: 4rem; }
    pill (same treatment as the list-page .tabs). */
 .user-tabs {
   display: flex;
+  /* Wraps under pressure: a centered overflowing strip clips its first and
+     last tab off-screen unreachably at 320px. */
+  flex-wrap: wrap;
   justify-content: center;
   gap: 1rem;
   margin: 0 auto 1.5rem;
@@ -907,14 +940,22 @@ body { padding-top: 4rem; }
    3rem gap between, centered on tablet+. Single column below 48em. */
 .user-detail-grid {
   display: grid;
-  grid-template-columns: 1fr;
+  /* minmax(0, …): the step card's intrinsic minimum must never widen the
+     track past the viewport (it clipped buttons and timestamps at 320px). */
+  grid-template-columns: minmax(0, 1fr);
   gap: 1rem;
   margin: 1rem;
 }
 
+.user-detail-grid > * {
+  min-width: 0;
+}
+
 @media (min-width: 48em) {
   .user-detail-grid {
-    grid-template-columns: 24rem 1fr;
+    /* The payment column may shrink a little and the transaction column may
+       collapse — fixed 24rem + 1fr ran ~22px hot at exactly 768px. */
+    grid-template-columns: minmax(17rem, 24rem) minmax(0, 1fr);
     gap: 3rem;
     justify-content: center;
     align-items: start;
@@ -980,7 +1021,9 @@ body { padding-top: 4rem; }
 
 .step-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  /* auto-fit instead of a rigid 3-up: at 320px three fixed columns clipped
+     the third button; narrow cards simply reflow to two columns. */
+  grid-template-columns: repeat(auto-fit, minmax(4.5rem, 1fr));
   gap: 1rem;
 }
 
@@ -1032,13 +1075,33 @@ details.custom-form summary {
 details.custom-form summary::-webkit-details-marker { display: none; }
 details.custom-form[open] summary { color: var(--text); }
 
-/* Single-row composer: [Deposit] [amount] [Dispense], comment below. */
+/* Single-row composer: [Deposit] [amount] [Dispense], comment below.
+   On narrow screens the amount takes its own row and the buttons pair up
+   beneath it — the three-across row overflowed the card at phone widths. */
 .custom-form__bar {
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-areas:
+    'deposit amount dispense'
+    'comment comment comment';
   gap: 0.5rem;
   align-items: stretch;
   padding: 0.5rem 0 0.75rem;
+}
+
+.custom-form__bar .btn--green { grid-area: deposit; }
+.custom-form__bar .btn--red { grid-area: dispense; }
+.custom-form__amount { grid-area: amount; }
+.custom-form__comment { grid-area: comment; }
+
+@media (max-width: 36em) {
+  .custom-form__bar {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      'amount amount'
+      'deposit dispense'
+      'comment comment';
+  }
 }
 
 .custom-form__submit {
@@ -1051,9 +1114,7 @@ details.custom-form[open] summary { color: var(--text); }
   font-variant-numeric: tabular-nums;
 }
 
-.custom-form__comment {
-  grid-column: 1 / -1;
-}
+
 
 /* Grey tint: the composer sits on the white step card, so the inputs need
    their own surface to be visible at all. */
@@ -1085,10 +1146,30 @@ details.custom-form[open] summary { color: var(--text); }
 
 .send-form {
   display: grid;
-  grid-template-columns: 4fr 1fr 4fr 1fr;
+  grid-template-columns: minmax(0, 4fr) 1fr minmax(0, 4fr) 1fr;
+  grid-template-areas: 'amount arrow recipient submit';
   gap: 1rem;
   align-items: center;
   margin: 1rem 0 0;
+}
+
+.send-form__amount { grid-area: amount; }
+.send-form__arrow { grid-area: arrow; }
+.send-form__recipient { grid-area: recipient; }
+.send-form .accept-circle { grid-area: submit; justify-self: end; }
+
+/* Phones: the 4-column row crushed the recipient select to a sliver — the
+   amount takes a row, recipient + submit share the next; the decorative
+   arrow goes (it's aria-hidden anyway). */
+@media (max-width: 36em) {
+  .send-form {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'amount amount'
+      'recipient submit';
+  }
+  /* Double selector: must out-cascade the base display rule declared later. */
+  .send-form .send-form__arrow { display: none; }
 }
 
 .send-form__amount {
@@ -1170,7 +1251,7 @@ details.custom-form[open] summary { color: var(--text); }
 .recent-tx { margin-top: 0; }
 .recent-tx__footer {
   display: flex;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   justify-content: flex-end;
   gap: 1rem;
   margin-top: 0.5rem;
@@ -1199,6 +1280,8 @@ details.custom-form[open] summary { color: var(--text); }
   list-style: none;
   margin: 0;
   padding: 0;
+  /* Unclamped rows put ~1000px between name and price on wide screens. */
+  max-width: 56rem;
 }
 
 /* SPA: padding 1rem all sides; margin-bottom .2rem between rows. */
@@ -1223,6 +1306,8 @@ details.custom-form[open] summary { color: var(--text); }
 .article-row__name {
   font-size: 1.25rem;
   color: var(--text);
+  /* Article names are up to 255 chars. */
+  overflow-wrap: anywhere;
 }
 
 .article-row__price {
@@ -1300,6 +1385,9 @@ details.custom-form[open] summary { color: var(--text); }
 }
 .chip__label {
   color: var(--text);
+  /* Barcodes are up to 32 chars with no break opportunities. */
+  overflow-wrap: anywhere;
+  min-width: 0;
 }
 .chip-list__empty {
   color: var(--textSubtile);
@@ -1328,8 +1416,13 @@ details.custom-form[open] summary { color: var(--text); }
 .inline-form { display: contents; }
 .inline-add {
   display: flex;
+  /* The button drops below the field on narrow cards instead of overflowing. */
+  flex-wrap: wrap;
   align-items: flex-end;
   gap: 0.5rem;
+}
+.inline-add__field input {
+  min-width: 0;
 }
 .inline-add__field { flex: 1; }
 /* Match the input's height (0.5rem padding + 0.9rem text + 1px borders) so
@@ -1399,6 +1492,9 @@ details.custom-form[open] summary { color: var(--text); }
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
+  /* A single 255-char article name must not force page-level scroll:
+     the pill caps at its row and the name ellipsizes. */
+  max-width: 100%;
   padding: 0.5rem 0.75rem;
   background: var(--componentBackgroundLight);
   color: var(--buttonDefaultFont);
@@ -1417,6 +1513,11 @@ details.custom-form[open] summary { color: var(--text); }
   box-shadow: var(--level2);
 }
 
+.buy-tab__pill-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .buy-tab__pill-sep {
   color: var(--textSubtile);
   font-weight: 400;
@@ -1432,12 +1533,15 @@ details.custom-form[open] summary { color: var(--text); }
 /* No-JS barcode fallback row (hidden by the controller when JS is alive). */
 .buy-tab__scan {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 0.5rem;
   font-size: 0.8rem;
   color: var(--textSubtile);
 }
 .buy-tab__scan input[type='text'] {
+  flex: 1 1 8rem;
+  min-width: 0;
   width: 11rem;
   padding: 0.4rem 0.6rem;
   background: var(--componentBackgroundLight);
@@ -1464,6 +1568,7 @@ details.custom-form[open] summary { color: var(--text); }
 .search-results { list-style: none; padding: 0; }
 .search-results a { text-decoration: underline; }
 .search-results li {
+  overflow-wrap: anywhere;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -1499,14 +1604,28 @@ details.custom-form[open] summary { color: var(--text); }
   display: none;
 }
 
-/* The headline grid: [amount input] [with] [recipient picker], equal columns. */
+/* The headline grid: [amount input] [with] [recipient picker]. The static
+   conjunction only needs its own width; equal thirds squeezed the fields. */
 .split-invoice-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   gap: 1rem;
   margin: 1rem 0;
   align-items: center;
   justify-content: center;
+}
+
+/* Phones: the natural-language sentence stacks vertically. */
+@media (max-width: 36em) {
+  .split-invoice-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* The recipient pick sits in a real grid track — the 190px clamp meant the
+   select truncated its own "Select recipient" label at every width. */
+.split-invoice-grid .split-invoice-pick {
+  max-width: none;
 }
 
 .split-invoice-conj {
@@ -1547,7 +1666,7 @@ details.custom-form[open] summary { color: var(--text); }
   text-align-last: center;
   cursor: pointer;
   width: 100%;
-  max-width: 190px;
+  max-width: 10.5rem;
   margin: 0 auto;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1627,7 +1746,7 @@ details.custom-form[open] summary { color: var(--text); }
 }
 .metrics-chart__canvas-wrap {
   position: relative;
-  height: 400px;
+  height: clamp(240px, 50vh, 400px);
   background: var(--componentBackgroundLight);
   border-radius: var(--borderRadius);
   box-shadow: var(--level1);
@@ -1645,7 +1764,7 @@ details.custom-form[open] summary { color: var(--text); }
 /* ---------- metrics ---------- */
 .kpi-row {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
   gap: 0.75rem;
   margin-bottom: 1rem;
 }
@@ -1704,6 +1823,9 @@ details.custom-form[open] summary { color: var(--text); }
   border-bottom: 1px solid var(--border);
   text-align: right;
   font-variant-numeric: tabular-nums;
+  /* The .table-scroll wrapper scrolls horizontally — wrapped three-line
+     dates are worse than a scrollable row. */
+  white-space: nowrap;
 }
 .metrics-table th:first-child,
 .metrics-table td:first-child {

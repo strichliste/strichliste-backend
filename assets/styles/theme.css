@@ -108,8 +108,9 @@ main:focus {
 html {
   --borderRadius: 4px;
   /* Diameter of the round icon buttons (.fab / cancel / accept / participant
-     remove) and the basis for how far the floating FAB hangs off the wrapper. */
-  --fab-size: 2rem;
+     remove) and the basis for how far the floating FAB hangs off the wrapper.
+     2.444rem = 44px: the touch-target guideline for primary kiosk actions. */
+  --fab-size: 2.444rem;
   --buttonDisabled: #bababa;
   --border: #e5e6e5;
   --componentBackgroundDark: #fff;
