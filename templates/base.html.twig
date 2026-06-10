@@ -35,6 +35,13 @@
         {% include '_partials/flash_messages.html.twig' %}
     {% endblock %}
 
+    {# Idle-timeout warning: revealed by the idle controller before it
+       redirects, and mirrored into the assertive live region (WCAG 2.2.1 —
+       warn and give time to extend; any activity cancels). #}
+    <div class="flashes" hidden data-idle-target="warning">
+        <div class="flash flash--info">{{ 'app.idle_warning'|trans }}</div>
+    </div>
+
     {% if app.flashes('transaction_success') is not empty %}
         <div hidden aria-hidden="true"
              data-controller="sound"
