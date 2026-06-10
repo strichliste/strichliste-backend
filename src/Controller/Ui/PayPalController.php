@@ -69,6 +69,17 @@ class PayPalController extends AbstractController {
             return $this->redirectToRoute('users_detail', ['id' => $id], Response::HTTP_SEE_OTHER);
         }
 
+        // Enforce the same boundaries createForUser() will apply on return —
+        // BEFORE the member pays real money to the operator's PayPal account.
+        // Otherwise a deposit above payment.boundary.upper (or one that pushes
+        // the balance past account.boundary.upper) is paid but never credited.
+        $paymentUpper = (int) $this->settings->getOrDefault('payment.boundary.upper', PHP_INT_MAX);
+        $accountUpper = (int) $this->settings->getOrDefault('account.boundary.upper', PHP_INT_MAX);
+        if ($cents > $paymentUpper || $user->getBalance() + $cents > $accountUpper) {
+            $this->addFlash('error', $this->translator->trans('transactions.errors.boundary'));
+            return $this->redirectToRoute('users_detail', ['id' => $id], Response::HTTP_SEE_OTHER);
+        }
+
         $feePercent = (float) $this->settings->getOrDefault('paypal.fee', 0);
         $totalMajor = round(($cents / 100) * (1 + $feePercent / 100), 2);
 
@@ -139,7 +150,7 @@ class PayPalController extends AbstractController {
             throw new NotFoundHttpException();
         }
 
-        // Consume the one-time nonce. A missing/unknown nonce means this signed
+        // Check the one-time nonce. A missing/unknown nonce means this signed
         // URL was already processed (or was never issued by start()) — treat it
         // as an idempotent replay and do not credit the account again.
         $nonce = (string) $request->query->get('nonce', '');
@@ -148,11 +159,17 @@ class PayPalController extends AbstractController {
         if ($nonce === '' || !array_key_exists($nonce, $pending)) {
             return $this->redirectToRoute('users_detail', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
         }
-        unset($pending[$nonce]);
-        $session->set(self::PENDING_SESSION_KEY, $pending);
 
         try {
             $this->transactionService->createForUser($user, $amount, 'paypal');
+            // Consume the nonce only once the credit is booked. The member has
+            // already paid PayPal at this point — if crediting fails (boundary,
+            // transient DB error), the signed URL must stay retryable within
+            // its TTL instead of silently swallowing the payment. PHP's session
+            // lock serializes concurrent requests on the same session, so this
+            // cannot double-credit.
+            unset($pending[$nonce]);
+            $session->set(self::PENDING_SESSION_KEY, $pending);
             $this->addFlash('success', $this->translator->trans('paypal.return.success', [
                 '%amount%' => $amount,
             ]));
