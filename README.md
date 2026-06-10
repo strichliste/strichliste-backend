@@ -44,13 +44,19 @@ container rebuilds. The entrypoint waits for the database and applies
 migrations automatically before serving traffic. `make help` lists the
 other shortcuts (`make up`, `make logs`, `make test`, ...).
 
-If host ports 80/443 are already taken, remap them in `compose.yaml`
-(e.g. `"8443:443"`) and open `https://localhost:8443` directly.
+If host ports 80/443 are already taken, remap them:
+
+```
+HTTP_PORT=8080 HTTPS_PORT=8443 HTTP3_PORT=8443 docker compose up -d
+```
+
+and open `https://localhost:8443` directly (the HTTP→HTTPS redirect
+targets the standard port, so skip the HTTP URL when remapping).
 
 What the image does for you:
 
-- **Migrations on boot** — disable with `AUTO_MIGRATE=0` (e.g. when
-  running several replicas).
+- **Migrations on boot** — the entrypoint waits for the database and
+  applies pending migrations before serving traffic.
 - **Settings without rebuilding** — bind-mount your own settings file;
   the entrypoint recompiles the container cache on boot so it is picked
   up (see the commented `volumes:` block in `compose.yaml`):
@@ -70,8 +76,9 @@ Environment knobs (set under `environment:` in `compose.yaml` or via
 | --- | --- | --- |
 | `APP_SECRET` | dev value (publicly known!) | Set a unique secret for any real deployment — the entrypoint warns loudly if you don't. |
 | `SERVER_NAME` | `localhost` (self-signed TLS) | Set a real hostname (e.g. `strichliste.example.com`) for automatic Let's Encrypt certificates, or `":80"` for plain HTTP only (e.g. LAN-IP kiosks). |
+| `HTTP_PORT` / `HTTPS_PORT` / `HTTP3_PORT` | `80` / `443` / `443` | Published host ports. |
+| `POSTGRES_USER` / `POSTGRES_PASSWORD` / `POSTGRES_DB` / `POSTGRES_VERSION` | `strichliste` / `strichliste` / `strichliste` / `16` | Database credentials shared by both services. |
 | `DATABASE_URL` | Postgres from compose | Any Doctrine DSN. SQLite works for small setups (see below). |
-| `AUTO_MIGRATE` | `1` | Run pending migrations on container start. |
 | `FRANKENPHP_CONFIG` | `worker ./public/index.php` | Unset (empty) to fall back to classic one-process-per-request mode. |
 
 Single container with SQLite instead of Postgres:

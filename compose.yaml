@@ -1,19 +1,13 @@
 services:
   app:
     build: .
-    # Standard FrankenPHP ports (https://github.com/php/frankenphp):
-    # HTTP, HTTPS, HTTP/3. If 80/443 are taken on your host, remap them
-    # (e.g. "8443:443") and open https://localhost:8443 directly.
-    ports:
-      - "80:80"
-      - "443:443"
-      - "443:443/udp"
+    restart: unless-stopped
     environment:
-      DATABASE_URL: "postgresql://strichliste:strichliste@database:5432/strichliste?serverVersion=16&charset=utf8"
       # localhost -> self-signed TLS from Caddy's local CA (browser warning
       # on first visit). A real hostname -> automatic Let's Encrypt
       # certificates. ":80" -> plain HTTP only (e.g. LAN-IP kiosks).
-      SERVER_NAME: "${SERVER_NAME:-localhost}"
+      SERVER_NAME: ${SERVER_NAME:-localhost}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-strichliste}:${POSTGRES_PASSWORD:-strichliste}@database:5432/${POSTGRES_DB:-strichliste}?serverVersion=${POSTGRES_VERSION:-16}&charset=${POSTGRES_CHARSET:-utf8}
       # Override for a real deployment — the baked-in default is publicly known:
       # APP_SECRET: change-me
     # To customize app settings without rebuilding the image, mount your copy
@@ -22,10 +16,22 @@ services:
     #   - ./config/strichliste.yaml:/app/config/strichliste.yaml:ro
     volumes:
       # Persists Caddy's local CA and certificates across restarts, so the
-      # browser exception (or trusted root) survives container recreation.
+      # browser trust (make tls) survives container recreation.
       - caddy_data:/data
       - caddy_config:/config
-    restart: unless-stopped
+    ports:
+      # HTTP
+      - target: 80
+        published: ${HTTP_PORT:-80}
+        protocol: tcp
+      # HTTPS
+      - target: 443
+        published: ${HTTPS_PORT:-443}
+        protocol: tcp
+      # HTTP/3
+      - target: 443
+        published: ${HTTP3_PORT:-443}
+        protocol: udp
     healthcheck:
       # Tries HTTPS (self-signed local CA -> no peer verification), falls
       # back to plain HTTP for SERVER_NAME=":80". $$ keeps docker compose
@@ -47,27 +53,27 @@ services:
         condition: service_healthy
 
   database:
-    image: postgres:16-alpine
+    image: postgres:${POSTGRES_VERSION:-16}-alpine
+    restart: unless-stopped
     environment:
-      POSTGRES_DB: strichliste
-      POSTGRES_USER: strichliste
-      POSTGRES_PASSWORD: strichliste
+      POSTGRES_DB: ${POSTGRES_DB:-strichliste}
+      POSTGRES_USER: ${POSTGRES_USER:-strichliste}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-strichliste}
+    healthcheck:
+      test: ["CMD", "pg_isready", "-d", "${POSTGRES_DB:-strichliste}", "-U", "${POSTGRES_USER:-strichliste}"]
+      timeout: 5s
+      retries: 5
+      start_period: 60s
     # Bound to loopback only: the default credentials must not be reachable
     # from the network. Published at all (on 5433) so a non-Docker
     # `symfony serve` setup can use the same database — matches the
     # DATABASE_URL default in .env.
     ports:
       - "127.0.0.1:5433:5432"
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U strichliste -d strichliste"]
-      interval: 3s
-      timeout: 3s
-      retries: 20
     volumes:
-      - database_data:/var/lib/postgresql/data
+      - database_data:/var/lib/postgresql/data:rw
 
 volumes:
-  database_data:
   caddy_data:
   caddy_config:
+  database_data:
