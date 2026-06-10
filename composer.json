@@ -13,6 +13,7 @@
         "doctrine/doctrine-migrations-bundle": "^3.3",
         "doctrine/orm": "^3.3",
         "nelmio/cors-bundle": "^2.6",
+        "runtime/frankenphp-symfony": "^1.0",
         "symfony/asset": "^7.4",
         "symfony/asset-mapper": "^7.4",
         "symfony/console": "^7.4",

@@ -1,0 +1,34 @@
+services:
+  app:
+    build: .
+    ports:
+      - "8080:80"
+    environment:
+      DATABASE_URL: "postgresql://strichliste:strichliste@database:5432/strichliste?serverVersion=16&charset=utf8"
+      # Override these for a real deployment:
+      # APP_SECRET: change-me
+      # SERVER_NAME: strichliste.example.com   # enables automatic HTTPS (also publish 443)
+    depends_on:
+      database:
+        condition: service_healthy
+
+  database:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: strichliste
+      POSTGRES_USER: strichliste
+      POSTGRES_PASSWORD: strichliste
+    # Published on 5433 so a non-Docker `symfony serve` setup can use the same
+    # database — matches the DATABASE_URL default in .env.
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U strichliste -d strichliste"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    volumes:
+      - database_data:/var/lib/postgresql/data
+
+volumes:
+  database_data:
