@@ -74,8 +74,11 @@ class UserController extends AbstractController {
         // the SEND tab is active (avoids an unnecessary EntityType SELECT and
         // CSRF token on every detail load).
         $sendData = $this->prepareSendTab($user, $tab === 'send');
+        // No limit: a capped picker silently makes articles beyond the cap
+        // unpurchasable in the UI. Pills are cheap to render and the
+        // client-side filter handles big catalogues.
         $buyData = $tab === 'buy' ? [
-            'articles' => $this->articleRepository->findBy(['active' => true], ['name' => 'ASC'], 50),
+            'articles' => $this->articleRepository->findBy(['active' => true], ['name' => 'ASC']),
         ] : null;
 
         // mark each row for the recent list whether it's deletable per the live service check
