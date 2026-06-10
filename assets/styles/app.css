@@ -1311,7 +1311,13 @@ details.custom-form[open] summary { color: var(--text); }
   align-items: flex-end;
   gap: 0.5rem;
 }
-.inline-add label { flex: 1; }
+.inline-add__field { flex: 1; }
+/* Match the input's height (0.5rem padding + 0.9rem text + 1px borders) so
+   the button bottom-aligns with the input, not below it. */
+.inline-add .btn {
+  padding: 0.65rem 0.75rem;
+  white-space: nowrap;
+}
 
 .barcode-section,
 .tag-section {

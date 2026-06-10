@@ -45,10 +45,13 @@
                     {% endfor %}
                 </ul>
                 <form method="post" action="{{ path('articles_barcodes_add', {id: article.id}) }}" class="inline-add">
-                    <label>
-                        {{ 'articles.barcodes.add_label'|trans }}
-                        <input type="text" name="barcode" maxlength="32" required>
-                    </label>
+                    {# Label and input as siblings — nesting the input inside
+                       the label loses the standard label-to-input gap and
+                       breaks the button's baseline alignment. #}
+                    <div class="inline-add__field">
+                        <label for="new-barcode">{{ 'articles.barcodes.add_label'|trans }}</label>
+                        <input type="text" id="new-barcode" name="barcode" maxlength="32" required>
+                    </div>
                     <input type="hidden" name="_token" value="{{ csrf_token('add_barcode' ~ article.id) }}">
                     <button type="submit" class="btn btn--add">+ {{ 'articles.barcodes.add_submit'|trans }}</button>
                 </form>
@@ -74,10 +77,10 @@
                     {% endfor %}
                 </ul>
                 <form method="post" action="{{ path('articles_tags_add', {id: article.id}) }}" class="inline-add">
-                    <label>
-                        {{ 'articles.tags.add_label'|trans }}
-                        <input type="text" name="tag" maxlength="64" required>
-                    </label>
+                    <div class="inline-add__field">
+                        <label for="new-tag">{{ 'articles.tags.add_label'|trans }}</label>
+                        <input type="text" id="new-tag" name="tag" maxlength="64" required>
+                    </div>
                     <input type="hidden" name="_token" value="{{ csrf_token('add_tag' ~ article.id) }}">
                     <button type="submit" class="btn btn--add">+ {{ 'articles.tags.add_submit'|trans }}</button>
                 </form>
