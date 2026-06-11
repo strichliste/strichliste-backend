@@ -667,6 +667,22 @@ body { padding-top: 4rem; }
   align-items: center;
 }
 
+.circle-action {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.circle-action__caption {
+  font-size: 0.65rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--textSubtile);
+  text-align: center;
+}
+
 .form-cancel-circle {
   background: var(--buttonCancelBackground);
   color: var(--buttonCancelFont);
@@ -1139,7 +1155,7 @@ body { padding-top: 4rem; }
 .send-form__amount { grid-area: amount; }
 .send-form__arrow { grid-area: arrow; }
 .send-form__recipient { grid-area: recipient; }
-.send-form .accept-circle { grid-area: submit; justify-self: end; }
+.send-form .circle-action { grid-area: submit; justify-self: end; }
 
 /* the 4-column row crushed the recipient select on phones; the arrow is
    decorative (aria-hidden) so it can go */
