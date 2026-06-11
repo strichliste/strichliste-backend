@@ -20,9 +20,11 @@ class Article
     #[ORM\Column(type: 'string', length: 255)]
     private ?string $name = null;
 
+    /** @var Collection<int, Barcode> */
     #[ORM\OneToMany(targetEntity: Barcode::class, mappedBy: 'article', cascade: ['persist'], fetch: 'EAGER')]
     private Collection $barcodes;
 
+    /** @var Collection<int, ArticleTag> */
     #[ORM\OneToMany(targetEntity: ArticleTag::class, mappedBy: 'article', cascade: ['persist', 'remove'], fetch: 'EAGER')]
     private Collection $articleTags;
 
@@ -180,18 +182,18 @@ class Article
         return $this;
     }
 
-    public function incrementUsageCount()
+    public function incrementUsageCount(): void
     {
         ++$this->usageCount;
     }
 
-    public function decrementUsageCount()
+    public function decrementUsageCount(): void
     {
         --$this->usageCount;
     }
 
     #[ORM\PrePersist]
-    public function setHistoryColumnsOnPrePersist(PrePersistEventArgs $event)
+    public function setHistoryColumnsOnPrePersist(PrePersistEventArgs $event): void
     {
         if (!$this->getCreated()) {
             $this->setCreated(new \DateTime());

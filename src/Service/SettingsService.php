@@ -6,10 +6,16 @@ use App\Exception\ParameterNotFoundException;
 
 class SettingsService
 {
+    /**
+     * @param array<string, mixed> $strichlisteSettings
+     */
     public function __construct(private array $strichlisteSettings)
     {
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getAll(): array
     {
         return $this->strichlisteSettings;

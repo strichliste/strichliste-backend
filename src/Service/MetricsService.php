@@ -46,6 +46,8 @@ class MetricsService
      * Daily activity for the last $days days, newest first.
      *
      * @param 'api'|'ui' $shape 'api' nests charged/spent as {amount, transactions}, 'ui' keeps them scalar
+     *
+     * @return list<array<string, mixed>>
      */
     public function transactionsPerDay(int $days, string $shape = 'ui'): array
     {
@@ -103,6 +105,8 @@ class MetricsService
 
     /**
      * @param bool $includeDeleted true preserves the legacy /api numbers, which counted reverted purchases
+     *
+     * @return list<array{cnt: int, amt: int, article: Article}>
      */
     public function userArticles(User $user, int $limit = 10, bool $includeDeleted = false): array
     {

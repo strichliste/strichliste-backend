@@ -190,7 +190,7 @@ class TransactionService
             throw new TransactionInvalidException('participants and perRowCents must align');
         }
         foreach ($perRowCents as $c) {
-            if (!is_int($c) || $c <= 0) {
+            if ($c <= 0) {
                 throw new TransactionInvalidException('per-row amount must be a positive int');
             }
         }
@@ -231,6 +231,10 @@ class TransactionService
      * @throws TransactionBoundaryException
      * @throws TransactionInvalidException
      * @throws ParameterNotFoundException
+     */
+    /**
+     * @throws TransactionNotFoundException
+     * @throws TransactionNotDeletableException
      */
     public function revertTransaction(int $transactionId): Transaction
     {
@@ -302,7 +306,7 @@ class TransactionService
      * @throws TransactionInvalidException
      * @throws ParameterNotFoundException
      */
-    private function undoTransaction(Transaction $transaction)
+    private function undoTransaction(Transaction $transaction): void
     {
         $user = $transaction->getUser();
 
@@ -321,25 +325,21 @@ class TransactionService
     }
 
     /**
-     * @return void
-     *
      * @throws \Doctrine\ORM\Exception\ORMException
      * @throws \Doctrine\ORM\PessimisticLockException
      */
-    private function lockAndRefresh(object $entity)
+    private function lockAndRefresh(object $entity): void
     {
         $this->entityManager->lock($entity, LockMode::PESSIMISTIC_WRITE);
         $this->entityManager->refresh($entity);
     }
 
     /**
-     * @param int $amount
-     *
      * @throws TransactionBoundaryException
      * @throws TransactionInvalidException
      * @throws ParameterNotFoundException
      */
-    private function checkTransactionBoundary($amount)
+    private function checkTransactionBoundary(?int $amount): void
     {
         if (!$amount) {
             throw new TransactionInvalidException();
@@ -360,7 +360,7 @@ class TransactionService
      * @throws AccountBalanceBoundaryException
      * @throws ParameterNotFoundException
      */
-    private function checkAccountBalanceBoundary(User $user)
+    private function checkAccountBalanceBoundary(User $user): void
     {
         $balance = $user->getBalance();
 

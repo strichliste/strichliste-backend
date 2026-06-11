@@ -4,6 +4,7 @@ namespace App\Controller\Api;
 
 use App\Service\SettingsService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api/settings')]
@@ -14,7 +15,7 @@ class SettingsController extends AbstractController
     }
 
     #[Route(methods: ['GET'])]
-    public function list()
+    public function list(): JsonResponse
     {
         return $this->json([
             'settings' => $this->settingsService->getAll(),

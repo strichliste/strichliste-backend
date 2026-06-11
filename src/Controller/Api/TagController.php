@@ -9,6 +9,7 @@ use App\Exception\ArticleNotFoundException;
 use App\Exception\ArticleTagAlreadyExistsException;
 use App\Exception\ParameterInvalidException;
 use App\Exception\TagNotFoundException;
+use App\Repository\TagRepository;
 use App\Serializer\ArticleSerializer;
 use App\Serializer\TagSerializer;
 use Doctrine\ORM\EntityManagerInterface;
@@ -78,7 +79,7 @@ class TagController extends AbstractController
     }
 
     #[Route('/article/{articleId}/tag', methods: ['POST'])]
-    public function addArticleTag(int $articleId, Request $request, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager): JsonResponse
+    public function addArticleTag(int $articleId, Request $request, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager, TagRepository $tagRepository): JsonResponse
     {
         $tag = trim($request->request->get('tag', ''));
         if (!$tag) {
@@ -91,7 +92,7 @@ class TagController extends AbstractController
         }
 
         $newTag = new Tag($tag);
-        $existingTag = $entityManager->getRepository(Tag::class)->findByTag($tag);
+        $existingTag = $tagRepository->findByTag($tag);
         if ($existingTag) {
             if ($article->hasTag($existingTag)) {
                 throw new ArticleTagAlreadyExistsException($article, $existingTag);

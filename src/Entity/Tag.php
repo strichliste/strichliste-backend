@@ -21,6 +21,7 @@ class Tag
     #[ORM\Column(type: 'string', nullable: false)]
     private string $tag = '';
 
+    /** @var Collection<int, ArticleTag> */
     #[ORM\OneToMany(targetEntity: ArticleTag::class, mappedBy: 'tag', cascade: ['persist', 'remove'], fetch: 'EAGER')]
     private Collection $articleTags;
 
@@ -78,7 +79,7 @@ class Tag
     }
 
     #[ORM\PrePersist]
-    public function setHistoryColumnsOnPrePersist(PrePersistEventArgs $event)
+    public function setHistoryColumnsOnPrePersist(PrePersistEventArgs $event): void
     {
         if (!$this->getCreated()) {
             $this->setCreated(new \DateTime());

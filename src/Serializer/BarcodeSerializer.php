@@ -6,6 +6,9 @@ use App\Entity\Barcode;
 
 class BarcodeSerializer
 {
+    /**
+     * @return array<string, mixed>
+     */
     public function serialize(Barcode $barcode): array
     {
         return [

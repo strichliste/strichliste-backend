@@ -3,13 +3,13 @@
 namespace App\Controller\Api;
 
 use App\Entity\Article;
-use App\Entity\User;
 use App\Exception\UserNotFoundException;
 use App\Repository\ArticleRepository;
+use App\Repository\UserRepository;
 use App\Serializer\ArticleSerializer;
 use App\Service\MetricsService;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -20,7 +20,7 @@ class MetricsController extends AbstractController
     }
 
     #[Route('/api/metrics', methods: ['GET'])]
-    public function metrics(Request $request, ArticleRepository $articleRepository, ArticleSerializer $articleSerializer)
+    public function metrics(Request $request, ArticleRepository $articleRepository, ArticleSerializer $articleSerializer): JsonResponse
     {
         // clamp: huge values allocate an array row per day, negative ones make DateTime throw
         $days = max(1, min(3650, (int) $request->query->get('days', 30)));
@@ -39,10 +39,9 @@ class MetricsController extends AbstractController
     }
 
     #[Route('/api/user/{userId}/metrics', methods: ['GET'])]
-    public function userMetrics($userId, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager)
+    public function userMetrics(string $userId, ArticleSerializer $articleSerializer, UserRepository $userRepository): JsonResponse
     {
-        /** @var User|null $user */
-        $user = $entityManager->getRepository(User::class)->findByIdentifier($userId);
+        $user = $userRepository->findByIdentifier($userId);
         if (!$user) {
             throw new UserNotFoundException($userId);
         }

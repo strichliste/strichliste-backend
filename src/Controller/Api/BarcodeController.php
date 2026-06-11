@@ -9,6 +9,7 @@ use App\Exception\ArticleInactiveException;
 use App\Exception\ArticleNotFoundException;
 use App\Exception\BarcodeNotFoundException;
 use App\Exception\ParameterInvalidException;
+use App\Repository\BarcodeRepository;
 use App\Serializer\ArticleSerializer;
 use App\Serializer\BarcodeSerializer;
 use Doctrine\ORM\EntityManagerInterface;
@@ -74,7 +75,7 @@ class BarcodeController extends AbstractController
     }
 
     #[Route('/article/{articleId}/barcode', methods: ['POST'])]
-    public function addArticleBarcode(int $articleId, Request $request, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager): JsonResponse
+    public function addArticleBarcode(int $articleId, Request $request, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager, BarcodeRepository $barcodeRepository): JsonResponse
     {
         $barcode = trim($request->request->get('barcode', ''));
         if (!$barcode) {
@@ -90,7 +91,7 @@ class BarcodeController extends AbstractController
             throw new ArticleInactiveException($article);
         }
 
-        $existingBarcode = $entityManager->getRepository(Barcode::class)->findByBarcode($barcode);
+        $existingBarcode = $barcodeRepository->findByBarcode($barcode);
         if ($existingBarcode) {
             throw new ArticleBarcodeAlreadyExistsException($existingBarcode);
         }

@@ -6,6 +6,7 @@ use App\Command\Helper\DateIntervalHelper;
 use App\Entity\Transaction;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -13,10 +14,7 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 class RetireDataCommand extends Command
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
     public function __construct(EntityManagerInterface $entityManager)
     {
@@ -38,6 +36,9 @@ class RetireDataCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $helper = $this->getHelper('question');
+        if (!$helper instanceof QuestionHelper) {
+            throw new \RuntimeException('question helper unavailable');
+        }
         $dateTime = DateIntervalHelper::fromCommandInput($input)->getDateTime();
 
         $skipQuestion = $input->getOption('confirm');

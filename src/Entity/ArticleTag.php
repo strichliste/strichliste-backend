@@ -69,7 +69,7 @@ class ArticleTag
     }
 
     #[ORM\PrePersist]
-    public function setHistoryColumnsOnPrePersist(PrePersistEventArgs $event)
+    public function setHistoryColumnsOnPrePersist(PrePersistEventArgs $event): void
     {
         if (!$this->getCreated()) {
             $this->setCreated(new \DateTime());

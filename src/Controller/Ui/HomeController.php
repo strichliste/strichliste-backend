@@ -51,7 +51,7 @@ class HomeController extends AbstractController
     }
 
     /**
-     * @param callable(int $offset): array{users: array, total: int} $fetch
+     * @param callable(int $offset): array{users: list<\App\Entity\User>, total: int} $fetch
      */
     private function renderList(callable $fetch, int $page, bool $active): Response
     {

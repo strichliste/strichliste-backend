@@ -7,20 +7,19 @@ use App\Exception\ParameterInvalidException;
 use App\Exception\ParameterMissingException;
 use App\Exception\UserAlreadyExistsException;
 use App\Exception\UserNotFoundException;
+use App\Repository\UserRepository;
 use App\Serializer\UserSerializer;
 use App\Service\UserService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api/user')]
 class UserController extends AbstractController
 {
-    /**
-     * @var UserSerializer
-     */
-    private $userSerializer;
+    private UserSerializer $userSerializer;
 
     public function __construct(UserSerializer $userSerializer)
     {
@@ -28,12 +27,11 @@ class UserController extends AbstractController
     }
 
     #[Route(methods: ['GET'])]
-    public function list(Request $request, UserService $userService, EntityManagerInterface $entityManager)
+    public function list(Request $request, UserService $userService, UserRepository $userRepository): JsonResponse
     {
         $active = $request->query->get('active');
 
         $staleDateTime = $userService->getStaleDateTime();
-        $userRepository = $entityManager->getRepository(User::class);
 
         if ('true' === $active) {
             $users = $userRepository->findAllActive($staleDateTime);
@@ -55,7 +53,7 @@ class UserController extends AbstractController
     }
 
     #[Route(methods: ['POST'])]
-    public function createUser(Request $request, EntityManagerInterface $entityManager)
+    public function createUser(Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager): JsonResponse
     {
         $name = $request->request->get('name');
         if (!$name) {
@@ -68,7 +66,7 @@ class UserController extends AbstractController
             throw new ParameterInvalidException('name');
         }
 
-        if ($entityManager->getRepository(User::class)->findByName($name)) {
+        if ($userRepository->findByName($name)) {
             throw new UserAlreadyExistsException($name);
         }
 
@@ -93,12 +91,12 @@ class UserController extends AbstractController
     }
 
     #[Route('/search', methods: ['GET'])]
-    public function search(Request $request, EntityManagerInterface $entityManager)
+    public function search(Request $request, UserRepository $userRepository): JsonResponse
     {
         $query = $request->query->get('query');
-        $limit = $request->query->get('limit', 25);
+        $limit = (int) $request->query->get('limit', 25);
 
-        $results = $entityManager->getRepository(User::class)->createQueryBuilder('u')
+        $results = $userRepository->createQueryBuilder('u')
             ->where('u.name LIKE :query')
             ->andWhere('u.disabled = false')
             ->setParameter('query', '%'.$query.'%')
@@ -116,9 +114,9 @@ class UserController extends AbstractController
     }
 
     #[Route('/{userId}', methods: ['GET'])]
-    public function user($userId, EntityManagerInterface $entityManager)
+    public function user(string $userId, UserRepository $userRepository): JsonResponse
     {
-        $user = $entityManager->getRepository(User::class)->findByIdentifier($userId);
+        $user = $userRepository->findByIdentifier($userId);
         if (!$user) {
             throw new UserNotFoundException($userId);
         }
@@ -129,9 +127,9 @@ class UserController extends AbstractController
     }
 
     #[Route('/{userId}', methods: ['POST'])]
-    public function updateUser($userId, Request $request, EntityManagerInterface $entityManager)
+    public function updateUser(string $userId, Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager): JsonResponse
     {
-        $user = $entityManager->getRepository(User::class)->findByIdentifier($userId);
+        $user = $userRepository->findByIdentifier($userId);
         if (!$user) {
             throw new UserNotFoundException($userId);
         }
@@ -144,7 +142,7 @@ class UserController extends AbstractController
         if ($name) {
             $name = User::sanitizeName($name);
 
-            if ($name !== $user->getName() && $entityManager->getRepository(User::class)->findByName($name)) {
+            if ($name !== $user->getName() && $userRepository->findByName($name)) {
                 throw new UserAlreadyExistsException($name);
             }
 

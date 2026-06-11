@@ -91,6 +91,8 @@ class UserController extends AbstractController
 
     /**
      * @param bool $includeTransferForm true only when the send tab is active — skips an EntityType SELECT otherwise
+     *
+     * @return array<string, mixed>|null
      */
     private function prepareSendTab(User $user, bool $includeTransferForm = false): ?array
     {

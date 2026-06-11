@@ -12,10 +12,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class UserStatusCommand extends Command
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
     public function __construct(EntityManagerInterface $entityManager)
     {
@@ -34,12 +31,12 @@ class UserStatusCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $userId = $input->getArgument('userId');
+        $userId = (string) $input->getArgument('userId');
         $disabled = 'true' === $input->getArgument('disable');
 
         $user = $this->entityManager->getRepository(User::class)->findByIdentifier($userId);
         if (!$user) {
-            throw new UserNotFoundException($user);
+            throw new UserNotFoundException($userId);
         }
 
         $user->setDisabled($disabled);

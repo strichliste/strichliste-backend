@@ -140,13 +140,14 @@ class User
     /**
      * @return Collection|Transaction[]
      */
+    /** @return Collection<int, Transaction> */
     public function getTransactions(): Collection
     {
         return $this->transactions;
     }
 
     #[ORM\PrePersist]
-    public function setHistoryColumnsOnPrePersist(PrePersistEventArgs $event)
+    public function setHistoryColumnsOnPrePersist(PrePersistEventArgs $event): void
     {
         $now = new \DateTime();
 
@@ -160,7 +161,7 @@ class User
     }
 
     #[ORM\PreUpdate]
-    public function setHistoryColumnsOnPreUpdate(PreUpdateEventArgs $event)
+    public function setHistoryColumnsOnPreUpdate(PreUpdateEventArgs $event): void
     {
         if (!$event->hasChangedField('updated')) {
             $this->setUpdated(new \DateTime());

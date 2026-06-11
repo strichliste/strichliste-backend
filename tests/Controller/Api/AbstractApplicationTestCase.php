@@ -17,6 +17,11 @@ abstract class AbstractApplicationTestCase extends WebTestCase
         $this->client = static::createClient();
     }
 
+    /**
+     * @param array<string, mixed> $params
+     *
+     * @return array<mixed>
+     */
     protected function requestJson(string $method, string $uri, array $params = [], ?string $unpackKey = null): array
     {
         $this->client->request($method, $uri, $params);

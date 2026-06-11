@@ -8,9 +8,9 @@ use App\Entity\Barcode;
 
 class ArticleSerializer
 {
-    private $barcodeSerializer;
+    private BarcodeSerializer $barcodeSerializer;
 
-    private $articleTagSerializer;
+    private ArticleTagSerializer $articleTagSerializer;
 
     public function __construct(BarcodeSerializer $barcodeSerializer, ArticleTagSerializer $articleTagSerializer)
     {
@@ -18,7 +18,10 @@ class ArticleSerializer
         $this->articleTagSerializer = $articleTagSerializer;
     }
 
-    public function serialize(Article $article, $depth = 1): array
+    /**
+     * @return array<string, mixed>
+     */
+    public function serialize(Article $article, int $depth = 1): array
     {
         $precursor = null;
         if ($depth > 0) {

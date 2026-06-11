@@ -9,9 +9,7 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @method Transaction|null find($id, $lockMode = null, $lockVersion = null)
- * @method Transaction|null findOneBy(array $criteria, array $orderBy = null)
- * @method Transaction[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @extends ServiceEntityRepository<Transaction>
  */
 class TransactionRepository extends ServiceEntityRepository
 {
@@ -20,7 +18,10 @@ class TransactionRepository extends ServiceEntityRepository
         parent::__construct($registry, Transaction::class);
     }
 
-    public function findAllPaginated($limit = null, $offset = null)
+    /**
+     * @return list<Transaction>
+     */
+    public function findAllPaginated(?int $limit = null, ?int $offset = null): array
     {
         return $this->createQueryBuilder('t')
             // stable paging; legacy clients saw PK-ascending order
@@ -32,12 +33,9 @@ class TransactionRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param int $offset
-     * @param int $limit
-     *
-     * @return Transaction[]
+     * @return list<Transaction>
      */
-    public function findByUser(User $user, $limit = null, $offset = null)
+    public function findByUser(User $user, ?int $limit = null, ?int $offset = null): array
     {
         return $this->findBy(['user' => $user], ['id' => 'DESC'], $limit, $offset);
     }

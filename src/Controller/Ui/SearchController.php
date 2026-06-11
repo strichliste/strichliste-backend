@@ -49,6 +49,9 @@ class SearchController extends AbstractController
         ]);
     }
 
+    /**
+     * @return array{0: list<User>, 1: int, 2: int}
+     */
     private function searchUsers(string $q, int $page): array
     {
         $repo = $this->em->getRepository(User::class);
@@ -76,6 +79,9 @@ class SearchController extends AbstractController
         return [$results, $count, $page];
     }
 
+    /**
+     * @return array{0: list<Article>, 1: int, 2: int}
+     */
     private function searchArticles(string $q, int $page): array
     {
         $repo = $this->em->getRepository(Article::class);

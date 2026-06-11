@@ -9,6 +9,9 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints as Assert;
 
+/**
+ * @extends AbstractType<array<string, mixed>>
+ */
 class CreateArticleType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void

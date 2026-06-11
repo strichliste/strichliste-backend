@@ -142,7 +142,8 @@ class SplitInvoiceController extends AbstractController
     }
 
     /**
-     * @param int[] $participantIds
+     * @param int[]         $participantIds
+     * @param array<string> $rowErrors      keyed by row index
      *
      * @return array<int, User> keyed by original row index
      */

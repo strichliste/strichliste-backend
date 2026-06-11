@@ -4,7 +4,7 @@ namespace App\Exception;
 
 class TransactionNotFoundException extends ApiException
 {
-    public function __construct($transactionId)
+    public function __construct(int|string $transactionId)
     {
         parent::__construct(sprintf("Transaction '%d' not found", $transactionId), 404);
     }

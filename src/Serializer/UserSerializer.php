@@ -7,16 +7,16 @@ use App\Service\UserService;
 
 class UserSerializer
 {
-    /**
-     * @var UserService
-     */
-    private $userService;
+    private UserService $userService;
 
     public function __construct(UserService $userService)
     {
         $this->userService = $userService;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function serialize(User $user): array
     {
         return [

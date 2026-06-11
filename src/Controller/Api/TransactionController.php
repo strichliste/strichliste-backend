@@ -7,20 +7,19 @@ use App\Entity\User;
 use App\Exception\ParameterInvalidException;
 use App\Exception\TransactionNotFoundException;
 use App\Exception\UserNotFoundException;
+use App\Repository\TransactionRepository;
 use App\Serializer\TransactionSerializer;
 use App\Service\TransactionService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api')]
 class TransactionController extends AbstractController
 {
-    /**
-     * @var TransactionSerializer
-     */
-    private $transactionSerializer;
+    private TransactionSerializer $transactionSerializer;
 
     public function __construct(TransactionSerializer $transactionSerializer)
     {
@@ -28,13 +27,13 @@ class TransactionController extends AbstractController
     }
 
     #[Route('/transaction', methods: ['GET'])]
-    public function list(Request $request, EntityManagerInterface $entityManager)
+    public function list(Request $request, TransactionRepository $transactionRepository): JsonResponse
     {
-        $limit = $request->query->get('limit', 25);
+        $limit = (int) $request->query->get('limit', 25);
         $offset = $request->query->get('offset');
 
-        $count = $entityManager->getRepository(Transaction::class)->count([]);
-        $transactions = $entityManager->getRepository(Transaction::class)->findAllPaginated($limit, $offset);
+        $count = $transactionRepository->count([]);
+        $transactions = $transactionRepository->findAllPaginated($limit, null === $offset ? null : (int) $offset);
 
         return $this->json([
             'count' => $count,
@@ -45,7 +44,7 @@ class TransactionController extends AbstractController
     }
 
     #[Route('/user/{userId}/transaction', methods: ['POST'])]
-    public function createUserTransactions($userId, Request $request, TransactionService $transactionService, EntityManagerInterface $entityManager)
+    public function createUserTransactions(string $userId, Request $request, TransactionService $transactionService, EntityManagerInterface $entityManager): JsonResponse
     {
         $amount = $request->request->get('amount');
         $quantity = $request->request->get('quantity');
@@ -70,9 +69,9 @@ class TransactionController extends AbstractController
     }
 
     #[Route('/user/{userId}/transaction', methods: ['GET'])]
-    public function getUserTransactions($userId, Request $request, EntityManagerInterface $entityManager)
+    public function getUserTransactions(string $userId, Request $request, EntityManagerInterface $entityManager, TransactionRepository $transactionRepository): JsonResponse
     {
-        $limit = $request->query->get('limit', 25);
+        $limit = (int) $request->query->get('limit', 25);
         $offset = $request->query->get('offset');
 
         $user = $entityManager->getRepository(User::class)->find($userId);
@@ -80,8 +79,8 @@ class TransactionController extends AbstractController
             throw new UserNotFoundException($userId);
         }
 
-        $count = $entityManager->getRepository(Transaction::class)->countByUser($user);
-        $transactions = $entityManager->getRepository(Transaction::class)->findByUser($user, $limit, $offset);
+        $count = $transactionRepository->countByUser($user);
+        $transactions = $transactionRepository->findByUser($user, $limit, null === $offset ? null : (int) $offset);
 
         return $this->json([
             'count' => $count,
@@ -92,7 +91,7 @@ class TransactionController extends AbstractController
     }
 
     #[Route('/user/{userId}/transaction/{transactionId}', methods: ['GET'])]
-    public function getUserTransaction($userId, $transactionId, EntityManagerInterface $entityManager)
+    public function getUserTransaction(string $userId, string $transactionId, EntityManagerInterface $entityManager): JsonResponse
     {
         $user = $entityManager->getRepository(User::class)->find($userId);
         if (!$user) {
@@ -110,9 +109,9 @@ class TransactionController extends AbstractController
     }
 
     #[Route('/user/{userId}/transaction/{transactionId}', methods: ['DELETE'])]
-    public function deleteTransaction($userId, $transactionId, TransactionService $transactionService)
+    public function deleteTransaction(string $userId, string $transactionId, TransactionService $transactionService): JsonResponse
     {
-        $transaction = $transactionService->revertTransaction($transactionId);
+        $transaction = $transactionService->revertTransaction((int) $transactionId);
 
         return $this->json([
             'transaction' => $this->transactionSerializer->serialize($transaction),

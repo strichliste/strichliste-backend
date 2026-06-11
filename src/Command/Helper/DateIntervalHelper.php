@@ -4,12 +4,9 @@ namespace App\Command\Helper;
 
 use Symfony\Component\Console\Input\InputInterface;
 
-class DateIntervalHelper
+final class DateIntervalHelper
 {
-    /**
-     * @var \DateTime
-     */
-    private $dateTime;
+    private \DateTime $dateTime;
 
     public function __construct()
     {
@@ -38,21 +35,21 @@ class DateIntervalHelper
         return $self;
     }
 
-    public function subDays($days): self
+    public function subDays(int|string $days): self
     {
         $this->dateTime->sub(\DateInterval::createFromDateString(sprintf('%d days', $days)));
 
         return $this;
     }
 
-    public function subMonths($month): self
+    public function subMonths(int|string $month): self
     {
         $this->dateTime->sub(\DateInterval::createFromDateString(sprintf('%d months', $month)));
 
         return $this;
     }
 
-    public function subYears($years): self
+    public function subYears(int|string $years): self
     {
         $this->dateTime->sub(\DateInterval::createFromDateString(sprintf('%d years', $years)));
 

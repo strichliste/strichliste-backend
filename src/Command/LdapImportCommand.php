@@ -13,10 +13,7 @@ use Symfony\Component\Ldap\Ldap;
 
 class LdapImportCommand extends Command
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
     public function __construct(EntityManagerInterface $entityManager)
     {

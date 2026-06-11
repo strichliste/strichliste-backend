@@ -6,6 +6,9 @@ use App\Entity\ArticleTag;
 
 class ArticleTagSerializer
 {
+    /**
+     * @return array<string, mixed>
+     */
     public function serialize(ArticleTag $articleTag): array
     {
         return [

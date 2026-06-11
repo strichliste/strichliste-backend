@@ -7,20 +7,11 @@ use App\Service\TransactionService;
 
 class TransactionSerializer
 {
-    /**
-     * @var TransactionService
-     */
-    private $transactionService;
+    private TransactionService $transactionService;
 
-    /**
-     * @var UserSerializer
-     */
-    private $userSerializer;
+    private UserSerializer $userSerializer;
 
-    /**
-     * @var ArticleSerializer
-     */
-    private $articleSerializer;
+    private ArticleSerializer $articleSerializer;
 
     public function __construct(TransactionService $transactionService, UserSerializer $userSerializer, ArticleSerializer $articleSerializer)
     {
@@ -29,6 +20,9 @@ class TransactionSerializer
         $this->articleSerializer = $articleSerializer;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function serialize(Transaction $transaction): array
     {
         $article = $transaction->getArticle();
@@ -48,6 +42,9 @@ class TransactionSerializer
         ];
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     private function getUserOrNull(?Transaction $transaction): ?array
     {
         if (!$transaction) {
