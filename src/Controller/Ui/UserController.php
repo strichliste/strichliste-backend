@@ -16,7 +16,6 @@ use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -56,7 +55,6 @@ class UserController extends AbstractController {
         }
 
         $recent = $this->transactionRepository->findByUser($user, 5, 0);
-        $totalTx = $this->transactionRepository->countByUser($user);
 
         $editForm = null;
         if ($tab === 'edit') {
@@ -82,7 +80,6 @@ class UserController extends AbstractController {
             'user' => $user,
             'activeTab' => $tab,
             'recentTransactions' => $recentMeta,
-            'totalTransactions' => $totalTx,
             'currencySymbol' => $this->settings->getOrDefault('i18n.currency.symbol', '€'),
             'editForm' => $editForm,
             'showSendTab' => $this->settings->getOrDefault('payment.transactions.enabled', true) && !$user->isDisabled(),

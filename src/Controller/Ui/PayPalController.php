@@ -177,6 +177,6 @@ class PayPalController extends AbstractController {
         if (!$user) {
             throw new NotFoundHttpException();
         }
-        return $this->render('paypal/cancel.html.twig', ['user' => $user, 'amount' => $amount]);
+        return $this->render('paypal/cancel.html.twig', ['user' => $user]);
     }
 }

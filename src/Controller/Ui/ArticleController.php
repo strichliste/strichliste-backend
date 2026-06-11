@@ -3,7 +3,6 @@
 namespace App\Controller\Ui;
 
 use App\Entity\Article;
-use App\Entity\Barcode;
 use App\Entity\Tag;
 use App\Form\CreateArticleType;
 use App\Form\EditArticleType;
@@ -14,7 +13,6 @@ use App\Service\MoneyParser;
 use App\Service\SettingsService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

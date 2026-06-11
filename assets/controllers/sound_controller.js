@@ -18,7 +18,6 @@ export default class extends Controller {
       if (p && typeof p.catch === 'function') {
         p.catch(() => { /* autoplay refused — silent */ });
       }
-      this.element.dataset.played = '1';
     } catch (e) {
       /* ignore */
     }

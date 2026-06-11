@@ -86,7 +86,7 @@ class ArticleTagController extends AbstractController {
 
                 $remaining = (int) $this->em->createQueryBuilder()
                     ->select('COUNT(at.id)')
-                    ->from(\App\Entity\ArticleTag::class, 'at')
+                    ->from(ArticleTag::class, 'at')
                     ->where('at.tag = :tag')
                     ->setParameter('tag', $tag)
                     ->getQuery()->getSingleScalarResult();
