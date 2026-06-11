@@ -42,8 +42,6 @@ class UserRepository extends ServiceEntityRepository {
     }
 
     /**
-     * Paginated + alphabetically sorted at the DB level, with a count.
-     *
      * @return array{users: User[], total: int}
      */
     function findAllActivePaginated(\DateTime $since, int $limit, int $offset): array {

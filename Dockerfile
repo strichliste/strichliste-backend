@@ -1,14 +1,9 @@
 # syntax=docker/dockerfile:1
 # Production image: FrankenPHP (Caddy + PHP) running Symfony in worker mode.
-# Build:  docker build -t strichliste .
-# Run:    docker compose up  (see compose.yaml)
 
 FROM dunglas/frankenphp:1-php8.5 AS app
 
-# intl       -> NumberFormatter (currency display)
-# pdo_pgsql  -> default Postgres setup (pdo_sqlite is built in)
-# apcu       -> fast local cache backend
-# zip        -> composer dist downloads during the build
+# intl for NumberFormatter, pdo_pgsql for the default Postgres setup (pdo_sqlite is built in), zip for composer.
 RUN install-php-extensions \
     intl \
     pdo_pgsql \
@@ -20,11 +15,9 @@ RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 COPY docker/app.ini "$PHP_INI_DIR/conf.d/app.ini"
 
 ENV APP_ENV=prod APP_DEBUG=0
-# Plain HTTP on :80. Set SERVER_NAME to a real hostname to let Caddy obtain
-# TLS certificates automatically (and publish port 443).
+# Plain HTTP by default; set SERVER_NAME to a real hostname for automatic TLS.
 ENV SERVER_NAME=":80"
-# Run Symfony as a long-lived FrankenPHP worker (boot once, serve many).
-# Unset FRANKENPHP_CONFIG to fall back to classic one-process-per-request mode.
+# Worker mode (boot once, serve many); unset FRANKENPHP_CONFIG for classic per-request mode.
 ENV FRANKENPHP_CONFIG="worker ./public/index.php"
 ENV APP_RUNTIME="Runtime\\FrankenPhpSymfony\\Runtime"
 
@@ -38,9 +31,7 @@ RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist --no-pr
 
 COPY . .
 
-# Autoloader + Flex post-install scripts (cache:clear, assets:install,
-# importmap:install — downloads the gitignored assets/vendor JS), then
-# pre-compile the asset-mapper files and warm the prod cache.
+# post-install-cmd runs importmap:install, which downloads the gitignored assets/vendor JS.
 RUN composer dump-autoload --no-dev --classmap-authoritative \
     && composer run-script --no-dev post-install-cmd \
     && php bin/console asset-map:compile \
@@ -48,10 +39,7 @@ RUN composer dump-autoload --no-dev --classmap-authoritative \
 
 COPY --chmod=755 docker/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
-# Run as non-root (https://frankenphp.dev/docs/docker/#running-as-a-non-root-user):
-# the capability lets the unprivileged user bind 80/443; Caddy state and the
-# Symfony var/ dir (cache recompiled on boot, logs, optional SQLite) must be
-# writable by it.
+# Non-root: setcap lets www-data bind 80/443; Caddy state and var/ (cache is recompiled on boot) must stay writable.
 RUN setcap CAP_NET_BIND_SERVICE=+eip /usr/local/bin/frankenphp \
     && chown -R www-data:www-data /data /config /app/var
 USER www-data

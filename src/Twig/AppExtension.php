@@ -19,12 +19,7 @@ class AppExtension extends AbstractExtension {
         ];
     }
 
-    /**
-     * Settings paths templates are allowed to read via the `setting()` Twig
-     * function. Sensitive keys (`paypal.recipient` and any future API keys)
-     * must NOT be reachable from a template — controllers consume them via
-     * `SettingsService` directly.
-     */
+    // paths the setting() Twig function may read; secrets like paypal.recipient stay out
     private const TEMPLATE_SETTING_ALLOWLIST = [
         'i18n.',
         'common.',
@@ -53,9 +48,7 @@ class AppExtension extends AbstractExtension {
                     }
                 }
                 if (!$allowed) {
-                    // Refuse to leak any setting outside the allowlist. Returning
-                    // the default silently is intentional: templates should not
-                    // ask for these paths, and an exception would be a DoS.
+                    // silently fall back rather than leak the value or throw
                     return $default;
                 }
                 return $this->settings->getOrDefault($path, $default);
@@ -63,11 +56,7 @@ class AppExtension extends AbstractExtension {
         ];
     }
 
-    /**
-     * Format an integer cent amount as the SPA does:
-     * - signed (default): `+€25.77`, `-€8.52`, `€0.00` — used for balances and tx amounts
-     * - unsigned         : `€1.50` — used for list prices that aren't transactions
-     */
+    // signed (default) renders +€25.77 / -€8.52 / €0.00 like the SPA; unsigned is for plain prices
     public function currencyFormat(?int $cents, ?string $currencySymbol = null, bool $signed = true): string {
         if ($cents === null) {
             return '';

@@ -3,10 +3,8 @@
 {% block title %}{{ user.name }} · Strichliste{% endblock %}
 
 {% block main %}
-    {# The barcode scanner listens at document level on the whole user detail
-       page (any tab). A USB-HID burst into the page commits a buy via the
-       hidden form POST built by the controller — no visible input. Never armed
-       for disabled accounts, which must not transact. #}
+    {# document-level barcode listener: a scanner burst anywhere on the page posts a
+       buy, no visible input. Never armed for disabled accounts. #}
     {% if not user.disabled %}
         <div data-controller="barcode-listener"
              data-barcode-listener-action-value="{{ path('transactions_buy', {id: user.id}) }}"
@@ -34,7 +32,6 @@
         showPaypalTab: showPaypalTab,
     } only %}
 
-    {# Active tab form appears ABOVE the always-visible actions/transactions. #}
     {% if activeTab %}
         <section class="tab-panel" aria-label="{{ ('user.detail.tabs.' ~ activeTab)|trans }}">
             {% if activeTab == 'edit' %}
@@ -50,14 +47,12 @@
     {% endif %}
 
     <div class="user-detail-grid">
-        {# LEFT: always the deposit/dispense step buttons + custom amount. #}
         <aside class="user-detail-grid__actions">
             {% if send %}
                 {% include 'users/_default_actions.html.twig' with {send: send, user: user, currency: currencySymbol} only %}
             {% endif %}
         </aside>
 
-        {# RIGHT: always the recent transactions list. #}
         <section aria-labelledby="recent-tx-heading" class="recent-tx">
             <h2 id="recent-tx-heading" class="visually-hidden">{{ 'user.detail.recent_transactions'|trans }}</h2>
             {% if recentTransactions is empty %}

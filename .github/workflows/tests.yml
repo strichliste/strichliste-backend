@@ -12,8 +12,7 @@ jobs:
     name: lint (twig, yaml, container)
     runs-on: ubuntu-latest
     env:
-      # The kernel boots during lint:container / lint:twig; no connection is
-      # made, but the DSN must parse.
+      # lint:container and lint:twig boot the kernel; the DSN must parse but is never used.
       DATABASE_URL: "sqlite:////tmp/strichliste_lint.db"
     steps:
       - uses: actions/checkout@v6
@@ -33,7 +32,6 @@ jobs:
 
       - run: composer install --no-interaction --prefer-dist
 
-      # Fails the build on known vulnerabilities in locked dependencies.
       - run: composer audit
 
       - run: php bin/console lint:twig templates

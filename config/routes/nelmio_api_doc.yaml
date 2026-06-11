@@ -1,4 +1,3 @@
-# Swagger UI + raw OpenAPI spec for the frozen /api contract.
 app.swagger_ui:
     path: /api/doc
     methods: GET

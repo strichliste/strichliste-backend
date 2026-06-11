@@ -23,14 +23,10 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class PayPalController extends AbstractController {
 
-    /**
-     * Return URL is valid for 30 minutes after `start()` builds it. PayPal
-     * usually redirects back within seconds; 30m covers payment-method-add
-     * detours without leaving the URL exploitable indefinitely.
-     */
+    // 30m covers payment-method detours without leaving the signed return URL live forever
     private const RETURN_URL_TTL = 1800;
 
-    /** Session key holding the not-yet-consumed return nonces (nonce => cents). */
+    // not-yet-consumed return nonces (nonce => cents)
     private const PENDING_SESSION_KEY = 'paypal_pending';
 
     public function __construct(
@@ -45,12 +41,6 @@ class PayPalController extends AbstractController {
     ) {
     }
 
-    /**
-     * Takes the operator's submitted euro amount, applies the configured fee,
-     * builds the PayPal cgi-bin URL with major-unit `amount`, and redirects.
-     * The return/cancel URLs are HMAC-signed with an expiration so they can't
-     * be forged or replayed past the TTL.
-     */
     #[Route('/user/{id}/paypal/start', name: 'paypal_start', methods: ['POST'], requirements: ['id' => '\d+'])]
     public function start(int $id, Request $request): Response {
         if (!$this->settings->getOrDefault('paypal.enabled', false)) {
@@ -78,10 +68,7 @@ class PayPalController extends AbstractController {
             return $this->redirectToRoute('users_detail', ['id' => $id], Response::HTTP_SEE_OTHER);
         }
 
-        // Enforce the same boundaries createForUser() will apply on return —
-        // BEFORE the member pays real money to the operator's PayPal account.
-        // Otherwise a deposit above payment.boundary.upper (or one that pushes
-        // the balance past account.boundary.upper) is paid but never credited.
+        // check the boundaries before the member pays PayPal, or the deposit is paid but never credited
         $paymentUpper = (int) $this->settings->getOrDefault('payment.boundary.upper', PHP_INT_MAX);
         $accountUpper = (int) $this->settings->getOrDefault('account.boundary.upper', PHP_INT_MAX);
         if ($cents > $paymentUpper || $user->getBalance() + $cents > $accountUpper) {
@@ -97,20 +84,13 @@ class PayPalController extends AbstractController {
             ? 'https://www.sandbox.paypal.com/cgi-bin/webscr'
             : 'https://www.paypal.com/cgi-bin/webscr';
 
-        // One-time nonce, stored server-side and consumed on the first
-        // successful return. Combined with the HMAC signature this makes the
-        // deposit idempotent: a replayed return URL (browser back/forward,
-        // prefetch, link-preview bot) finds the nonce already consumed and
-        // credits nothing.
+        // one-time nonce makes the return idempotent: a replayed URL finds it consumed and credits nothing
         $nonce = bin2hex(random_bytes(16));
         $session = $request->getSession();
         $pending = $session->get(self::PENDING_SESSION_KEY, []);
         $pending[$nonce] = $cents;
         $session->set(self::PENDING_SESSION_KEY, $pending);
 
-        // Build absolute return/cancel URLs and sign them. UriSigner adds
-        // `_hash` and `_expiration` query params; `paypal_return_success`
-        // and `paypal_return_cancel` verify both before doing any work.
         $returnUnsigned = $this->generateUrl(
             'paypal_return_success',
             ['id' => $user->getId(), 'amount' => $cents, 'nonce' => $nonce],
@@ -147,9 +127,7 @@ class PayPalController extends AbstractController {
             throw new NotFoundHttpException();
         }
 
-        // Reject any request whose URL wasn't signed by `start()` or whose
-        // signature has expired. Without this gate, a GET to this route
-        // would deposit money on demand to anyone with the URL.
+        // unsigned or expired URLs would let anyone with the link deposit money on demand
         if (!$this->uriSigner->checkRequest($request)) {
             throw new NotFoundHttpException();
         }
@@ -159,9 +137,7 @@ class PayPalController extends AbstractController {
             throw new NotFoundHttpException();
         }
 
-        // Check the one-time nonce. A missing/unknown nonce means this signed
-        // URL was already processed (or was never issued by start()) — treat it
-        // as an idempotent replay and do not credit the account again.
+        // unknown nonce = already processed or never issued; treat as replay, don't credit again
         $nonce = (string) $request->query->get('nonce', '');
         $session = $request->getSession();
         $pending = $session->get(self::PENDING_SESSION_KEY, []);
@@ -171,12 +147,7 @@ class PayPalController extends AbstractController {
 
         try {
             $this->transactionService->createForUser($user, $amount, 'paypal');
-            // Consume the nonce only once the credit is booked. The member has
-            // already paid PayPal at this point — if crediting fails (boundary,
-            // transient DB error), the signed URL must stay retryable within
-            // its TTL instead of silently swallowing the payment. PHP's session
-            // lock serializes concurrent requests on the same session, so this
-            // cannot double-credit.
+            // consume only after the credit books so failures stay retryable; the session lock prevents double-credit
             unset($pending[$nonce]);
             $session->set(self::PENDING_SESSION_KEY, $pending);
             $this->addFlash('success', $this->translator->trans('paypal.return.success', [
@@ -186,7 +157,7 @@ class PayPalController extends AbstractController {
         } catch (TransactionBoundaryException | AccountBalanceBoundaryException | TransactionInvalidException $e) {
             $this->addFlash('error', $this->translator->trans('transactions.errors.boundary'));
         } catch (\Throwable $e) {
-            // The member HAS paid at this point — this must never be silent.
+            // the member has already paid at this point — never fail silently
             $this->logger->critical('PayPal deposit could not be credited after payment.', ['exception' => $e, 'user' => $user->getId(), 'cents' => $amount]);
             $this->addFlash('error', $this->translator->trans('paypal.return.error_body'));
         }

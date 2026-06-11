@@ -1,6 +1,4 @@
-# Use stateful CSRF so server-rendered forms work without JavaScript.
-# Stateless CSRF (Symfony 7.3+ default) requires JS to swap a placeholder for the real token,
-# which would break the no-JS path mandated by the roadmap.
+# Stateful CSRF — the stateless Symfony 7.3+ default needs JS to inject the token, which breaks no-JS forms.
 framework:
     form:
         csrf_protection:

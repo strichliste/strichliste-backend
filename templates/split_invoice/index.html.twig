@@ -6,13 +6,8 @@
 <div class="split-invoice-wrapper">
     <h1 class="split-invoice__title">{{ 'split_invoice.title'|trans }}</h1>
 
-    {# data-controller="flash" copies these into the persistent live region —
-       a Turbo body swap of an already-populated role=alert node is not
-       reliably announced on its own. #}
-    {# No role="alert" on the visible copies: the flash controller routes the
-       text through the persistent assertive region; both would double-announce
-       on full loads (flash_messages.html.twig omits the role for the same
-       reason). #}
+    {# announced via the persistent live regions (flash controller) — a swapped-in
+       role=alert isn't reliably read, and the role here would double-announce #}
     {% if errors is not empty %}
         <div data-controller="flash" data-turbo-temporary>
             {% for error in errors %}
@@ -23,11 +18,8 @@
 
     <form method="post" class="split-invoice-form" data-controller="disable-on-submit">
         <input type="hidden" name="_token" value="{{ csrf_token('split_invoice') }}">
-        {# Default button for implicit (Enter-key) submission — must precede
-           the add_row submit so Enter submits the split, not "add row".
-           display:none (not aria-hidden: engines repair aria-hidden buttons
-           back into the a11y tree as nameless ghosts; a display:none submit
-           still receives implicit Enter submission). #}
+        {# catches implicit Enter submission — must precede the add_row submit.
+           display:none, not aria-hidden: engines repair aria-hidden buttons into nameless ghosts. #}
         <button type="submit" class="default-submit" tabindex="-1"></button>
 
         <div class="split-invoice-grid">
@@ -110,9 +102,8 @@
                 </li>
             </template>
 
-            {# Real submit button: without JS the server appends a row
-               (add_row branch in SplitInvoiceController); with JS the
-               controller preventDefault()s and adds the row client-side. #}
+            {# without JS the server appends a row; with JS the controller
+               preventDefault()s and adds it client-side #}
             <button type="submit"
                     name="add_row"
                     value="1"

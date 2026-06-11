@@ -22,22 +22,11 @@ Chart.register(
   Tooltip,
 );
 
-/*
- * Renders the metrics page's daily activity. Two variants:
- *   - balance: bars (charged green, spent red) + line (net) — straight segments
- *   - users:   single green bar series of distinct users per day
- *
- * Variant is read from `data-chart-variant-value`; defaults to "balance".
- * Data comes from a <script type="application/json"> island identified by
- * `data-chart-data-id-value`.
- */
 export default class extends Controller {
   static values = {
     dataId: String,
     variant: String,
-    // Translated series names and the configured currency symbol come from
-    // the template — nothing user-facing is hardcoded here.
-    labels: Object,
+    labels: Object, // translated series names, from the template
     currency: { type: String, default: '€' },
   };
 
@@ -45,8 +34,7 @@ export default class extends Controller {
     const source = document.getElementById(this.dataIdValue);
     if (!source) return;
 
-    // Days come newest-first from the backend; SPA renders newest on the
-    // left, so we render in source order (no reverse).
+    // days arrive newest-first; the SPA shows newest on the left, so no reverse
     let days;
     try {
       days = JSON.parse(source.textContent);
@@ -100,8 +88,7 @@ export default class extends Controller {
             label: L.net,
             data: days.map((d) => d.balance / 100),
             type: 'line',
-            // Use the theme text color so the net line stays visible in dark mode
-            // (a hardcoded black line vanished on the dark chart surface).
+            // theme text color, so the net line survives dark mode
             borderColor: text,
             backgroundColor: text,
             tension: 0,
@@ -123,8 +110,7 @@ export default class extends Controller {
         animation: reducedMotion ? false : undefined,
         interaction: { mode: 'index', intersect: false },
         plugins: {
-          // Text legend: the charged/spent series differ only by red vs.
-          // green otherwise — indistinguishable for color-blind users.
+          // legend stays on: red vs. green alone is useless for color-blind users
           legend: { display: true, labels: { color: text } },
           tooltip: {
             callbacks: variant === 'users'

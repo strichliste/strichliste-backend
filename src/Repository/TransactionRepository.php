@@ -21,9 +21,7 @@ class TransactionRepository extends ServiceEntityRepository {
 
     function findAllPaginated($limit = null, $offset = null) {
         return $this->createQueryBuilder('t')
-            // Stable sort so paging can't skip or duplicate rows across
-            // requests. ASC pins the order legacy /api/transaction clients
-            // observed (no ORDER BY, but engines returned PK ascending).
+            // stable paging; legacy clients saw PK-ascending order
             ->orderBy('t.id', 'ASC')
             ->setFirstResult($offset)
             ->setMaxResults($limit)
@@ -41,12 +39,7 @@ class TransactionRepository extends ServiceEntityRepository {
         return $this->findBy(['user' => $user], ['id' => 'DESC'], $limit, $offset);
     }
 
-    /**
-     * Counts non-deleted transactions referencing this article. Drives the
-     * precursor-vs-in-place update decision in `ArticleService::update`:
-     * an article whose only references have been reverted is safe to edit
-     * in place rather than archive.
-     */
+    // non-deleted only: a fully reverted article can be edited in place
     function getArticleReferenceCount(Article $article): int {
         return (int) $this->createQueryBuilder('t')
             ->select('count(t.id)')

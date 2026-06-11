@@ -73,10 +73,7 @@ class ArticleTagController extends AbstractController {
 
         $tag = $this->tagRepository->find($tid);
         if ($tag) {
-            // Wrap the remove + last-use-cleanup in a single transaction so two
-            // concurrent removers can't both see usage=1 and both schedule
-            // `em->remove($tag)`. We use a fresh COUNT query inside the tx
-            // rather than the in-memory collection size.
+            // one tx + fresh COUNT so two concurrent removers can't both delete the tag
             $tagId = $tag->getId();
             $this->em->wrapInTransaction(function () use ($article, $tag, $tagId) {
                 foreach ($article->getArticleTags() as $articleTag) {

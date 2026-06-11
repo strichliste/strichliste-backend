@@ -100,11 +100,8 @@ class SearchController extends AbstractController {
     }
 
     private function escapeLike(string $q): string {
-        // Explicit ESCAPE '!' in the DQL: backslash-as-escape is a
-        // Postgres/MySQL convention — SQLite has NO default escape character,
-        // so an escaped pattern silently mismatches there. LOWER() on both
-        // sides keeps the match case-insensitive across engines (Postgres
-        // LIKE is case-sensitive, SQLite's is not).
+        // SQLite has no default LIKE escape char, hence the explicit ESCAPE '!' in the DQL;
+        // LOWER() on both sides keeps the match case-insensitive across engines
         return str_replace(['!', '%', '_'], ['!!', '!%', '!_'], $q);
     }
 }

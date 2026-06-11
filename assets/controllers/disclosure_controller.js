@@ -1,13 +1,8 @@
 import { Controller } from '@hotwired/stimulus';
 
-/*
- * Exposes a <details>/<summary> disclosure properly to assistive tech.
- * Engines map <summary> to a bare "generic" with no role and no
- * expanded/collapsed state, and Safari doesn't put it in the tab order at
- * all. Attached to the <details>: the summary gets role=button, a tabindex
- * for Safari, and an aria-expanded kept in sync with the native toggle.
- * Without JS the native (visual) behavior is unchanged.
- */
+// <summary> maps to a roleless "generic" for assistive tech, and Safari
+// leaves it out of the tab order — so role=button, tabindex=0 and a synced
+// aria-expanded. Native behavior is untouched without JS.
 export default class extends Controller {
   connect() {
     this.summary = this.element.querySelector('summary');

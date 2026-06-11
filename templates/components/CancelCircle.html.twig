@@ -1,7 +1,4 @@
-{#- A round red × FAB-style cancel button.
-    Renders as <a> when href is set, otherwise as <button type="button">.
-    Reuses .form-cancel-circle chrome. `label` is required so the icon-only
-    control always has a translated name. -#}
+{#- label is the accessible name — the control is icon-only -#}
 {% props label, href = null %}
 {%- set tag = href ? 'a' : 'button' -%}
 <{{ tag }} class="form-cancel-circle"

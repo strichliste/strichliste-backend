@@ -1,7 +1,4 @@
-{# Deposit/dispense step buttons + custom amounts. ALWAYS visible on user detail
-   (the tab forms appear ABOVE this; clicking a tab again deselects).
-   The guard keeps the card from rendering as an empty white box when nothing
-   is enabled (disabled user / payments turned off). #}
+{# without the guard the card renders as an empty white box when nothing is enabled #}
 {% if send.deposit_enabled or send.dispense_enabled or send.deposit_custom or send.dispense_custom %}
 <div class="step-card">
     {% if send.deposit_enabled %}
@@ -26,8 +23,6 @@
     {% if send.deposit_custom or send.dispense_custom %}
         <details class="custom-form" data-controller="disclosure">
             <summary>{{ 'transactions.custom_amount'|trans }}</summary>
-            {# One composer for both directions: [Deposit] [amount] [Dispense],
-               comment below. The clicked submit button posts the direction. #}
             {%- set form = send.custom_form -%}
             {{ form_start(form, {action: path('transactions_create', {id: user.id}), attr: {class: 'custom-form__bar', 'data-controller': 'disable-on-submit'}}) }}
                 {% if send.deposit_custom %}

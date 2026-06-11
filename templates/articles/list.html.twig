@@ -5,8 +5,6 @@
 {% block main %}
     <h1 class="visually-hidden">{{ (active ? 'articles.list.title.active' : 'articles.list.title.inactive')|trans }}</h1>
 
-    {# Creating belongs on the active list: the inactive list holds archived
-       articles and old price revisions, which can't be added by hand. #}
     {% if active %}
         <a class="fab fab--floating" href="{{ path('articles_create') }}" aria-label="{{ 'articles.list.add_cta'|trans }}">+</a>
     {% endif %}

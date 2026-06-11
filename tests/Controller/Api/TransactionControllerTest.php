@@ -82,8 +82,7 @@ class TransactionControllerTest extends AbstractApplicationTestCase
 
         $data = $this->requestJson('GET', '/api/transaction', unpackKey: 'transactions');
 
-        // Legacy /api/transaction had no ORDER BY; engines returned primary-key
-        // ascending, so existing paginating clients observed oldest-first.
+        // Legacy /api/transaction had no ORDER BY, so clients saw PK-ascending = oldest first.
         $ids = array_column($data, 'id');
         $this->assertSame([$first['id'], $second['id']], array_slice($ids, -2));
     }

@@ -8,13 +8,9 @@ parameters:
 doctrine:
     dbal:
         url: '%env(resolve:DATABASE_URL)%'
-        # Savepoints make `wrapInTransaction` reentrant — required for `doSplit`
-        # which calls `doTransaction` (already wrapped) in a loop under one outer
-        # tx, and required by dama/doctrine-test-bundle while we're on DBAL 3.
+        # doSplit nests wrapInTransaction calls, and dama/doctrine-test-bundle needs savepoints on DBAL 3.
         use_savepoints: true
     orm:
-        # `auto_generate_proxy_classes` is gone in DoctrineBundle 2.18 — ORM
-        # lazy-loading now uses PHP native lazy objects, nothing to configure.
         naming_strategy: doctrine.orm.naming_strategy.underscore
         auto_mapping: true
         # Silence DBAL 3->4 deprecation warning ("Relying on non-optimal defaults for ID generation is deprecated")

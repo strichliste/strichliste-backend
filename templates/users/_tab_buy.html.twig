@@ -1,14 +1,9 @@
-{# BUY ARTICLE tab — SPA's centered pill picker.
-   The search input is a pure client-side name filter. The barcode scanner is
-   document-level on the user detail page (see `barcode-listener` in detail.html.twig)
-   so the operator never needs to focus a field to scan. #}
 <section class="buy-tab" data-controller="article-filter"
          data-article-filter-results-label-value="{{ 'user.buy.results_label'|trans }}"
          data-article-filter-no-results-label-value="{{ 'user.buy.no_results_label'|trans }}">
     <div class="buy-tab__search">
         <label class="visually-hidden" for="buy-search">{{ 'user.buy.search_label'|trans }}</label>
-        {# The filter is a JS-only enhancement — server-rendered `hidden` and
-           revealed by the controller so a no-JS visitor never sees a dead input. #}
+        {# rendered hidden — the filter is JS-only, the controller reveals it #}
         <input type="text" id="buy-search"
                class="buy-tab__search-input"
                placeholder="{{ 'user.buy.search_placeholder'|trans }}"
@@ -21,9 +16,7 @@
 
     <p class="visually-hidden" role="status" aria-live="polite" data-article-filter-target="status"></p>
 
-    {# No-JS barcode path: the document-level scanner listener needs JS, so
-       give a scanner a real input to burst into. The controller hides this
-       once it connects — with JS the page-wide listener takes over. #}
+    {# no-JS barcode fallback — the controller hides this form once it connects #}
     <form method="post" action="{{ path('transactions_buy', {id: user.id}) }}"
           class="buy-tab__scan" data-article-filter-target="scanForm"
           data-controller="disable-on-submit">

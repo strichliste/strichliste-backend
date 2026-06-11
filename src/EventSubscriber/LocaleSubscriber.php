@@ -7,12 +7,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
-/**
- * Applies the operator-configured UI language (i18n.language in
- * config/strichliste.yaml) to every request. The kiosk has no per-user
- * accounts, so the locale is a global setting rather than a negotiation —
- * the same setting already drives number formatting in AppExtension.
- */
+// the kiosk has no per-user accounts, so the locale is a global setting (i18n.language), not a negotiation
 class LocaleSubscriber implements EventSubscriberInterface {
 
     public function __construct(private SettingsService $settings) {
@@ -20,8 +15,7 @@ class LocaleSubscriber implements EventSubscriberInterface {
 
     static function getSubscribedEvents(): array {
         return [
-            // Priority 20: ahead of Symfony's LocaleListener (16), so the
-            // configured locale is in place before anything consumes it.
+            // priority 20: ahead of Symfony's LocaleListener (16)
             KernelEvents::REQUEST => [['onKernelRequest', 20]],
         ];
     }

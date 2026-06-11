@@ -9,12 +9,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\Query\Expr\Join;
 
-/**
- * Single source of truth for metrics queries. Both `Api\MetricsController`
- * (returns JSON) and `Ui\MetricsController` (renders Twig) consume this.
- *
- * All amounts are integer cents, matching the storage representation.
- */
+// all amounts are integer cents
 class MetricsService {
 
     public function __construct(private EntityManagerInterface $em) {
@@ -28,11 +23,7 @@ class MetricsService {
             ->getQuery()->getSingleScalarResult() ?: 0);
     }
 
-    /**
-     * NOTE: includes soft-deleted transactions to preserve the legacy
-     * `/api/metrics.transactionCount` JSON value. The per-user count
-     * (`userTransactionCount`) excludes them; that asymmetry is intentional.
-     */
+    // includes soft-deleted rows — the legacy /api/metrics count did too
     public function totalTransactionCount(): int {
         return (int) ($this->em->createQueryBuilder()
             ->select('COUNT(t.id)')
@@ -48,21 +39,16 @@ class MetricsService {
     }
 
     /**
-     * Daily activity for the last `$days` days, sorted newest-first.
+     * Daily activity for the last $days days, newest first.
      *
-     * @param 'api'|'ui' $shape
-     *   - 'api': legacy API JSON shape where `charged`/`spent` are
-     *      `{amount, transactions}` nested objects.
-     *   - 'ui' : simpler scalar shape used by the Twig metrics table.
+     * @param 'api'|'ui' $shape 'api' nests charged/spent as {amount, transactions}, 'ui' keeps them scalar
      */
     public function transactionsPerDay(int $days, string $shape = 'ui'): array {
         $begin = new \DateTime(sprintf('-%d day', $days));
         $dateBegin = $begin->format('Y-m-d 00:00:00');
         $end = new \DateTime('tomorrow');
 
-        // Legacy API contract: days WITHOUT transactions carry scalar 0 for
-        // charged/spent; only days WITH transactions get the nested
-        // {amount, transactions} objects. The UI shape is scalar either way.
+        // legacy API: empty days keep scalar 0 for charged/spent, not the nested objects
         $emptyRow = ['transactions' => 0, 'distinctUsers' => 0, 'balance' => 0, 'charged' => 0, 'spent' => 0];
 
         $entries = [];
@@ -111,12 +97,7 @@ class MetricsService {
     }
 
     /**
-     * Per-user article purchase breakdown, ordered by count desc.
-     * Each row: {article: Article, count: int, amount: int (cents, positive)}
-     *
-     * @param bool $includeDeleted true preserves the legacy /api/user/{id}/metrics
-     *        numbers, which counted reverted purchases. The UI passes false so
-     *        undone buys don't inflate the ranking.
+     * @param bool $includeDeleted true preserves the legacy /api numbers, which counted reverted purchases
      */
     public function userArticles(User $user, int $limit = 10, bool $includeDeleted = false): array {
         $qb = $this->em->createQueryBuilder()

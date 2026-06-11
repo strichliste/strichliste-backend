@@ -24,10 +24,7 @@ class ApiExceptionSubscriber implements EventSubscriberInterface {
             return;
         }
 
-        // Frozen legacy envelope: class, code, message — in this order, in
-        // every environment. `class` is the only machine-readable error
-        // discriminator existing clients have; hiding it in prod would need a
-        // coordinated API version bump.
+        // frozen legacy envelope: clients key off `class`, even in prod
         $error = [
             'class' => get_class($exception),
             'code' => $exception->getCode(),

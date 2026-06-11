@@ -1,24 +1,12 @@
 import { Controller } from '@hotwired/stimulus';
 
-/*
- * Filters the BUY ARTICLE pill list client-side as the operator types in the
- * search input. Each pill carries `data-article-name` (lowercased) so we match
- * against that. Without JS, the (useless) search input stays hidden and all
- * pills stay visible — the server-side barcode submit path still works.
- *
- * The visible count is mirrored into a polite live region so screen-reader and
- * keyboard users get feedback as they type — including the "no matches" case,
- * which would otherwise be a silently blank area.
- */
 export default class extends Controller {
   static targets = ['input', 'item', 'status', 'scanForm'];
   static values = { resultsLabel: String, noResultsLabel: String };
 
   connect() {
-    // The search input is server-rendered `hidden` (it does nothing without
-    // JS); reveal it now that filtering works. The manual barcode form is the
-    // inverse: it is the no-JS fallback for the document-level scanner
-    // listener, so hide it once JS is alive.
+    // the search input ships hidden (useless without JS); the manual barcode
+    // form is the no-JS scanner fallback, so hide it once JS is alive
     this.inputTarget.hidden = false;
     if (this.hasScanFormTarget) this.scanFormTarget.hidden = true;
   }
@@ -36,8 +24,8 @@ export default class extends Controller {
 
   announce(query, visible) {
     if (!this.hasStatusTarget) return;
-    // Stay silent until the operator types, so focusing the field doesn't
-    // announce the full list.
+    // stay silent until the operator types, so focusing the field
+    // doesn't announce the full list
     if (query === '') {
       this.statusTarget.textContent = '';
       return;

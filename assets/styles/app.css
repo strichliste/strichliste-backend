@@ -1,39 +1,5 @@
 @import './theme.css';
 
-/* =============================================================================
-   strichliste — app stylesheet
-   -----------------------------------------------------------------------------
-   Sections (search the line markers below to jump):
-     - layout              body, main wrapper
-     - header              app-header (fixed top bar)
-     - flash messages      .flashes / .flash
-     - card                .card (white surface block)
-     - page header         .page-header (h1 + actions row)
-     - buttons             .btn / .btn--highlight / .btn--green / .btn--red / .btn--cancel / .btn--add
-     - user grid + cards   .user-grid / .user-card (list pages)
-     - balance pill        .balance-pill (positive / negative coloring)
-     - pagination          .pagination
-     - floating "+"        .fab / .fab--floating
-     - footer              .app-footer
-     - empty state         .empty-state
-     - forms               .form-card + form-actions + round cancel/check buttons
-     - article-form        article-form chrome (create/edit pages)
-     - edit-form           .edit-form (user edit panel)
-     - banner              .banner / .banner--disabled / .banner--info
-     - transaction rows    .transaction-list / .transaction-row
-     - user hero + tabs    .user-hero / .user-tabs
-     - user-detail layout  .user-detail-grid + .step-grid + step buttons
-     - send-money tab      .send-form-wrap (compact composer)
-     - accept-circle       round dark check submit (shared with form-cancel-circle)
-     - article rows        flat list rows on /articles pages
-     - tag filter + chips  .tag-filter / .tag-chip / .chip (edit page)
-     - buy-article tab     .buy-tab pill picker
-     - search page         .search-page-form / .search-section
-     - split-invoice       natural-language flow
-     - metrics             KPI cards + chart canvas
-     - error page          .error-page
-   ============================================================================= */
-
 body {
   margin: 0;
   min-height: 100vh;
@@ -49,14 +15,13 @@ main {
   max-width: 1200px;
   width: 100%;
   margin: 0 auto;
-  /* Position anchor for the floating add-user/add-article FAB on tablet+. */
+  /* anchor for the floating FAB */
   position: relative;
 }
 
 /* ---------- header ---------- */
 .app-header {
   background: var(--headerBackground);
-  /* SPA: fixed 4rem-tall header at top of viewport, z-index above modal backdrop. */
   position: fixed;
   top: 0;
   left: 0;
@@ -70,7 +35,7 @@ main {
   gap: 1rem;
 }
 
-/* Body padding-top reserves space for the fixed header. */
+/* room for the fixed header */
 body { padding-top: 4rem; }
 
 .app-header__brand {
@@ -110,7 +75,6 @@ body { padding-top: 4rem; }
   border-radius: 0;
 }
 
-/* SPA: active and hover both go from --textSubtile to --primary, no weight change. */
 .app-header__nav a:hover,
 .app-header__nav a[aria-current="page"] {
   color: var(--primary);
@@ -149,7 +113,7 @@ body { padding-top: 4rem; }
 .app-header__search button {
   background: transparent;
   border: 0;
-  /* 44px touch target around the small magnifier glyph. */
+  /* 44px touch target */
   min-width: 2.444rem;
   min-height: 2.444rem;
   padding: 0;
@@ -166,9 +130,8 @@ body { padding-top: 4rem; }
   fill: currentColor;
 }
 
-/* Below ~580px the header's min-content width (brand + nav + 9rem search)
-   exceeds the viewport; a fixed box can't be scrolled into view, so the
-   search (and Metrics link) became unreachable. Let it flow and wrap. */
+/* below ~580px the fixed header's min-content width exceeds the viewport
+   and the search becomes unreachable — let it flow and wrap */
 @media (max-width: 36em) {
   .app-header {
     position: static;
@@ -208,7 +171,7 @@ body { padding-top: 4rem; }
   padding: 0.75rem 1rem;
   border-radius: var(--borderRadius);
   box-shadow: var(--level1);
-  /* Flashes interpolate user/article names (up to 64/255 unbroken chars). */
+  /* flash text can carry 64/255-char unbroken names */
   overflow-wrap: anywhere;
 }
 
@@ -248,7 +211,7 @@ body { padding-top: 4rem; }
 
 .page-header h1 {
   font-size: 1.5rem;
-  /* Page titles interpolate user/article names. */
+  /* titles interpolate user/article names */
   overflow-wrap: anywhere;
 }
 
@@ -258,8 +221,6 @@ body { padding-top: 4rem; }
   margin-top: 0.25rem;
 }
 
-/* Tab strip: per-tab margin-right (no flex gap), uppercase 1rem labels with
-   0.625rem padding. Active tab gets the card background pill via aria-current. */
 .tabs {
   display: flex;
   flex-wrap: wrap;
@@ -347,14 +308,13 @@ body { padding-top: 4rem; }
   border-color: transparent;
 }
 
-/* SPA "add tag/barcode" button: light card-bg pill with a `+` prefix. */
 .btn--add {
   background: var(--componentBackgroundLight);
   color: var(--buttonDefaultFont);
   border-color: transparent;
 }
 
-/* ---------- user grid + cards (SPA: cardGrid, userCard) ---------- */
+/* ---------- user grid + cards ---------- */
 .user-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr));
@@ -377,30 +337,26 @@ body { padding-top: 4rem; }
   border: 0;
 }
 
-/* SPA: only the user-card gets the elevated hover shadow. */
 .user-card:hover {
   box-shadow: var(--level3);
 }
 
 .user-card__name {
-  /* SPA: mixed-case names, normal weight, dark text. */
   text-transform: none;
   font-weight: 500;
   font-size: 0.95rem;
   color: var(--text);
-  /* Truncate long names to a single line with ellipsis (SPA does this). */
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .user-card--disabled {
-  /* 0.75 keeps the name and balance above AA thresholds (verified); the
-     card also carries a visually-hidden "(disabled)" marker. */
+  /* 0.75 still clears AA contrast; a visually-hidden "(disabled)" marker backs it up */
   opacity: 0.75;
 }
 
-/* ---------- balance pill (now bare colored text, no background) ---------- */
+/* ---------- balance pill ---------- */
 .balance-pill {
   display: inline-block;
   padding: 0;
@@ -409,12 +365,11 @@ body { padding-top: 4rem; }
   font-size: 1rem;
   font-variant-numeric: tabular-nums;
   background: transparent;
-  /* Prevent the sign / symbol / number from breaking onto separate lines
-     in narrow user-card columns. */
+  /* don't let sign/symbol/number wrap in narrow user-card columns */
   white-space: nowrap;
 }
 
-/* SPA treats zero balance as "fine" — same green as positive. */
+/* zero balance counts as "fine" — same green as positive */
 .balance-pill.is-positive,
 .balance-pill.is-zero { color: var(--greenText); }
 .balance-pill.is-negative { color: var(--redText); }
@@ -446,10 +401,7 @@ body { padding-top: 4rem; }
   color: var(--textSubtile);
 }
 
-/* ---------- round icon buttons (shared chrome) ----------
-   Geometry + elevation shared by the floating "+" FAB, the red cancel circle,
-   the dark accept-check circle, and the split-invoice participant remove button.
-   Each variant rule sets only its background/foreground (and glyph sizing). */
+/* ---------- round icon buttons (shared chrome) ---------- */
 .fab,
 .form-cancel-circle,
 .accept-circle,
@@ -467,10 +419,8 @@ body { padding-top: 4rem; }
   flex-shrink: 0;
 }
 
-/* ---------- floating "+" button (SPA add-user / add-article affordance) ----------
-   On the user list at >= 48em it lifts out of the toolbar and floats absolute
-   off the left edge of the wrapper. The :visited/:hover variants keep the white
-   "+" from inheriting the generic visited-link color. */
+/* ---------- floating "+" button ----------
+   the :visited/:hover repeats keep the global a:visited color off the white "+" */
 .fab,
 .fab:visited,
 .fab:hover {
@@ -481,9 +431,6 @@ body { padding-top: 4rem; }
   line-height: 1;
 }
 
-/* Floating add-user/add-article FAB: bottom-right on mobile (the standard
-   spot — list content is left-aligned and was being covered), in the list
-   gutter on tablet+. */
 .fab--floating {
   position: fixed;
   bottom: 1rem;
@@ -491,7 +438,7 @@ body { padding-top: 4rem; }
   z-index: 10;
 }
 
-/* Keep the footer's "Code" link reachable under the fixed FAB. */
+/* keep the footer's "Code" link reachable under the fixed FAB */
 @media (max-width: 48em) {
   .app-footer {
     padding-right: 4.5rem;
@@ -506,14 +453,12 @@ body { padding-top: 4rem; }
     position: absolute;
     bottom: auto;
     right: auto;
-    /* Sits inside the 8rem left gutter that the list wrapper reserves below
-       (margin-top clears the toolbar row so it aligns with the first cards). */
+    /* sits in the 8rem list gutter; margin-top clears the toolbar row */
     left: 5rem;
     margin-top: 6rem;
   }
 }
 
-/* List-page toolbar: tab strip only (FAB floats separately at .fab--floating). */
 .list-toolbar {
   display: flex;
   align-items: center;
@@ -525,8 +470,7 @@ body { padding-top: 4rem; }
   margin-bottom: 0;
 }
 
-/* Shift the list wrapper right on tablet+ to make room for the absolute FAB. */
-/* ---------- footer (SPA: small grey line, MIT credit + Code link) ---------- */
+/* ---------- footer ---------- */
 .app-footer {
   font-size: 0.8rem;
   padding: 1rem;
@@ -569,15 +513,10 @@ body { padding-top: 4rem; }
   margin: 0 auto;
 }
 
-/* SPA article-form layout: bare, no card wrapper, uppercase subhead with
-   bottom border, single-column on mobile / two-column on tablet+ for the
-   edit page. */
 .article-form {
   max-width: 30rem;
   margin: 0 auto 1.5rem;
 }
-/* The create/edit dialogs: give the card more breathing room than the
-   generic 1rem card padding. */
 .card.article-form {
   padding: 1.25rem 1.5rem 1.5rem;
 }
@@ -636,8 +575,7 @@ body { padding-top: 4rem; }
 .article-form input[type="number"] {
   width: 100%;
   padding: 0.5rem;
-  /* Grey tint + visible border: these inputs sit inside the white .card,
-     where a white background made them invisible. */
+  /* grey tint — a white input on the white card is invisible */
   background: var(--mainBackground);
   border: 1px solid var(--inputBorder);
   border-radius: var(--borderRadius);
@@ -679,7 +617,7 @@ body { padding-top: 4rem; }
   height: 1rem;
 }
 
-/* Emitted inside .form-card, .step-card and the PayPal tab alike. */
+/* used in .form-card, .step-card and the PayPal tab */
 .form-help {
   font-size: 0.8rem;
   color: var(--textSubtile);
@@ -700,11 +638,7 @@ body { padding-top: 4rem; }
   justify-content: flex-end;
 }
 
-/* Round FAB-style buttons — chrome shared between several pages:
-   - `.form-cancel-circle` (red ×, rendered by `<twig:CancelCircle>`)
-   - `.accept-circle` (dark ✓, rendered by `<twig:AcceptCheck>`)
-   Used together in `.form-actions--circles` on user-edit / user-create /
-   article-create / article-edit / split-invoice / send-money. */
+/* red × = <twig:CancelCircle>, dark ✓ = <twig:AcceptCheck> */
 .form-actions--circles {
   gap: 0.75rem;
   align-items: center;
@@ -737,7 +671,6 @@ body { padding-top: 4rem; }
   cursor: not-allowed;
 }
 
-/* Edit form: no card wrapper, inline checkbox row. */
 .edit-form {
   max-width: 30rem;
   margin: 0 auto 1.5rem;
@@ -775,7 +708,6 @@ body { padding-top: 4rem; }
 }
 
 /* ---------- transaction rows ---------- */
-/* Flat rows separated by a hairline bottom border — no per-row card chrome. */
 .transaction-list {
   list-style: none;
   margin: 0 auto;
@@ -783,8 +715,7 @@ body { padding-top: 4rem; }
   display: flex;
   flex-direction: column;
   gap: 0;
-  /* Caps the full-history page on wide screens; inside the user-detail
-     grid the column is narrower than this anyway. */
+  /* caps the full-history page on wide screens */
   max-width: 64rem;
 }
 
@@ -804,8 +735,7 @@ body { padding-top: 4rem; }
 .transaction-row--deleted {
   text-decoration: line-through;
 }
-/* Subdued via the AA-passing muted token instead of opacity, which pushed
-   the amounts and date below readable contrast. */
+/* muted token, not opacity — opacity dropped the amounts below AA contrast */
 .transaction-row--deleted .balance-pill,
 .transaction-row--deleted .transfer-address,
 .transaction-row--deleted .transfer-address--to,
@@ -824,20 +754,19 @@ body { padding-top: 4rem; }
   color: var(--textSubtile);
 }
 
-/* Counterpart names and comments are user-supplied — wrap, don't overflow. */
+/* names and comments are user-supplied — wrap, don't overflow */
 .transaction-row__desc {
   overflow-wrap: anywhere;
 }
 
 .transfer-address--to { color: var(--greenText); }
 .transfer-address--from { color: var(--text); }
-/* Underlined: color alone cannot distinguish these from body text. */
+/* underlined: color alone can't distinguish these from body text */
 .transfer-address a { color: inherit; text-decoration: underline; }
 
 .article-badge a { text-decoration: underline; }
 
-/* SPA: user-details-header h2/h3 { text-transform:none; font-size:2rem;
-   text-align:center; margin:1rem auto }; wrapper capped at 30rem on tablet+. */
+/* ---------- user hero ---------- */
 .user-hero {
   text-align: center;
   margin: 0 auto;
@@ -850,8 +779,7 @@ body { padding-top: 4rem; }
 
 @media (min-width: 48em) {
   .user-hero {
-    /* max-, not fixed: a fixed width on a text container overflows with
-       long unbroken names. */
+    /* max-, not fixed: long unbroken names overflow a fixed width */
     max-width: 30rem;
   }
 }
@@ -860,8 +788,7 @@ body { padding-top: 4rem; }
   display: inline-flex;
   align-items: center;
   gap: 0.6rem;
-  /* User names are up to 64 unbroken chars — wrap rather than overflow,
-     and scale down on phones (36px text wraps to towers at 320px). */
+  /* names are up to 64 unbroken chars; the clamp keeps them from towering at 320px */
   overflow-wrap: anywhere;
   font-size: clamp(1.4rem, 5vw + 0.5rem, 2rem);
   font-weight: 300;
@@ -876,13 +803,10 @@ body { padding-top: 4rem; }
   font-weight: 300;
 }
 
-/* User-detail tab strip: same chrome as global .tabs but spread across
-   the panel and centered. SPA marks the active one with a card-background
-   pill (same treatment as the list-page .tabs). */
+/* ---------- user-detail tab strip ---------- */
 .user-tabs {
   display: flex;
-  /* Wraps under pressure: a centered overflowing strip clips its first and
-     last tab off-screen unreachably at 320px. */
+  /* a centered strip that overflows clips its ends unreachably at 320px */
   flex-wrap: wrap;
   justify-content: center;
   gap: 1rem;
@@ -918,21 +842,10 @@ body { padding-top: 4rem; }
   fill: var(--primary);
 }
 
-/* ---------- user-detail layout ----------
-
-   Default state (no tab):
-     [ step buttons (always)   ] [ recent transactions (always) ]
-
-   Tab active:
-     [ tab form panel (full width above)           ]
-     [ step buttons (always)   ] [ recent transactions (always) ]
-*/
-/* SPA: 24rem fixed-width payment column + flexible transactions column,
-   3rem gap between, centered on tablet+. Single column below 48em. */
+/* ---------- user-detail layout ---------- */
 .user-detail-grid {
   display: grid;
-  /* minmax(0, …): the step card's intrinsic minimum must never widen the
-     track past the viewport (it clipped buttons and timestamps at 320px). */
+  /* minmax(0, …): intrinsic minimums must not widen the track past the viewport */
   grid-template-columns: minmax(0, 1fr);
   gap: 1rem;
   margin: 1rem;
@@ -944,8 +857,7 @@ body { padding-top: 4rem; }
 
 @media (min-width: 48em) {
   .user-detail-grid {
-    /* The payment column may shrink a little and the transaction column may
-       collapse — fixed 24rem + 1fr ran ~22px hot at exactly 768px. */
+    /* fixed 24rem + 1fr ran ~22px over at exactly 768px */
     grid-template-columns: minmax(17rem, 24rem) minmax(0, 1fr);
     gap: 3rem;
     justify-content: center;
@@ -998,8 +910,6 @@ body { padding-top: 4rem; }
   color: var(--text);
 }
 
-/* SPA wraps the whole payment column (deposit steps, custom amount, dispense
-   steps) in one white card. */
 .step-card {
   background: var(--componentBackgroundLight);
   border-radius: var(--borderRadius);
@@ -1012,8 +922,7 @@ body { padding-top: 4rem; }
 
 .step-grid {
   display: grid;
-  /* auto-fit instead of a rigid 3-up: at 320px three fixed columns clipped
-     the third button; narrow cards simply reflow to two columns. */
+  /* auto-fit: a rigid 3-up clipped the third button at 320px */
   grid-template-columns: repeat(auto-fit, minmax(4.5rem, 1fr));
   gap: 1rem;
 }
@@ -1066,9 +975,6 @@ details.custom-form summary {
 details.custom-form summary::-webkit-details-marker { display: none; }
 details.custom-form[open] summary { color: var(--text); }
 
-/* Single-row composer: [Deposit] [amount] [Dispense], comment below.
-   On narrow screens the amount takes its own row and the buttons pair up
-   beneath it — the three-across row overflowed the card at phone widths. */
 .custom-form__bar {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
@@ -1107,8 +1013,7 @@ details.custom-form[open] summary { color: var(--text); }
 
 
 
-/* Grey tint: the composer sits on the white step card, so the inputs need
-   their own surface to be visible at all. */
+/* grey tint — the inputs sit on the white step card and need their own surface */
 .custom-form__amount,
 .custom-form__comment {
   padding: 0.5rem 0.75rem;
@@ -1123,10 +1028,7 @@ details.custom-form[open] summary { color: var(--text); }
   color: var(--textSubtile);
 }
 
-/* ---------- SEND MONEY tab: compact 4-column composer ----------
-   `grid-template-columns: 4fr 1fr 4fr 1fr` — amount input and recipient pill
-   take the wide cells, the arrow and submit-circle take the narrow ones.
-   Notes input drops below. */
+/* ---------- send-money tab ---------- */
 .send-form-wrap {
   max-width: 24rem;
   margin: 0 auto;
@@ -1149,9 +1051,8 @@ details.custom-form[open] summary { color: var(--text); }
 .send-form__recipient { grid-area: recipient; }
 .send-form .accept-circle { grid-area: submit; justify-self: end; }
 
-/* Phones: the 4-column row crushed the recipient select to a sliver — the
-   amount takes a row, recipient + submit share the next; the decorative
-   arrow goes (it's aria-hidden anyway). */
+/* the 4-column row crushed the recipient select on phones; the arrow is
+   decorative (aria-hidden) so it can go */
 @media (max-width: 36em) {
   .send-form {
     grid-template-columns: minmax(0, 1fr) auto;
@@ -1159,7 +1060,7 @@ details.custom-form[open] summary { color: var(--text); }
       'amount amount'
       'recipient submit';
   }
-  /* Double selector: must out-cascade the base display rule declared later. */
+  /* double selector out-cascades the base display rule below */
   .send-form .send-form__arrow { display: none; }
 }
 
@@ -1223,7 +1124,7 @@ details.custom-form[open] summary { color: var(--text); }
 .undo-form { display: contents; }
 
 .undo-btn {
-  /* 44px hit area — destructive money action on a touch kiosk. */
+  /* 44px hit area — destructive money action on a touch kiosk */
   min-width: 2.444rem;
   min-height: 2.444rem;
   display: inline-flex;
@@ -1266,16 +1167,15 @@ details.custom-form[open] summary { color: var(--text); }
   fill: currentColor;
 }
 
-/* ---------- articles (flat row list, SPA style) ---------- */
+/* ---------- article rows ---------- */
 .article-rows {
   list-style: none;
   margin: 0;
   padding: 0;
-  /* Unclamped rows put ~1000px between name and price on wide screens. */
+  /* unclamped rows put ~1000px between name and price on wide screens */
   max-width: 56rem;
 }
 
-/* SPA: padding 1rem all sides; margin-bottom .2rem between rows. */
 .article-row {
   margin-bottom: 0.2rem;
 }
@@ -1297,7 +1197,7 @@ details.custom-form[open] summary { color: var(--text); }
 .article-row__name {
   font-size: 1.25rem;
   color: var(--text);
-  /* Article names are up to 255 chars. */
+  /* article names are up to 255 chars */
   overflow-wrap: anywhere;
 }
 
@@ -1309,14 +1209,13 @@ details.custom-form[open] summary { color: var(--text); }
 
 .article-row--inactive { opacity: 0.7; } /* 4.65:1 for the 1.25rem text */
 
-/* Used only on the search-results page (`templates/search/results.html.twig`). */
+/* only used on the search-results page */
 .article-card__price {
   color: var(--textSubtile);
   font-variant-numeric: tabular-nums;
 }
 
-/* SPA: wrapper margin 2rem, per-chip margin .5rem. Chips render as bordered
-   buttons with `padding: 0.625rem; font-size: 1rem; border-radius: 4px`. */
+/* ---------- tag filter + chips ---------- */
 .tag-filter {
   display: flex;
   flex-wrap: wrap;
@@ -1325,8 +1224,7 @@ details.custom-form[open] summary { color: var(--text); }
   margin: 2rem;
 }
 
-/* The :visited/:hover variants pin the color — the global `a:visited` rule
-   has higher specificity and painted visited active chips text-on-same-color. */
+/* :visited/:hover pin the color — the global a:visited rule otherwise wins */
 .tag-chip,
 .tag-chip:visited,
 .tag-chip:hover {
@@ -1354,8 +1252,7 @@ details.custom-form[open] summary { color: var(--text); }
   color: var(--buttonHighlightFont);
 }
 
-/* Article-edit barcode/tag chips: flat full-width rows with a right-aligned
-   red round × button. Matches SPA's article-form chip pattern. */
+/* article-edit barcode/tag chips */
 .chip-list {
   list-style: none;
   padding: 0;
@@ -1376,7 +1273,7 @@ details.custom-form[open] summary { color: var(--text); }
 }
 .chip__label {
   color: var(--text);
-  /* Barcodes are up to 32 chars with no break opportunities. */
+  /* barcodes are up to 32 unbroken chars */
   overflow-wrap: anywhere;
   min-width: 0;
 }
@@ -1389,7 +1286,7 @@ details.custom-form[open] summary { color: var(--text); }
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  /* 44px touch target; the red circle is drawn smaller via background-clip. */
+  /* 44px touch target; the red circle draws smaller via background-clip */
   width: 2.444rem;
   height: 2.444rem;
   padding: 0.475rem;
@@ -1407,7 +1304,6 @@ details.custom-form[open] summary { color: var(--text); }
 .inline-form { display: contents; }
 .inline-add {
   display: flex;
-  /* The button drops below the field on narrow cards instead of overflowing. */
   flex-wrap: wrap;
   align-items: flex-end;
   gap: 0.5rem;
@@ -1416,8 +1312,7 @@ details.custom-form[open] summary { color: var(--text); }
   min-width: 0;
 }
 .inline-add__field { flex: 1; }
-/* Match the input's height (0.5rem padding + 0.9rem text + 1px borders) so
-   the button bottom-aligns with the input, not below it. */
+/* 0.65rem matches the input's height so the button bottom-aligns with it */
 .inline-add .btn {
   padding: 0.65rem 0.75rem;
   white-space: nowrap;
@@ -1434,8 +1329,7 @@ details.custom-form[open] summary { color: var(--text); }
   color: var(--text);
 }
 
-/* ---------- BUY ARTICLE tab — SPA pill picker ----------
-   Centered search input + red round close, then a wrap of name|price pills. */
+/* ---------- buy-article tab ---------- */
 .buy-tab {
   margin: 0 auto 1.5rem;
   padding: 0 1rem;
@@ -1483,8 +1377,7 @@ details.custom-form[open] summary { color: var(--text); }
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  /* A single 255-char article name must not force page-level scroll:
-     the pill caps at its row and the name ellipsizes. */
+  /* a 255-char article name must not force page-level scroll */
   max-width: 100%;
   padding: 0.5rem 0.75rem;
   background: var(--componentBackgroundLight);
@@ -1518,10 +1411,10 @@ details.custom-form[open] summary { color: var(--text); }
   font-variant-numeric: tabular-nums;
 }
 
-/* Hidden state used by the article-filter controller. */
+/* hidden state set by the article-filter controller */
 .buy-tab__pill-form[hidden] { display: none !important; }
 
-/* No-JS barcode fallback row (hidden by the controller when JS is alive). */
+/* no-JS barcode fallback row (hidden by the controller when JS is alive) */
 .buy-tab__scan {
   display: flex;
   flex-wrap: wrap;
@@ -1570,7 +1463,7 @@ details.custom-form[open] summary { color: var(--text); }
   margin-bottom: 0.25rem;
 }
 
-/* ---------- split-invoice (SPA: natural-language flow, max-width 30em) ---------- */
+/* ---------- split-invoice ---------- */
 .split-invoice-wrapper {
   max-width: 30em;
   margin: 2rem auto;
@@ -1588,15 +1481,12 @@ details.custom-form[open] summary { color: var(--text); }
   display: block;
 }
 
-/* Invisible default submit for implicit Enter submission — display:none keeps
-   it out of the a11y tree AND out of the tab order while browsers still route
-   Enter-key submission to it. */
+/* invisible default submit: display:none still receives implicit Enter submission */
 .split-invoice-form .default-submit {
   display: none;
 }
 
-/* The headline grid: [amount input] [with] [recipient picker]. The static
-   conjunction only needs its own width; equal thirds squeezed the fields. */
+/* auto middle column for the conjunction — equal thirds squeezed the fields */
 .split-invoice-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
@@ -1606,15 +1496,13 @@ details.custom-form[open] summary { color: var(--text); }
   justify-content: center;
 }
 
-/* Phones: the natural-language sentence stacks vertically. */
 @media (max-width: 36em) {
   .split-invoice-grid {
     grid-template-columns: minmax(0, 1fr);
   }
 }
 
-/* The recipient pick sits in a real grid track — the 190px clamp meant the
-   select truncated its own "Select recipient" label at every width. */
+/* lift the base clamp — it truncated the "Select recipient" label */
 .split-invoice-grid .split-invoice-pick {
   max-width: none;
 }
@@ -1640,7 +1528,7 @@ details.custom-form[open] summary { color: var(--text); }
 }
 .split-invoice-input::placeholder { color: var(--textSubtile); }
 
-/* Native <select> styled to look like the SPA's recipient/participant button. */
+/* native <select> dressed as the SPA's picker button */
 .split-invoice-pick {
   appearance: none;
   -webkit-appearance: none;
@@ -1700,7 +1588,7 @@ details.custom-form[open] summary { color: var(--text); }
   display: none !important;
 }
 
-/* Same button chrome as the picker; the action is JS-only. */
+/* same chrome as the picker; the action is JS-only */
 .split-invoice-add {
   background: var(--componentBackgroundLight);
   color: var(--buttonDefaultFont);
@@ -1793,9 +1681,7 @@ details.custom-form[open] summary { color: var(--text); }
   text-decoration: underline;
 }
 
-/* Keeps wide tables from forcing page-level horizontal scroll at 320px
-   without destroying table semantics (display tricks on <table> strip its
-   role for assistive tech). */
+/* scroll wrapper — display tricks on <table> strip its role for assistive tech */
 .table-scroll {
   overflow-x: auto;
 }
@@ -1814,8 +1700,7 @@ details.custom-form[open] summary { color: var(--text); }
   border-bottom: 1px solid var(--border);
   text-align: right;
   font-variant-numeric: tabular-nums;
-  /* The .table-scroll wrapper scrolls horizontally — wrapped three-line
-     dates are worse than a scrollable row. */
+  /* the wrapper scrolls — better than three-line wrapped dates */
   white-space: nowrap;
 }
 .metrics-table th:first-child,
@@ -1852,13 +1737,12 @@ details.custom-form[open] summary { color: var(--text); }
   margin-bottom: 1.5rem;
 }
 
-/* ---------- list gutter rail (kept at EOF: these must out-cascade the
-   components' own margin shorthands declared above) ---------- */
+/* ---------- list gutter rail — kept at EOF to out-cascade the margin
+   shorthands declared above ---------- */
 @media (min-width: 48em) {
   .list-toolbar { margin-left: 8rem; }
   .user-grid { margin-left: 8rem; }
   .article-rows { margin-left: 8rem; }
-  /* Shares the shifted rail — otherwise wrapping tag chips slide under the
-     absolutely-positioned FAB, which click-blocks them. */
+  /* without the shift, wrapping tag chips slide under the FAB and get click-blocked */
   .tag-filter { margin-left: 8rem; }
 }

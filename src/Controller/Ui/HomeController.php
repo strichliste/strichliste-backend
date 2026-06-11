@@ -54,8 +54,7 @@ class HomeController extends AbstractController {
         $result = $fetch(($page - 1) * self::PAGE_SIZE);
         $totalPages = max(1, (int) ceil($result['total'] / self::PAGE_SIZE));
 
-        // Clamping after the fetch would render an empty list with a wrong
-        // page indicator for out-of-range pages — re-fetch the real last page.
+        // out-of-range page: re-fetch the real last page instead of rendering an empty list
         if ($page > $totalPages) {
             $page = $totalPages;
             $result = $fetch(($page - 1) * self::PAGE_SIZE);

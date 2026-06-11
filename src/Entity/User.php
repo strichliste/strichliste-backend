@@ -15,16 +15,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\HasLifecycleCallbacks]
 class User {
 
-    /**
-     * Strips ASCII control characters (NUL through US, plus DEL) from a name
-     * and trims surrounding whitespace. Same character class is rejected by
-     * `CreateUserType` / `EditUserType` at validation time — this helper is
-     * for the API/UI paths that handle name input outside of form validation.
-     */
     public static function sanitizeName(string $name): string {
-        // preg_replace with /u returns null for invalid UTF-8 — coalesce to ''
-        // so callers' `!$name` checks produce a clean 400 instead of a
-        // TypeError 500.
+        // preg_replace returns null on invalid UTF-8; coalesce so callers get a 400, not a TypeError
         return preg_replace('/[\x00-\x1F\x7F]/u', '', trim($name)) ?? '';
     }
 

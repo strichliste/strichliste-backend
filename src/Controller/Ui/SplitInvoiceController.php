@@ -48,11 +48,8 @@ class SplitInvoiceController extends AbstractController {
             'participants' => [],
         ];
 
-        // Captures by reference: $formData/$errors/$rowErrors are filled in as
-        // the POST is processed, and every render must see the current values
-        // (an `fn()` would freeze them at their initial empty state here).
-        // Always render at least one participant row so the form is usable
-        // without JS (the add-row button is a JS-only enhancement).
+        // by reference: the closure must see values filled in during POST handling.
+        // Always render at least one participant row so the form works without JS.
         $renderArgs = function () use ($allUsers, &$formData, &$errors, &$rowErrors) {
             $formData['participants'] = $formData['participants'] ?: [null];
             return [
@@ -60,8 +57,7 @@ class SplitInvoiceController extends AbstractController {
             ];
         };
 
-        // Error re-renders are 422 — Turbo ignores non-redirect form responses
-        // that come back 200, so errors would never reach the screen.
+        // error re-renders are 422 or Turbo won't render them
         $renderError = fn() => $this->render('split_invoice/index.html.twig', $renderArgs(),
             new Response(status: Response::HTTP_UNPROCESSABLE_ENTITY));
 
@@ -84,10 +80,7 @@ class SplitInvoiceController extends AbstractController {
         $formData['comment'] = $comment;
         $formData['participants'] = $participantIds;
 
-        // No-JS path of the "add participant" button: it is a real submit
-        // button; append an empty row and re-render without validating — the
-        // member is still composing the form. (With JS the Stimulus controller
-        // preventDefault()s the click and adds the row client-side instead.)
+        // no-JS path of the add-participant button: append a row and re-render without validating
         if ($request->request->has('add_row')) {
             $formData['participants'][] = null;
             return $renderError();
@@ -124,17 +117,12 @@ class SplitInvoiceController extends AbstractController {
             }
         }
 
-        // Only reachable with at least one error (success redirects above).
         return $renderError();
     }
 
     /**
-     * Maps submitted participant IDs to User entities, recording per-row error
-     * messages in `$rowErrors` (by reference) for invalid / self-referential /
-     * disabled selections.
-     *
      * @param int[] $participantIds
-     * @return array<int, User>  keyed by original row index
+     * @return array<int, User> keyed by original row index
      */
     private function resolveParticipants(array $participantIds, int $recipientId, array &$rowErrors): array {
         $clean = [];
@@ -157,9 +145,7 @@ class SplitInvoiceController extends AbstractController {
     }
 
     /**
-     * Splits `$totalCents` across `$count` participants. The rounding remainder
-     * is spread across the first rows so the recipient is credited exactly
-     * `$totalCents` — e.g. 1001 / 3 → [334, 334, 333].
+     * The remainder goes to the first rows so the total stays exact: 1001/3 → [334, 334, 333].
      *
      * @return int[]
      */

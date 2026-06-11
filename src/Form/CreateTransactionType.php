@@ -17,8 +17,7 @@ class CreateTransactionType extends AbstractType {
             ->add('direction', HiddenType::class, [
                 'constraints' => [new Assert\Choice(choices: ['deposit', 'dispense'])],
             ])
-            // MoneyType displays/parses major units (€) but the bound value is a float
-            // representing major units. The controller multiplies by 100 to get cents.
+            // MoneyType binds major units (€); the controller converts to cents
             ->add('amount', MoneyType::class, [
                 'label' => 'transactions.amount_label',
                 'currency' => false,
@@ -35,10 +34,7 @@ class CreateTransactionType extends AbstractType {
     public function configureOptions(OptionsResolver $resolver): void {
         $resolver
             ->setDefaults(['data_class' => null])
-            // user_id is REQUIRED, not optional. The CSRF token id is scoped by
-            // it; defaulting to null silently collapses scope to a single
-            // global token, which would re-open the cross-user-replay window
-            // we explicitly closed earlier.
+            // required on purpose: the CSRF token id is scoped by user_id, a default would collapse it to one global token
             ->setRequired('user_id')
             ->setAllowedTypes('user_id', 'int');
 

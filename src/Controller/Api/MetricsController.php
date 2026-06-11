@@ -20,8 +20,7 @@ class MetricsController extends AbstractController {
 
     #[Route('/api/metrics', methods: ['GET'])]
     function metrics(Request $request, ArticleRepository $articleRepository, ArticleSerializer $articleSerializer) {
-        // Clamp: a huge value allocates one array row per day before any query
-        // (memory exhaustion), a negative one makes DateTime throw a 500.
+        // clamp: huge values allocate an array row per day, negative ones make DateTime throw
         $days = max(1, min(3650, (int) $request->query->get('days', 30)));
         $articles = $articleRepository->findBy(['active' => true], ['usageCount' => 'DESC']);
 

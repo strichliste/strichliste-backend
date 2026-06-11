@@ -14,12 +14,9 @@
         {{ importmap('app') }}
     {% endblock %}
 </head>
-<body {% block body_attributes %}data-controller="idle" data-idle-timeout-value="{{ setting('common.idleTimeout', 0) }}" data-idle-warning-value="{{ 'app.idle_warning'|trans }}"{% endblock %}>
-    {# Persistent ARIA live regions, preserved across Turbo visits via
-       data-turbo-permanent. The `flash` controller copies messages here after
-       the DOM is in place, so screen readers announce them even when Turbo
-       swaps the <body> (a freshly-inserted, already-populated live region is
-       not announced by most screen readers). #}
+<body {% block body_attributes %}data-controller="idle" data-idle-timeout-value="{{ setting('common.idleTimeout', 0) }}"{% endblock %}>
+    {# kept across Turbo body swaps (data-turbo-permanent) — a freshly inserted,
+       already-populated live region isn't announced, so the flash controller fills these in. #}
     <div class="visually-hidden" id="flash-announcer-status" data-turbo-permanent role="status" aria-live="polite" aria-atomic="true"></div>
     <div class="visually-hidden" id="flash-announcer-alert" data-turbo-permanent role="alert" aria-live="assertive" aria-atomic="true"></div>
 

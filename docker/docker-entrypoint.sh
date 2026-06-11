@@ -2,15 +2,13 @@
 set -e
 
 if [ "$1" = 'frankenphp' ] || [ "$1" = 'php' ] || [ "$1" = 'bin/console' ]; then
-	# The committed .env secret is fine for dev but publicly known — refuse to
-	# be silent about it in a container that may face a network.
+	# The committed .env secret is publicly known — don't let it face a network silently.
 	if [ -z "${APP_SECRET:-}" ] || [ "${APP_SECRET:-}" = "afcb8ed6bf80cf0d8d9196390e06a408" ]; then
 		echo 'WARNING: APP_SECRET is unset or the publicly-known development default.' >&2
 		echo '         Set a unique APP_SECRET for any real deployment.' >&2
 	fi
 
-	# Settings (config/strichliste.yaml) are compiled into the DI container —
-	# recompile on boot so a bind-mounted config or changed env is honored.
+	# strichliste.yaml is compiled into the container — recompile so a bind-mounted copy is honored.
 	php bin/console cache:clear >/dev/null
 
 	if grep -q ^DATABASE_URL= .env; then

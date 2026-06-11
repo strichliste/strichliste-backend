@@ -2,10 +2,6 @@
 
 namespace App\Tests\Controller\Api;
 
-/**
- * Pins the frozen /api/metrics and /api/user/{id}/metrics JSON contract for
- * exactly the surfaces the symfony-ux branch rewrote (MetricsService).
- */
 class MetricsControllerTest extends AbstractApplicationTestCase
 {
     public function testGlobalMetricsShape(): void
@@ -21,8 +17,7 @@ class MetricsControllerTest extends AbstractApplicationTestCase
         $this->assertSame(1, $data['userCount']);
         $this->assertCount(4, $data['days']); // today + 3 prior days
 
-        // Legacy shape: today (has transactions) nests {amount, transactions};
-        // quiet days carry SCALAR zeroes — clients parse them as numbers.
+        // Legacy quirk: active days nest {amount, transactions}, quiet days are scalar zeroes.
         $byDate = array_column($data['days'], null, 'date');
         $today = $byDate[date('Y-m-d')];
         $this->assertSame(['amount' => 500, 'transactions' => 1], $today['charged']);
@@ -39,8 +34,7 @@ class MetricsControllerTest extends AbstractApplicationTestCase
 
     public function testDaysParameterIsClamped(): void
     {
-        // Negative used to throw a 500 from DateTime; huge values allocated
-        // one array row per day before any query ran.
+        // Negative used to 500 in DateTime; huge values allocated an array row per day.
         $this->client->request('GET', '/api/metrics?days=-5');
         $this->assertResponseIsSuccessful();
 
@@ -62,9 +56,7 @@ class MetricsControllerTest extends AbstractApplicationTestCase
 
         $data = $this->requestJson('GET', "/api/user/{$userId}/metrics");
 
-        // Legacy behavior: the per-article breakdown counted reverted
-        // purchases (only transactions.count excluded them — asymmetry is
-        // part of the frozen contract).
+        // Legacy counted reverted purchases here; only transactions.count excludes them.
         $this->assertCount(1, $data['articles']);
         $this->assertSame(1, $data['articles'][0]['count']);
         $this->assertSame('Club Mate', $data['articles'][0]['article']['name']);

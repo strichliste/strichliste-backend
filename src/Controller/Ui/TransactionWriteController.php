@@ -42,8 +42,7 @@ class TransactionWriteController extends AbstractController {
             throw new NotFoundHttpException();
         }
 
-        // The step buttons / custom forms are hidden for disabled users, but
-        // hiding is not enforcement — reject the POST itself.
+        // the forms are hidden for disabled users, but enforce it on the POST too
         if ($user->isDisabled()) {
             $this->addFlash('error', $this->translator->trans('transactions.errors.account_disabled'));
             return $this->redirectToRoute('users_detail', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
@@ -59,8 +58,7 @@ class TransactionWriteController extends AbstractController {
 
         $data = $form->getData();
         $direction = $data['direction'] ?? 'deposit';
-        // amount arrives as major units (float). Convert to cents, ignore sign,
-        // then apply direction explicitly so a maliciously-signed input can't flip a deposit.
+        // ignore the submitted sign and apply direction explicitly so a crafted negative can't flip a deposit
         $cents = MoneyParser::majorToCents(abs((float) $data['amount']));
         $amount = $direction === 'dispense' ? -$cents : $cents;
         if ($amount === 0) {
@@ -100,8 +98,7 @@ class TransactionWriteController extends AbstractController {
         $form = $this->createForm(TransferTransactionType::class, null, ['exclude_user' => $user]);
         $form->handleRequest($request);
 
-        // Error redirects reopen the SEND tab — bouncing to the bare detail
-        // page made the form (and the user's context) vanish behind a flash.
+        // reopen the send tab on errors so the form doesn't vanish behind a flash
         if (!$form->isSubmitted() || !$form->isValid()) {
             $this->addFlash('error', $this->translator->trans('transactions.errors.invalid'));
             return $this->redirectToRoute('users_detail', ['id' => $user->getId(), 'tab' => 'send'], Response::HTTP_SEE_OTHER);
@@ -154,17 +151,13 @@ class TransactionWriteController extends AbstractController {
             return $this->redirectToRoute('users_detail', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
         }
 
-        // The {id} segment is otherwise decorative for authorization: assert the
-        // transaction actually belongs to this user so one user's undo URL can't
-        // revert another user's transaction.
+        // make sure the transaction belongs to this user — the {id} segment alone authorizes nothing
         $transaction = $this->transactionRepository->find($txId);
         if (!$transaction || $transaction->getUser()->getId() !== $user->getId()) {
             throw new NotFoundHttpException();
         }
 
-        // isDeletable() decides whether the undo button is rendered, but a
-        // stale tab keeps a valid CSRF token forever — enforce the configured
-        // undo window (payment.undo.*) on the POST itself.
+        // a stale tab keeps a valid CSRF token forever — enforce the undo window on the POST too
         if (!$this->transactionService->isDeletable($transaction)) {
             $this->addFlash('error', $this->translator->trans('transactions.errors.not_deletable'));
             return $this->redirectToRoute('users_detail', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);

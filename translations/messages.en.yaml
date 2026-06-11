@@ -1,7 +1,6 @@
 app:
     brand: Strichliste
     skip_link: Skip to main content
-    idle_warning: Still there? This page returns to the start screen shortly — press any key or tap to stay.
 
 common:
     cancel: Cancel

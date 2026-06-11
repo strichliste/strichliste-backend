@@ -1,12 +1,5 @@
-# OpenAPI documentation for the FROZEN legacy REST API (/api/*).
-#
-# The whole spec is maintained here, not as controller attributes: the
-# contract predates this codebase's UI rewrite and must stay byte-identical,
-# so the documentation lives in one reviewable file and the controllers stay
-# untouched. Shapes mirror src/Serializer/* and are pinned by
-# tests/Controller/Api/*.
-#
-# Browse at /api/doc (Swagger UI) — raw spec at /api/doc.json.
+# Hand-written spec for the frozen legacy /api, kept out of the controllers.
+# Shapes mirror src/Serializer/* and are pinned by tests/Controller/Api/*.
 nelmio_api_doc:
     areas:
         default:

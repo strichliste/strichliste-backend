@@ -45,9 +45,6 @@
                     {% endfor %}
                 </ul>
                 <form method="post" action="{{ path('articles_barcodes_add', {id: article.id}) }}" class="inline-add">
-                    {# Label and input as siblings — nesting the input inside
-                       the label loses the standard label-to-input gap and
-                       breaks the button's baseline alignment. #}
                     <div class="inline-add__field">
                         <label for="new-barcode">{{ 'articles.barcodes.add_label'|trans }}</label>
                         <input type="text" id="new-barcode" name="barcode" maxlength="32" required>

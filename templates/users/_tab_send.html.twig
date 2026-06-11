@@ -1,9 +1,3 @@
-{# SEND MONEY tab — SPA's compact 4-col composer:
-   [amount] → [recipient] [✓]
-   + notes input below.
-
-   Recipient is a normal <select> here (no modal), which works without JS and
-   visually matches the SPA's "USERNAME" placeholder button once styled. #}
 {%- set form = send.transfer_form -%}
 {{ form_start(form, {action: path('transactions_transfer', {id: user.id}), attr: {class: 'send-form-wrap', 'data-controller': 'disable-on-submit'}}) }}
     <div class="send-form">

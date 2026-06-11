@@ -1,15 +1,8 @@
 import { Controller } from '@hotwired/stimulus';
 
-/*
- * Copies server-rendered flash messages into the persistent ARIA live regions
- * declared in base.html.twig (#flash-announcer-status / #flash-announcer-alert).
- *
- * Those regions already exist in the DOM and are data-turbo-permanent, so
- * writing text into them — after this controller connects on a Turbo visit —
- * is observed as a live-region change and announced. A freshly inserted,
- * already-populated live region (the previous markup) is ignored by most
- * screen readers, which is the bug this fixes.
- */
+// Copies flash text into the data-turbo-permanent live regions in
+// base.html.twig. Screen readers ignore a freshly inserted, already-populated
+// live region — only a write into an existing one gets announced.
 export default class extends Controller {
   connect() {
     const buckets = { status: [], alert: [] };
@@ -19,13 +12,9 @@ export default class extends Controller {
       if (text) buckets[level].push(text);
     });
 
-    // Defer one frame so the write lands after this element is connected,
-    // guaranteeing the mutation (not the initial content) is what's announced.
-    // The region lookups MUST also happen inside the deferred callback:
-    // connect() fires inside Turbo's permanent-element swap, where the
-    // data-turbo-permanent regions are temporarily replaced by placeholders
-    // and getElementById returns null — resolving them here found nothing on
-    // every Turbo visit, i.e. on every single app action.
+    // wait a frame, and resolve the regions inside the callback: connect()
+    // fires mid permanent-element swap, where the announcer regions are
+    // placeholder-replaced and getElementById returns null
     this.frame = requestAnimationFrame(() => {
       const regions = {
         status: document.getElementById('flash-announcer-status'),
@@ -41,8 +30,7 @@ export default class extends Controller {
 
   disconnect() {
     if (this.frame) cancelAnimationFrame(this.frame);
-    // Clear on navigation away so a back/forward restore re-announces as a
-    // genuine empty -> text change rather than silently keeping stale text.
+    // clear so a back/forward restore re-announces instead of keeping stale text
     ['flash-announcer-status', 'flash-announcer-alert'].forEach((id) => {
       const region = document.getElementById(id);
       if (region) region.textContent = '';

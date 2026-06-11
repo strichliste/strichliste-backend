@@ -45,10 +45,7 @@ class UserController extends AbstractController {
             throw new NotFoundHttpException();
         }
 
-        // Default state has NO tab selected — recent transactions are the page
-        // body. A tab is only active when `?tab=` is explicitly set to a valid
-        // value. `article.autoOpen` still forces the buy tab on first arrival
-        // (no `tab` query param at all).
+        // no tab by default; article.autoOpen forces the buy tab only when no ?tab= is present at all
         $tab = $request->query->get('tab');
         if ($tab !== null && !in_array($tab, self::TABS, true)) {
             $tab = null;
@@ -70,18 +67,12 @@ class UserController extends AbstractController {
             ])->createView();
         }
 
-        // Step buttons are always shown; the transfer form is only built when
-        // the SEND tab is active (avoids an unnecessary EntityType SELECT and
-        // CSRF token on every detail load).
         $sendData = $this->prepareSendTab($user, $tab === 'send');
-        // No limit: a capped picker silently makes articles beyond the cap
-        // unpurchasable in the UI. Pills are cheap to render and the
-        // client-side filter handles big catalogues.
+        // no limit: a capped picker would make articles beyond the cap unpurchasable
         $buyData = $tab === 'buy' ? [
             'articles' => $this->articleRepository->findBy(['active' => true], ['name' => 'ASC']),
         ] : null;
 
-        // mark each row for the recent list whether it's deletable per the live service check
         $recentMeta = array_map(fn($tx) => [
             'tx' => $tx,
             'deletable' => $this->transactionService->isDeletable($tx),
@@ -103,17 +94,13 @@ class UserController extends AbstractController {
     }
 
     /**
-     * Build the step-button + transfer-form view-data.
-     *
-     * @param bool $includeTransferForm only true when the SEND tab is active —
-     *        avoids an EntityType SELECT on every detail page load.
+     * @param bool $includeTransferForm true only when the send tab is active — skips an EntityType SELECT otherwise
      */
     private function prepareSendTab(User $user, bool $includeTransferForm = false): array {
         $transferForm = $includeTransferForm
             ? $this->createForm(TransferTransactionType::class, null, ['exclude_user' => $user])->createView()
             : null;
 
-        // Step buttons are hidden for disabled users (they shouldn't transact).
         if ($user->isDisabled() || !$this->settings->getOrDefault('payment.transactions.enabled', true)) {
             return [
                 'deposit_enabled' => false, 'deposit_custom' => false, 'deposit_steps' => [],
@@ -151,8 +138,7 @@ class UserController extends AbstractController {
             'dispense_enabled' => (bool) $this->settings->getOrDefault('payment.dispense.enabled', true),
             'dispense_custom' => (bool) $this->settings->getOrDefault('payment.dispense.custom', true),
             'dispense_steps' => $dispenseSteps,
-            // One shared composer for both directions — the clicked submit
-            // button supplies create_transaction[direction].
+            // one composer for both directions; the clicked submit button supplies direction
             'custom_form' => $this->createForm(CreateTransactionType::class, null, ['user_id' => $user->getId()])->createView(),
             'transfer_form' => $transferForm,
         ];
@@ -178,15 +164,13 @@ class UserController extends AbstractController {
                     $this->addFlash('success', $this->translator->trans('user.create.success', ['%name%' => $user->getName()]));
                     return $this->redirectToRoute('users_detail', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
                 } catch (UniqueConstraintViolationException $e) {
-                    // Name was taken between the findByName() check and flush()
-                    // (concurrent create). Surface the same friendly error.
+                    // concurrent create won the race between findByName() and flush()
                     $form->get('name')->addError(new FormError($this->translator->trans('user.create.errors.duplicate')));
                 }
             }
         }
 
-        // 422 on failed submits — Turbo ignores non-redirect form responses
-        // that come back 200, so errors would never reach the screen.
+        // 422 on failed submits or Turbo won't render the errors
         return $this->render('users/create.html.twig', [
             'form' => $form->createView(),
         ], new Response(status: $form->isSubmitted() ? Response::HTTP_UNPROCESSABLE_ENTITY : Response::HTTP_OK));

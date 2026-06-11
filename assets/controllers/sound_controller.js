@@ -1,10 +1,7 @@
 import { Controller } from '@hotwired/stimulus';
 
-/*
- * Plays the ka-ching cue when this element is connected.
- * Mounted by base.html.twig only when the flash bag carries `transaction_success`.
- * Silently no-ops under prefers-reduced-motion or when autoplay is refused.
- */
+// Ka-ching cue. Mounted by base.html.twig when the flash bag carries
+// `transaction_success`.
 export default class extends Controller {
   static values = { asset: String };
 
@@ -25,7 +22,7 @@ export default class extends Controller {
     } catch (e) {
       /* ignore */
     }
-    // Self-remove so a Turbo Drive re-render doesn't refire.
+    // self-remove so a Turbo re-render doesn't refire
     this.element.remove();
   }
 }

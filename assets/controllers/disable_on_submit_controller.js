@@ -1,18 +1,8 @@
 import { Controller } from '@hotwired/stimulus';
 
-/*
- * Disables the form's submit button(s) immediately on submit so a rapid
- * double-tap on a kiosk step button posts exactly once.
- * Works under Turbo Drive (which still emits a `submit` event) and as a
- * full-page submit. No-JS path is unaffected; the browser still posts twice
- * on a rapid double-tap there, but the boundary check on the server keeps
- * money safe.
- *
- * Turbo caches the current page snapshot before navigating away and restores
- * it on back/forward. Without the before-cache reset below, the snapshot would
- * be captured with the buttons still disabled, leaving them permanently dead
- * on a restored page. We re-enable on turbo:before-cache to avoid that.
- */
+// Disables submit buttons on submit so a kiosk double-tap posts once.
+// Turbo snapshots the page before navigating; without the before-cache
+// reset a back/forward restore would bring the buttons back disabled.
 export default class extends Controller {
   connect() {
     this.element.addEventListener('submit', this.handleSubmit);

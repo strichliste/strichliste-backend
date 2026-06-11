@@ -51,8 +51,7 @@ jobs:
         run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
 
       - name: Download importmap vendors and compile assets
-        # assets/vendor/ is gitignored — the tarball must ship the JS vendors
-        # and the hashed public/assets/ files the prod server serves.
+        # assets/vendor/ is gitignored — the tarball must ship the JS vendors and the hashed public/assets/.
         run: |
           php bin/console importmap:install
           php bin/console asset-map:compile

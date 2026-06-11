@@ -2,10 +2,7 @@
 
 namespace App\Tests\Controller\Api;
 
-/**
- * Pins the frozen API error envelope: {"error": {"class", "code", "message"}}
- * with `class` present in every environment and in legacy key order.
- */
+/** The error envelope is frozen: class/code/message in legacy key order, `class` present even in prod. */
 class ErrorEnvelopeTest extends AbstractApplicationTestCase
 {
     public function testUserNotFoundEnvelope(): void

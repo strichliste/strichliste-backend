@@ -3,20 +3,16 @@ services:
     build: .
     restart: unless-stopped
     environment:
-      # localhost -> self-signed TLS from Caddy's local CA (browser warning
-      # on first visit). A real hostname -> automatic Let's Encrypt
-      # certificates. ":80" -> plain HTTP only (e.g. LAN-IP kiosks).
+      # localhost = self-signed local CA, real hostname = Let's Encrypt, ":80" = plain HTTP (LAN-IP kiosks).
       SERVER_NAME: ${SERVER_NAME:-localhost}
       DATABASE_URL: postgresql://${POSTGRES_USER:-strichliste}:${POSTGRES_PASSWORD:-strichliste}@database:5432/${POSTGRES_DB:-strichliste}?serverVersion=${POSTGRES_VERSION:-16}&charset=${POSTGRES_CHARSET:-utf8}
       # Override for a real deployment — the baked-in default is publicly known:
       # APP_SECRET: change-me
-    # To customize app settings without rebuilding the image, mount your copy
-    # (the entrypoint recompiles the container cache on boot so it is honored):
+    # To customize app settings without rebuilding, mount your copy (the entrypoint recompiles the cache on boot):
     # volumes:
     #   - ./config/strichliste.yaml:/app/config/strichliste.yaml:ro
     volumes:
-      # Persists Caddy's local CA and certificates across restarts, so the
-      # browser trust (make tls) survives container recreation.
+      # Persist Caddy's local CA so the browser trust (make tls) survives recreation.
       - caddy_data:/data
       - caddy_config:/config
     ports:
@@ -33,9 +29,7 @@ services:
         published: ${HTTP3_PORT:-443}
         protocol: udp
     healthcheck:
-      # Tries HTTPS (self-signed local CA -> no peer verification), falls
-      # back to plain HTTP for SERVER_NAME=":80". $$ keeps docker compose
-      # from interpolating the PHP variable.
+      # HTTPS without peer verification (local CA), HTTP fallback for SERVER_NAME=":80"; $$ escapes compose interpolation.
       test:
         - CMD
         - php
@@ -64,10 +58,7 @@ services:
       timeout: 5s
       retries: 5
       start_period: 60s
-    # Bound to loopback only: the default credentials must not be reachable
-    # from the network. Published at all (on 5433) so a non-Docker
-    # `symfony serve` setup can use the same database — matches the
-    # DATABASE_URL default in .env.
+    # Loopback only (default credentials); 5433 matches the DATABASE_URL default in .env for non-Docker setups.
     ports:
       - "127.0.0.1:5433:5432"
     volumes:

@@ -2,10 +2,6 @@
 
 namespace App\Tests\Controller\Api;
 
-/**
- * Smoke-pins the OpenAPI documentation: the spec must keep covering the
- * whole frozen /api surface.
- */
 class ApiDocTest extends AbstractApplicationTestCase
 {
     public function testSpecCoversTheWholeApi(): void
@@ -23,8 +19,7 @@ class ApiDocTest extends AbstractApplicationTestCase
                 array_flip(['get', 'post', 'put', 'delete', 'patch'])
             ));
         }
-        // 29 = every route under /api. If this fails after adding/removing an
-        // endpoint, update config/packages/nelmio_api_doc.yaml accordingly.
+        // 29 = every /api route; update nelmio_api_doc.yaml when endpoints change.
         $this->assertSame(29, $operations);
 
         foreach (['User', 'Article', 'Transaction', 'Error'] as $schema) {

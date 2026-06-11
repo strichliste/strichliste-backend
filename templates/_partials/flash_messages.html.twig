@@ -1,13 +1,8 @@
-{# app.flashes() returns every requested type, including empty ones — drop
-   those or the wrapper (and its margin) renders on every page. #}
+{# app.flashes() returns empty types too — drop them or the wrapper renders on every page #}
 {% set _flashes = app.flashes(['success', 'error', 'info'])|filter(messages => messages is not empty) %}
 {% if _flashes is not empty %}
-    {# Visual flash list only. Screen-reader announcement is delegated to the
-       persistent live regions in base.html.twig (populated by the `flash`
-       controller) so it survives Turbo body swaps. data-turbo-temporary drops
-       this list from the Turbo snapshot cache so stale flashes don't reappear
-       on back/forward. data-flash-level routes each message to the polite
-       (status) or assertive (alert) region. #}
+    {# visual list only — announcement goes through the persistent live regions in
+       base.html.twig; data-turbo-temporary keeps stale flashes out of the snapshot cache #}
     <div class="flashes" data-controller="flash" data-turbo-temporary>
         {% for label, messages in _flashes %}
             {% for message in messages %}

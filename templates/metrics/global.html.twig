@@ -43,8 +43,7 @@
         </div>
     </section>
 
-    {# JSON_HEX_TAG keeps any future user-supplied text safe inside a <script>
-       island by escaping `<`, `>`, `&`, `'` as `\uXXXX`. #}
+    {# JSON_HEX_* keeps user-supplied text from breaking out of the <script> island #}
     <script id="metrics-days-json" type="application/json">{{ days|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }}</script>
 
     <details class="metrics-table-details" data-controller="disclosure">

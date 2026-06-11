@@ -154,7 +154,6 @@ class TransactionService {
 
     /**
      * Deposit (positive) or dispense (negative) cents on a single user account.
-     * Thin named facade over `doTransaction` so callers don't pass positional nulls.
      */
     public function createForUser(User $user, int $cents, ?string $comment = null): Transaction {
         return $this->doTransaction($user, $cents, $comment);
@@ -168,29 +167,19 @@ class TransactionService {
         return $this->doTransaction($sender, $debit, $comment, null, null, $recipient->getId());
     }
 
-    /**
-     * Buy $quantity copies of $article for $user; amount derived from article price.
-     */
     public function purchaseArticle(User $user, Article $article, int $quantity = 1, ?string $comment = null): Transaction {
         return $this->doTransaction($user, null, $comment, $quantity, $article->getId());
     }
 
     /**
-     * Atomically transfer per-row amounts from each participant to `$recipient`.
-     * Wrapped in a single DB transaction; relies on `use_savepoints: true` for
-     * the inner `doTransaction` calls to nest cleanly. Any failure rolls back
-     * every transfer in the batch.
+     * Atomic: relies on use_savepoints so the nested doTransaction calls roll
+     * back as one unit. Locks all involved users in id order first so two
+     * concurrent splits can't deadlock.
      *
-     * The recipient is locked FIRST at the outer transaction level (in id-sorted
-     * order with every participant), so two concurrent splits with overlapping
-     * users acquire locks in the same order and can't deadlock.
-     *
-     * @param User[] $participants  non-empty list, one entry per row
-     * @param int[]  $perRowCents   per-row debit amount in cents, indexed parallel
-     *                              to $participants. Sum equals the operator's
-     *                              total (caller distributes the remainder).
-     * @return Transaction[] one transaction per participant (sender side)
-     * @throws TransactionInvalidException if the inputs are inconsistent
+     * @param User[] $participants
+     * @param int[] $perRowCents debit per row in cents; sums to the operator's total
+     * @return Transaction[] sender-side transaction per participant
+     * @throws TransactionInvalidException
      */
     function doSplit(array $participants, User $recipient, array $perRowCents, ?string $comment = null): array {
         if (count($participants) === 0) {
@@ -206,10 +195,7 @@ class TransactionService {
         }
 
         return $this->entityManager->wrapInTransaction(function () use ($participants, $recipient, $perRowCents, $comment) {
-            // Acquire every lock upfront in sorted order to flatten deadlock
-            // risk. doTransaction below also locks its own (sender, recipient)
-            // pair — that re-lock is a no-op under savepoints because the row
-            // is already locked by this outer transaction.
+            // take every lock upfront; doTransaction's own locking is then a no-op
             $allIds = array_unique(array_merge(
                 [$recipient->getId()],
                 array_map(fn(User $u) => $u->getId(), $participants),
@@ -319,11 +305,7 @@ class TransactionService {
     private function undoTransaction(Transaction $transaction) {
         $user = $transaction->getUser();
 
-        // No checkTransactionBoundary() here: the original transaction was
-        // already validated when created. Re-checking its amount against the
-        // *current* (mutable) per-transaction limits could permanently block a
-        // legitimate reversal if an operator later tightened those limits. The
-        // account-balance ceiling below is still enforced post-reversal.
+        // no boundary re-check: limits tightened after the fact must not block a reversal
         $user->addBalance($transaction->getAmount() * -1);
         $this->checkAccountBalanceBoundary($user);
 

@@ -1,7 +1,6 @@
 app:
     brand: Strichliste
     skip_link: Zum Inhalt springen
-    idle_warning: Noch da? Diese Seite kehrt gleich zur Startseite zurück — beliebige Taste drücken oder tippen, um zu bleiben.
 
 common:
     cancel: Abbrechen

@@ -53,10 +53,7 @@ class ArticleController extends AbstractController {
     }
 
     private function renderList(bool $active, Request $request): Response {
-        // The tag filter happens in SQL (the previous in-PHP filter lazy-loaded
-        // tags per article — an N+1). Natural sort ("Beer 2" < "Beer 10") has
-        // no portable SQL equivalent, so sorting and slicing stay in PHP; the
-        // article catalogue is operator-managed inventory, bounded in practice.
+        // natural sort ("Beer 2" < "Beer 10") has no portable SQL equivalent, so sort and slice in PHP
         $tag = trim((string) $request->query->get('tag', ''));
         $qb = $this->articleRepository->createQueryBuilder('a')
             ->where('a.active = :active')
@@ -107,8 +104,7 @@ class ArticleController extends AbstractController {
             return $this->redirectToRoute('articles_edit', ['id' => $article->getId()], Response::HTTP_SEE_OTHER);
         }
 
-        // 422 on failed submits — Turbo ignores non-redirect form responses
-        // that come back 200, so errors would never reach the screen.
+        // 422 on failed submits or Turbo won't render the errors
         return $this->render('articles/create.html.twig', ['form' => $form->createView()],
             new Response(status: $form->isSubmitted() ? Response::HTTP_UNPROCESSABLE_ENTITY : Response::HTTP_OK));
     }

@@ -1,5 +1,4 @@
-/* Self-hosted Inter (subset of weights actually used). AssetMapper rewrites
-   the url() to the hashed `/assets/fonts/...` path at build time. */
+/* self-hosted Inter; AssetMapper rewrites the url()s to hashed paths */
 @font-face {
   font-family: 'Inter';
   font-style: normal;
@@ -35,8 +34,7 @@
   font-display: swap;
   src: url('../fonts/Inter-Bold.woff2') format('woff2');
 }
-/* Variable axis covers any weight not pinned above (e.g. font-weight: lighter
-   on h1-h3 → ~300). Listed last so the explicit weights win for matched files. */
+/* variable fallback for unpinned weights; last so the explicit weights win */
 @font-face {
   font-family: 'Inter';
   font-style: normal;
@@ -45,20 +43,16 @@
   src: url('../fonts/Inter-roman.woff2') format('woff2');
 }
 
-/* Responsive breakpoints live inline in app.css @media rules. Standard CSS
-   custom properties can't be used inside @media query conditions, so there is
-   no single-token source of truth to express here — the canonical value is
-   48em (tablet), used consistently across app.css. */
+/* custom properties don't work in @media conditions; the canonical tablet
+   breakpoint is 48em, repeated inline across app.css */
 
-/* Accessibility: visible keyboard focus indicator across the app. */
 :focus-visible {
   outline: 3px solid var(--primary);
   outline-offset: 2px;
 }
 
-/* Skip link: visually hidden until focused, then revealed at top-left.
-   Uses the highlight-button pair — --primary inverts per theme and made
-   the link white-on-white in dark mode. */
+/* skip link, hidden until focused. Highlight-button colors, not --primary —
+   that inverts per theme and went white-on-white in dark mode. */
 .skip-link {
   position: absolute;
   left: 0.5rem;
@@ -75,12 +69,12 @@
   top: 0.5rem;
 }
 
-/* Don't strip focus from the main landmark when it receives programmatic focus. */
+/* main is focused programmatically by the skip link; no outline needed */
 main:focus {
   outline: none;
 }
 
-/* Visually hidden but exposed to screen readers (WCAG sufficient pattern). */
+/* visually hidden but exposed to screen readers */
 .sr-only,
 .visually-hidden {
   position: absolute;
@@ -107,9 +101,7 @@ main:focus {
 
 html {
   --borderRadius: 4px;
-  /* Diameter of the round icon buttons (.fab / cancel / accept / participant
-     remove) and the basis for how far the floating FAB hangs off the wrapper.
-     2.444rem = 44px: the touch-target guideline for primary kiosk actions. */
+  /* round icon button diameter; 2.444rem = 44px touch target */
   --fab-size: 2.444rem;
   --buttonDisabled: #bababa;
   --border: #e5e6e5;
@@ -120,20 +112,15 @@ html {
   --primary: #28333d;
   --redLight: #ffdce0;
   --text: #343434;
-  /* WCAG AA: #646e7a clears 4.5:1 on both #fff cards and the #f2f3f2 page for
-     dates, placeholders, pagination status and other informational subtext. */
+  /* clears 4.5:1 (AA) on both the white cards and the #f2f3f2 page */
   --textSubtile: #646e7a;
-  /* Form control boundaries need >= 3:1 against adjacent surfaces (WCAG
-     1.4.11) — the decorative --border hairline is far too faint for that.
+  /* input borders need >= 3:1 (WCAG 1.4.11); --border is too faint.
      3.78:1 on #fff, 3.40:1 on #f2f3f2. */
   --inputBorder: #7d848c;
   --headerBackground: #fff;
-  /* 3.34:1 against the shared #ffedf0 icon — WCAG 1.4.11 needs >= 3:1 for
-     meaningful graphics (the old #e86c76 was 2.72:1). */
+  /* 3.34:1 against the #ffedf0 icon (1.4.11 needs >= 3:1) */
   --buttonCancelBackground: #e2515e;
-  /* Accent text/button-font tokens are per-theme (not shared) so each clears
-     4.5:1 on its own background: dark accents on the light surfaces here, light
-     accents on the dark surfaces below. */
+  /* accent tokens are per-theme so each clears 4.5:1 on its own surfaces */
   --greenText: #0a7029;
   --redText: #b00020;
   --buttonGreenFont: #0a7029;
@@ -144,34 +131,31 @@ html {
   --buttonRedBackground: #ffdce0;
   --buttonDefaultBackground: #fff;
   --buttonDefaultFont: #58697d;
-  /* Subtle resting elevation. Components promote level1 -> level2 on hover; a
-     real (if faint) shadow makes that lift read as a change from a baseline. */
+  /* faint but real: hover promotes level1 -> level2 and the lift has to read */
   --level1: 0 1px 2px 0 rgba(0, 0, 0, 0.06);
   --level2: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2),
     0 1px 5px 0 rgba(0, 0, 0, 0.12);
   --level3: 0 3px 4px 0 rgba(0, 0, 0, 0.14), 0 3px 3px -2px rgba(0, 0, 0, 0.2),
     0 1px 8px 0 rgba(0, 0, 0, 0.12);
-  /* Same on both themes: its background is a mid red in both. */
+  /* same on both themes: its background is a mid red in both */
   --buttonCancelFont: #ffedf0;
   font-family: 'Inter', sans-serif;
 }
 
-/* Dark theme follows the OS preference — pure CSS, no JS involved. */
+/* dark theme */
 @media (prefers-color-scheme: dark) {
   html {
     --border: #59687c;
     --componentBackgroundDark: #1d2832;
     --componentBackgroundLight: #2e3d4d;
-    /* 4.94:1 under --greenText #46d96a (the old #2b584a was 4.39:1 — under
-       the documented 4.5:1 invariant). */
+    /* 4.94:1 under --greenText #46d96a */
     --greenLight: #27503f;
     --mainBackground: #25333f;
     --primary: #fdfdfd;
-    /* Dark desaturated red so error/disabled banners read as red (not purple)
-       behind --redText. */
+    /* desaturated so banners read red, not purple, behind --redText */
     --redLight: #4a2730;
     --text: #fdfdfd;
-    /* WCAG AA on the dark surfaces (#1d2832 / #2e3d4d / #25333f). */
+    /* AA on the dark surfaces (#1d2832 / #2e3d4d / #25333f) */
     --textSubtile: #9aa7b5;
     /* 3.87:1 on #2e3d4d cards, 4.51:1 on the #25333f page. */
     --inputBorder: #8c9aab;
@@ -201,8 +185,7 @@ html {
 html {
   background: var(--mainBackground);
   color: var(--text);
-  /* 112.5% of the 16px default = 18px, but unlike a px value it scales when
-     the user raises their browser's default font size. */
+  /* 112.5% = 18px, but scales with the user's browser default */
   font-size: 112.5%;
   min-height: 100vh;
 }
@@ -213,8 +196,7 @@ label {
 h1,
 h2,
 h3 {
-  /* SPA uses mixed-case for headings; uppercase is reserved for tab labels and
-     KPI card labels via explicit class. */
+  /* mixed-case headings; uppercase only via explicit class */
   text-transform: none;
   font-weight: lighter;
 }
@@ -269,9 +251,8 @@ button, input, label, select, textarea {
   font-size: 0.8rem;
   font-family: 'Inter', sans-serif;
 }
-/* iOS Safari zooms the page (and stays zoomed — kiosk-breaking) when a
-   focused text control computes under 16px. 0.889rem = 16px at the 18px
-   root. Buttons and labels don't trigger the zoom and keep 0.8rem. */
+/* iOS Safari zooms (and stays zoomed) on focused text controls under 16px;
+   0.889rem = 16px at the 18px root. Buttons don't trigger it and keep 0.8rem. */
 input, select, textarea {
   font-size: 0.889rem;
 }
@@ -317,7 +298,7 @@ svg {
   }
 }
 
-/* Safari-specific input resets (matches SPA reset). */
+/* Safari input resets */
 input[type='search'] {
   -webkit-appearance: textfield;
   -webkit-box-sizing: content-box;

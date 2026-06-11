@@ -4,8 +4,7 @@
 
 {% block main %}
     <div class="card article-form">
-        {# Single visible h1 — .article-form__subhead uppercases via CSS, which
-           keeps screen readers and non-ASCII locales happy. #}
+        {# uppercased via CSS, not in the text — kinder to screen readers and non-ASCII locales #}
         <h1 class="article-form__subhead">{{ 'articles.create.title'|trans }}</h1>
         {{ form_start(form) }}
             {{ form_row(form.name) }}

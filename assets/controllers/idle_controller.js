@@ -1,24 +1,10 @@
 import { Controller } from '@hotwired/stimulus';
 
-/*
- * Kiosk inactivity redirect with WCAG 2.2.1 guardrails:
- *  - typing and choosing count as activity (input/change are reset events —
- *    picking in a native <select> previously did not extend the session)
- *  - never fires while someone is mid-form (focused field or unsaved input):
- *    screen-reader users reading a page generate no DOM events at all
- *  - before redirecting, announces a warning through the assertive live
- *    region and waits a grace period; any activity cancels. The warning is
- *    deliberately screen-reader-only (operator preference): sighted kiosk
- *    users just see the start screen and tap again, while a silent redirect
- *    mid-listen is disorienting for SR users.
- * timeoutValue <= 0 → disabled.
- */
+// Kiosk inactivity redirect. timeoutValue <= 0 disables it.
 export default class extends Controller {
   static values = {
     timeout: Number,
     redirect: { type: String, default: '/' },
-    grace: { type: Number, default: 20000 },
-    warning: { type: String, default: '' },
   };
 
   connect() {
@@ -41,7 +27,7 @@ export default class extends Controller {
 
   reset() {
     this.clear();
-    this.timer = setTimeout(() => this.warn(), this.timeoutValue);
+    this.timer = setTimeout(() => this.redirect(), this.timeoutValue);
   }
 
   clear() {
@@ -49,25 +35,9 @@ export default class extends Controller {
       clearTimeout(this.timer);
       this.timer = null;
     }
-    if (this.warned) {
-      this.warned = false;
-      const region = document.getElementById('flash-announcer-alert');
-      if (region) region.textContent = '';
-    }
   }
 
-  warn() {
-    // Mid-form? Check again after a full timeout period instead of nagging.
-    if (this.isMidForm()) {
-      this.reset();
-      return;
-    }
-    this.warned = true;
-    const region = document.getElementById('flash-announcer-alert');
-    if (region && this.warningValue) region.textContent = this.warningValue;
-    this.timer = setTimeout(() => this.redirect(), this.graceValue);
-  }
-
+  // Don't pull the page away from someone mid-form (focused field or unsaved input).
   isMidForm() {
     const active = document.activeElement;
     if (active && active.matches('input, select, textarea, [contenteditable="true"]')) {
@@ -79,17 +49,17 @@ export default class extends Controller {
   }
 
   redirect() {
-    // Already on the idle target (or a page it redirects to)? Re-visiting
-    // would loop the kiosk through an endless reload cycle while idle.
-    const target = new URL(this.redirectValue, window.location.origin);
-    const here = window.location.pathname;
-    if (here === target.pathname || (target.pathname === '/' && here === '/user/active')) {
-      this.clear();
+    if (this.isMidForm()) {
       this.reset();
       return;
     }
-    // Prefer Turbo.visit when available so we stay inside the Turbo session;
-    // fall back to a full navigation otherwise.
+    // Already on the target? Re-visiting would reload-loop the idle kiosk.
+    const target = new URL(this.redirectValue, window.location.origin);
+    const here = window.location.pathname;
+    if (here === target.pathname || (target.pathname === '/' && here === '/user/active')) {
+      this.reset();
+      return;
+    }
     if (typeof window.Turbo?.visit === 'function') {
       window.Turbo.visit(this.redirectValue);
     } else {

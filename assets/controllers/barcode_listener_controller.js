@@ -1,27 +1,9 @@
 import { Controller } from '@hotwired/stimulus';
 
-/*
- * Document-level barcode scanner for the user detail page.
- *
- * A USB-HID barcode scanner emits keystrokes as fast as the kernel will let it
- * (typically <30ms between keys). We exploit that to distinguish a barcode
- * burst from a human typing into a field:
- *
- *   - Listen on document for `keydown`.
- *   - Ignore events whose `target` is an editable element (input, textarea,
- *     contenteditable) — the operator is typing on purpose, not scanning.
- *   - Accumulate printable characters (length 1) in a buffer.
- *   - If more than `gap` ms passes between two keys, drop the buffer (a human
- *     pressing single keys won't hit this; a HID scanner won't pause).
- *   - When `Enter` arrives and the buffer is at least `minLength` characters
- *     long, POST it to the buy endpoint as `barcode=...`.
- *
- * The endpoint resolves the barcode → article → debit transaction; on success
- * the page reloads with a success flash + ka-ching cue (already wired).
- *
- * Without JS the page works fine — there's just no barcode scanner. The BUY
- * ARTICLE tab's article pills still work via direct click.
- */
+// Document-level barcode scanner for the user detail page. A USB-HID scanner
+// types in a fast burst (<30ms between keys) ending with Enter; buffered keys
+// are dropped once more than `gap` ms passes, which is what separates a scan
+// from a human typing. On Enter with enough buffered, POST to the buy endpoint.
 export default class extends Controller {
   static values = {
     action: String,                // POST URL for `transactions_buy`
@@ -43,11 +25,9 @@ export default class extends Controller {
   }
 
   onKey(e) {
-    // Don't intercept typing in real form fields, [contenteditable] regions,
-    // or on ANY interactive element — Enter on a focused button must activate
-    // the button, never commit a barcode buffer. Key autorepeat (a held key
-    // fires every ~30ms, well inside the scanner gap) and synthetic events
-    // are not scanner output either.
+    // ignore typing in fields and on interactive elements (Enter on a focused
+    // button must press the button, not commit a barcode); autorepeat fires
+    // every ~30ms — inside the scanner gap — so it has to be excluded too
     const t = e.target;
     if (t && (t.matches?.('input, textarea, select, button, a, summary, [role="button"], [contenteditable="true"]'))) {
       return;
@@ -60,22 +40,17 @@ export default class extends Controller {
     const gap = now - this.lastKeyAt;
     this.lastKeyAt = now;
 
-    // If too much time passed since the previous key, the buffer is human
-    // typing (or leftovers), not a scanner burst — drop it. This applies to
-    // the terminating Enter too: a scanner sends Enter within the same tight
-    // window, so an Enter arriving late must not commit a stale buffer.
+    // too slow to be a scanner burst — drop it; this also keeps a late
+    // Enter from committing a stale buffer
     if (gap > this.gapValue) {
       this.buffer = '';
     }
 
     if (e.key === 'Enter') {
-      // Only commit if the buffer looks like a scanner burst: long enough to
-      // be a real barcode AND delivered in a tight window (checked above).
       const code = this.buffer;
       this.buffer = '';
       if (code.length >= this.minLengthValue && !this.submitted) {
-        // Re-entrancy guard: a double-trigger scan (two bursts before the
-        // page reloads) must buy exactly once.
+        // a double-trigger scan before the page reloads must buy exactly once
         this.submitted = true;
         this.submit(code);
         e.preventDefault();
@@ -83,17 +58,14 @@ export default class extends Controller {
       return;
     }
 
-    // Only characters from the barcode alphabet join the buffer — arbitrary
-    // printable keys (punctuation mashing, IME artifacts) don't accumulate
-    // toward a bogus purchase.
+    // barcode alphabet only — random punctuation must not accumulate
     if (e.key && /^[0-9A-Za-z._-]$/.test(e.key)) {
       this.buffer += e.key;
     }
   }
 
   submit(barcode) {
-    // Build and submit a hidden form so we go through Symfony's normal
-    // CSRF/redirect/flash flow (no fetch, no JS-side error handling).
+    // hidden form keeps this on Symfony's normal CSRF/redirect/flash path
     const form = document.createElement('form');
     form.method = 'post';
     form.action = this.actionValue;

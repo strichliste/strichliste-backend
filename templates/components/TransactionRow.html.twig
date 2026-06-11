@@ -21,8 +21,7 @@
         <form method="post" action="{{ path('transactions_undo', {id: ownerUserId, txId: tx.id}) }}" class="undo-form" data-controller="disable-on-submit">
             <input type="hidden" name="_token" value="{{ csrf_token('undo' ~ ownerUserId ~ '_' ~ tx.id) }}">
             {% if returnTo %}<input type="hidden" name="return" value="{{ returnTo }}">{% endif %}
-            {#- Amount + counterpart in the name: two transactions created in
-                the same second (e.g. a split) otherwise announce identically. -#}
+            {#- amount + counterpart in the name, or two same-second transactions announce identically -#}
             {%- set undoLabel = 'transactions.undo.button_aria'|trans({
                 '%amount%': tx.amount|currency_format(currency),
                 '%when%': tx.created|date('Y-m-d H:i:s'),

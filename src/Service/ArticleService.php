@@ -17,16 +17,10 @@ class ArticleService {
     }
 
     /**
-     * Primitive-typed update. Called by both Ui and Api controllers.
+     * Used articles get archived and replaced via the precursor chain; returns
+     * the article callers should use afterwards.
      *
-     * If the article has been used in transactions, the precursor flow archives
-     * the existing row and creates a new one (carrying barcodes/tags forward),
-     * all atomically under one wrap. If never used, it's a plain in-place update.
-     *
-     * Returns the article the caller should redirect/respond with (new on
-     * precursor branch, original otherwise).
-     *
-     * @param bool|null $active null = leave unchanged; bool = set explicitly
+     * @param bool|null $active null = leave unchanged
      */
     public function update(Article $article, string $name, int $amountCents, ?bool $active = null): Article {
         $referenceCount = $this->transactionRepository->getArticleReferenceCount($article);
@@ -67,10 +61,7 @@ class ArticleService {
         });
     }
 
-    /**
-     * Request-bound adapter used by the (frozen) REST `Api\ArticleController`.
-     * UI controllers should call `update()` with primitive args instead.
-     */
+    // request-bound adapter for the legacy REST controller
     public function updateArticle(Request $request, Article $article): Article {
         $newArticle = $this->createArticleByRequest($request);
         return $this->update($article, $newArticle->getName(), $newArticle->getAmount());
