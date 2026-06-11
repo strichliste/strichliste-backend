@@ -167,10 +167,8 @@ class UserController extends AbstractController {
             }
         }
 
-        // 422 on failed submits or Turbo won't render the errors
-        return $this->render('users/create.html.twig', [
-            'form' => $form->createView(),
-        ], new Response(status: $form->isSubmitted() ? Response::HTTP_UNPROCESSABLE_ENTITY : Response::HTTP_OK));
+        // render() answers 422 itself when handed a submitted invalid form — Turbo needs that
+        return $this->render('users/create.html.twig', ['form' => $form]);
     }
 
     #[Route('/user/{id}/edit', name: 'users_edit', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
@@ -219,8 +217,8 @@ class UserController extends AbstractController {
 
         return $this->render('users/edit.html.twig', [
             'user' => $user,
-            'form' => $form->createView(),
-        ], new Response(status: $form->isSubmitted() ? Response::HTTP_UNPROCESSABLE_ENTITY : Response::HTTP_OK));
+            'form' => $form,
+        ]);
     }
 
 }

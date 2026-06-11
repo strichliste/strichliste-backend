@@ -102,9 +102,8 @@ class ArticleController extends AbstractController {
             return $this->redirectToRoute('articles_edit', ['id' => $article->getId()], Response::HTTP_SEE_OTHER);
         }
 
-        // 422 on failed submits or Turbo won't render the errors
-        return $this->render('articles/create.html.twig', ['form' => $form->createView()],
-            new Response(status: $form->isSubmitted() ? Response::HTTP_UNPROCESSABLE_ENTITY : Response::HTTP_OK));
+        // render() answers 422 itself when handed a submitted invalid form — Turbo needs that
+        return $this->render('articles/create.html.twig', ['form' => $form]);
     }
 
     #[Route('/articles/{id}/edit', name: 'articles_edit', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
@@ -141,10 +140,10 @@ class ArticleController extends AbstractController {
 
         return $this->render('articles/edit.html.twig', [
             'article' => $article,
-            'form' => $form->createView(),
+            'form' => $form,
             'priceFrozen' => $referenceCount > 0,
             'currencySymbol' => $this->settings->getOrDefault('i18n.currency.symbol', '€'),
-        ], new Response(status: $form->isSubmitted() ? Response::HTTP_UNPROCESSABLE_ENTITY : Response::HTTP_OK));
+        ]);
     }
 
     #[Route('/articles/{id}/delete', name: 'articles_delete', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
