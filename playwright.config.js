@@ -3,7 +3,11 @@ import { defineConfig } from '@playwright/test';
 
 // -d variables_order=EGPCS: without E, PHP never populates $_ENV and
 // Symfony silently falls back to .env.local — the e2e DB isolation depends on it
-const PHP_SERVER = 'php -d variables_order=EGPCS -S 127.0.0.1:8765 -t public';
+const PHP = 'php -d variables_order=EGPCS';
+
+// the readiness poll on /user/active fires before globalSetup runs, so the
+// fresh schema must already exist when the server accepts its first request
+const PHP_SERVER = `rm -f var/e2e.db && ${PHP} bin/console doctrine:schema:create --quiet && ${PHP} -S 127.0.0.1:8765 -t public`;
 
 export default defineConfig({
     testDir: 'tests/e2e',
