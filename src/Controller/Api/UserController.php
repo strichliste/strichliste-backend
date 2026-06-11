@@ -15,46 +15,48 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api/user')]
-class UserController extends AbstractController {
-
+class UserController extends AbstractController
+{
     /**
      * @var UserSerializer
      */
     private $userSerializer;
 
-    function __construct(UserSerializer $userSerializer) {
+    public function __construct(UserSerializer $userSerializer)
+    {
         $this->userSerializer = $userSerializer;
     }
 
     #[Route(methods: ['GET'])]
-    function list(Request $request, UserService $userService, EntityManagerInterface $entityManager) {
+    public function list(Request $request, UserService $userService, EntityManagerInterface $entityManager)
+    {
         $active = $request->query->get('active');
 
         $staleDateTime = $userService->getStaleDateTime();
         $userRepository = $entityManager->getRepository(User::class);
 
-        if ($active === 'true') {
+        if ('true' === $active) {
             $users = $userRepository->findAllActive($staleDateTime);
-        } elseif ($active === 'false') {
+        } elseif ('false' === $active) {
             $users = $userRepository->findAllInactive($staleDateTime);
         } else {
             $users = $userRepository->findAll();
         }
 
         usort($users, function (User $a, User $b) {
-           return strnatcasecmp($a->getName(), $b->getName());
+            return strnatcasecmp($a->getName(), $b->getName());
         });
 
         return $this->json([
             'users' => array_map(function (User $user) {
                 return $this->userSerializer->serialize($user);
-            }, $users)
+            }, $users),
         ]);
     }
 
     #[Route(methods: ['POST'])]
-    function createUser(Request $request, EntityManagerInterface $entityManager) {
-
+    public function createUser(Request $request, EntityManagerInterface $entityManager)
+    {
         $name = $request->request->get('name');
         if (!$name) {
             throw new ParameterMissingException('name');
@@ -91,14 +93,15 @@ class UserController extends AbstractController {
     }
 
     #[Route('/search', methods: ['GET'])]
-    function search(Request $request, EntityManagerInterface $entityManager) {
+    public function search(Request $request, EntityManagerInterface $entityManager)
+    {
         $query = $request->query->get('query');
         $limit = $request->query->get('limit', 25);
 
         $results = $entityManager->getRepository(User::class)->createQueryBuilder('u')
             ->where('u.name LIKE :query')
             ->andWhere('u.disabled = false')
-            ->setParameter('query', '%' . $query . '%')
+            ->setParameter('query', '%'.$query.'%')
             ->orderBy('u.name')
             ->setMaxResults($limit)
             ->getQuery()
@@ -113,7 +116,8 @@ class UserController extends AbstractController {
     }
 
     #[Route('/{userId}', methods: ['GET'])]
-    function user($userId, EntityManagerInterface $entityManager) {
+    public function user($userId, EntityManagerInterface $entityManager)
+    {
         $user = $entityManager->getRepository(User::class)->findByIdentifier($userId);
         if (!$user) {
             throw new UserNotFoundException($userId);
@@ -125,7 +129,8 @@ class UserController extends AbstractController {
     }
 
     #[Route('/{userId}', methods: ['POST'])]
-    function updateUser($userId, Request $request, EntityManagerInterface $entityManager) {
+    public function updateUser($userId, Request $request, EntityManagerInterface $entityManager)
+    {
         $user = $entityManager->getRepository(User::class)->findByIdentifier($userId);
         if (!$user) {
             throw new UserNotFoundException($userId);
@@ -156,7 +161,7 @@ class UserController extends AbstractController {
         }
 
         $isDisabled = $request->request->get('isDisabled');
-        if ($isDisabled !== null) {
+        if (null !== $isDisabled) {
             $user->setDisabled($isDisabled);
         }
 

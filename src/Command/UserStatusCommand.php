@@ -10,19 +10,21 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class UserStatusCommand extends Command {
-
+class UserStatusCommand extends Command
+{
     /**
      * @var EntityManagerInterface
      */
     private $entityManager;
 
-    function __construct(EntityManagerInterface $entityManager) {
+    public function __construct(EntityManagerInterface $entityManager)
+    {
         parent::__construct();
         $this->entityManager = $entityManager;
     }
 
-    protected function configure(): void {
+    protected function configure(): void
+    {
         $this
             ->setName('app:user:status')
             ->setDescription('Updates User status')
@@ -30,9 +32,10 @@ class UserStatusCommand extends Command {
             ->addArgument('disable', InputArgument::REQUIRED, 'true or false');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output): int {
+    protected function execute(InputInterface $input, OutputInterface $output): int
+    {
         $userId = $input->getArgument('userId');
-        $disabled = $input->getArgument('disable') === 'true';
+        $disabled = 'true' === $input->getArgument('disable');
 
         $user = $this->entityManager->getRepository(User::class)->findByIdentifier($userId);
         if (!$user) {

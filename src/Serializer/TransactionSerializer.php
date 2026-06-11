@@ -5,8 +5,8 @@ namespace App\Serializer;
 use App\Entity\Transaction;
 use App\Service\TransactionService;
 
-class TransactionSerializer {
-
+class TransactionSerializer
+{
     /**
      * @var TransactionService
      */
@@ -22,13 +22,15 @@ class TransactionSerializer {
      */
     private $articleSerializer;
 
-    function __construct(TransactionService $transactionService, UserSerializer $userSerializer, ArticleSerializer $articleSerializer) {
+    public function __construct(TransactionService $transactionService, UserSerializer $userSerializer, ArticleSerializer $articleSerializer)
+    {
         $this->transactionService = $transactionService;
         $this->userSerializer = $userSerializer;
         $this->articleSerializer = $articleSerializer;
     }
 
-    function serialize(Transaction $transaction): array {
+    public function serialize(Transaction $transaction): array
+    {
         $article = $transaction->getArticle();
 
         return [
@@ -42,11 +44,12 @@ class TransactionSerializer {
             'amount' => $transaction->getAmount(),
             'isDeleted' => $transaction->isDeleted(),
             'isDeletable' => $this->transactionService->isDeletable($transaction),
-            'created' => $transaction->getCreated()->format('Y-m-d H:i:s')
+            'created' => $transaction->getCreated()->format('Y-m-d H:i:s'),
         ];
     }
 
-    private function getUserOrNull(?Transaction $transaction): ?array {
+    private function getUserOrNull(?Transaction $transaction): ?array
+    {
         if (!$transaction) {
             return null;
         }

@@ -13,8 +13,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class ArticleTagController extends AbstractController {
-
+class ArticleTagController extends AbstractController
+{
     public function __construct(
         private TagRepository $tagRepository,
         private EntityManagerInterface $em,
@@ -23,14 +23,16 @@ class ArticleTagController extends AbstractController {
     }
 
     #[Route('/articles/{id}/tags', name: 'articles_tags_add', methods: ['POST'], requirements: ['id' => '\d+'])]
-    public function add(Article $article, Request $request): Response {
-        if (!$this->isCsrfTokenValid('add_tag' . $article->getId(), (string) $request->request->get('_token'))) {
+    public function add(Article $article, Request $request): Response
+    {
+        if (!$this->isCsrfTokenValid('add_tag'.$article->getId(), (string) $request->request->get('_token'))) {
             return $this->redirectToRoute('articles_edit', ['id' => $article->getId()], Response::HTTP_SEE_OTHER);
         }
 
         $name = trim((string) $request->request->get('tag', ''));
-        if ($name === '' || mb_strlen($name) > 64) {
+        if ('' === $name || mb_strlen($name) > 64) {
             $this->addFlash('error', $this->translator->trans('articles.tags.errors.invalid'));
+
             return $this->redirectToRoute('articles_edit', ['id' => $article->getId()], Response::HTTP_SEE_OTHER);
         }
 
@@ -42,6 +44,7 @@ class ArticleTagController extends AbstractController {
 
         if ($article->hasTag($tag)) {
             $this->addFlash('error', $this->translator->trans('articles.tags.errors.already_attached'));
+
             return $this->redirectToRoute('articles_edit', ['id' => $article->getId()], Response::HTTP_SEE_OTHER);
         }
 
@@ -50,12 +53,14 @@ class ArticleTagController extends AbstractController {
         $this->em->flush();
 
         $this->addFlash('success', $this->translator->trans('articles.tags.added'));
+
         return $this->redirectToRoute('articles_edit', ['id' => $article->getId()], Response::HTTP_SEE_OTHER);
     }
 
     #[Route('/articles/{id}/tags/{tid}/delete', name: 'articles_tags_delete', methods: ['POST'], requirements: ['id' => '\d+', 'tid' => '\d+'])]
-    public function delete(Article $article, int $tid, Request $request): Response {
-        if (!$this->isCsrfTokenValid('delete_tag' . $tid, (string) $request->request->get('_token'))) {
+    public function delete(Article $article, int $tid, Request $request): Response
+    {
+        if (!$this->isCsrfTokenValid('delete_tag'.$tid, (string) $request->request->get('_token'))) {
             return $this->redirectToRoute('articles_edit', ['id' => $article->getId()], Response::HTTP_SEE_OTHER);
         }
 
@@ -78,7 +83,7 @@ class ArticleTagController extends AbstractController {
                     ->where('at.tag = :tag')
                     ->setParameter('tag', $tag)
                     ->getQuery()->getSingleScalarResult();
-                if ($remaining === 0) {
+                if (0 === $remaining) {
                     $this->em->remove($tag);
                     $this->em->flush();
                 }

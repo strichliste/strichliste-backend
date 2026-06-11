@@ -2,10 +2,9 @@
 
 namespace App\Tests\Controller\Api;
 
-
 class UserControllerTest extends AbstractApplicationTestCase
 {
-    const TEST_USER_NAME = 'TestUser';
+    public const TEST_USER_NAME = 'TestUser';
 
     public function testCreateUser(): void
     {

@@ -8,15 +8,16 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-class MetricsController extends AbstractController {
-
+class MetricsController extends AbstractController
+{
     public function __construct(
         private MetricsService $metrics,
     ) {
     }
 
     #[Route('/metrics', name: 'metrics_global', methods: ['GET'])]
-    public function global(): Response {
+    public function global(): Response
+    {
         return $this->render('metrics/global.html.twig', [
             'balance' => $this->metrics->totalBalance(),
             'transactionCount' => $this->metrics->totalTransactionCount(),
@@ -27,7 +28,8 @@ class MetricsController extends AbstractController {
     }
 
     #[Route('/user/{id}/metrics', name: 'metrics_user', methods: ['GET'], requirements: ['id' => '\d+'])]
-    public function user(User $user): Response {
+    public function user(User $user): Response
+    {
         return $this->render('metrics/user.html.twig', [
             'user' => $user,
             'articles' => $this->metrics->userArticles($user, 10),

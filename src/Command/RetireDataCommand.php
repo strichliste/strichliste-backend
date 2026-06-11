@@ -11,19 +11,21 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 
-class RetireDataCommand extends Command {
-
+class RetireDataCommand extends Command
+{
     /**
      * @var EntityManagerInterface
      */
     private $entityManager;
 
-    function __construct(EntityManagerInterface $entityManager) {
+    public function __construct(EntityManagerInterface $entityManager)
+    {
         parent::__construct();
         $this->entityManager = $entityManager;
     }
 
-    protected function configure(): void {
+    protected function configure(): void
+    {
         $this
             ->setName('app:retire-data')
             ->setDescription('Deletes older data after a given period')
@@ -33,7 +35,8 @@ class RetireDataCommand extends Command {
             ->addOption('confirm', null, InputOption::VALUE_NONE, 'Skips confirmation');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output): int {
+    protected function execute(InputInterface $input, OutputInterface $output): int
+    {
         $helper = $this->getHelper('question');
         $dateTime = DateIntervalHelper::fromCommandInput($input)->getDateTime();
 

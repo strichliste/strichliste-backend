@@ -8,8 +8,8 @@ use App\Repository\TransactionRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-class ArticleService {
-
+class ArticleService
+{
     public function __construct(
         private TransactionRepository $transactionRepository,
         private EntityManagerInterface $entityManager,
@@ -22,17 +22,19 @@ class ArticleService {
      *
      * @param bool|null $active null = leave unchanged
      */
-    public function update(Article $article, string $name, int $amountCents, ?bool $active = null): Article {
+    public function update(Article $article, string $name, int $amountCents, ?bool $active = null): Article
+    {
         $referenceCount = $this->transactionRepository->getArticleReferenceCount($article);
 
-        if ($referenceCount === 0) {
+        if (0 === $referenceCount) {
             $article->setName($name);
             $article->setAmount($amountCents);
-            if ($active !== null) {
+            if (null !== $active) {
                 $article->setActive($active);
             }
             $this->entityManager->persist($article);
             $this->entityManager->flush();
+
             return $article;
         }
 
@@ -57,20 +59,24 @@ class ArticleService {
             $this->entityManager->persist($article);
 
             $this->entityManager->flush();
+
             return $new;
         });
     }
 
     // request-bound adapter for the legacy REST controller
-    public function updateArticle(Request $request, Article $article): Article {
+    public function updateArticle(Request $request, Article $article): Article
+    {
         $newArticle = $this->createArticleByRequest($request);
+
         return $this->update($article, $newArticle->getName(), $newArticle->getAmount());
     }
 
     /**
      * @throws ParameterMissingException
      */
-    public function createArticleByRequest(Request $request): Article {
+    public function createArticleByRequest(Request $request): Article
+    {
         $name = $request->request->get('name');
         if (!$name) {
             throw new ParameterMissingException('name');

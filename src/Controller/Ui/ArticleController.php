@@ -18,8 +18,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class ArticleController extends AbstractController {
-
+class ArticleController extends AbstractController
+{
     private const PAGE_SIZE = 25;
 
     public function __construct(
@@ -33,37 +33,41 @@ class ArticleController extends AbstractController {
     }
 
     #[Route('/articles', name: 'articles_index', methods: ['GET'])]
-    public function index(): RedirectResponse {
+    public function index(): RedirectResponse
+    {
         return $this->redirectToRoute('articles_active');
     }
 
     #[Route('/articles/active', name: 'articles_active', methods: ['GET'])]
-    public function active(Request $request): Response {
+    public function active(Request $request): Response
+    {
         return $this->renderList(true, $request);
     }
 
     #[Route('/articles/inactive', name: 'articles_inactive', methods: ['GET'])]
-    public function inactive(Request $request): Response {
+    public function inactive(Request $request): Response
+    {
         return $this->renderList(false, $request);
     }
 
-    private function renderList(bool $active, Request $request): Response {
+    private function renderList(bool $active, Request $request): Response
+    {
         // natural sort ("Beer 2" < "Beer 10") has no portable SQL equivalent, so sort and slice in PHP
         $tag = trim((string) $request->query->get('tag', ''));
         $qb = $this->articleRepository->createQueryBuilder('a')
             ->where('a.active = :active')
             ->setParameter('active', $active);
-        if ($tag !== '') {
+        if ('' !== $tag) {
             $qb->innerJoin('a.articleTags', 'at')
                 ->innerJoin('at.tag', 't')
                 ->andWhere('LOWER(t.tag) = LOWER(:tag)')
                 ->setParameter('tag', $tag);
         }
         $articles = $qb->getQuery()->getResult();
-        usort($articles, fn(Article $a, Article $b) => strnatcasecmp($a->getName() ?? '', $b->getName() ?? ''));
+        usort($articles, fn (Article $a, Article $b) => strnatcasecmp($a->getName() ?? '', $b->getName() ?? ''));
 
         $allTags = $this->tagRepository->findAll();
-        usort($allTags, fn(Tag $a, Tag $b) => $b->getUsageCount() <=> $a->getUsageCount());
+        usort($allTags, fn (Tag $a, Tag $b) => $b->getUsageCount() <=> $a->getUsageCount());
 
         $total = count($articles);
         $totalPages = max(1, (int) ceil($total / self::PAGE_SIZE));
@@ -74,7 +78,7 @@ class ArticleController extends AbstractController {
         return $this->render('articles/list.html.twig', [
             'articles' => $slice,
             'tags' => array_slice($allTags, 0, 20),
-            'activeTag' => $tag !== '' ? $tag : null,
+            'activeTag' => '' !== $tag ? $tag : null,
             'active' => $active,
             'page' => $page,
             'totalPages' => $totalPages,
@@ -83,7 +87,8 @@ class ArticleController extends AbstractController {
     }
 
     #[Route('/articles/add', name: 'articles_create', methods: ['GET', 'POST'])]
-    public function create(Request $request): Response {
+    public function create(Request $request): Response
+    {
         $form = $this->createForm(CreateArticleType::class);
         $form->handleRequest($request);
 
@@ -95,6 +100,7 @@ class ArticleController extends AbstractController {
             $this->em->persist($article);
             $this->em->flush();
             $this->addFlash('success', $this->translator->trans('articles.create.success'));
+
             return $this->redirectToRoute('articles_edit', ['id' => $article->getId()], Response::HTTP_SEE_OTHER);
         }
 
@@ -103,7 +109,8 @@ class ArticleController extends AbstractController {
     }
 
     #[Route('/articles/{id}/edit', name: 'articles_edit', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
-    public function edit(Article $article, Request $request): Response {
+    public function edit(Article $article, Request $request): Response
+    {
         $form = $this->createForm(EditArticleType::class, [
             'name' => $article->getName(),
             'amount' => $article->getAmount() / 100,
@@ -124,6 +131,7 @@ class ArticleController extends AbstractController {
             $this->addFlash('success', $this->translator->trans(
                 $created ? 'articles.edit.precursor_success' : 'articles.edit.success'
             ));
+
             return $this->redirectToRoute('articles_edit', ['id' => $resultArticle->getId()], Response::HTTP_SEE_OTHER);
         }
 
@@ -137,16 +145,19 @@ class ArticleController extends AbstractController {
     }
 
     #[Route('/articles/{id}/delete', name: 'articles_delete', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
-    public function delete(Article $article, Request $request): Response {
+    public function delete(Article $article, Request $request): Response
+    {
         if ($request->isMethod('POST')) {
-            if (!$this->isCsrfTokenValid('delete_article' . $article->getId(), (string) $request->request->get('_token'))) {
+            if (!$this->isCsrfTokenValid('delete_article'.$article->getId(), (string) $request->request->get('_token'))) {
                 $this->addFlash('error', $this->translator->trans('transactions.errors.generic'));
+
                 return $this->redirectToRoute('articles_delete', ['id' => $article->getId()], Response::HTTP_SEE_OTHER);
             }
             $article->setActive(false);
             $this->em->persist($article);
             $this->em->flush();
             $this->addFlash('success', $this->translator->trans('articles.delete.success'));
+
             return $this->redirectToRoute('articles_inactive', [], Response::HTTP_SEE_OTHER);
         }
 

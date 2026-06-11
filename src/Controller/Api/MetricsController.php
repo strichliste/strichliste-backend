@@ -13,13 +13,15 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
-class MetricsController extends AbstractController {
-
-    public function __construct(private MetricsService $metrics) {
+class MetricsController extends AbstractController
+{
+    public function __construct(private MetricsService $metrics)
+    {
     }
 
     #[Route('/api/metrics', methods: ['GET'])]
-    function metrics(Request $request, ArticleRepository $articleRepository, ArticleSerializer $articleSerializer) {
+    public function metrics(Request $request, ArticleRepository $articleRepository, ArticleSerializer $articleSerializer)
+    {
         // clamp: huge values allocate an array row per day, negative ones make DateTime throw
         $days = max(1, min(3650, (int) $request->query->get('days', 30)));
         $articles = $articleRepository->findBy(['active' => true], ['usageCount' => 'DESC']);
@@ -29,7 +31,7 @@ class MetricsController extends AbstractController {
             'transactionCount' => $this->metrics->totalTransactionCount(),
             'userCount' => $this->metrics->totalUserCount(),
             'articles' => array_map(
-                fn(Article $article) => $articleSerializer->serialize($article, 0),
+                fn (Article $article) => $articleSerializer->serialize($article, 0),
                 $articles
             ),
             'days' => $this->metrics->transactionsPerDay($days, 'api'),
@@ -37,7 +39,8 @@ class MetricsController extends AbstractController {
     }
 
     #[Route('/api/user/{userId}/metrics', methods: ['GET'])]
-    function userMetrics($userId, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager) {
+    public function userMetrics($userId, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager)
+    {
         /** @var User|null $user */
         $user = $entityManager->getRepository(User::class)->findByIdentifier($userId);
         if (!$user) {
@@ -51,7 +54,7 @@ class MetricsController extends AbstractController {
         return $this->json([
             'balance' => $user->getBalance(),
             'articles' => array_map(
-                fn(array $row) => [
+                fn (array $row) => [
                     'article' => $articleSerializer->serialize($row['article'], 0),
                     'count' => (int) $row['cnt'],
                     'amount' => (int) $row['amt'],

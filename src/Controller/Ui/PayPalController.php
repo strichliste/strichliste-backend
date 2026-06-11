@@ -21,8 +21,8 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class PayPalController extends AbstractController {
-
+class PayPalController extends AbstractController
+{
     // 30m covers payment-method detours without leaving the signed return URL live forever
     private const RETURN_URL_TTL = 1800;
 
@@ -41,24 +41,28 @@ class PayPalController extends AbstractController {
     }
 
     #[Route('/user/{id}/paypal/start', name: 'paypal_start', methods: ['POST'], requirements: ['id' => '\d+'])]
-    public function start(User $user, Request $request): Response {
+    public function start(User $user, Request $request): Response
+    {
         if (!$this->settings->getOrDefault('paypal.enabled', false)) {
             throw new NotFoundHttpException();
         }
 
-        if (!$this->isCsrfTokenValid('paypal_start' . $user->getId(), (string) $request->request->get('_token'))) {
+        if (!$this->isCsrfTokenValid('paypal_start'.$user->getId(), (string) $request->request->get('_token'))) {
             $this->addFlash('error', $this->translator->trans('transactions.errors.generic'));
+
             return $this->redirectToRoute('users_detail', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
         }
 
         if ($user->isDisabled()) {
             $this->addFlash('error', $this->translator->trans('transactions.errors.account_disabled'));
+
             return $this->redirectToRoute('users_detail', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
         }
 
         $cents = $this->moneyParser->parseToCents($request->request->get('amount'));
-        if ($cents === null || $cents <= 0) {
+        if (null === $cents || $cents <= 0) {
             $this->addFlash('error', $this->translator->trans('split_invoice.errors.invalid_amount'));
+
             return $this->redirectToRoute('users_detail', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
         }
 
@@ -67,6 +71,7 @@ class PayPalController extends AbstractController {
         $accountUpper = (int) $this->settings->getOrDefault('account.boundary.upper', PHP_INT_MAX);
         if ($cents > $paymentUpper || $user->getBalance() + $cents > $accountUpper) {
             $this->addFlash('error', $this->translator->trans('transactions.errors.boundary'));
+
             return $this->redirectToRoute('users_detail', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
         }
 
@@ -102,7 +107,7 @@ class PayPalController extends AbstractController {
         $query = http_build_query([
             'cmd' => '_xclick',
             'business' => (string) $this->settings->getOrDefault('paypal.recipient', ''),
-            'item_name' => 'Strichliste · ' . $user->getName(),
+            'item_name' => 'Strichliste · '.$user->getName(),
             'currency_code' => (string) $this->settings->getOrDefault('i18n.currency.alpha3', 'EUR'),
             'amount' => number_format($totalMajor, 2, '.', ''),
             'rm' => '1',
@@ -112,11 +117,12 @@ class PayPalController extends AbstractController {
             'cancel_return' => $cancelSigned,
         ]);
 
-        return new RedirectResponse($base . '?' . $query, Response::HTTP_SEE_OTHER);
+        return new RedirectResponse($base.'?'.$query, Response::HTTP_SEE_OTHER);
     }
 
     #[Route('/user/{id}/paypal/return/{amount}', name: 'paypal_return_success', methods: ['GET'], requirements: ['id' => '\d+', 'amount' => '\d+'])]
-    public function returnSuccess(User $user, int $amount, Request $request): Response {
+    public function returnSuccess(User $user, int $amount, Request $request): Response
+    {
         if (!$this->settings->getOrDefault('paypal.enabled', false)) {
             throw new NotFoundHttpException();
         }
@@ -130,7 +136,7 @@ class PayPalController extends AbstractController {
         $nonce = (string) $request->query->get('nonce', '');
         $session = $request->getSession();
         $pending = $session->get(self::PENDING_SESSION_KEY, []);
-        if ($nonce === '' || !array_key_exists($nonce, $pending)) {
+        if ('' === $nonce || !array_key_exists($nonce, $pending)) {
             return $this->redirectToRoute('users_detail', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
         }
 
@@ -143,7 +149,7 @@ class PayPalController extends AbstractController {
                 '%amount%' => $this->appExtension->currencyFormat($amount, null, false),
             ]));
             $this->addFlash('transaction_success', '1');
-        } catch (TransactionBoundaryException | AccountBalanceBoundaryException | TransactionInvalidException $e) {
+        } catch (TransactionBoundaryException|AccountBalanceBoundaryException|TransactionInvalidException $e) {
             $this->addFlash('error', $this->translator->trans('transactions.errors.boundary'));
         } catch (\Throwable $e) {
             // the member has already paid at this point — never fail silently
@@ -155,13 +161,15 @@ class PayPalController extends AbstractController {
     }
 
     #[Route('/user/{id}/paypal/return/{amount}/error', name: 'paypal_return_cancel', methods: ['GET'], requirements: ['id' => '\d+', 'amount' => '\d+'])]
-    public function returnCancel(User $user, int $amount, Request $request): Response {
+    public function returnCancel(User $user, int $amount, Request $request): Response
+    {
         if (!$this->settings->getOrDefault('paypal.enabled', false)) {
             throw new NotFoundHttpException();
         }
         if (!$this->uriSigner->checkRequest($request)) {
             throw new NotFoundHttpException();
         }
+
         return $this->render('paypal/cancel.html.twig', ['user' => $user]);
     }
 }

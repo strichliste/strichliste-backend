@@ -12,13 +12,15 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method Barcode[]    findAll()
  * @method Barcode[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class BarcodeRepository extends ServiceEntityRepository {
-
-    function __construct(ManagerRegistry $registry) {
+class BarcodeRepository extends ServiceEntityRepository
+{
+    public function __construct(ManagerRegistry $registry)
+    {
         parent::__construct($registry, Barcode::class);
     }
 
-    function findByBarcode(string $barcode): ?Barcode {
+    public function findByBarcode(string $barcode): ?Barcode
+    {
         return $this->findOneBy(['barcode' => $barcode]);
     }
 }

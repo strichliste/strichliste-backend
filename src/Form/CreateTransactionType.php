@@ -10,9 +10,10 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints as Assert;
 
-class CreateTransactionType extends AbstractType {
-
-    public function buildForm(FormBuilderInterface $builder, array $options): void {
+class CreateTransactionType extends AbstractType
+{
+    public function buildForm(FormBuilderInterface $builder, array $options): void
+    {
         $builder
             ->add('direction', HiddenType::class, [
                 'constraints' => [new Assert\Choice(choices: ['deposit', 'dispense'])],
@@ -31,7 +32,8 @@ class CreateTransactionType extends AbstractType {
             ]);
     }
 
-    public function configureOptions(OptionsResolver $resolver): void {
+    public function configureOptions(OptionsResolver $resolver): void
+    {
         $resolver
             ->setDefaults(['data_class' => null])
             // required on purpose: the CSRF token id is scoped by user_id, a default would collapse it to one global token
@@ -39,7 +41,7 @@ class CreateTransactionType extends AbstractType {
             ->setAllowedTypes('user_id', 'int');
 
         $resolver->setDefault('csrf_token_id', function (\Symfony\Component\OptionsResolver\Options $opts) {
-            return 'create_transaction' . $opts['user_id'];
+            return 'create_transaction'.$opts['user_id'];
         });
     }
 }

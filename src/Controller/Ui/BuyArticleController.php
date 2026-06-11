@@ -18,8 +18,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class BuyArticleController extends AbstractController {
-
+class BuyArticleController extends AbstractController
+{
     public function __construct(
         private ArticleRepository $articleRepository,
         private BarcodeRepository $barcodeRepository,
@@ -30,15 +30,18 @@ class BuyArticleController extends AbstractController {
     }
 
     #[Route('/user/{id}/transactions/buy', name: 'transactions_buy', methods: ['POST'], requirements: ['id' => '\d+'])]
-    public function buy(User $user, Request $request): Response {
-        if (!$this->isCsrfTokenValid('buy' . $user->getId(), (string) $request->request->get('_token'))) {
+    public function buy(User $user, Request $request): Response
+    {
+        if (!$this->isCsrfTokenValid('buy'.$user->getId(), (string) $request->request->get('_token'))) {
             $this->addFlash('error', $this->translator->trans('transactions.errors.generic'));
+
             return $this->redirectToRoute('users_detail', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
         }
 
         // the buy tab is hidden for disabled users, but enforce it on the POST too
         if ($user->isDisabled()) {
             $this->addFlash('error', $this->translator->trans('transactions.errors.account_disabled'));
+
             return $this->redirectToRoute('users_detail', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
         }
 
@@ -46,9 +49,9 @@ class BuyArticleController extends AbstractController {
         $code = trim((string) $request->request->get('barcode', ''));
 
         $article = null;
-        if ($articleId !== null && $articleId !== '') {
+        if (null !== $articleId && '' !== $articleId) {
             $article = $this->articleRepository->findOneActive((int) $articleId);
-        } elseif ($code !== '') {
+        } elseif ('' !== $code) {
             $barcode = $this->barcodeRepository->findByBarcode($code);
             if ($barcode) {
                 $article = $barcode->getArticle();
@@ -57,6 +60,7 @@ class BuyArticleController extends AbstractController {
 
         if (!$article) {
             $this->addFlash('error', $this->translator->trans('user.buy.errors.unknown_barcode', ['%barcode%' => $code]));
+
             return $this->redirectToRoute('users_detail', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
         }
 
@@ -66,7 +70,7 @@ class BuyArticleController extends AbstractController {
                 '%article%' => $article->getName(),
             ]));
             $this->addFlash('transaction_success', '1');
-        } catch (TransactionBoundaryException | AccountBalanceBoundaryException | TransactionInvalidException $e) {
+        } catch (TransactionBoundaryException|AccountBalanceBoundaryException|TransactionInvalidException $e) {
             $this->addFlash('error', $this->translator->trans('transactions.errors.boundary'));
         } catch (ArticleInactiveException $e) {
             $this->addFlash('error', $this->translator->trans('articles.errors.inactive'));

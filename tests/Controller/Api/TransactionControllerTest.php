@@ -16,7 +16,7 @@ class TransactionControllerTest extends AbstractApplicationTestCase
     public function testAddBalance(): void
     {
         $data = $this->requestJson('POST', "/api/user/{$this->userId}/transaction", [
-            'amount' => 500
+            'amount' => 500,
         ], 'transaction');
 
         $this->assertSame(500, $data['amount']);
@@ -29,7 +29,7 @@ class TransactionControllerTest extends AbstractApplicationTestCase
     public function testRemoveBalanceAndUndo(): void
     {
         $payoutData = $this->requestJson('POST', "/api/user/{$this->userId}/transaction", [
-            'amount' => -500
+            'amount' => -500,
         ], 'transaction');
 
         $this->assertSame(-500, $payoutData['amount']);

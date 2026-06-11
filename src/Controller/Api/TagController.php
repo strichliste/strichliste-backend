@@ -18,17 +18,18 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api')]
-class TagController extends AbstractController {
-
-    function __construct(private readonly TagSerializer $tagSerializer) {
+class TagController extends AbstractController
+{
+    public function __construct(private readonly TagSerializer $tagSerializer)
+    {
     }
 
     #[Route('/tag', methods: ['GET'])]
-    function listTags(EntityManagerInterface $entityManager): JsonResponse {
+    public function listTags(EntityManagerInterface $entityManager): JsonResponse
+    {
         $tags = $entityManager->getRepository(Tag::class)->findAll();
 
-        usort($tags, fn (Tag $a, Tag $b) =>
-            ($b->getUsageCount() <=> $a->getUsageCount())
+        usort($tags, fn (Tag $a, Tag $b) => ($b->getUsageCount() <=> $a->getUsageCount())
                 ?: ($b->getCreated() <=> $a->getCreated())
         );
 
@@ -41,7 +42,8 @@ class TagController extends AbstractController {
     }
 
     #[Route('/article/{articleId}/tag', methods: ['GET'])]
-    function listArticleTags(int $articleId, EntityManagerInterface $entityManager): JsonResponse {
+    public function listArticleTags(int $articleId, EntityManagerInterface $entityManager): JsonResponse
+    {
         $article = $entityManager->getRepository(Article::class)->find($articleId);
         if (!$article) {
             throw new ArticleNotFoundException($articleId);
@@ -58,7 +60,8 @@ class TagController extends AbstractController {
     }
 
     #[Route('/article/{articleId}/tag/{tagId}', methods: ['GET'])]
-    function getArticleTag(int $articleId, int $tagId, EntityManagerInterface $entityManager): JsonResponse {
+    public function getArticleTag(int $articleId, int $tagId, EntityManagerInterface $entityManager): JsonResponse
+    {
         $article = $entityManager->getRepository(Article::class)->find($articleId);
         if (!$article) {
             throw new ArticleNotFoundException($articleId);
@@ -70,12 +73,13 @@ class TagController extends AbstractController {
         }
 
         return $this->json([
-            'tag' => $this->tagSerializer->serialize($articleTag->getTag())
+            'tag' => $this->tagSerializer->serialize($articleTag->getTag()),
         ]);
     }
 
     #[Route('/article/{articleId}/tag', methods: ['POST'])]
-    function addArticleTag(int $articleId, Request $request, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager): JsonResponse {
+    public function addArticleTag(int $articleId, Request $request, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager): JsonResponse
+    {
         $tag = trim($request->request->get('tag', ''));
         if (!$tag) {
             throw new ParameterInvalidException('tag');
@@ -102,12 +106,13 @@ class TagController extends AbstractController {
         $entityManager->flush();
 
         return $this->json([
-            'article' => $articleSerializer->serialize($article)
+            'article' => $articleSerializer->serialize($article),
         ]);
     }
 
     #[Route('/article/{articleId}/tag/{tagId}', methods: ['DELETE'])]
-    function deleteArticleTag(int $articleId, int $tagId, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager): JsonResponse {
+    public function deleteArticleTag(int $articleId, int $tagId, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager): JsonResponse
+    {
         $article = $entityManager->getRepository(Article::class)->find($articleId);
         if (!$article) {
             throw new ArticleNotFoundException($articleId);
@@ -122,7 +127,7 @@ class TagController extends AbstractController {
             $entityManager->remove($articleTag);
 
             $tag = $articleTag->getTag();
-            if ($tag->getUsageCount() === 1) {
+            if (1 === $tag->getUsageCount()) {
                 $entityManager->remove($tag);
             }
 
@@ -130,7 +135,7 @@ class TagController extends AbstractController {
         });
 
         return $this->json([
-            'article' => $articleSerializer->serialize($article)
+            'article' => $articleSerializer->serialize($article),
         ]);
     }
 }

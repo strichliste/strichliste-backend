@@ -10,12 +10,14 @@ use Doctrine\ORM\Query;
 use Doctrine\ORM\Query\Expr\Join;
 
 // all amounts are integer cents
-class MetricsService {
-
-    public function __construct(private EntityManagerInterface $em) {
+class MetricsService
+{
+    public function __construct(private EntityManagerInterface $em)
+    {
     }
 
-    public function totalBalance(): int {
+    public function totalBalance(): int
+    {
         return (int) ($this->em->createQueryBuilder()
             ->select('SUM(u.balance)')
             ->from(User::class, 'u')
@@ -24,14 +26,16 @@ class MetricsService {
     }
 
     // includes soft-deleted rows — the legacy /api/metrics count did too
-    public function totalTransactionCount(): int {
+    public function totalTransactionCount(): int
+    {
         return (int) ($this->em->createQueryBuilder()
             ->select('COUNT(t.id)')
             ->from(Transaction::class, 't')
             ->getQuery()->getSingleScalarResult() ?: 0);
     }
 
-    public function totalUserCount(): int {
+    public function totalUserCount(): int
+    {
         return (int) ($this->em->createQueryBuilder()
             ->select('COUNT(u.id)')
             ->from(User::class, 'u')
@@ -43,7 +47,8 @@ class MetricsService {
      *
      * @param 'api'|'ui' $shape 'api' nests charged/spent as {amount, transactions}, 'ui' keeps them scalar
      */
-    public function transactionsPerDay(int $days, string $shape = 'ui'): array {
+    public function transactionsPerDay(int $days, string $shape = 'ui'): array
+    {
         $begin = new \DateTime(sprintf('-%d day', $days));
         $dateBegin = $begin->format('Y-m-d 00:00:00');
         $end = new \DateTime('tomorrow');
@@ -83,7 +88,7 @@ class MetricsService {
                 'distinctUsers' => (int) $r['distinctUsers'],
                 'balance' => (int) $r['amount'],
             ];
-            if ($shape === 'api') {
+            if ('api' === $shape) {
                 $row['charged'] = ['amount' => (int) $r['amountCharged'], 'transactions' => (int) $r['countCharged']];
                 $row['spent'] = ['amount' => (int) $r['amountSpent'] * -1, 'transactions' => (int) $r['countSpent']];
             } else {
@@ -99,7 +104,8 @@ class MetricsService {
     /**
      * @param bool $includeDeleted true preserves the legacy /api numbers, which counted reverted purchases
      */
-    public function userArticles(User $user, int $limit = 10, bool $includeDeleted = false): array {
+    public function userArticles(User $user, int $limit = 10, bool $includeDeleted = false): array
+    {
         $qb = $this->em->createQueryBuilder()
             ->select('COUNT(a.id) as cnt, SUM(t.amount) * -1 as amt, a as article')
             ->from(Transaction::class, 't')
@@ -113,13 +119,15 @@ class MetricsService {
         if (!$includeDeleted) {
             $qb->andWhere('t.deleted = false');
         }
+
         return $qb->getQuery()->getResult();
     }
 
     /**
      * @return array<array{cnt: int, amt: int, article: Article}>
      */
-    public function topArticles(int $days, int $limit = 10): array {
+    public function topArticles(int $days, int $limit = 10): array
+    {
         return $this->em->createQueryBuilder()
             ->select('COUNT(a.id) as cnt, SUM(t.amount) * -1 as amt, a as article')
             ->from(Transaction::class, 't')
@@ -133,7 +141,8 @@ class MetricsService {
             ->getQuery()->getResult();
     }
 
-    public function userTransactionCount(User $user): int {
+    public function userTransactionCount(User $user): int
+    {
         return (int) $this->em->createQueryBuilder()
             ->select('COUNT(t.id)')
             ->from(Transaction::class, 't')
@@ -145,7 +154,8 @@ class MetricsService {
     /**
      * @return array{cnt: int, amount: int}
      */
-    public function userOutgoing(User $user): array {
+    public function userOutgoing(User $user): array
+    {
         $r = $this->em->createQueryBuilder()
             ->select('COUNT(t.id) as cnt, SUM(t.amount) as amount')
             ->from(Transaction::class, 't')
@@ -154,13 +164,15 @@ class MetricsService {
             ->setParameter('user', $user)
             ->groupBy('t.user')
             ->getQuery()->getOneOrNullResult(Query::HYDRATE_ARRAY);
+
         return ['cnt' => (int) ($r['cnt'] ?? 0), 'amount' => (int) ($r['amount'] ?? 0)];
     }
 
     /**
      * @return array{cnt: int, amount: int}
      */
-    public function userIncoming(User $user): array {
+    public function userIncoming(User $user): array
+    {
         $r = $this->em->createQueryBuilder()
             ->select('COUNT(t.id) as cnt, SUM(t.amount) as amount')
             ->from(Transaction::class, 't')
@@ -169,6 +181,7 @@ class MetricsService {
             ->setParameter('user', $user)
             ->groupBy('t.user')
             ->getQuery()->getOneOrNullResult(Query::HYDRATE_ARRAY);
+
         return ['cnt' => (int) ($r['cnt'] ?? 0), 'amount' => (int) ($r['amount'] ?? 0)];
     }
 }

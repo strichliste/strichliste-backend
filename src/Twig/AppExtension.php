@@ -7,15 +7,17 @@ use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
 
-class AppExtension extends AbstractExtension {
-
+class AppExtension extends AbstractExtension
+{
     /** @var array<string, \NumberFormatter> */
     private array $formatters = [];
 
-    public function __construct(private SettingsService $settings) {
+    public function __construct(private SettingsService $settings)
+    {
     }
 
-    public function getFilters(): array {
+    public function getFilters(): array
+    {
         return [
             new TwigFilter('currency_format', [$this, 'currencyFormat']),
             new TwigFilter('balance_class', [$this, 'balanceClass']),
@@ -31,7 +33,8 @@ class AppExtension extends AbstractExtension {
         'paypal.fee',
     ];
 
-    public function getFunctions(): array {
+    public function getFunctions(): array
+    {
         return [
             new TwigFunction('setting', function (string $path, mixed $default = null) {
                 $allowed = false;
@@ -45,14 +48,16 @@ class AppExtension extends AbstractExtension {
                     // silently fall back rather than leak the value or throw
                     return $default;
                 }
+
                 return $this->settings->getOrDefault($path, $default);
             }),
         ];
     }
 
     // signed (default) renders +€25.77 / -€8.52 / €0.00 like the SPA; unsigned is for plain prices
-    public function currencyFormat(?int $cents, ?string $currencySymbol = null, bool $signed = true): string {
-        if ($cents === null) {
+    public function currencyFormat(?int $cents, ?string $currencySymbol = null, bool $signed = true): string
+    {
+        if (null === $cents) {
             return '';
         }
         $symbol = $currencySymbol ?: $this->settings->getOrDefault('i18n.currency.symbol', '€');
@@ -71,17 +76,19 @@ class AppExtension extends AbstractExtension {
             $this->formatters[$locale] = $formatter;
         }
         $number = $this->formatters[$locale]->format($abs);
-        if ($number === false) {
+        if (false === $number) {
             $number = number_format($abs, 2, '.', ',');
         }
 
-        return $sign . $symbol . $number;
+        return $sign.$symbol.$number;
     }
 
-    public function balanceClass(?int $cents): string {
-        if ($cents === null || $cents === 0) {
+    public function balanceClass(?int $cents): string
+    {
+        if (null === $cents || 0 === $cents) {
             return 'is-zero';
         }
+
         return $cents > 0 ? 'is-positive' : 'is-negative';
     }
 }

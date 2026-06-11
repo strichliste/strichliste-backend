@@ -4,19 +4,21 @@ namespace App\Command\Helper;
 
 use Symfony\Component\Console\Input\InputInterface;
 
-class DateIntervalHelper {
-
+class DateIntervalHelper
+{
     /**
      * @var \DateTime
      */
     private $dateTime;
 
-    function __construct() {
+    public function __construct()
+    {
         $this->dateTime = new \DateTime();
     }
 
-    static function fromCommandInput(InputInterface $input): self {
-        $self = new static;
+    public static function fromCommandInput(InputInterface $input): self
+    {
+        $self = new static();
 
         $days = $input->getOption('days');
         if ($days) {
@@ -36,25 +38,29 @@ class DateIntervalHelper {
         return $self;
     }
 
-    function subDays($days): self {
+    public function subDays($days): self
+    {
         $this->dateTime->sub(\DateInterval::createFromDateString(sprintf('%d days', $days)));
 
         return $this;
     }
 
-    function subMonths($month): self {
+    public function subMonths($month): self
+    {
         $this->dateTime->sub(\DateInterval::createFromDateString(sprintf('%d months', $month)));
 
         return $this;
     }
 
-    function subYears($years): self {
+    public function subYears($years): self
+    {
         $this->dateTime->sub(\DateInterval::createFromDateString(sprintf('%d years', $years)));
 
         return $this;
     }
 
-    function getDateTime(): \DateTime {
+    public function getDateTime(): \DateTime
+    {
         return $this->dateTime;
     }
 }

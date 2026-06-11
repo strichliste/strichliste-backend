@@ -11,8 +11,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: TagRepository::class)]
 #[ORM\HasLifecycleCallbacks]
 #[ORM\Table(name: 'tag')]
-class Tag {
-
+class Tag
+{
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
@@ -27,20 +27,24 @@ class Tag {
     #[ORM\Column(type: 'datetime')]
     private ?\DateTime $created = null;
 
-    function __construct(string $tag = '') {
+    public function __construct(string $tag = '')
+    {
         $this->tag = $tag;
         $this->articleTags = new ArrayCollection();
     }
 
-    function getId(): ?int {
+    public function getId(): ?int
+    {
         return $this->id;
     }
 
-    function getTag(): string {
+    public function getTag(): string
+    {
         return $this->tag;
     }
 
-    function setTag(string $tag): self {
+    public function setTag(string $tag): self
+    {
         $this->tag = $tag;
 
         return $this;
@@ -49,28 +53,33 @@ class Tag {
     /**
      * @return Article[]
      */
-    function getArticles(): array {
-        return array_map(function(ArticleTag $articleTag) {
+    public function getArticles(): array
+    {
+        return array_map(function (ArticleTag $articleTag) {
             return $articleTag->getArticle();
         }, $this->articleTags->getValues());
     }
 
-    function getUsageCount(): int {
+    public function getUsageCount(): int
+    {
         return count($this->articleTags);
     }
 
-    function getCreated(): ?\DateTime {
+    public function getCreated(): ?\DateTime
+    {
         return $this->created;
     }
 
-    function setCreated(\DateTime $created): self {
+    public function setCreated(\DateTime $created): self
+    {
         $this->created = $created;
 
         return $this;
     }
 
     #[ORM\PrePersist]
-    function setHistoryColumnsOnPrePersist(PrePersistEventArgs $event) {
+    public function setHistoryColumnsOnPrePersist(PrePersistEventArgs $event)
+    {
         if (!$this->getCreated()) {
             $this->setCreated(new \DateTime());
         }

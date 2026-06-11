@@ -23,7 +23,8 @@ abstract class AbstractApplicationTestCase extends WebTestCase
         $this->assertResponseIsSuccessful();
 
         $response = json_decode($this->client->getResponse()->getContent(), true);
-        return $unpackKey === null ? $response : $response[$unpackKey];
+
+        return null === $unpackKey ? $response : $response[$unpackKey];
     }
 
     protected function assertUserBalance(int $userId, int $expected): void

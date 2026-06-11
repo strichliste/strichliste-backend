@@ -6,10 +6,10 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
-
-class ApiResponseSubscriber implements EventSubscriberInterface {
-
-    function onKernelResponse(ResponseEvent $event) {
+class ApiResponseSubscriber implements EventSubscriberInterface
+{
+    public function onKernelResponse(ResponseEvent $event)
+    {
         // no-store only on /api; the Twig UI needs bfcache and Turbo page reuse
         if (!str_starts_with($event->getRequest()->getPathInfo(), '/api')) {
             return;
@@ -23,7 +23,8 @@ class ApiResponseSubscriber implements EventSubscriberInterface {
         $response->headers->addCacheControlDirective('no-store', true);
     }
 
-     static function getSubscribedEvents(): array {
+    public static function getSubscribedEvents(): array
+    {
         return [
             KernelEvents::RESPONSE => 'onKernelResponse',
         ];

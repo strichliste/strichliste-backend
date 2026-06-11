@@ -22,8 +22,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class TransactionWriteController extends AbstractController {
-
+class TransactionWriteController extends AbstractController
+{
     public function __construct(
         private TransactionService $transactionService,
         private TransactionRepository $transactionRepository,
@@ -33,10 +33,12 @@ class TransactionWriteController extends AbstractController {
     }
 
     #[Route('/user/{id}/transactions/create', name: 'transactions_create', methods: ['POST'], requirements: ['id' => '\d+'])]
-    public function create(User $user, Request $request): Response {
+    public function create(User $user, Request $request): Response
+    {
         // the forms are hidden for disabled users, but enforce it on the POST too
         if ($user->isDisabled()) {
             $this->addFlash('error', $this->translator->trans('transactions.errors.account_disabled'));
+
             return $this->redirectToRoute('users_detail', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
         }
 
@@ -45,6 +47,7 @@ class TransactionWriteController extends AbstractController {
 
         if (!$form->isSubmitted() || !$form->isValid()) {
             $this->addFlash('error', $this->translator->trans('transactions.errors.invalid'));
+
             return $this->redirectToRoute('users_detail', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
         }
 
@@ -52,9 +55,10 @@ class TransactionWriteController extends AbstractController {
         $direction = $data['direction'] ?? 'deposit';
         // ignore the submitted sign and apply direction explicitly so a crafted negative can't flip a deposit
         $cents = MoneyParser::majorToCents(abs((float) $data['amount']));
-        $amount = $direction === 'dispense' ? -$cents : $cents;
-        if ($amount === 0) {
+        $amount = 'dispense' === $direction ? -$cents : $cents;
+        if (0 === $amount) {
             $this->addFlash('error', $this->translator->trans('transactions.errors.invalid'));
+
             return $this->redirectToRoute('users_detail', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
         }
         $comment = $data['comment'] ?: null;
@@ -62,10 +66,10 @@ class TransactionWriteController extends AbstractController {
         try {
             $tx = $this->transactionService->createForUser($user, $amount, $comment);
             $this->addFlash('success', $this->translator->trans(
-                $direction === 'dispense' ? 'transactions.flash.dispense_success' : 'transactions.flash.deposit_success'
+                'dispense' === $direction ? 'transactions.flash.dispense_success' : 'transactions.flash.deposit_success'
             ));
             $this->addFlash('transaction_success', '1');
-        } catch (TransactionBoundaryException | AccountBalanceBoundaryException | TransactionInvalidException $e) {
+        } catch (TransactionBoundaryException|AccountBalanceBoundaryException|TransactionInvalidException $e) {
             $this->addFlash('error', $this->translator->trans('transactions.errors.boundary'));
         } catch (\Throwable $e) {
             $this->logger->error('Transaction create failed unexpectedly.', ['exception' => $e, 'user' => $user->getId()]);
@@ -76,9 +80,11 @@ class TransactionWriteController extends AbstractController {
     }
 
     #[Route('/user/{id}/transactions/transfer', name: 'transactions_transfer', methods: ['POST'], requirements: ['id' => '\d+'])]
-    public function transfer(User $user, Request $request): Response {
+    public function transfer(User $user, Request $request): Response
+    {
         if ($user->isDisabled()) {
             $this->addFlash('error', $this->translator->trans('transactions.errors.account_disabled'));
+
             return $this->redirectToRoute('users_detail', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
         }
 
@@ -88,6 +94,7 @@ class TransactionWriteController extends AbstractController {
         // reopen the send tab on errors so the form doesn't vanish behind a flash
         if (!$form->isSubmitted() || !$form->isValid()) {
             $this->addFlash('error', $this->translator->trans('transactions.errors.invalid'));
+
             return $this->redirectToRoute('users_detail', ['id' => $user->getId(), 'tab' => 'send'], Response::HTTP_SEE_OTHER);
         }
 
@@ -95,10 +102,12 @@ class TransactionWriteController extends AbstractController {
         $recipient = $data['recipient'];
         if ($recipient->getId() === $user->getId()) {
             $this->addFlash('error', $this->translator->trans('transactions.errors.self_transfer'));
+
             return $this->redirectToRoute('users_detail', ['id' => $user->getId(), 'tab' => 'send'], Response::HTTP_SEE_OTHER);
         }
         if ($recipient->isDisabled()) {
             $this->addFlash('error', $this->translator->trans('transactions.errors.recipient_disabled'));
+
             return $this->redirectToRoute('users_detail', ['id' => $user->getId(), 'tab' => 'send'], Response::HTTP_SEE_OTHER);
         }
 
@@ -113,8 +122,9 @@ class TransactionWriteController extends AbstractController {
                 '%recipient%' => $recipient->getName(),
             ]));
             $this->addFlash('transaction_success', '1');
+
             return $this->redirectToRoute('users_detail', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
-        } catch (TransactionBoundaryException | AccountBalanceBoundaryException | TransactionInvalidException $e) {
+        } catch (TransactionBoundaryException|AccountBalanceBoundaryException|TransactionInvalidException $e) {
             $this->addFlash('error', $this->translator->trans('transactions.errors.boundary'));
         } catch (UserNotFoundException $e) {
             $this->addFlash('error', $this->translator->trans('transactions.errors.recipient_missing'));
@@ -127,9 +137,11 @@ class TransactionWriteController extends AbstractController {
     }
 
     #[Route('/user/{id}/transactions/{txId}/undo', name: 'transactions_undo', methods: ['POST'], requirements: ['id' => '\d+', 'txId' => '\d+'])]
-    public function undo(User $user, int $txId, Request $request): Response {
-        if (!$this->isCsrfTokenValid('undo' . $user->getId() . '_' . $txId, (string) $request->request->get('_token'))) {
+    public function undo(User $user, int $txId, Request $request): Response
+    {
+        if (!$this->isCsrfTokenValid('undo'.$user->getId().'_'.$txId, (string) $request->request->get('_token'))) {
             $this->addFlash('error', $this->translator->trans('transactions.errors.generic'));
+
             return $this->redirectToRoute('users_detail', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
         }
 
@@ -142,6 +154,7 @@ class TransactionWriteController extends AbstractController {
         // a stale tab keeps a valid CSRF token forever — enforce the undo window on the POST too
         if (!$this->transactionService->isDeletable($transaction)) {
             $this->addFlash('error', $this->translator->trans('transactions.errors.not_deletable'));
+
             return $this->redirectToRoute('users_detail', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
         }
 
@@ -159,9 +172,10 @@ class TransactionWriteController extends AbstractController {
         }
 
         $return = $request->request->get('return');
-        if ($return === 'history') {
+        if ('history' === $return) {
             return $this->redirectToRoute('users_transactions', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
         }
+
         return $this->redirectToRoute('users_detail', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
     }
 }

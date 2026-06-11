@@ -15,19 +15,21 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api')]
-class TransactionController extends AbstractController {
-
+class TransactionController extends AbstractController
+{
     /**
      * @var TransactionSerializer
      */
     private $transactionSerializer;
 
-    function __construct(TransactionSerializer $transactionSerializer) {
+    public function __construct(TransactionSerializer $transactionSerializer)
+    {
         $this->transactionSerializer = $transactionSerializer;
     }
 
     #[Route('/transaction', methods: ['GET'])]
-    function list(Request $request, EntityManagerInterface $entityManager) {
+    public function list(Request $request, EntityManagerInterface $entityManager)
+    {
         $limit = $request->query->get('limit', 25);
         $offset = $request->query->get('offset');
 
@@ -38,12 +40,13 @@ class TransactionController extends AbstractController {
             'count' => $count,
             'transactions' => array_map(function (Transaction $transaction) {
                 return $this->transactionSerializer->serialize($transaction);
-            }, $transactions)
+            }, $transactions),
         ]);
     }
 
     #[Route('/user/{userId}/transaction', methods: ['POST'])]
-    function createUserTransactions($userId, Request $request, TransactionService $transactionService, EntityManagerInterface $entityManager) {
+    public function createUserTransactions($userId, Request $request, TransactionService $transactionService, EntityManagerInterface $entityManager)
+    {
         $amount = $request->request->get('amount');
         $quantity = $request->request->get('quantity');
         $comment = $request->request->get('comment');
@@ -67,7 +70,8 @@ class TransactionController extends AbstractController {
     }
 
     #[Route('/user/{userId}/transaction', methods: ['GET'])]
-    function getUserTransactions($userId, Request $request, EntityManagerInterface $entityManager) {
+    public function getUserTransactions($userId, Request $request, EntityManagerInterface $entityManager)
+    {
         $limit = $request->query->get('limit', 25);
         $offset = $request->query->get('offset');
 
@@ -88,7 +92,8 @@ class TransactionController extends AbstractController {
     }
 
     #[Route('/user/{userId}/transaction/{transactionId}', methods: ['GET'])]
-    function getUserTransaction($userId, $transactionId, EntityManagerInterface $entityManager) {
+    public function getUserTransaction($userId, $transactionId, EntityManagerInterface $entityManager)
+    {
         $user = $entityManager->getRepository(User::class)->find($userId);
         if (!$user) {
             throw new UserNotFoundException($userId);
@@ -105,7 +110,8 @@ class TransactionController extends AbstractController {
     }
 
     #[Route('/user/{userId}/transaction/{transactionId}', methods: ['DELETE'])]
-    function deleteTransaction($userId, $transactionId, TransactionService $transactionService) {
+    public function deleteTransaction($userId, $transactionId, TransactionService $transactionService)
+    {
         $transaction = $transactionService->revertTransaction($transactionId);
 
         return $this->json([

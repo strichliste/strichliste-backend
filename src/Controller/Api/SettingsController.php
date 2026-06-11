@@ -7,15 +7,17 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api/settings')]
-class SettingsController extends AbstractController {
-
-    function __construct(private SettingsService $settingsService) {
+class SettingsController extends AbstractController
+{
+    public function __construct(private SettingsService $settingsService)
+    {
     }
 
     #[Route(methods: ['GET'])]
-    function list() {
+    public function list()
+    {
         return $this->json([
-            'settings' => $this->settingsService->getAll()
+            'settings' => $this->settingsService->getAll(),
         ]);
     }
 }

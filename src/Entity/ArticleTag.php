@@ -9,8 +9,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\HasLifecycleCallbacks]
 #[ORM\Table(name: 'article_tag')]
 #[ORM\UniqueConstraint(name: 'UNIQ_919694F97294869CBAD26311', columns: ['article_id', 'tag_id'])]
-class ArticleTag {
-
+class ArticleTag
+{
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
@@ -27,42 +27,50 @@ class ArticleTag {
     #[ORM\Column(type: 'datetime')]
     private ?\DateTime $created = null;
 
-    function getId(): ?int {
+    public function getId(): ?int
+    {
         return $this->id;
     }
 
-    function getArticle(): Article {
+    public function getArticle(): Article
+    {
         return $this->article;
     }
 
-    function setArticle(Article $article): self {
+    public function setArticle(Article $article): self
+    {
         $this->article = $article;
 
         return $this;
     }
 
-    function getTag(): Tag {
+    public function getTag(): Tag
+    {
         return $this->tag;
     }
 
-    function setTag(Tag $tag): self {
+    public function setTag(Tag $tag): self
+    {
         $this->tag = $tag;
 
         return $this;
     }
 
-    function getCreated(): ?\DateTime {
+    public function getCreated(): ?\DateTime
+    {
         return $this->created;
     }
 
-    function setCreated(\DateTime $created): self {
+    public function setCreated(\DateTime $created): self
+    {
         $this->created = $created;
 
         return $this;
     }
 
     #[ORM\PrePersist]
-    function setHistoryColumnsOnPrePersist(PrePersistEventArgs $event) {
+    public function setHistoryColumnsOnPrePersist(PrePersistEventArgs $event)
+    {
         if (!$this->getCreated()) {
             $this->setCreated(new \DateTime());
         }

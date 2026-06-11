@@ -11,9 +11,10 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints as Assert;
 
-class TransferTransactionType extends AbstractType {
-
-    public function buildForm(FormBuilderInterface $builder, array $options): void {
+class TransferTransactionType extends AbstractType
+{
+    public function buildForm(FormBuilderInterface $builder, array $options): void
+    {
         $excludeUser = $options['exclude_user'];
         $builder
             ->add('recipient', EntityType::class, [
@@ -29,6 +30,7 @@ class TransferTransactionType extends AbstractType {
                         $qb->andWhere('u.id <> :excluded')
                             ->setParameter('excluded', $excludeUser->getId());
                     }
+
                     return $qb;
                 },
                 'constraints' => [new Assert\NotBlank()],
@@ -47,7 +49,8 @@ class TransferTransactionType extends AbstractType {
             ]);
     }
 
-    public function configureOptions(OptionsResolver $resolver): void {
+    public function configureOptions(OptionsResolver $resolver): void
+    {
         $resolver
             ->setDefaults(['data_class' => null, 'exclude_user' => null])
             ->setAllowedTypes('exclude_user', [User::class, 'null']);

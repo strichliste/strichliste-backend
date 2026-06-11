@@ -8,9 +8,10 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints as Assert;
 
-class CreateUserType extends AbstractType {
-
-    public function buildForm(FormBuilderInterface $builder, array $options): void {
+class CreateUserType extends AbstractType
+{
+    public function buildForm(FormBuilderInterface $builder, array $options): void
+    {
         $builder->add('name', TextType::class, [
             'label' => 'user.create.name_label',
             'attr' => [
@@ -27,7 +28,8 @@ class CreateUserType extends AbstractType {
         ]);
     }
 
-    public function configureOptions(OptionsResolver $resolver): void {
+    public function configureOptions(OptionsResolver $resolver): void
+    {
         $resolver->setDefaults([
             'data_class' => null,
         ]);

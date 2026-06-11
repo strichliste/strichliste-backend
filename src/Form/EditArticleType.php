@@ -10,9 +10,10 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints as Assert;
 
-class EditArticleType extends AbstractType {
-
-    public function buildForm(FormBuilderInterface $builder, array $options): void {
+class EditArticleType extends AbstractType
+{
+    public function buildForm(FormBuilderInterface $builder, array $options): void
+    {
         $builder
             ->add('name', TextType::class, [
                 'label' => 'articles.fields.name',
@@ -32,7 +33,8 @@ class EditArticleType extends AbstractType {
             ]);
     }
 
-    public function configureOptions(OptionsResolver $resolver): void {
+    public function configureOptions(OptionsResolver $resolver): void
+    {
         $resolver->setDefaults(['data_class' => null]);
     }
 }

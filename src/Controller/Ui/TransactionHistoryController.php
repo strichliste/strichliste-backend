@@ -10,8 +10,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-class TransactionHistoryController extends AbstractController {
-
+class TransactionHistoryController extends AbstractController
+{
     private const PAGE_SIZE = 15;
 
     public function __construct(
@@ -21,7 +21,8 @@ class TransactionHistoryController extends AbstractController {
     }
 
     #[Route('/user/{id}/transactions', name: 'users_transactions', methods: ['GET'], requirements: ['id' => '\d+'])]
-    public function index(User $user, Request $request): Response {
+    public function index(User $user, Request $request): Response
+    {
         $page = max(1, (int) $request->query->get('page', 1));
         $total = $this->transactionRepository->countByUser($user);
         $totalPages = $total > 0 ? (int) ceil($total / self::PAGE_SIZE) : 1;
@@ -29,7 +30,7 @@ class TransactionHistoryController extends AbstractController {
         $offset = ($page - 1) * self::PAGE_SIZE;
 
         $transactions = $this->transactionRepository->findByUser($user, self::PAGE_SIZE, $offset);
-        $rows = array_map(fn($tx) => [
+        $rows = array_map(fn ($tx) => [
             'tx' => $tx,
             'deletable' => $this->transactionService->isDeletable($tx),
         ], $transactions);

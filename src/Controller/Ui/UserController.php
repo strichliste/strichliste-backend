@@ -21,8 +21,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class UserController extends AbstractController {
-
+class UserController extends AbstractController
+{
     public function __construct(
         private UserRepository $userRepository,
         private TransactionRepository $transactionRepository,
@@ -35,7 +35,8 @@ class UserController extends AbstractController {
     }
 
     #[Route('/user/{id}', name: 'users_detail', methods: ['GET'], requirements: ['id' => '\d+'])]
-    public function detail(User $user, Request $request): Response {
+    public function detail(User $user, Request $request): Response
+    {
         $enabledTabs = [
             'edit' => true,
             'send' => $this->settings->getOrDefault('payment.transactions.enabled', true) && !$user->isDisabled(),
@@ -45,10 +46,10 @@ class UserController extends AbstractController {
 
         // no tab by default; article.autoOpen forces the buy tab only when no ?tab= is present at all
         $tab = $request->query->get('tab');
-        if ($tab !== null && !($enabledTabs[$tab] ?? false)) {
+        if (null !== $tab && !($enabledTabs[$tab] ?? false)) {
             $tab = null;
         }
-        if ($tab === null && !$request->query->has('tab') && $enabledTabs['buy']
+        if (null === $tab && !$request->query->has('tab') && $enabledTabs['buy']
             && $this->settings->getOrDefault('article.autoOpen', false)) {
             $tab = 'buy';
         }
@@ -56,7 +57,7 @@ class UserController extends AbstractController {
         $recent = $this->transactionRepository->findByUser($user, 5, 0);
 
         $editForm = null;
-        if ($tab === 'edit') {
+        if ('edit' === $tab) {
             $editForm = $this->createForm(EditUserType::class, [
                 'name' => $user->getName(),
                 'email' => $user->getEmail(),
@@ -64,13 +65,13 @@ class UserController extends AbstractController {
             ])->createView();
         }
 
-        $sendData = $this->prepareSendTab($user, $tab === 'send');
+        $sendData = $this->prepareSendTab($user, 'send' === $tab);
         // no limit: a capped picker would make articles beyond the cap unpurchasable
-        $buyData = $tab === 'buy' ? [
+        $buyData = 'buy' === $tab ? [
             'articles' => $this->articleRepository->findBy(['active' => true], ['name' => 'ASC']),
         ] : null;
 
-        $recentMeta = array_map(fn($tx) => [
+        $recentMeta = array_map(fn ($tx) => [
             'tx' => $tx,
             'deletable' => $this->transactionService->isDeletable($tx),
         ], $recent);
@@ -91,7 +92,8 @@ class UserController extends AbstractController {
     /**
      * @param bool $includeTransferForm true only when the send tab is active — skips an EntityType SELECT otherwise
      */
-    private function prepareSendTab(User $user, bool $includeTransferForm = false): ?array {
+    private function prepareSendTab(User $user, bool $includeTransferForm = false): ?array
+    {
         if ($user->isDisabled() || !$this->settings->getOrDefault('payment.transactions.enabled', true)) {
             return null;
         }
@@ -107,17 +109,20 @@ class UserController extends AbstractController {
         $balance = (int) $user->getBalance();
 
         $stepDisabled = function (int $signedAmount) use ($balance, $accountLower, $accountUpper, $paymentLower, $paymentUpper): bool {
-            if ($signedAmount > $paymentUpper || $signedAmount < $paymentLower) return true;
+            if ($signedAmount > $paymentUpper || $signedAmount < $paymentLower) {
+                return true;
+            }
             $resulting = $balance + $signedAmount;
+
             return $resulting > $accountUpper || $resulting < $accountLower;
         };
 
         $depositSteps = array_map(
-            fn(int $cents) => ['amount' => $cents, 'disabled' => $stepDisabled($cents)],
+            fn (int $cents) => ['amount' => $cents, 'disabled' => $stepDisabled($cents)],
             (array) $this->settings->getOrDefault('payment.deposit.steps', [])
         );
         $dispenseSteps = array_map(
-            fn(int $cents) => ['amount' => -$cents, 'disabled' => $stepDisabled(-$cents)],
+            fn (int $cents) => ['amount' => -$cents, 'disabled' => $stepDisabled(-$cents)],
             (array) $this->settings->getOrDefault('payment.dispense.steps', [])
         );
 
@@ -135,7 +140,8 @@ class UserController extends AbstractController {
     }
 
     #[Route('/user/active/add', name: 'users_create', methods: ['GET', 'POST'])]
-    public function create(Request $request): Response {
+    public function create(Request $request): Response
+    {
         $form = $this->createForm(CreateUserType::class);
         $form->handleRequest($request);
 
@@ -152,6 +158,7 @@ class UserController extends AbstractController {
                 try {
                     $this->em->flush();
                     $this->addFlash('success', $this->translator->trans('user.create.success', ['%name%' => $user->getName()]));
+
                     return $this->redirectToRoute('users_detail', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
                 } catch (UniqueConstraintViolationException $e) {
                     // concurrent create won the race between findByName() and flush()
@@ -165,7 +172,8 @@ class UserController extends AbstractController {
     }
 
     #[Route('/user/{id}/edit', name: 'users_edit', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
-    public function edit(User $user, Request $request): Response {
+    public function edit(User $user, Request $request): Response
+    {
         $form = $this->createForm(EditUserType::class, [
             'name' => $user->getName(),
             'email' => $user->getEmail(),
@@ -191,10 +199,12 @@ class UserController extends AbstractController {
 
                     if (!$wasDisabled && $user->isDisabled()) {
                         $this->addFlash('success', $this->translator->trans('user.edit.disabled_success', ['%name%' => $user->getName()]));
+
                         return $this->redirectToRoute('users_active', [], Response::HTTP_SEE_OTHER);
                     }
 
                     $this->addFlash('success', $this->translator->trans('user.edit.success'));
+
                     return $this->redirectToRoute('users_detail', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
                 } catch (UniqueConstraintViolationException $e) {
                     // Name was taken between the findByName() check and flush().
@@ -208,5 +218,4 @@ class UserController extends AbstractController {
             'form' => $form,
         ]);
     }
-
 }

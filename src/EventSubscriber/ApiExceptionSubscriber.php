@@ -8,16 +8,17 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
-class ApiExceptionSubscriber implements EventSubscriberInterface {
-
-    static function getSubscribedEvents(): array {
+class ApiExceptionSubscriber implements EventSubscriberInterface
+{
+    public static function getSubscribedEvents(): array
+    {
         return [
             KernelEvents::EXCEPTION => 'onKernelException',
         ];
     }
 
-    function onKernelException(ExceptionEvent $event) {
-
+    public function onKernelException(ExceptionEvent $event)
+    {
         $exception = $event->getThrowable();
 
         if (!$exception instanceof ApiException) {

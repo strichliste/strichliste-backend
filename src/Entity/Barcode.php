@@ -10,8 +10,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\HasLifecycleCallbacks]
 #[ORM\Table(name: 'barcode')]
 #[ORM\UniqueConstraint(name: 'UNIQ_97AE026697AE0266', columns: ['barcode'])]
-class Barcode {
-
+class Barcode
+{
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
@@ -27,46 +27,55 @@ class Barcode {
     #[ORM\Column(type: 'datetime')]
     private ?\DateTime $created = null;
 
-    function __construct(string $barcode) {
+    public function __construct(string $barcode)
+    {
         $this->barcode = $barcode;
     }
 
-    function getId(): ?int {
+    public function getId(): ?int
+    {
         return $this->id;
     }
 
-    function getBarcode(): string {
+    public function getBarcode(): string
+    {
         return $this->barcode;
     }
 
-    function setBarcode(string $barcode): self {
+    public function setBarcode(string $barcode): self
+    {
         $this->barcode = $barcode;
 
         return $this;
     }
 
-    function getArticle(): Article {
+    public function getArticle(): Article
+    {
         return $this->article;
     }
 
-    function setArticle(Article $article): self {
+    public function setArticle(Article $article): self
+    {
         $this->article = $article;
 
         return $this;
     }
 
-    function getCreated(): ?\DateTime {
+    public function getCreated(): ?\DateTime
+    {
         return $this->created;
     }
 
-    function setCreated(\DateTime $created): self {
+    public function setCreated(\DateTime $created): self
+    {
         $this->created = $created;
 
         return $this;
     }
 
     #[ORM\PrePersist]
-    function setHistoryColumnsOnPrePersist(PrePersistEventArgs $event) {
+    public function setHistoryColumnsOnPrePersist(PrePersistEventArgs $event)
+    {
         if (!$this->getCreated()) {
             $this->setCreated(new \DateTime());
         }
