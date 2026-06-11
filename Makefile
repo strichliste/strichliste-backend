@@ -16,7 +16,7 @@ else
 endif
 
 .DEFAULT_GOAL := help
-.PHONY: help up down build logs sh test lint tls tls-linux tls-mac tls-windows
+.PHONY: help up down build logs sh test lint cs cs-fix tls tls-linux tls-mac tls-windows
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-12s\033[0m %s\n", $$1, $$2}'
@@ -42,6 +42,12 @@ lint: ## Run the twig/yaml/container lints (local PHP)
 	@$(PHP) bin/console lint:twig templates
 	@$(PHP) bin/console lint:yaml config translations
 	@$(PHP) bin/console lint:container
+
+cs: ## Check code style (php-cs-fixer, no changes)
+	@$(PHP) vendor/bin/php-cs-fixer fix --dry-run --diff
+
+cs-fix: ## Fix code style (php-cs-fixer)
+	@$(PHP) vendor/bin/php-cs-fixer fix
 
 ## —— TLS ——
 tls: tls-$(PLATFORM) ## Trust Caddy's local CA so https://localhost shows no warning
