@@ -16,7 +16,7 @@ else
 endif
 
 .DEFAULT_GOAL := help
-.PHONY: help up down build logs sh test lint cs cs-fix phpstan prettier prettier-fix tls tls-linux tls-mac tls-windows
+.PHONY: help up down build logs sh test lint cs cs-fix phpstan rector rector-fix prettier prettier-fix tls tls-linux tls-mac tls-windows
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-12s\033[0m %s\n", $$1, $$2}'
@@ -51,6 +51,12 @@ cs-fix: ## Fix code style (php-cs-fixer)
 
 phpstan: ## Static analysis (level 6, no baseline)
 	@$(PHP) vendor/bin/phpstan analyse --no-progress --memory-limit=1G
+
+rector: ## Preview rector transforms (dry-run)
+	@$(PHP) vendor/bin/rector process --dry-run
+
+rector-fix: ## Apply rector transforms
+	@$(PHP) vendor/bin/rector process
 
 prettier: ## Check css/js/twig formatting (prettier, no changes)
 	@npx prettier --check assets templates
