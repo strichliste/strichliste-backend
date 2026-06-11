@@ -16,7 +16,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -107,12 +106,7 @@ class ArticleController extends AbstractController {
     }
 
     #[Route('/articles/{id}/edit', name: 'articles_edit', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
-    public function edit(int $id, Request $request): Response {
-        $article = $this->articleRepository->find($id);
-        if (!$article) {
-            throw new NotFoundHttpException();
-        }
-
+    public function edit(Article $article, Request $request): Response {
         $form = $this->createForm(EditArticleType::class, [
             'name' => $article->getName(),
             'amount' => $article->getAmount() / 100,
@@ -147,16 +141,11 @@ class ArticleController extends AbstractController {
     }
 
     #[Route('/articles/{id}/delete', name: 'articles_delete', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
-    public function delete(int $id, Request $request): Response {
-        $article = $this->articleRepository->find($id);
-        if (!$article) {
-            throw new NotFoundHttpException();
-        }
-
+    public function delete(Article $article, Request $request): Response {
         if ($request->isMethod('POST')) {
             if (!$this->isCsrfTokenValid('delete_article' . $article->getId(), (string) $request->request->get('_token'))) {
                 $this->addFlash('error', $this->translator->trans('transactions.errors.generic'));
-                return $this->redirectToRoute('articles_delete', ['id' => $id], Response::HTTP_SEE_OTHER);
+                return $this->redirectToRoute('articles_delete', ['id' => $article->getId()], Response::HTTP_SEE_OTHER);
             }
             $article->setActive(false);
             $this->em->persist($article);

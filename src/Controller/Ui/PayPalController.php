@@ -2,10 +2,10 @@
 
 namespace App\Controller\Ui;
 
+use App\Entity\User;
 use App\Exception\AccountBalanceBoundaryException;
 use App\Exception\TransactionBoundaryException;
 use App\Exception\TransactionInvalidException;
-use App\Repository\UserRepository;
 use App\Service\MoneyParser;
 use App\Service\SettingsService;
 use App\Service\TransactionService;
@@ -30,7 +30,6 @@ class PayPalController extends AbstractController {
     private const PENDING_SESSION_KEY = 'paypal_pending';
 
     public function __construct(
-        private UserRepository $userRepository,
         private SettingsService $settings,
         private TransactionService $transactionService,
         private TranslatorInterface $translator,
@@ -42,30 +41,25 @@ class PayPalController extends AbstractController {
     }
 
     #[Route('/user/{id}/paypal/start', name: 'paypal_start', methods: ['POST'], requirements: ['id' => '\d+'])]
-    public function start(int $id, Request $request): Response {
+    public function start(User $user, Request $request): Response {
         if (!$this->settings->getOrDefault('paypal.enabled', false)) {
-            throw new NotFoundHttpException();
-        }
-
-        $user = $this->userRepository->find($id);
-        if (!$user) {
             throw new NotFoundHttpException();
         }
 
         if (!$this->isCsrfTokenValid('paypal_start' . $user->getId(), (string) $request->request->get('_token'))) {
             $this->addFlash('error', $this->translator->trans('transactions.errors.generic'));
-            return $this->redirectToRoute('users_detail', ['id' => $id], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('users_detail', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
         }
 
         if ($user->isDisabled()) {
             $this->addFlash('error', $this->translator->trans('transactions.errors.account_disabled'));
-            return $this->redirectToRoute('users_detail', ['id' => $id], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('users_detail', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
         }
 
         $cents = $this->moneyParser->parseToCents($request->request->get('amount'));
         if ($cents === null || $cents <= 0) {
             $this->addFlash('error', $this->translator->trans('split_invoice.errors.invalid_amount'));
-            return $this->redirectToRoute('users_detail', ['id' => $id], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('users_detail', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
         }
 
         // check the boundaries before the member pays PayPal, or the deposit is paid but never credited
@@ -73,7 +67,7 @@ class PayPalController extends AbstractController {
         $accountUpper = (int) $this->settings->getOrDefault('account.boundary.upper', PHP_INT_MAX);
         if ($cents > $paymentUpper || $user->getBalance() + $cents > $accountUpper) {
             $this->addFlash('error', $this->translator->trans('transactions.errors.boundary'));
-            return $this->redirectToRoute('users_detail', ['id' => $id], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('users_detail', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
         }
 
         $feePercent = (float) $this->settings->getOrDefault('paypal.fee', 0);
@@ -122,18 +116,13 @@ class PayPalController extends AbstractController {
     }
 
     #[Route('/user/{id}/paypal/return/{amount}', name: 'paypal_return_success', methods: ['GET'], requirements: ['id' => '\d+', 'amount' => '\d+'])]
-    public function returnSuccess(int $id, int $amount, Request $request): Response {
+    public function returnSuccess(User $user, int $amount, Request $request): Response {
         if (!$this->settings->getOrDefault('paypal.enabled', false)) {
             throw new NotFoundHttpException();
         }
 
         // unsigned or expired URLs would let anyone with the link deposit money on demand
         if (!$this->uriSigner->checkRequest($request)) {
-            throw new NotFoundHttpException();
-        }
-
-        $user = $this->userRepository->find($id);
-        if (!$user) {
             throw new NotFoundHttpException();
         }
 
@@ -166,15 +155,11 @@ class PayPalController extends AbstractController {
     }
 
     #[Route('/user/{id}/paypal/return/{amount}/error', name: 'paypal_return_cancel', methods: ['GET'], requirements: ['id' => '\d+', 'amount' => '\d+'])]
-    public function returnCancel(int $id, int $amount, Request $request): Response {
+    public function returnCancel(User $user, int $amount, Request $request): Response {
         if (!$this->settings->getOrDefault('paypal.enabled', false)) {
             throw new NotFoundHttpException();
         }
         if (!$this->uriSigner->checkRequest($request)) {
-            throw new NotFoundHttpException();
-        }
-        $user = $this->userRepository->find($id);
-        if (!$user) {
             throw new NotFoundHttpException();
         }
         return $this->render('paypal/cancel.html.twig', ['user' => $user]);

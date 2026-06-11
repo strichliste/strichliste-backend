@@ -2,6 +2,7 @@
 
 namespace App\Controller\Ui;
 
+use App\Entity\User;
 use App\Exception\AccountBalanceBoundaryException;
 use App\Exception\TransactionBoundaryException;
 use App\Exception\TransactionInvalidException;
@@ -11,7 +12,6 @@ use App\Exception\UserNotFoundException;
 use App\Form\CreateTransactionType;
 use App\Form\TransferTransactionType;
 use App\Repository\TransactionRepository;
-use App\Repository\UserRepository;
 use App\Service\MoneyParser;
 use App\Service\TransactionService;
 use Psr\Log\LoggerInterface;
@@ -25,7 +25,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class TransactionWriteController extends AbstractController {
 
     public function __construct(
-        private UserRepository $userRepository,
         private TransactionService $transactionService,
         private TransactionRepository $transactionRepository,
         private TranslatorInterface $translator,
@@ -34,12 +33,7 @@ class TransactionWriteController extends AbstractController {
     }
 
     #[Route('/user/{id}/transactions/create', name: 'transactions_create', methods: ['POST'], requirements: ['id' => '\d+'])]
-    public function create(int $id, Request $request): Response {
-        $user = $this->userRepository->find($id);
-        if (!$user) {
-            throw new NotFoundHttpException();
-        }
-
+    public function create(User $user, Request $request): Response {
         // the forms are hidden for disabled users, but enforce it on the POST too
         if ($user->isDisabled()) {
             $this->addFlash('error', $this->translator->trans('transactions.errors.account_disabled'));
@@ -82,12 +76,7 @@ class TransactionWriteController extends AbstractController {
     }
 
     #[Route('/user/{id}/transactions/transfer', name: 'transactions_transfer', methods: ['POST'], requirements: ['id' => '\d+'])]
-    public function transfer(int $id, Request $request): Response {
-        $user = $this->userRepository->find($id);
-        if (!$user) {
-            throw new NotFoundHttpException();
-        }
-
+    public function transfer(User $user, Request $request): Response {
         if ($user->isDisabled()) {
             $this->addFlash('error', $this->translator->trans('transactions.errors.account_disabled'));
             return $this->redirectToRoute('users_detail', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
@@ -138,12 +127,7 @@ class TransactionWriteController extends AbstractController {
     }
 
     #[Route('/user/{id}/transactions/{txId}/undo', name: 'transactions_undo', methods: ['POST'], requirements: ['id' => '\d+', 'txId' => '\d+'])]
-    public function undo(int $id, int $txId, Request $request): Response {
-        $user = $this->userRepository->find($id);
-        if (!$user) {
-            throw new NotFoundHttpException();
-        }
-
+    public function undo(User $user, int $txId, Request $request): Response {
         if (!$this->isCsrfTokenValid('undo' . $user->getId() . '_' . $txId, (string) $request->request->get('_token'))) {
             $this->addFlash('error', $this->translator->trans('transactions.errors.generic'));
             return $this->redirectToRoute('users_detail', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);

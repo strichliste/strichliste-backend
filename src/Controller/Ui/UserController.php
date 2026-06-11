@@ -18,7 +18,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -38,12 +37,7 @@ class UserController extends AbstractController {
     }
 
     #[Route('/user/{id}', name: 'users_detail', methods: ['GET'], requirements: ['id' => '\d+'])]
-    public function detail(int $id, Request $request): Response {
-        $user = $this->userRepository->find($id);
-        if (!$user) {
-            throw new NotFoundHttpException();
-        }
-
+    public function detail(User $user, Request $request): Response {
         // no tab by default; article.autoOpen forces the buy tab only when no ?tab= is present at all
         $tab = $request->query->get('tab');
         if ($tab !== null && !in_array($tab, self::TABS, true)) {
@@ -172,12 +166,7 @@ class UserController extends AbstractController {
     }
 
     #[Route('/user/{id}/edit', name: 'users_edit', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
-    public function edit(int $id, Request $request): Response {
-        $user = $this->userRepository->find($id);
-        if (!$user) {
-            throw new NotFoundHttpException();
-        }
-
+    public function edit(User $user, Request $request): Response {
         $form = $this->createForm(EditUserType::class, [
             'name' => $user->getName(),
             'email' => $user->getEmail(),

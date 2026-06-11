@@ -2,19 +2,17 @@
 
 namespace App\Controller\Ui;
 
-use App\Repository\UserRepository;
+use App\Entity\User;
 use App\Service\MetricsService;
 use App\Service\SettingsService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 
 class MetricsController extends AbstractController {
 
     public function __construct(
         private MetricsService $metrics,
-        private UserRepository $userRepository,
         private SettingsService $settings,
     ) {
     }
@@ -31,12 +29,7 @@ class MetricsController extends AbstractController {
     }
 
     #[Route('/user/{id}/metrics', name: 'metrics_user', methods: ['GET'], requirements: ['id' => '\d+'])]
-    public function user(int $id): Response {
-        $user = $this->userRepository->find($id);
-        if (!$user) {
-            throw new NotFoundHttpException();
-        }
-
+    public function user(User $user): Response {
         return $this->render('metrics/user.html.twig', [
             'user' => $user,
             'articles' => $this->metrics->userArticles($user, 10),
