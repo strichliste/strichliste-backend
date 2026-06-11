@@ -26,6 +26,10 @@ export default defineConfig({
         command: PHP_SERVER,
         url: 'http://127.0.0.1:8765/user/active',
         reuseExistingServer: false,
+        // the dev server logs every request to stderr and drowns the test
+        // reporter; flip to 'pipe' when debugging server-side errors
+        stdout: 'ignore',
+        stderr: 'ignore',
         env: {
             DATABASE_URL: 'sqlite:///%kernel.project_dir%/var/e2e.db',
             APP_ENV: 'dev',
