@@ -93,16 +93,34 @@ class SplitInvoiceController extends AbstractController {
             $errors[] = $this->translator->trans('split_invoice.errors.invalid_amount');
         }
 
-        $cleanParticipants = $this->resolveParticipants($participantIds, $recipientId, $rowErrors);
+        $cleanParticipants = $this->resolveParticipants($participantIds, $rowErrors);
 
         if (count($cleanParticipants) === 0 && !$errors && !$rowErrors) {
             $errors[] = $this->translator->trans('split_invoice.errors.no_participants');
         }
 
+        // equal shares across everyone listed, the payer included; the payer's own
+        // share isn't transferred — it already belongs to them
+        $debtors = [];
+        $debtorAmounts = [];
+        if ($recipient) {
+            $shares = $this->distributeAmount($amountCents ?? 0, max(1, count($cleanParticipants)));
+            $i = 0;
+            foreach ($cleanParticipants as $participant) {
+                if ($participant->getId() !== $recipient->getId()) {
+                    $debtors[] = $participant;
+                    $debtorAmounts[] = $shares[$i];
+                }
+                $i++;
+            }
+            if ($debtors === [] && count($cleanParticipants) > 0 && !$errors && !$rowErrors) {
+                $errors[] = $this->translator->trans('split_invoice.errors.only_payer');
+            }
+        }
+
         if (!$errors && !$rowErrors && $recipient) {
-            $perRowAmounts = $this->distributeAmount($amountCents, count($cleanParticipants));
             try {
-                $this->transactionService->doSplit(array_values($cleanParticipants), $recipient, $perRowAmounts, $comment);
+                $this->transactionService->doSplit($debtors, $recipient, $debtorAmounts, $comment);
                 $this->addFlash('success', $this->translator->trans('split_invoice.flash.success', [
                     '%count%' => count($cleanParticipants),
                     '%total%' => $this->appExtension->currencyFormat($amountCents, null, false),
@@ -122,14 +140,10 @@ class SplitInvoiceController extends AbstractController {
      * @param int[] $participantIds
      * @return array<int, User> keyed by original row index
      */
-    private function resolveParticipants(array $participantIds, int $recipientId, array &$rowErrors): array {
+    private function resolveParticipants(array $participantIds, array &$rowErrors): array {
         $clean = [];
         foreach ($participantIds as $idx => $pid) {
             if ($pid <= 0) {
-                continue;
-            }
-            if ($pid === $recipientId) {
-                $rowErrors[$idx] = $this->translator->trans('split_invoice.errors.recipient_in_participants');
                 continue;
             }
             $p = $this->userRepository->find($pid);

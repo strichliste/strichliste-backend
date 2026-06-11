@@ -201,6 +201,8 @@ search:
 
 split_invoice:
     title: Split Invoice
+    help: The amount is split evenly between everyone listed; each share is booked as owed to the payer. The payer can be on the list too — their own share simply stays with them.
+    preview: '≈ %share% per person'
     fields:
         amount_placeholder: amount
         comment_placeholder: comment
@@ -218,7 +220,7 @@ split_invoice:
         rolled_back: No transfers created. Fix the highlighted rows and submit again.
     errors:
         recipient_missing: Pick a valid recipient.
-        recipient_in_participants: Recipient cannot also be a participant.
+        only_payer: Add at least one person besides the payer.
         no_participants: Pick at least one participant.
         invalid_amount: Total amount must be positive.
 

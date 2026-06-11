@@ -5,6 +5,7 @@
 {% block main %}
 <div class="split-invoice-wrapper">
     <h1 class="split-invoice__title">{{ 'split_invoice.title'|trans }}</h1>
+    <p class="split-invoice-help">{{ 'split_invoice.help'|trans }}</p>
 
     {# announced via the persistent live regions (flash controller) — a swapped-in
        role=alert isn't reliably read, and the role here would double-announce #}
@@ -16,7 +17,12 @@
         </div>
     {% endif %}
 
-    <form method="post" class="split-invoice-form">
+    <form method="post" class="split-invoice-form"
+          data-controller="split-participants"
+          data-split-participants-row-label-value="{{ 'split_invoice.participants.row_label'|trans }}"
+          data-split-participants-remove-label-value="{{ 'split_invoice.participants.remove'|trans }}"
+          data-split-participants-preview-label-value="{{ 'split_invoice.preview'|trans }}"
+          data-split-participants-currency-value="{{ setting('i18n.currency.symbol', '€') }}">
         <input type="hidden" name="_token" value="{{ csrf_token('split_invoice') }}">
         {# catches implicit Enter submission — must precede the add_row submit.
            display:none, not aria-hidden: engines repair aria-hidden buttons into nameless ghosts. #}
@@ -31,7 +37,8 @@
                    placeholder="{{ 'split_invoice.fields.amount_placeholder'|trans }}"
                    value="{{ formData.amount_major }}"
                    required
-                   aria-label="{{ 'split_invoice.fields.amount_placeholder'|trans }}">
+                   aria-label="{{ 'split_invoice.fields.amount_placeholder'|trans }}"
+                   aria-describedby="split-preview">
             <div class="split-invoice-conj">{{ 'split_invoice.fields.with'|trans }}</div>
             <select class="split-invoice-pick"
                     id="recipient"
@@ -56,10 +63,7 @@
 
         <div class="split-invoice-conj split-invoice-conj--block">{{ 'split_invoice.fields.and'|trans }}</div>
 
-        <div class="split-invoice-participants"
-             data-controller="split-participants"
-             data-split-participants-row-label-value="{{ 'split_invoice.participants.row_label'|trans }}"
-             data-split-participants-remove-label-value="{{ 'split_invoice.participants.remove'|trans }}">
+        <div class="split-invoice-participants">
 
             <ul class="split-invoice-participants-list" data-split-participants-target="list">
                 {% for idx, p in formData.participants %}
@@ -113,6 +117,9 @@
                 {{ 'split_invoice.participants.add'|trans }}
             </button>
         </div>
+
+        {# JS-only per-head preview; the help line above carries the no-JS explanation #}
+        <p class="split-invoice-preview" id="split-preview" data-split-participants-target="preview" hidden></p>
 
         <div class="split-invoice-actions">
             <twig:AcceptCheck label="{{ 'split_invoice.submit'|trans }}" />

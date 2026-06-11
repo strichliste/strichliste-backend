@@ -201,6 +201,8 @@ search:
 
 split_invoice:
     title: Rechnung teilen
+    help: Der Betrag wird gleichmäßig auf alle in der Liste verteilt; jeder Anteil wird als Schuld an den Zahler gebucht. Der Zahler darf selbst in der Liste stehen — sein Anteil bleibt einfach bei ihm.
+    preview: '≈ %share% pro Person'
     fields:
         amount_placeholder: Betrag
         comment_placeholder: Kommentar
@@ -218,7 +220,7 @@ split_invoice:
         rolled_back: Keine Überweisungen angelegt. Korrigiere die markierten Zeilen und sende erneut.
     errors:
         recipient_missing: Wähle einen gültigen Empfänger.
-        recipient_in_participants: Der Empfänger kann nicht gleichzeitig Teilnehmer sein.
+        only_payer: Füge mindestens eine weitere Person neben dem Zahler hinzu.
         no_participants: Wähle mindestens einen Teilnehmer.
         invalid_amount: Der Gesamtbetrag muss positiv sein.
 

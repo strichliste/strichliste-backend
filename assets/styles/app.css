@@ -1505,6 +1505,22 @@ body { padding-top: 4rem; }
   color: var(--text);
   margin: 0 0 1rem;
 }
+
+.split-invoice-help {
+  text-align: center;
+  color: var(--textSubtile);
+  font-size: 0.85rem;
+  margin: 0 0 1.5rem;
+}
+
+.split-invoice-preview {
+  text-align: center;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+  margin: 1rem 0 0;
+}
+
 .split-invoice-form {
   display: block;
 }
