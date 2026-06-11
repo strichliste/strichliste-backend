@@ -16,7 +16,7 @@ else
 endif
 
 .DEFAULT_GOAL := help
-.PHONY: help up down build logs sh test lint cs cs-fix tls tls-linux tls-mac tls-windows
+.PHONY: help up down build logs sh test lint cs cs-fix prettier prettier-fix tls tls-linux tls-mac tls-windows
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-12s\033[0m %s\n", $$1, $$2}'
@@ -48,6 +48,12 @@ cs: ## Check code style (php-cs-fixer, no changes)
 
 cs-fix: ## Fix code style (php-cs-fixer)
 	@$(PHP) vendor/bin/php-cs-fixer fix
+
+prettier: ## Check css/js/twig formatting (prettier, no changes)
+	@npx prettier --check assets templates
+
+prettier-fix: ## Format css/js/twig (prettier)
+	@npx prettier --write assets templates
 
 ## —— TLS ——
 tls: tls-$(PLATFORM) ## Trust Caddy's local CA so https://localhost shows no warning

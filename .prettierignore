@@ -1,0 +1,8 @@
+assets/vendor/
+public/assets/
+var/
+vendor/
+node_modules/
+# parser-hostile twig: dynamic tag name / JSON data island in <script>
+templates/components/CancelCircle.html.twig
+templates/metrics/global.html.twig
