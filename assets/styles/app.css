@@ -991,8 +991,8 @@ body { padding-top: 4rem; }
 
 .step-grid {
   display: grid;
-  /* auto-fit: a rigid 3-up clipped the third button at 320px */
-  grid-template-columns: repeat(auto-fit, minmax(4.5rem, 1fr));
+  /* 3-up like the SPA; fits 320px only with the smaller button font below */
+  grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
 }
 
@@ -1004,10 +1004,12 @@ body { padding-top: 4rem; }
   display: block;
   width: 100%;
   padding: 0.5rem;
+  /* 44px touch target */
+  min-height: 2.444rem;
   border: 0;
   border-radius: var(--borderRadius);
   font-family: inherit;
-  font-size: 0.95rem;
+  font-size: 0.75rem;
   font-weight: 500;
   cursor: pointer;
   font-variant-numeric: tabular-nums;
@@ -1027,74 +1029,72 @@ body { padding-top: 4rem; }
 .step-btn:hover:not(:disabled) { filter: brightness(0.97); }
 .step-btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
-details.custom-form {
-  margin: 0;
-}
-details.custom-form summary {
-  cursor: pointer;
-  font-size: 0.75rem;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--textSubtile);
-  padding: 0.5rem 0;
-  text-align: center;
-  list-style: none;
-}
-details.custom-form summary::-webkit-details-marker { display: none; }
-details.custom-form[open] summary { color: var(--text); }
-
-.custom-form__bar {
+/* always-visible custom row between the step grids, like the SPA: − amount + */
+.custom-form {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
-  grid-template-areas:
-    'deposit amount dispense'
-    'comment comment comment';
-  gap: 0.5rem;
-  align-items: stretch;
-  padding: 0.5rem 0 0.75rem;
+  gap: 0.75rem;
+  align-items: center;
 }
 
-.custom-form__bar .btn--green { grid-area: deposit; }
-.custom-form__bar .btn--red { grid-area: dispense; }
-.custom-form__amount { grid-area: amount; }
-.custom-form__comment { grid-area: comment; }
-
-@media (max-width: 36em) {
-  .custom-form__bar {
-    grid-template-columns: 1fr 1fr;
-    grid-template-areas:
-      'amount amount'
-      'deposit dispense'
-      'comment comment';
-  }
+.custom-form__fab {
+  /* 44px touch target (the SPA used 40px circles) */
+  width: 2.444rem;
+  height: 2.444rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--textSubtile);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--textSubtile);
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
 }
 
-.custom-form__submit {
-  white-space: nowrap;
+/* the circles take their direction color once an amount is typed, like the SPA */
+.custom-form:has(.custom-form__amount:not(:placeholder-shown)) .custom-form__fab--green {
+  border-color: var(--greenText);
+  color: var(--greenText);
+}
+.custom-form:has(.custom-form__amount:not(:placeholder-shown)) .custom-form__fab--red {
+  border-color: var(--redText);
+  color: var(--redText);
 }
 
 .custom-form__amount {
   width: 100%;
   text-align: center;
   font-variant-numeric: tabular-nums;
-}
-
-
-
-/* grey tint — the inputs sit on the white step card and need their own surface */
-.custom-form__amount,
-.custom-form__comment {
-  padding: 0.5rem 0.75rem;
-  background: var(--mainBackground);
-  border: 1px solid var(--inputBorder);
-  border-radius: var(--borderRadius);
+  font-size: 0.889rem; /* >= 16px: avoid iOS zoom-on-focus */
+  padding: 0.65rem 0.25rem;
+  background: transparent;
+  border: 0;
   color: var(--text);
 }
 
-.custom-form__amount::placeholder,
-.custom-form__comment::placeholder {
+.custom-form__amount::placeholder {
   color: var(--textSubtile);
+  text-transform: uppercase;
+  font-size: 0.75rem;
+}
+
+/* 320px phones: the 3-up grid overflows the card and the circles starve the
+   amount field — go 2-up and stack the custom row instead */
+@media (max-width: 22.5em) {
+  .step-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .custom-form {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      'amount amount'
+      'minus plus';
+  }
+  .custom-form__amount { grid-area: amount; }
+  .custom-form__fab--red { grid-area: minus; justify-self: start; }
+  .custom-form__fab--green { grid-area: plus; justify-self: end; }
 }
 
 /* ---------- send-money tab ---------- */
@@ -1550,7 +1550,7 @@ details.custom-form[open] summary { color: var(--text); }
 }
 
 /* invisible default submit: display:none still receives implicit Enter submission */
-.split-invoice-form .default-submit {
+.default-submit {
   display: none;
 }
 

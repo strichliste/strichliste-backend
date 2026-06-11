@@ -21,36 +21,32 @@
     {% endif %}
 
     {% if send.deposit_custom or send.dispense_custom %}
-        <details class="custom-form" data-controller="disclosure">
-            <summary>{{ 'transactions.custom_amount'|trans }}</summary>
-            {%- set form = send.custom_form -%}
-            {{ form_start(form, {action: path('transactions_create', {id: user.id}), attr: {class: 'custom-form__bar', 'data-controller': 'disable-on-submit'}}) }}
-                {% if send.deposit_custom %}
-                    <button type="submit" class="btn btn--green custom-form__submit"
-                            name="{{ form.direction.vars.full_name }}" value="deposit">{{ 'transactions.deposit.submit'|trans }}</button>
-                {% endif %}
-                <input type="text"
-                       inputmode="decimal"
-                       required
-                       class="custom-form__amount"
-                       name="{{ form.amount.vars.full_name }}"
-                       id="{{ form.amount.vars.id }}"
-                       placeholder="0.00"
-                       aria-label="{{ 'transactions.amount_label'|trans }}">
-                {% if send.dispense_custom %}
-                    <button type="submit" class="btn btn--red custom-form__submit"
-                            name="{{ form.direction.vars.full_name }}" value="dispense">{{ 'transactions.dispense.submit'|trans }}</button>
-                {% endif %}
-                <input type="text"
-                       class="custom-form__comment"
-                       name="{{ form.comment.vars.full_name }}"
-                       id="{{ form.comment.vars.id }}"
-                       maxlength="255"
-                       placeholder="{{ 'transactions.comment_label'|trans }}"
-                       aria-label="{{ 'transactions.comment_label'|trans }}">
-                {{ form_widget(form._token) }}
-            {{ form_end(form, {render_rest: false}) }}
-        </details>
+        {%- set form = send.custom_form -%}
+        {{ form_start(form, {action: path('transactions_create', {id: user.id}), attr: {class: 'custom-form', 'data-controller': 'disable-on-submit'}}) }}
+            {# catches implicit Enter in the amount field — must precede the − submit #}
+            <button type="submit" class="default-submit" tabindex="-1"
+                    name="{{ form.direction.vars.full_name }}"
+                    value="{{ send.deposit_custom ? 'deposit' : 'dispense' }}"></button>
+            {% if send.dispense_custom %}
+                <button type="submit" class="custom-form__fab custom-form__fab--red"
+                        name="{{ form.direction.vars.full_name }}" value="dispense"
+                        aria-label="{{ 'transactions.dispense.submit'|trans }}">&minus;</button>
+            {% endif %}
+            <input type="text"
+                   inputmode="decimal"
+                   required
+                   class="custom-form__amount"
+                   name="{{ form.amount.vars.full_name }}"
+                   id="{{ form.amount.vars.id }}"
+                   placeholder="{{ 'transactions.custom_amount'|trans }}"
+                   aria-label="{{ 'transactions.amount_label'|trans }}">
+            {% if send.deposit_custom %}
+                <button type="submit" class="custom-form__fab custom-form__fab--green"
+                        name="{{ form.direction.vars.full_name }}" value="deposit"
+                        aria-label="{{ 'transactions.deposit.submit'|trans }}">+</button>
+            {% endif %}
+            {{ form_widget(form._token) }}
+        {{ form_end(form, {render_rest: false}) }}
     {% endif %}
 
     {% if send.dispense_enabled %}
