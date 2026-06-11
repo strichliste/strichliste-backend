@@ -75,7 +75,6 @@ main:focus {
 }
 
 /* visually hidden but exposed to screen readers */
-.sr-only,
 .visually-hidden {
   position: absolute;
   width: 1px;
@@ -101,8 +100,10 @@ main:focus {
 
 html {
   --borderRadius: 4px;
-  /* round icon button diameter; 2.444rem = 44px touch target */
-  --fab-size: 2.444rem;
+  /* 44px touch-target floor at the 112.5% root */
+  --touch-target: 2.444rem;
+  /* round icon button diameter */
+  --fab-size: var(--touch-target);
   --buttonDisabled: #bababa;
   --border: #e5e6e5;
   --componentBackgroundDark: #fff;
@@ -266,10 +267,6 @@ input[type='checkbox'], input[type='radio'] {
 textarea {
   overflow: auto;
 }
-body {
-  min-height: 100vh;
-}
-
 input {
   padding: 0.5rem;
   font-family: 'Inter', sans-serif;

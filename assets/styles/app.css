@@ -71,14 +71,11 @@ body { padding-top: 4rem; }
   padding: 0.4rem 0;
   color: var(--textSubtile);
   font-size: 0.8rem;
-  background: transparent;
-  border-radius: 0;
 }
 
 .app-header__nav a:hover,
 .app-header__nav a[aria-current="page"] {
   color: var(--primary);
-  background: transparent;
 }
 
 /* phone-only burger, see the 36em block */
@@ -118,9 +115,8 @@ body { padding-top: 4rem; }
 .app-header__search button {
   background: transparent;
   border: 0;
-  /* 44px touch target */
-  min-width: 2.444rem;
-  min-height: 2.444rem;
+  min-width: var(--touch-target);
+  min-height: var(--touch-target);
   padding: 0;
   color: var(--text);
   cursor: pointer;
@@ -156,9 +152,8 @@ body { padding-top: 4rem; }
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    /* 44px touch target */
-    min-width: 2.444rem;
-    min-height: 2.444rem;
+    min-width: var(--touch-target);
+    min-height: var(--touch-target);
     cursor: pointer;
     color: var(--text);
     list-style: none;
@@ -231,12 +226,6 @@ body { padding-top: 4rem; }
   color: var(--redText);
 }
 
-.flash--info {
-  background: var(--componentBackgroundLight);
-  color: var(--text);
-  border: 1px solid var(--border);
-}
-
 /* ---------- card ---------- */
 .card {
   background: var(--componentBackgroundLight);
@@ -285,7 +274,6 @@ body { padding-top: 4rem; }
   font-size: 1rem;
   font-weight: 400;
   text-transform: uppercase;
-  background: transparent;
 }
 
 .tabs a:last-child {
@@ -328,16 +316,6 @@ body { padding-top: 4rem; }
   border-color: transparent;
 }
 
-.btn--green {
-  background: var(--buttonGreenBackground);
-  color: var(--buttonGreenFont);
-  border-color: transparent;
-}
-
-.btn--green:hover:not(:disabled) {
-  filter: brightness(0.97);
-}
-
 .btn--red {
   background: var(--buttonRedBackground);
   color: var(--buttonRedFont);
@@ -346,12 +324,6 @@ body { padding-top: 4rem; }
 
 .btn--red:hover:not(:disabled) {
   filter: brightness(0.97);
-}
-
-.btn--cancel {
-  background: var(--buttonCancelBackground);
-  color: var(--buttonCancelFont);
-  border-color: transparent;
 }
 
 .btn--add {
@@ -405,12 +377,9 @@ body { padding-top: 4rem; }
 /* ---------- balance pill ---------- */
 .balance-pill {
   display: inline-block;
-  padding: 0;
-  border-radius: 0;
   font-weight: 600;
   font-size: 1rem;
   font-variant-numeric: tabular-nums;
-  background: transparent;
   /* don't let sign/symbol/number wrap in narrow user-card columns */
   white-space: nowrap;
 }
@@ -608,12 +577,18 @@ body { padding-top: 4rem; }
     max-width: 60rem;
   }
 }
-.article-form label {
+/* shared form-label typography; the three blocks below keep only their spacing */
+.article-form label,
+.form-card label,
+.edit-form__checkbox-row label {
   font-size: 0.85rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: var(--textSubtile);
+}
+
+.article-form label {
   display: block;
   margin: 1.25rem 0 0.5rem;
 }
@@ -637,11 +612,6 @@ body { padding-top: 4rem; }
 }
 
 .form-card label {
-  font-size: 0.85rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--textSubtile);
   margin-bottom: 0.5rem;
   margin-top: 1.25rem;
 }
@@ -729,11 +699,6 @@ body { padding-top: 4rem; }
 }
 .edit-form__checkbox-row label {
   margin: 0;
-  font-size: 0.85rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--textSubtile);
 }
 .edit-form__checkbox-row input[type="checkbox"] {
   width: 1rem;
@@ -820,7 +785,6 @@ body { padding-top: 4rem; }
 }
 
 .transfer-address--to { color: var(--greenText); }
-.transfer-address--from { color: var(--text); }
 /* underlined: color alone can't distinguish these from body text */
 .transfer-address a { color: inherit; text-decoration: underline; }
 
@@ -1004,8 +968,7 @@ body { padding-top: 4rem; }
   display: block;
   width: 100%;
   padding: 0.5rem;
-  /* 44px touch target */
-  min-height: 2.444rem;
+  min-height: var(--touch-target);
   border: 0;
   border-radius: var(--borderRadius);
   font-family: inherit;
@@ -1038,9 +1001,8 @@ body { padding-top: 4rem; }
 }
 
 .custom-form__fab {
-  /* 44px touch target (the SPA used 40px circles) */
-  width: 2.444rem;
-  height: 2.444rem;
+  width: var(--touch-target);
+  height: var(--touch-target);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1191,11 +1153,10 @@ body { padding-top: 4rem; }
 .undo-form { display: contents; }
 
 .undo-btn {
-  /* 44px hit area — destructive money action on a touch kiosk. The negative
-     block margin keeps it from making undoable rows taller than the rest;
-     the hit area overlaps the row's own padding instead. */
-  min-width: 2.444rem;
-  min-height: 2.444rem;
+  /* the negative block margin keeps the hit area from making undoable rows
+     taller than the rest; it overlaps the row's own padding instead */
+  min-width: var(--touch-target);
+  min-height: var(--touch-target);
   margin-block: -0.75rem;
   display: inline-flex;
   align-items: center;
@@ -1210,7 +1171,6 @@ body { padding-top: 4rem; }
 .undo-btn:hover { color: var(--text); }
 
 /* recent-tx column on user-detail */
-.recent-tx { margin-top: 0; }
 .recent-tx__footer {
   display: flex;
   flex-wrap: wrap;
@@ -1303,7 +1263,7 @@ body { padding-top: 4rem; }
   margin: 0.5rem;
   background: var(--componentBackgroundLight);
   border: 0;
-  border-radius: 4px;
+  border-radius: var(--borderRadius);
   box-shadow: var(--level1);
   font-size: 1rem;
   font-weight: 400;
@@ -1357,8 +1317,8 @@ body { padding-top: 4rem; }
   align-items: center;
   justify-content: center;
   /* 44px touch target; the red circle draws smaller via background-clip */
-  width: 2.444rem;
-  height: 2.444rem;
+  width: var(--touch-target);
+  height: var(--touch-target);
   padding: 0.475rem;
   background-clip: content-box;
   border-radius: 50%;

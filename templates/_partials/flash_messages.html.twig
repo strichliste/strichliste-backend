@@ -1,5 +1,5 @@
 {# app.flashes() returns empty types too — drop them or the wrapper renders on every page #}
-{% set _flashes = app.flashes(['success', 'error', 'info'])|filter(messages => messages is not empty) %}
+{% set _flashes = app.flashes(['success', 'error'])|filter(messages => messages is not empty) %}
 {% if _flashes is not empty %}
     {# visual list only — announcement goes through the persistent live regions in
        base.html.twig; data-turbo-temporary keeps stale flashes out of the snapshot cache #}
