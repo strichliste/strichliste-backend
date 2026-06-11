@@ -14,12 +14,9 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 class UserCleanupCommand extends Command
 {
-    private EntityManagerInterface $entityManager;
-
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(private readonly EntityManagerInterface $entityManager)
     {
         parent::__construct();
-        $this->entityManager = $entityManager;
     }
 
     protected function configure(): void

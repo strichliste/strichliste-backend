@@ -18,9 +18,6 @@ class Tag
     #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
-    #[ORM\Column(type: 'string', nullable: false)]
-    private string $tag = '';
-
     /** @var Collection<int, ArticleTag> */
     #[ORM\OneToMany(targetEntity: ArticleTag::class, mappedBy: 'tag', cascade: ['persist', 'remove'], fetch: 'EAGER')]
     private Collection $articleTags;
@@ -28,9 +25,9 @@ class Tag
     #[ORM\Column(type: 'datetime')]
     private ?\DateTime $created = null;
 
-    public function __construct(string $tag = '')
+    public function __construct(#[ORM\Column(type: 'string', nullable: false)]
+        private string $tag = '')
     {
-        $this->tag = $tag;
         $this->articleTags = new ArrayCollection();
     }
 
@@ -56,9 +53,7 @@ class Tag
      */
     public function getArticles(): array
     {
-        return array_map(function (ArticleTag $articleTag) {
-            return $articleTag->getArticle();
-        }, $this->articleTags->getValues());
+        return array_map(fn (ArticleTag $articleTag) => $articleTag->getArticle(), $this->articleTags->getValues());
     }
 
     public function getUsageCount(): int

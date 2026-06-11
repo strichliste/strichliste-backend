@@ -27,7 +27,7 @@ class ApiExceptionSubscriber implements EventSubscriberInterface
 
         // frozen legacy envelope: clients key off `class`, even in prod
         $error = [
-            'class' => get_class($exception),
+            'class' => $exception::class,
             'code' => $exception->getCode(),
             'message' => $exception->getMessage(),
         ];

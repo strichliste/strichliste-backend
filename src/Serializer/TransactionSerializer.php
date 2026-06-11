@@ -7,17 +7,8 @@ use App\Service\TransactionService;
 
 class TransactionSerializer
 {
-    private TransactionService $transactionService;
-
-    private UserSerializer $userSerializer;
-
-    private ArticleSerializer $articleSerializer;
-
-    public function __construct(TransactionService $transactionService, UserSerializer $userSerializer, ArticleSerializer $articleSerializer)
+    public function __construct(private readonly TransactionService $transactionService, private readonly UserSerializer $userSerializer, private readonly ArticleSerializer $articleSerializer)
     {
-        $this->transactionService = $transactionService;
-        $this->userSerializer = $userSerializer;
-        $this->articleSerializer = $articleSerializer;
     }
 
     /**

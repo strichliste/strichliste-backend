@@ -11,8 +11,8 @@ use Symfony\Component\HttpFoundation\Request;
 class ArticleService
 {
     public function __construct(
-        private TransactionRepository $transactionRepository,
-        private EntityManagerInterface $entityManager,
+        private readonly TransactionRepository $transactionRepository,
+        private readonly EntityManagerInterface $entityManager,
     ) {
     }
 

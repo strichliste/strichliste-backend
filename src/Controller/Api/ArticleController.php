@@ -21,11 +21,8 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/api/article')]
 class ArticleController extends AbstractController
 {
-    private ArticleSerializer $articleSerializer;
-
-    public function __construct(ArticleSerializer $articleSerializer)
+    public function __construct(private readonly ArticleSerializer $articleSerializer)
     {
-        $this->articleSerializer = $articleSerializer;
     }
 
     #[Route(methods: ['GET'])]
@@ -71,9 +68,7 @@ class ArticleController extends AbstractController
 
         return $this->json([
             'count' => $articleRepository->countActive(),
-            'articles' => array_map(function (Article $article) {
-                return $this->articleSerializer->serialize($article);
-            }, $articles),
+            'articles' => array_map(fn (Article $article) => $this->articleSerializer->serialize($article), $articles),
         ]);
     }
 
@@ -141,9 +136,7 @@ class ArticleController extends AbstractController
 
         return $this->json([
             'count' => count($results),
-            'articles' => array_map(function (Article $article) {
-                return $this->articleSerializer->serialize($article);
-            }, $results),
+            'articles' => array_map(fn (Article $article) => $this->articleSerializer->serialize($article), $results),
         ]);
     }
 

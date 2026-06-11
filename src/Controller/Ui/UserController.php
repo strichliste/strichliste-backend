@@ -24,13 +24,13 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class UserController extends AbstractController
 {
     public function __construct(
-        private UserRepository $userRepository,
-        private TransactionRepository $transactionRepository,
-        private SettingsService $settings,
-        private EntityManagerInterface $em,
-        private TransactionService $transactionService,
-        private ArticleRepository $articleRepository,
-        private TranslatorInterface $translator,
+        private readonly UserRepository $userRepository,
+        private readonly TransactionRepository $transactionRepository,
+        private readonly SettingsService $settings,
+        private readonly EntityManagerInterface $em,
+        private readonly TransactionService $transactionService,
+        private readonly ArticleRepository $articleRepository,
+        private readonly TranslatorInterface $translator,
     ) {
     }
 
@@ -155,14 +155,14 @@ class UserController extends AbstractController
             if ($existing) {
                 $form->get('name')->addError(new FormError($this->translator->trans('user.create.errors.duplicate')));
             } else {
-                $user = (new User())->setName($name);
+                $user = new User()->setName($name);
                 $this->em->persist($user);
                 try {
                     $this->em->flush();
                     $this->addFlash('success', $this->translator->trans('user.create.success', ['%name%' => $user->getName()]));
 
                     return $this->redirectToRoute('users_detail', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
-                } catch (UniqueConstraintViolationException $e) {
+                } catch (UniqueConstraintViolationException) {
                     // concurrent create won the race between findByName() and flush()
                     $form->get('name')->addError(new FormError($this->translator->trans('user.create.errors.duplicate')));
                 }
@@ -192,7 +192,7 @@ class UserController extends AbstractController
                 $form->get('name')->addError(new FormError($this->translator->trans('user.create.errors.duplicate')));
             } else {
                 $user->setName($name);
-                $user->setEmail($data['email'] ? trim($data['email']) : null);
+                $user->setEmail($data['email'] ? trim((string) $data['email']) : null);
                 $wasDisabled = $user->isDisabled();
                 $user->setDisabled((bool) $data['isDisabled']);
                 $this->em->persist($user);
@@ -208,7 +208,7 @@ class UserController extends AbstractController
                     $this->addFlash('success', $this->translator->trans('user.edit.success'));
 
                     return $this->redirectToRoute('users_detail', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
-                } catch (UniqueConstraintViolationException $e) {
+                } catch (UniqueConstraintViolationException) {
                     // Name was taken between the findByName() check and flush().
                     $form->get('name')->addError(new FormError($this->translator->trans('user.create.errors.duplicate')));
                 }

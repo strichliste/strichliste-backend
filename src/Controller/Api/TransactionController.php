@@ -19,11 +19,8 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/api')]
 class TransactionController extends AbstractController
 {
-    private TransactionSerializer $transactionSerializer;
-
-    public function __construct(TransactionSerializer $transactionSerializer)
+    public function __construct(private readonly TransactionSerializer $transactionSerializer)
     {
-        $this->transactionSerializer = $transactionSerializer;
     }
 
     #[Route('/transaction', methods: ['GET'])]
@@ -37,9 +34,7 @@ class TransactionController extends AbstractController
 
         return $this->json([
             'count' => $count,
-            'transactions' => array_map(function (Transaction $transaction) {
-                return $this->transactionSerializer->serialize($transaction);
-            }, $transactions),
+            'transactions' => array_map(fn (Transaction $transaction) => $this->transactionSerializer->serialize($transaction), $transactions),
         ]);
     }
 
@@ -84,9 +79,7 @@ class TransactionController extends AbstractController
 
         return $this->json([
             'count' => $count,
-            'transactions' => array_map(function (Transaction $transaction) {
-                return $this->transactionSerializer->serialize($transaction);
-            }, $transactions),
+            'transactions' => array_map(fn (Transaction $transaction) => $this->transactionSerializer->serialize($transaction), $transactions),
         ]);
     }
 

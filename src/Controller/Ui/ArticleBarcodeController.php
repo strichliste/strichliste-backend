@@ -15,9 +15,9 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class ArticleBarcodeController extends AbstractController
 {
     public function __construct(
-        private BarcodeRepository $barcodeRepository,
-        private EntityManagerInterface $em,
-        private TranslatorInterface $translator,
+        private readonly BarcodeRepository $barcodeRepository,
+        private readonly EntityManagerInterface $em,
+        private readonly TranslatorInterface $translator,
     ) {
     }
 

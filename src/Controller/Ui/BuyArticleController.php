@@ -21,11 +21,11 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class BuyArticleController extends AbstractController
 {
     public function __construct(
-        private ArticleRepository $articleRepository,
-        private BarcodeRepository $barcodeRepository,
-        private TransactionService $transactionService,
-        private TranslatorInterface $translator,
-        private LoggerInterface $logger,
+        private readonly ArticleRepository $articleRepository,
+        private readonly BarcodeRepository $barcodeRepository,
+        private readonly TransactionService $transactionService,
+        private readonly TranslatorInterface $translator,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -70,11 +70,11 @@ class BuyArticleController extends AbstractController
                 '%article%' => $article->getName(),
             ]));
             $this->addFlash('transaction_success', '1');
-        } catch (TransactionBoundaryException|AccountBalanceBoundaryException|TransactionInvalidException $e) {
+        } catch (TransactionBoundaryException|AccountBalanceBoundaryException|TransactionInvalidException) {
             $this->addFlash('error', $this->translator->trans('transactions.errors.boundary'));
-        } catch (ArticleInactiveException $e) {
+        } catch (ArticleInactiveException) {
             $this->addFlash('error', $this->translator->trans('articles.errors.inactive'));
-        } catch (ArticleNotFoundException $e) {
+        } catch (ArticleNotFoundException) {
             $this->addFlash('error', $this->translator->trans('articles.errors.not_found'));
         } catch (\Throwable $e) {
             $this->logger->error('Article purchase failed unexpectedly.', ['exception' => $e, 'user' => $user->getId()]);

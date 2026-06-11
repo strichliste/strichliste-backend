@@ -22,8 +22,8 @@ use Doctrine\ORM\EntityManagerInterface;
 class TransactionService
 {
     public function __construct(
-        private SettingsService $settingsService,
-        private EntityManagerInterface $entityManager,
+        private readonly SettingsService $settingsService,
+        private readonly EntityManagerInterface $entityManager,
     ) {
         $connection = $this->entityManager->getConnection();
         if ($connection->getDatabasePlatform() instanceof AbstractMySQLPlatform) {

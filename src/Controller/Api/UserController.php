@@ -19,11 +19,8 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/api/user')]
 class UserController extends AbstractController
 {
-    private UserSerializer $userSerializer;
-
-    public function __construct(UserSerializer $userSerializer)
+    public function __construct(private readonly UserSerializer $userSerializer)
     {
-        $this->userSerializer = $userSerializer;
     }
 
     #[Route(methods: ['GET'])]
@@ -41,14 +38,10 @@ class UserController extends AbstractController
             $users = $userRepository->findAll();
         }
 
-        usort($users, function (User $a, User $b) {
-            return strnatcasecmp($a->getName(), $b->getName());
-        });
+        usort($users, fn (User $a, User $b) => strnatcasecmp((string) $a->getName(), (string) $b->getName()));
 
         return $this->json([
-            'users' => array_map(function (User $user) {
-                return $this->userSerializer->serialize($user);
-            }, $users),
+            'users' => array_map(fn (User $user) => $this->userSerializer->serialize($user), $users),
         ]);
     }
 
@@ -107,9 +100,7 @@ class UserController extends AbstractController
 
         return $this->json([
             'count' => count($results),
-            'users' => array_map(function (User $user) {
-                return $this->userSerializer->serialize($user);
-            }, $results),
+            'users' => array_map(fn (User $user) => $this->userSerializer->serialize($user), $results),
         ]);
     }
 

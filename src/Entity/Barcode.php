@@ -17,9 +17,6 @@ class Barcode
     #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
-    #[ORM\Column(type: 'string', length: 32, nullable: false)]
-    private string $barcode;
-
     #[ORM\ManyToOne(targetEntity: Article::class, inversedBy: 'barcodes', fetch: 'EAGER')]
     #[ORM\JoinColumn(name: 'article_id', referencedColumnName: 'id', nullable: false)]
     private Article $article;
@@ -27,9 +24,10 @@ class Barcode
     #[ORM\Column(type: 'datetime')]
     private ?\DateTime $created = null;
 
-    public function __construct(string $barcode)
-    {
-        $this->barcode = $barcode;
+    public function __construct(
+        #[ORM\Column(type: 'string', length: 32, nullable: false)]
+        private string $barcode,
+    ) {
     }
 
     public function getId(): ?int

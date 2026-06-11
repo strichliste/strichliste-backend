@@ -4,7 +4,7 @@ namespace App\Command\Helper;
 
 use Symfony\Component\Console\Input\InputInterface;
 
-final class DateIntervalHelper
+final readonly class DateIntervalHelper
 {
     private \DateTime $dateTime;
 

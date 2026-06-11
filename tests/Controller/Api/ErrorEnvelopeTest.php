@@ -16,7 +16,7 @@ class ErrorEnvelopeTest extends AbstractApplicationTestCase
             array_keys($body['error']),
             'Envelope keys must keep the legacy order',
         );
-        $this->assertSame('App\Exception\UserNotFoundException', $body['error']['class']);
+        $this->assertSame(\App\Exception\UserNotFoundException::class, $body['error']['class']);
         $this->assertSame(404, $body['error']['code']);
     }
 
@@ -26,7 +26,7 @@ class ErrorEnvelopeTest extends AbstractApplicationTestCase
         $this->assertResponseStatusCodeSame(400);
 
         $body = json_decode($this->client->getResponse()->getContent(), true);
-        $this->assertSame('App\Exception\ParameterInvalidException', $body['error']['class']);
+        $this->assertSame(\App\Exception\ParameterInvalidException::class, $body['error']['class']);
     }
 
     public function testParameterMissingEnvelope(): void
@@ -35,6 +35,6 @@ class ErrorEnvelopeTest extends AbstractApplicationTestCase
         $this->assertResponseStatusCodeSame(400);
 
         $body = json_decode($this->client->getResponse()->getContent(), true);
-        $this->assertSame('App\Exception\ParameterMissingException', $body['error']['class']);
+        $this->assertSame(\App\Exception\ParameterMissingException::class, $body['error']['class']);
     }
 }

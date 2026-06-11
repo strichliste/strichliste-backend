@@ -20,15 +20,15 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ArticleController extends AbstractController
 {
-    private const PAGE_SIZE = 25;
+    private const int PAGE_SIZE = 25;
 
     public function __construct(
-        private ArticleRepository $articleRepository,
-        private TagRepository $tagRepository,
-        private TransactionRepository $transactionRepository,
-        private EntityManagerInterface $em,
-        private TranslatorInterface $translator,
-        private \App\Service\ArticleService $articleService,
+        private readonly ArticleRepository $articleRepository,
+        private readonly TagRepository $tagRepository,
+        private readonly TransactionRepository $transactionRepository,
+        private readonly EntityManagerInterface $em,
+        private readonly TranslatorInterface $translator,
+        private readonly \App\Service\ArticleService $articleService,
     ) {
     }
 
@@ -95,7 +95,7 @@ class ArticleController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
             $article = new Article();
-            $article->setName(trim($data['name']));
+            $article->setName(trim((string) $data['name']));
             $article->setAmount(MoneyParser::majorToCents((float) $data['amount']));
             $this->em->persist($article);
             $this->em->flush();
@@ -122,7 +122,7 @@ class ArticleController extends AbstractController
             $data = $form->getData();
             $resultArticle = $this->articleService->update(
                 $article,
-                trim($data['name']),
+                trim((string) $data['name']),
                 MoneyParser::majorToCents((float) $data['amount']),
                 (bool) $data['active'],
             );

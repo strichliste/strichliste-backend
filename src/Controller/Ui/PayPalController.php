@@ -24,19 +24,19 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class PayPalController extends AbstractController
 {
     // 30m covers payment-method detours without leaving the signed return URL live forever
-    private const RETURN_URL_TTL = 1800;
+    private const int RETURN_URL_TTL = 1800;
 
     // not-yet-consumed return nonces (nonce => cents)
-    private const PENDING_SESSION_KEY = 'paypal_pending';
+    private const string PENDING_SESSION_KEY = 'paypal_pending';
 
     public function __construct(
-        private SettingsService $settings,
-        private TransactionService $transactionService,
-        private TranslatorInterface $translator,
-        private UriSigner $uriSigner,
-        private MoneyParser $moneyParser,
-        private AppExtension $appExtension,
-        private LoggerInterface $logger,
+        private readonly SettingsService $settings,
+        private readonly TransactionService $transactionService,
+        private readonly TranslatorInterface $translator,
+        private readonly UriSigner $uriSigner,
+        private readonly MoneyParser $moneyParser,
+        private readonly AppExtension $appExtension,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -149,7 +149,7 @@ class PayPalController extends AbstractController
                 '%amount%' => $this->appExtension->currencyFormat($amount, null, false),
             ]));
             $this->addFlash('transaction_success', '1');
-        } catch (TransactionBoundaryException|AccountBalanceBoundaryException|TransactionInvalidException $e) {
+        } catch (TransactionBoundaryException|AccountBalanceBoundaryException|TransactionInvalidException) {
             $this->addFlash('error', $this->translator->trans('transactions.errors.boundary'));
         } catch (\Throwable $e) {
             // the member has already paid at this point — never fail silently

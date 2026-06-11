@@ -16,9 +16,9 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class ArticleTagController extends AbstractController
 {
     public function __construct(
-        private TagRepository $tagRepository,
-        private EntityManagerInterface $em,
-        private TranslatorInterface $translator,
+        private readonly TagRepository $tagRepository,
+        private readonly EntityManagerInterface $em,
+        private readonly TranslatorInterface $translator,
     ) {
     }
 

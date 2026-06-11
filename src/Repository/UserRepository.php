@@ -17,6 +17,7 @@ class UserRepository extends ServiceEntityRepository
         parent::__construct($registry, User::class);
     }
 
+    #[\Override]
     public function findAll(): array
     {
         return $this->getBaseQueryBuilder()

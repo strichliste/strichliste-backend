@@ -12,10 +12,10 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class SearchController extends AbstractController
 {
-    private const PAGE_SIZE = 10;
+    private const int PAGE_SIZE = 10;
 
     public function __construct(
-        private EntityManagerInterface $em,
+        private readonly EntityManagerInterface $em,
     ) {
     }
 

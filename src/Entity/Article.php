@@ -87,9 +87,7 @@ class Article
      */
     public function getTags(): array
     {
-        return array_map(function (ArticleTag $articleTag) {
-            return $articleTag->getTag();
-        }, $this->articleTags->getValues());
+        return array_map(fn (ArticleTag $articleTag) => $articleTag->getTag(), $this->articleTags->getValues());
     }
 
     /**
@@ -113,13 +111,7 @@ class Article
 
     public function hasTag(Tag $tag): bool
     {
-        foreach ($this->getTags() as $existingTag) {
-            if ($tag->getId() === $existingTag->getId()) {
-                return true;
-            }
-        }
-
-        return false;
+        return array_any($this->getTags(), fn ($existingTag) => $tag->getId() === $existingTag->getId());
     }
 
     public function getAmount(): int

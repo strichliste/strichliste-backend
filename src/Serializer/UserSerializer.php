@@ -7,11 +7,8 @@ use App\Service\UserService;
 
 class UserSerializer
 {
-    private UserService $userService;
-
-    public function __construct(UserService $userService)
+    public function __construct(private readonly UserService $userService)
     {
-        $this->userService = $userService;
     }
 
     /**

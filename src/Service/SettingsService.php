@@ -9,7 +9,7 @@ class SettingsService
     /**
      * @param array<string, mixed> $strichlisteSettings
      */
-    public function __construct(private array $strichlisteSettings)
+    public function __construct(private readonly array $strichlisteSettings)
     {
     }
 
@@ -25,7 +25,7 @@ class SettingsService
     {
         try {
             return $this->get($path);
-        } catch (ParameterNotFoundException $e) {
+        } catch (ParameterNotFoundException) {
             return $default;
         }
     }

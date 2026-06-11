@@ -12,7 +12,7 @@ use Doctrine\ORM\Query\Expr\Join;
 // all amounts are integer cents
 class MetricsService
 {
-    public function __construct(private EntityManagerInterface $em)
+    public function __construct(private readonly EntityManagerInterface $em)
     {
     }
 

@@ -14,14 +14,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class ImportCommand extends Command
 {
-    private EntityManagerInterface $entityManager;
-
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(private readonly EntityManagerInterface $entityManager)
     {
         parent::__construct();
         ini_set('memory_limit', '1024M');
-
-        $this->entityManager = $entityManager;
     }
 
     protected function configure(): void
@@ -84,7 +80,7 @@ class ImportCommand extends Command
 
         try {
             $result = $connection->executeQuery('select t.userId, value, t.comment, t.createDate from transactions as t join users on users.id = t.userId');
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             $result = $connection->executeQuery("select t.userId, value, '' as comment, t.createDate from transactions as t join users on users.id = t.userId");
         }
 

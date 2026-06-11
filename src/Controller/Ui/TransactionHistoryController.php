@@ -12,11 +12,11 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class TransactionHistoryController extends AbstractController
 {
-    private const PAGE_SIZE = 15;
+    private const int PAGE_SIZE = 15;
 
     public function __construct(
-        private TransactionRepository $transactionRepository,
-        private TransactionService $transactionService,
+        private readonly TransactionRepository $transactionRepository,
+        private readonly TransactionService $transactionService,
     ) {
     }
 

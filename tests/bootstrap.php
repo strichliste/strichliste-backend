@@ -6,7 +6,7 @@ use Symfony\Component\Dotenv\Dotenv;
 
 require dirname(__DIR__).'/vendor/autoload.php';
 
-(new Dotenv())->bootEnv(dirname(__DIR__).'/.env');
+new Dotenv()->bootEnv(dirname(__DIR__).'/.env');
 
 // this file drops and recreates the schema — refuse to run against anything but test
 if ('test' !== $_SERVER['APP_ENV']) {

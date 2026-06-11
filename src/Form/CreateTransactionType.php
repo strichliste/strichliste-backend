@@ -43,8 +43,6 @@ class CreateTransactionType extends AbstractType
             ->setRequired('user_id')
             ->setAllowedTypes('user_id', 'int');
 
-        $resolver->setDefault('csrf_token_id', function (\Symfony\Component\OptionsResolver\Options $opts) {
-            return 'create_transaction'.$opts['user_id'];
-        });
+        $resolver->setDefault('csrf_token_id', fn (\Symfony\Component\OptionsResolver\Options $opts) => 'create_transaction'.$opts['user_id']);
     }
 }

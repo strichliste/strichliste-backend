@@ -19,13 +19,13 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class SplitInvoiceController extends AbstractController
 {
     public function __construct(
-        private SettingsService $settings,
-        private UserRepository $userRepository,
-        private TransactionService $transactionService,
-        private TranslatorInterface $translator,
-        private MoneyParser $moneyParser,
-        private AppExtension $appExtension,
-        private LoggerInterface $logger,
+        private readonly SettingsService $settings,
+        private readonly UserRepository $userRepository,
+        private readonly TransactionService $transactionService,
+        private readonly TranslatorInterface $translator,
+        private readonly MoneyParser $moneyParser,
+        private readonly AppExtension $appExtension,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -74,7 +74,7 @@ class SplitInvoiceController extends AbstractController
         $recipientId = (int) $request->request->get('recipient', 0);
         $amountCents = $this->moneyParser->parseToCents($request->request->get('amount'));
         $comment = trim((string) $request->request->get('comment', '')) ?: null;
-        $participantIds = array_map('intval', (array) $request->request->all('participants'));
+        $participantIds = array_map(intval(...), (array) $request->request->all('participants'));
 
         $formData['recipient'] = $recipientId;
         $formData['amount_major'] = $request->request->get('amount');

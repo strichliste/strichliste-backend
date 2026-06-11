@@ -7,7 +7,7 @@ use App\Exception\ParameterNotFoundException;
 
 class UserService
 {
-    public function __construct(private SettingsService $settingsService)
+    public function __construct(private readonly SettingsService $settingsService)
     {
     }
 
@@ -31,7 +31,7 @@ class UserService
             $since = new \DateTime();
 
             return $since->sub($period);
-        } catch (ParameterNotFoundException $e) {
+        } catch (ParameterNotFoundException) {
             return null;
         }
     }

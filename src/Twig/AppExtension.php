@@ -12,20 +12,21 @@ class AppExtension extends AbstractExtension
     /** @var array<string, \NumberFormatter> */
     private array $formatters = [];
 
-    public function __construct(private SettingsService $settings)
+    public function __construct(private readonly SettingsService $settings)
     {
     }
 
+    #[\Override]
     public function getFilters(): array
     {
         return [
-            new TwigFilter('currency_format', [$this, 'currencyFormat']),
-            new TwigFilter('balance_class', [$this, 'balanceClass']),
+            new TwigFilter('currency_format', $this->currencyFormat(...)),
+            new TwigFilter('balance_class', $this->balanceClass(...)),
         ];
     }
 
     // paths the setting() Twig function may read; secrets like paypal.recipient stay out
-    private const TEMPLATE_SETTING_ALLOWLIST = [
+    private const array TEMPLATE_SETTING_ALLOWLIST = [
         'i18n.',
         'common.',
         'payment.splitInvoice.enabled',
@@ -33,17 +34,12 @@ class AppExtension extends AbstractExtension
         'paypal.fee',
     ];
 
+    #[\Override]
     public function getFunctions(): array
     {
         return [
             new TwigFunction('setting', function (string $path, mixed $default = null) {
-                $allowed = false;
-                foreach (self::TEMPLATE_SETTING_ALLOWLIST as $prefix) {
-                    if ($path === $prefix || str_starts_with($path, $prefix)) {
-                        $allowed = true;
-                        break;
-                    }
-                }
+                $allowed = array_any(self::TEMPLATE_SETTING_ALLOWLIST, fn ($prefix) => $path === $prefix || str_starts_with($path, $prefix));
                 if (!$allowed) {
                     // silently fall back rather than leak the value or throw
                     return $default;

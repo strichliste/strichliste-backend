@@ -11,7 +11,7 @@ use Symfony\Component\Routing\Attribute\Route;
 class MetricsController extends AbstractController
 {
     public function __construct(
-        private MetricsService $metrics,
+        private readonly MetricsService $metrics,
     ) {
     }
 

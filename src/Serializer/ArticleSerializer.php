@@ -8,14 +8,8 @@ use App\Entity\Barcode;
 
 class ArticleSerializer
 {
-    private BarcodeSerializer $barcodeSerializer;
-
-    private ArticleTagSerializer $articleTagSerializer;
-
-    public function __construct(BarcodeSerializer $barcodeSerializer, ArticleTagSerializer $articleTagSerializer)
+    public function __construct(private readonly BarcodeSerializer $barcodeSerializer, private readonly ArticleTagSerializer $articleTagSerializer)
     {
-        $this->barcodeSerializer = $barcodeSerializer;
-        $this->articleTagSerializer = $articleTagSerializer;
     }
 
     /**
@@ -31,12 +25,8 @@ class ArticleSerializer
         return [
             'id' => $article->getId(),
             'name' => $article->getName(),
-            'barcodes' => array_map(function (Barcode $barcode) {
-                return $this->barcodeSerializer->serialize($barcode);
-            }, $article->getBarcodes()),
-            'tags' => array_map(function (ArticleTag $articleTag) {
-                return $this->articleTagSerializer->serialize($articleTag);
-            }, $article->getArticleTags()),
+            'barcodes' => array_map(fn (Barcode $barcode) => $this->barcodeSerializer->serialize($barcode), $article->getBarcodes()),
+            'tags' => array_map(fn (ArticleTag $articleTag) => $this->articleTagSerializer->serialize($articleTag), $article->getArticleTags()),
             'amount' => $article->getAmount(),
             'isActive' => $article->isActive(),
             'usageCount' => $article->getUsageCount(),

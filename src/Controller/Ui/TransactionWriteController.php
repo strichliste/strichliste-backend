@@ -25,10 +25,10 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class TransactionWriteController extends AbstractController
 {
     public function __construct(
-        private TransactionService $transactionService,
-        private TransactionRepository $transactionRepository,
-        private TranslatorInterface $translator,
-        private LoggerInterface $logger,
+        private readonly TransactionService $transactionService,
+        private readonly TransactionRepository $transactionRepository,
+        private readonly TranslatorInterface $translator,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -69,7 +69,7 @@ class TransactionWriteController extends AbstractController
                 'dispense' === $direction ? 'transactions.flash.dispense_success' : 'transactions.flash.deposit_success'
             ));
             $this->addFlash('transaction_success', '1');
-        } catch (TransactionBoundaryException|AccountBalanceBoundaryException|TransactionInvalidException $e) {
+        } catch (TransactionBoundaryException|AccountBalanceBoundaryException|TransactionInvalidException) {
             $this->addFlash('error', $this->translator->trans('transactions.errors.boundary'));
         } catch (\Throwable $e) {
             $this->logger->error('Transaction create failed unexpectedly.', ['exception' => $e, 'user' => $user->getId()]);
@@ -124,9 +124,9 @@ class TransactionWriteController extends AbstractController
             $this->addFlash('transaction_success', '1');
 
             return $this->redirectToRoute('users_detail', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
-        } catch (TransactionBoundaryException|AccountBalanceBoundaryException|TransactionInvalidException $e) {
+        } catch (TransactionBoundaryException|AccountBalanceBoundaryException|TransactionInvalidException) {
             $this->addFlash('error', $this->translator->trans('transactions.errors.boundary'));
-        } catch (UserNotFoundException $e) {
+        } catch (UserNotFoundException) {
             $this->addFlash('error', $this->translator->trans('transactions.errors.recipient_missing'));
         } catch (\Throwable $e) {
             $this->logger->error('Transfer failed unexpectedly.', ['exception' => $e, 'user' => $user->getId()]);
@@ -162,9 +162,9 @@ class TransactionWriteController extends AbstractController
             $this->transactionService->revertTransaction($txId);
             $this->addFlash('success', $this->translator->trans('transactions.flash.undo_success'));
             $this->addFlash('transaction_success', '1');
-        } catch (TransactionNotFoundException $e) {
+        } catch (TransactionNotFoundException) {
             $this->addFlash('error', $this->translator->trans('transactions.errors.generic'));
-        } catch (TransactionNotDeletableException $e) {
+        } catch (TransactionNotDeletableException) {
             $this->addFlash('error', $this->translator->trans('transactions.errors.not_deletable'));
         } catch (\Throwable $e) {
             $this->logger->error('Undo failed unexpectedly.', ['exception' => $e, 'user' => $user->getId(), 'tx' => $txId]);

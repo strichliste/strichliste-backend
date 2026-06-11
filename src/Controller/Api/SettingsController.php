@@ -10,7 +10,7 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/api/settings')]
 class SettingsController extends AbstractController
 {
-    public function __construct(private SettingsService $settingsService)
+    public function __construct(private readonly SettingsService $settingsService)
     {
     }
 

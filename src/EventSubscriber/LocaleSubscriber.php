@@ -10,7 +10,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 // the kiosk has no per-user accounts, so the locale is a global setting (i18n.language), not a negotiation
 class LocaleSubscriber implements EventSubscriberInterface
 {
-    public function __construct(private SettingsService $settings)
+    public function __construct(private readonly SettingsService $settings)
     {
     }
 

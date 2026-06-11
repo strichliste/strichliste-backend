@@ -36,9 +36,7 @@ class TagController extends AbstractController
 
         return $this->json([
             'count' => count($tags),
-            'tags' => array_map(function (Tag $tag) {
-                return $this->tagSerializer->serialize($tag);
-            }, $tags),
+            'tags' => array_map(fn (Tag $tag) => $this->tagSerializer->serialize($tag), $tags),
         ]);
     }
 
@@ -54,9 +52,7 @@ class TagController extends AbstractController
 
         return $this->json([
             'count' => count($tags),
-            'tags' => array_map(function (Tag $tag) {
-                return $this->tagSerializer->serialize($tag);
-            }, $tags),
+            'tags' => array_map(fn (Tag $tag) => $this->tagSerializer->serialize($tag), $tags),
         ]);
     }
 
