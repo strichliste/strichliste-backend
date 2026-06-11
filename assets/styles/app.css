@@ -1,425 +1,433 @@
 @import './theme.css';
 
 body {
-  margin: 0;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  background: var(--mainBackground);
-  color: var(--text);
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: var(--mainBackground);
+    color: var(--text);
 }
 
 main {
-  flex: 1;
-  padding: 1rem;
-  max-width: 1200px;
-  width: 100%;
-  margin: 0 auto;
-  /* anchor for the floating FAB */
-  position: relative;
+    flex: 1;
+    padding: 1rem;
+    max-width: 1200px;
+    width: 100%;
+    margin: 0 auto;
+    /* anchor for the floating FAB */
+    position: relative;
 }
 
 /* ---------- header ---------- */
 .app-header {
-  background: var(--headerBackground);
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 4rem;
-  z-index: 200;
-  padding: 0 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
+    background: var(--headerBackground);
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4rem;
+    z-index: 200;
+    padding: 0 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
 }
 
 /* room for the fixed header */
-body { padding-top: 4rem; }
+body {
+    padding-top: 4rem;
+}
 
 .app-header__brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-size: 0.95rem;
-  font-weight: 400;
-  text-transform: none;
-  letter-spacing: 0;
-  color: var(--textSubtile);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.95rem;
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--textSubtile);
 }
 
 .app-header__brand:hover,
-.app-header__brand[aria-current="page"] {
-  color: var(--text);
+.app-header__brand[aria-current='page'] {
+    color: var(--text);
 }
 
 .app-header__brand-icon {
-  width: 1rem;
-  height: 1rem;
-  flex-shrink: 0;
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
 }
 
 .app-header__nav {
-  display: flex;
-  gap: 1.5rem;
-  align-items: center;
-  flex: 1;
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    flex: 1;
 }
 
 .app-header__nav a {
-  display: inline-flex;
-  align-items: center;
-  padding: 0 0.2rem;
-  min-height: var(--touch-target);
-  color: var(--textSubtile);
-  font-size: 0.8rem;
+    display: inline-flex;
+    align-items: center;
+    padding: 0 0.2rem;
+    min-height: var(--touch-target);
+    color: var(--textSubtile);
+    font-size: 0.8rem;
 }
 
 .app-header__nav a:hover,
-.app-header__nav a[aria-current="page"] {
-  color: var(--primary);
+.app-header__nav a[aria-current='page'] {
+    color: var(--primary);
 }
 
 /* phone-only burger, see the 36em block */
 .app-header__menu {
-  display: none;
+    display: none;
 }
 
 .app-header__search {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: var(--textSubtile);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--textSubtile);
 }
 
 .app-header__search input {
-  width: 9rem;
-  border: 0;
-  background: transparent;
-  color: var(--textSubtile);
-  font-size: 1rem;
-  padding: 0;
+    width: 9rem;
+    border: 0;
+    background: transparent;
+    color: var(--textSubtile);
+    font-size: 1rem;
+    padding: 0;
 }
 
 .app-header__search input::placeholder {
-  color: var(--textSubtile);
-  opacity: 1;
+    color: var(--textSubtile);
+    opacity: 1;
 }
 
 .app-header__search input:focus {
-  color: var(--text);
+    color: var(--text);
 }
 
 .app-header__search input:focus::placeholder {
-  color: transparent;
+    color: transparent;
 }
 
 .app-header__search button {
-  background: transparent;
-  border: 0;
-  min-width: var(--touch-target);
-  min-height: var(--touch-target);
-  padding: 0;
-  color: var(--text);
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+    background: transparent;
+    border: 0;
+    min-width: var(--touch-target);
+    min-height: var(--touch-target);
+    padding: 0;
+    color: var(--text);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .app-header__search button svg {
-  width: 1.1rem;
-  height: 1.1rem;
-  fill: currentColor;
+    width: 1.1rem;
+    height: 1.1rem;
+    fill: currentColor;
 }
 
 /* below ~580px the fixed header's min-content width exceeds the viewport
    and the search becomes unreachable — let it flow and wrap */
 @media (max-width: 36em) {
-  .app-header {
-    position: static;
-    height: auto;
-    flex-wrap: wrap;
-    padding: 0.5rem 1rem;
-    row-gap: 0.25rem;
-  }
-  .app-header__nav {
-    display: none;
-  }
-  .app-header__menu {
-    display: block;
-    position: relative;
-  }
-  .app-header__menu summary {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: var(--touch-target);
-    min-height: var(--touch-target);
-    cursor: pointer;
-    color: var(--text);
-    list-style: none;
-  }
-  .app-header__menu summary::-webkit-details-marker { display: none; }
-  .app-header__menu summary svg {
-    width: 1.3rem;
-    height: 1.3rem;
-  }
-  .app-header__menu-panel {
-    position: absolute;
-    top: 100%;
-    right: 0;
-    z-index: 300;
-    display: flex;
-    flex-direction: column;
-    min-width: 11rem;
-    padding: 0.4rem;
-    background: var(--headerBackground);
-    border-radius: var(--borderRadius);
-    box-shadow: var(--level2);
-  }
-  .app-header__menu-panel a {
-    display: flex;
-    align-items: center;
-    min-height: var(--touch-target);
-    padding: 0 1rem;
-    color: var(--textSubtile);
-    font-size: 0.889rem;
-  }
-  .app-header__menu-panel a:hover,
-  .app-header__menu-panel a[aria-current="page"] {
-    color: var(--primary);
-  }
-  .app-header__search {
-    flex: 1 1 100%;
-  }
-  .app-header__search input {
-    width: auto;
-    flex: 1;
-    min-width: 0;
-  }
-  body {
-    padding-top: 0;
-  }
+    .app-header {
+        position: static;
+        height: auto;
+        flex-wrap: wrap;
+        padding: 0.5rem 1rem;
+        row-gap: 0.25rem;
+    }
+    .app-header__nav {
+        display: none;
+    }
+    .app-header__menu {
+        display: block;
+        position: relative;
+    }
+    .app-header__menu summary {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: var(--touch-target);
+        min-height: var(--touch-target);
+        cursor: pointer;
+        color: var(--text);
+        list-style: none;
+    }
+    .app-header__menu summary::-webkit-details-marker {
+        display: none;
+    }
+    .app-header__menu summary svg {
+        width: 1.3rem;
+        height: 1.3rem;
+    }
+    .app-header__menu-panel {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        z-index: 300;
+        display: flex;
+        flex-direction: column;
+        min-width: 11rem;
+        padding: 0.4rem;
+        background: var(--headerBackground);
+        border-radius: var(--borderRadius);
+        box-shadow: var(--level2);
+    }
+    .app-header__menu-panel a {
+        display: flex;
+        align-items: center;
+        min-height: var(--touch-target);
+        padding: 0 1rem;
+        color: var(--textSubtile);
+        font-size: 0.889rem;
+    }
+    .app-header__menu-panel a:hover,
+    .app-header__menu-panel a[aria-current='page'] {
+        color: var(--primary);
+    }
+    .app-header__search {
+        flex: 1 1 100%;
+    }
+    .app-header__search input {
+        width: auto;
+        flex: 1;
+        min-width: 0;
+    }
+    body {
+        padding-top: 0;
+    }
 }
 
 /* ---------- flash messages ---------- */
 .flashes {
-  margin: 0 auto 1rem;
-  max-width: 1200px;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  padding: 0 1rem;
+    margin: 0 auto 1rem;
+    max-width: 1200px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0 1rem;
 }
 
 .flash {
-  padding: 0.75rem 1rem;
-  border-radius: var(--borderRadius);
-  box-shadow: var(--level1);
-  /* flash text can carry 64/255-char unbroken names */
-  overflow-wrap: anywhere;
+    padding: 0.75rem 1rem;
+    border-radius: var(--borderRadius);
+    box-shadow: var(--level1);
+    /* flash text can carry 64/255-char unbroken names */
+    overflow-wrap: anywhere;
 }
 
 .flash--success {
-  background: var(--greenLight);
-  color: var(--greenText);
+    background: var(--greenLight);
+    color: var(--greenText);
 }
 
 .flash--error {
-  background: var(--redLight);
-  color: var(--redText);
+    background: var(--redLight);
+    color: var(--redText);
 }
 
 /* ---------- card ---------- */
 .card {
-  background: var(--componentBackgroundLight);
-  border-radius: var(--borderRadius);
-  box-shadow: var(--level2);
-  padding: 1rem;
+    background: var(--componentBackgroundLight);
+    border-radius: var(--borderRadius);
+    box-shadow: var(--level2);
+    padding: 1rem;
 }
 
 /* ---------- page header ---------- */
 .page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-  gap: 1rem;
-  flex-wrap: wrap;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    gap: 1rem;
+    flex-wrap: wrap;
 }
 
 .page-header h1 {
-  font-size: 1.5rem;
-  /* titles interpolate user/article names */
-  overflow-wrap: anywhere;
+    font-size: 1.5rem;
+    /* titles interpolate user/article names */
+    overflow-wrap: anywhere;
 }
 
 .page-header__subtitle {
-  font-size: 0.85rem;
-  color: var(--textSubtile);
-  margin-top: 0.25rem;
+    font-size: 0.85rem;
+    color: var(--textSubtile);
+    margin-top: 0.25rem;
 }
 
 .tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0;
-  margin-bottom: 1.5rem;
-  align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+    margin-bottom: 1.5rem;
+    align-items: center;
 }
 
 .tabs a {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.625rem;
-  margin-right: 1.875rem;
-  border-radius: var(--borderRadius);
-  color: var(--buttonDefaultFont);
-  font-size: 1rem;
-  font-weight: 400;
-  text-transform: uppercase;
+    display: inline-flex;
+    align-items: center;
+    padding: 0.625rem;
+    margin-right: 1.875rem;
+    border-radius: var(--borderRadius);
+    color: var(--buttonDefaultFont);
+    font-size: 1rem;
+    font-weight: 400;
+    text-transform: uppercase;
 }
 
 .tabs a:last-child {
-  margin-right: 0;
+    margin-right: 0;
 }
 
-.tabs a[aria-current="page"] {
-  color: var(--primary);
-  background: var(--componentBackgroundLight);
+.tabs a[aria-current='page'] {
+    color: var(--primary);
+    background: var(--componentBackgroundLight);
 }
 
 /* ---------- buttons ---------- */
 .btn {
-  display: inline-block;
-  padding: 0.5rem;
-  border-radius: var(--borderRadius);
-  background: var(--buttonDefaultBackground);
-  color: var(--buttonDefaultFont);
-  font-family: inherit;
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0;
-  cursor: pointer;
-  border: 0;
-  box-shadow: var(--level1);
+    display: inline-block;
+    padding: 0.5rem;
+    border-radius: var(--borderRadius);
+    background: var(--buttonDefaultBackground);
+    color: var(--buttonDefaultFont);
+    font-family: inherit;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0;
+    cursor: pointer;
+    border: 0;
+    box-shadow: var(--level1);
 }
 
 .btn:hover:not(:disabled) {
-  background: var(--mainBackground);
+    background: var(--mainBackground);
 }
 
 .btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 
 .btn--highlight {
-  background: var(--buttonHighlightBackground);
-  color: var(--buttonHighlightFont);
-  border-color: transparent;
+    background: var(--buttonHighlightBackground);
+    color: var(--buttonHighlightFont);
+    border-color: transparent;
 }
 
 .btn--red {
-  background: var(--buttonRedBackground);
-  color: var(--buttonRedFont);
-  border-color: transparent;
+    background: var(--buttonRedBackground);
+    color: var(--buttonRedFont);
+    border-color: transparent;
 }
 
 .btn--red:hover:not(:disabled) {
-  filter: brightness(0.97);
+    filter: brightness(0.97);
 }
 
 .btn--add {
-  background: var(--componentBackgroundLight);
-  color: var(--buttonDefaultFont);
-  border-color: transparent;
+    background: var(--componentBackgroundLight);
+    color: var(--buttonDefaultFont);
+    border-color: transparent;
 }
 
 /* ---------- user grid + cards ---------- */
 .user-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr));
-  grid-auto-rows: minmax(5rem, auto);
-  gap: 1rem;
-  margin: 1rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr));
+    grid-auto-rows: minmax(5rem, auto);
+    gap: 1rem;
+    margin: 1rem;
 }
 
 .user-card {
-  background: var(--componentBackgroundLight);
-  border-radius: var(--borderRadius);
-  color: var(--primary);
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  min-height: 6rem;
-  cursor: pointer;
-  text-decoration: none;
-  border: 0;
+    background: var(--componentBackgroundLight);
+    border-radius: var(--borderRadius);
+    color: var(--primary);
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 6rem;
+    cursor: pointer;
+    text-decoration: none;
+    border: 0;
 }
 
 .user-card:hover {
-  box-shadow: var(--level3);
+    box-shadow: var(--level3);
 }
 
 .user-card__name {
-  text-transform: none;
-  font-weight: 500;
-  font-size: 0.95rem;
-  color: var(--text);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+    text-transform: none;
+    font-weight: 500;
+    font-size: 0.95rem;
+    color: var(--text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .user-card--disabled {
-  /* 0.75 still clears AA contrast; a visually-hidden "(disabled)" marker backs it up */
-  opacity: 0.75;
+    /* 0.75 still clears AA contrast; a visually-hidden "(disabled)" marker backs it up */
+    opacity: 0.75;
 }
 
 /* ---------- balance pill ---------- */
 .balance-pill {
-  display: inline-block;
-  font-weight: 600;
-  font-size: 1rem;
-  font-variant-numeric: tabular-nums;
-  /* don't let sign/symbol/number wrap in narrow user-card columns */
-  white-space: nowrap;
+    display: inline-block;
+    font-weight: 600;
+    font-size: 1rem;
+    font-variant-numeric: tabular-nums;
+    /* don't let sign/symbol/number wrap in narrow user-card columns */
+    white-space: nowrap;
 }
 
 /* zero balance counts as "fine" — same green as positive */
 .balance-pill.is-positive,
-.balance-pill.is-zero { color: var(--greenText); }
-.balance-pill.is-negative { color: var(--redText); }
+.balance-pill.is-zero {
+    color: var(--greenText);
+}
+.balance-pill.is-negative {
+    color: var(--redText);
+}
 
 /* ---------- pagination ---------- */
 .pagination {
-  display: flex;
-  gap: 0.5rem;
-  justify-content: center;
-  align-items: center;
-  margin-top: 1.5rem;
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    align-items: center;
+    margin-top: 1.5rem;
 }
 
 .pagination__link {
-  padding: 0.4rem 0.75rem;
-  border-radius: var(--borderRadius);
-  background: var(--componentBackgroundLight);
-  border: 1px solid var(--border);
-  color: var(--text);
-  font-size: 0.85rem;
+    padding: 0.4rem 0.75rem;
+    border-radius: var(--borderRadius);
+    background: var(--componentBackgroundLight);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-size: 0.85rem;
 }
 
 .pagination__link:hover {
-  background: var(--mainBackground);
+    background: var(--mainBackground);
 }
 
 .pagination__status {
-  font-size: 0.85rem;
-  color: var(--textSubtile);
+    font-size: 0.85rem;
+    color: var(--textSubtile);
 }
 
 /* ---------- round icon buttons (shared chrome) ---------- */
@@ -427,17 +435,17 @@ body { padding-top: 4rem; }
 .form-cancel-circle,
 .accept-circle,
 .participants__remove {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--fab-size);
-  height: var(--fab-size);
-  border-radius: 50%;
-  border: 0;
-  padding: 0;
-  cursor: pointer;
-  box-shadow: var(--level2);
-  flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--fab-size);
+    height: var(--fab-size);
+    border-radius: 50%;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    box-shadow: var(--level2);
+    flex-shrink: 0;
 }
 
 /* ---------- floating "+" button ----------
@@ -445,329 +453,329 @@ body { padding-top: 4rem; }
 .fab,
 .fab:visited,
 .fab:hover {
-  background: var(--buttonHighlightBackground);
-  color: var(--buttonHighlightFont);
-  text-decoration: none;
-  font-size: 1rem;
-  line-height: 1;
+    background: var(--buttonHighlightBackground);
+    color: var(--buttonHighlightFont);
+    text-decoration: none;
+    font-size: 1rem;
+    line-height: 1;
 }
 
 .fab--floating {
-  position: fixed;
-  bottom: 1rem;
-  right: 1rem;
-  z-index: 10;
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    z-index: 10;
 }
 
 /* keep the footer's "Code" link reachable under the fixed FAB */
 @media (max-width: 64em) {
-  .app-footer {
-    padding-right: 4.5rem;
-  }
-  main {
-    padding-bottom: 4rem;
-  }
+    .app-footer {
+        padding-right: 4.5rem;
+    }
+    main {
+        padding-bottom: 4rem;
+    }
 }
 
 /* desktop only — at tablet width the gutter left pages off-center */
 @media (min-width: 64em) {
-  .fab--floating {
-    position: absolute;
-    bottom: auto;
-    right: auto;
-    /* sits in the 8rem list gutter; margin-top clears the toolbar row */
-    left: 5rem;
-    margin-top: 6rem;
-  }
+    .fab--floating {
+        position: absolute;
+        bottom: auto;
+        right: auto;
+        /* sits in the 8rem list gutter; margin-top clears the toolbar row */
+        left: 5rem;
+        margin-top: 6rem;
+    }
 }
 
 .list-toolbar {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin: 0 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 0 1rem 1.5rem;
 }
 
 .list-toolbar .tabs {
-  margin-bottom: 0;
+    margin-bottom: 0;
 }
 
 /* ---------- footer ---------- */
 .app-footer {
-  font-size: 0.8rem;
-  padding: 1rem;
-  display: flex;
-  justify-content: space-between;
-  color: var(--textSubtile);
+    font-size: 0.8rem;
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    color: var(--textSubtile);
 }
 .app-footer a {
-  color: var(--textSubtile);
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  text-decoration: none;
+    color: var(--textSubtile);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    text-decoration: none;
 }
 .app-footer__icon {
-  width: 0.9rem;
-  height: 0.9rem;
+    width: 0.9rem;
+    height: 0.9rem;
 }
 
 /* ---------- empty state ---------- */
 .empty-state {
-  padding: 2rem;
-  text-align: center;
-  color: var(--textSubtile);
-  background: var(--componentBackgroundLight);
-  border-radius: var(--borderRadius);
-  border: 1px dashed var(--border);
+    padding: 2rem;
+    text-align: center;
+    color: var(--textSubtile);
+    background: var(--componentBackgroundLight);
+    border-radius: var(--borderRadius);
+    border: 1px dashed var(--border);
 }
 
 .empty-state__title {
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-  color: var(--text);
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--text);
 }
 
 /* ---------- forms ---------- */
 .form-card {
-  max-width: 27rem;
-  margin: 0 auto;
+    max-width: 27rem;
+    margin: 0 auto;
 }
 
 .article-form {
-  max-width: 30rem;
-  margin: 0 auto 1.5rem;
+    max-width: 30rem;
+    margin: 0 auto 1.5rem;
 }
 .card.article-form {
-  padding: 1.25rem 1.5rem 1.5rem;
+    padding: 1.25rem 1.5rem 1.5rem;
 }
 .article-form__name {
-  font-size: 1rem;
-  font-weight: 400;
-  text-transform: none;
-  margin: 0 0 1.5rem;
-  color: var(--text);
+    font-size: 1rem;
+    font-weight: 400;
+    text-transform: none;
+    margin: 0 0 1.5rem;
+    color: var(--text);
 }
 .article-form__subhead {
-  font-size: 0.85rem;
-  font-weight: 400;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--textSubtile);
-  padding-bottom: 0.5rem;
-  margin: 0 0 1rem;
-  border-bottom: 1px solid var(--border);
+    font-size: 0.85rem;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--textSubtile);
+    padding-bottom: 0.5rem;
+    margin: 0 0 1rem;
+    border-bottom: 1px solid var(--border);
 }
 .article-form-grid {
-  display: grid;
-  gap: 2rem;
+    display: grid;
+    gap: 2rem;
 }
 @media (min-width: 48em) {
-  .article-form-grid {
-    grid-template-columns: 1fr 1fr;
-    max-width: 60rem;
-    margin: 0 auto;
-  }
-  .article-form-grid .article-form {
-    margin: 0 0 2rem;
-    max-width: none;
-  }
+    .article-form-grid {
+        grid-template-columns: 1fr 1fr;
+        max-width: 60rem;
+        margin: 0 auto;
+    }
+    .article-form-grid .article-form {
+        margin: 0 0 2rem;
+        max-width: none;
+    }
 }
 .article-form-archive {
-  max-width: 30rem;
-  margin: 3rem auto 1rem;
-  text-align: left;
+    max-width: 30rem;
+    margin: 3rem auto 1rem;
+    text-align: left;
 }
 @media (min-width: 48em) {
-  .article-form-archive {
-    max-width: 60rem;
-  }
+    .article-form-archive {
+        max-width: 60rem;
+    }
 }
 /* shared form-label typography; the three blocks below keep only their spacing */
 .article-form label,
 .form-card label,
 .edit-form__checkbox-row label {
-  font-size: 0.85rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--textSubtile);
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--textSubtile);
 }
 
 .article-form label {
-  display: block;
-  margin: 1.25rem 0 0.5rem;
+    display: block;
+    margin: 1.25rem 0 0.5rem;
 }
-.article-form input[type="text"],
-.article-form input[type="number"] {
-  width: 100%;
-  padding: 0.5rem;
-  /* grey tint — a white input on the white card is invisible */
-  background: var(--mainBackground);
-  border: 1px solid var(--inputBorder);
-  border-radius: var(--borderRadius);
-  color: var(--text);
-  font-size: 0.9rem;
+.article-form input[type='text'],
+.article-form input[type='number'] {
+    width: 100%;
+    padding: 0.5rem;
+    /* grey tint — a white input on the white card is invisible */
+    background: var(--mainBackground);
+    border: 1px solid var(--inputBorder);
+    border-radius: var(--borderRadius);
+    color: var(--text);
+    font-size: 0.9rem;
 }
 .article-form ul {
-  list-style: none;
-  padding: 0;
-  margin: 0.25rem 0 0;
-  color: var(--redText);
-  font-size: 0.85rem;
+    list-style: none;
+    padding: 0;
+    margin: 0.25rem 0 0;
+    color: var(--redText);
+    font-size: 0.85rem;
 }
 
 .form-card label {
-  margin-bottom: 0.5rem;
-  margin-top: 1.25rem;
+    margin-bottom: 0.5rem;
+    margin-top: 1.25rem;
 }
 
-.form-card input[type="text"],
-.form-card input[type="email"],
-.form-card input[type="number"],
+.form-card input[type='text'],
+.form-card input[type='email'],
+.form-card input[type='number'],
 .form-card textarea {
-  width: 100%;
-  border: 1px solid var(--inputBorder);
-  background: var(--componentBackgroundLight);
-  color: var(--text);
-  font-size: 1rem;
+    width: 100%;
+    border: 1px solid var(--inputBorder);
+    background: var(--componentBackgroundLight);
+    color: var(--text);
+    font-size: 1rem;
 }
 
-.form-card input[type="checkbox"] {
-  margin-right: 0.5rem;
-  width: 1rem;
-  height: 1rem;
+.form-card input[type='checkbox'] {
+    margin-right: 0.5rem;
+    width: 1rem;
+    height: 1rem;
 }
 
 /* used in .form-card, .step-card and the PayPal tab */
 .form-help {
-  font-size: 0.8rem;
-  color: var(--textSubtile);
+    font-size: 0.8rem;
+    color: var(--textSubtile);
 }
 
 .form-card ul {
-  list-style: none;
-  padding: 0;
-  color: var(--redText);
-  font-size: 0.85rem;
-  margin-top: 0.25rem;
+    list-style: none;
+    padding: 0;
+    color: var(--redText);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
 }
 
 .form-actions {
-  margin-top: 1.5rem;
-  display: flex;
-  gap: 0.5rem;
-  justify-content: flex-end;
+    margin-top: 1.5rem;
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
 }
 
 /* red × = <twig:CancelCircle>, dark ✓ = <twig:AcceptCheck> */
 .form-actions--circles {
-  gap: 0.75rem;
-  align-items: center;
+    gap: 0.75rem;
+    align-items: center;
 }
 
 .circle-action {
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.25rem;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
 }
 
 .circle-action__caption {
-  font-size: 0.65rem;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--textSubtile);
-  text-align: center;
+    font-size: 0.65rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--textSubtile);
+    text-align: center;
 }
 
 .form-cancel-circle {
-  background: var(--buttonCancelBackground);
-  color: var(--buttonCancelFont);
-  text-decoration: none;
+    background: var(--buttonCancelBackground);
+    color: var(--buttonCancelFont);
+    text-decoration: none;
 }
 .form-cancel-circle svg {
-  width: 0.7rem;
-  height: 0.7rem;
+    width: 0.7rem;
+    height: 0.7rem;
 }
 
 .accept-circle {
-  background: var(--buttonHighlightBackground);
-  color: var(--buttonHighlightFont);
+    background: var(--buttonHighlightBackground);
+    color: var(--buttonHighlightFont);
 }
 .accept-circle svg {
-  width: 0.9rem;
-  height: 0.65rem;
-  fill: currentColor;
+    width: 0.9rem;
+    height: 0.65rem;
+    fill: currentColor;
 }
 .accept-circle:disabled {
-  background: transparent;
-  color: var(--buttonDisabled);
-  border: 2px solid var(--buttonDisabled);
-  box-shadow: none;
-  cursor: not-allowed;
+    background: transparent;
+    color: var(--buttonDisabled);
+    border: 2px solid var(--buttonDisabled);
+    box-shadow: none;
+    cursor: not-allowed;
 }
 
 .edit-form {
-  max-width: 30rem;
-  margin: 0 auto 1.5rem;
+    max-width: 30rem;
+    margin: 0 auto 1.5rem;
 }
 .edit-form__checkbox-row {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1.25rem;
 }
 .edit-form__checkbox-row label {
-  margin: 0;
+    margin: 0;
 }
-.edit-form__checkbox-row input[type="checkbox"] {
-  width: 1rem;
-  height: 1rem;
-  margin: 0;
+.edit-form__checkbox-row input[type='checkbox'] {
+    width: 1rem;
+    height: 1rem;
+    margin: 0;
 }
 
 /* ---------- disabled banner ---------- */
 .banner {
-  padding: 0.75rem 1rem;
-  border-radius: var(--borderRadius);
-  margin-bottom: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: var(--borderRadius);
+    margin-bottom: 1rem;
 }
 
 .banner--disabled {
-  background: var(--redLight);
-  color: var(--redText);
+    background: var(--redLight);
+    color: var(--redText);
 }
 
 /* ---------- transaction rows ---------- */
 .transaction-list {
-  list-style: none;
-  margin: 0 auto;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  /* caps the full-history page on wide screens */
-  max-width: 64rem;
+    list-style: none;
+    margin: 0 auto;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    /* caps the full-history page on wide screens */
+    max-width: 64rem;
 }
 
 .transaction-row {
-  display: grid;
-  grid-template-columns: minmax(100px, max-content) minmax(0, 1fr) auto;
-  gap: 0.75rem;
-  align-items: center;
-  background: transparent;
-  padding: 1rem 0;
-  border: 0;
-  border-bottom: 1px solid var(--border);
-  border-radius: 0;
-  font-size: 0.9rem;
+    display: grid;
+    grid-template-columns: minmax(100px, max-content) minmax(0, 1fr) auto;
+    gap: 0.75rem;
+    align-items: center;
+    background: transparent;
+    padding: 1rem 0;
+    border: 0;
+    border-bottom: 1px solid var(--border);
+    border-radius: 0;
+    font-size: 0.9rem;
 }
 
 .transaction-row--deleted {
-  text-decoration: line-through;
+    text-decoration: line-through;
 }
 /* muted token, not opacity — opacity dropped the amounts below AA contrast */
 .transaction-row--deleted .balance-pill,
@@ -775,1104 +783,1185 @@ body { padding-top: 4rem; }
 .transaction-row--deleted .transfer-address--to,
 .transaction-row--deleted a,
 .transaction-row--deleted .transaction-row__desc {
-  color: var(--textSubtile);
+    color: var(--textSubtile);
 }
 
 .transaction-row__meta {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  justify-self: end;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    justify-self: end;
 }
 
 .transaction-row__date {
-  font-size: 0.75rem;
-  color: var(--textSubtile);
-  font-variant-numeric: tabular-nums;
+    font-size: 0.75rem;
+    color: var(--textSubtile);
+    font-variant-numeric: tabular-nums;
 }
 
 /* inline-block escapes the row's line-through */
 .transaction-row__reverted {
-  display: inline-block;
-  padding: 0.05rem 0.35rem;
-  border-radius: var(--borderRadius);
-  background: var(--redLight);
-  color: var(--redText);
-  font-size: 0.65rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+    display: inline-block;
+    padding: 0.05rem 0.35rem;
+    border-radius: var(--borderRadius);
+    background: var(--redLight);
+    color: var(--redText);
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
 }
 
 .transaction-row__comment {
-  color: var(--textSubtile);
+    color: var(--textSubtile);
 }
 
 /* names and comments are user-supplied — wrap, don't overflow */
 .transaction-row__desc {
-  overflow-wrap: anywhere;
+    overflow-wrap: anywhere;
 }
 
 /* the auto date/undo column left the desc only a few px on phones
    (letter-per-line wrap). Date and undo move under the desc; min-height keeps
    short rows level with the resulting two-line rows. */
 @media (max-width: 36em) {
-  .transaction-row {
-    row-gap: 0.3rem;
-    min-height: 4.4rem;
-  }
-  .transaction-row__meta {
-    grid-row: 2;
-    grid-column: 2 / -1;
-    display: flex;
-    justify-content: space-between;
-  }
+    .transaction-row {
+        row-gap: 0.3rem;
+        min-height: 4.4rem;
+    }
+    .transaction-row__meta {
+        grid-row: 2;
+        grid-column: 2 / -1;
+        display: flex;
+        justify-content: space-between;
+    }
 }
 
 /* the recent-tx sidebar is just as narrow between 48em and 64em — same fix */
 @media (min-width: 48em) and (max-width: 64em) {
-  .recent-tx .transaction-row {
-    row-gap: 0.3rem;
-  }
-  .recent-tx .transaction-row__meta {
-    grid-row: 2;
-    grid-column: 2 / -1;
-    display: flex;
-    justify-content: space-between;
-  }
+    .recent-tx .transaction-row {
+        row-gap: 0.3rem;
+    }
+    .recent-tx .transaction-row__meta {
+        grid-row: 2;
+        grid-column: 2 / -1;
+        display: flex;
+        justify-content: space-between;
+    }
 }
 
-.transfer-address--to { color: var(--greenText); }
+.transfer-address--to {
+    color: var(--greenText);
+}
 /* underlined: color alone can't distinguish these from body text */
-.transfer-address a { color: inherit; text-decoration: underline; }
+.transfer-address a {
+    color: inherit;
+    text-decoration: underline;
+}
 
-.article-badge a { text-decoration: underline; }
+.article-badge a {
+    text-decoration: underline;
+}
 
 /* ---------- user hero ---------- */
 .user-hero {
-  text-align: center;
-  margin: 0 auto;
-  padding: 0 1rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.4rem;
+    text-align: center;
+    margin: 0 auto;
+    padding: 0 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
 }
 
 @media (min-width: 48em) {
-  .user-hero {
-    /* max-, not fixed: long unbroken names overflow a fixed width */
-    max-width: 30rem;
-  }
+    .user-hero {
+        /* max-, not fixed: long unbroken names overflow a fixed width */
+        max-width: 30rem;
+    }
 }
 
 .user-hero__name {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-  /* names are up to 64 unbroken chars; the clamp keeps them from towering at 320px */
-  overflow-wrap: anywhere;
-  font-size: clamp(1.4rem, 5vw + 0.5rem, 2rem);
-  font-weight: 300;
-  text-transform: none;
-  color: var(--text);
-  margin: 0 auto;
-  line-height: 1.2;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    /* names are up to 64 unbroken chars; the clamp keeps them from towering at 320px */
+    overflow-wrap: anywhere;
+    font-size: clamp(1.4rem, 5vw + 0.5rem, 2rem);
+    font-weight: 300;
+    text-transform: none;
+    color: var(--text);
+    margin: 0 auto;
+    line-height: 1.2;
 }
 
 .user-hero__balance .balance-pill {
-  font-size: 1.6rem;
-  font-weight: 300;
+    font-size: 1.6rem;
+    font-weight: 300;
 }
 
 /* ---------- user-detail tab strip ---------- */
 .user-tabs {
-  display: flex;
-  /* a centered strip that overflows clips its ends unreachably at 320px */
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 1rem;
-  margin: 0 auto 1.5rem;
+    display: flex;
+    /* a centered strip that overflows clips its ends unreachably at 320px */
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+    margin: 0 auto 1.5rem;
 }
 
 .user-tabs a {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.5rem;
-  min-height: var(--touch-target);
-  color: var(--buttonDefaultFont);
-  font-size: 0.8rem;
-  font-weight: 400;
-  text-transform: uppercase;
-  text-decoration: none;
-  white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem;
+    min-height: var(--touch-target);
+    color: var(--buttonDefaultFont);
+    font-size: 0.8rem;
+    font-weight: 400;
+    text-transform: uppercase;
+    text-decoration: none;
+    white-space: nowrap;
 }
 
 .user-tabs a svg {
-  fill: var(--buttonDefaultFont);
-  margin-right: 0.5rem;
-  max-width: 1rem;
-  max-height: 1rem;
+    fill: var(--buttonDefaultFont);
+    margin-right: 0.5rem;
+    max-width: 1rem;
+    max-height: 1rem;
 }
 
-.user-tabs a[aria-current="page"] {
-  color: var(--primary);
-  background: var(--componentBackgroundLight);
-  border-radius: var(--borderRadius);
+.user-tabs a[aria-current='page'] {
+    color: var(--primary);
+    background: var(--componentBackgroundLight);
+    border-radius: var(--borderRadius);
 }
 
-.user-tabs a[aria-current="page"] svg {
-  fill: var(--primary);
+.user-tabs a[aria-current='page'] svg {
+    fill: var(--primary);
 }
 
 /* ---------- user-detail layout ---------- */
 .user-detail-grid {
-  display: grid;
-  /* minmax(0, …): intrinsic minimums must not widen the track past the viewport */
-  grid-template-columns: minmax(0, 1fr);
-  gap: 1rem;
-  margin: 1rem;
+    display: grid;
+    /* minmax(0, …): intrinsic minimums must not widen the track past the viewport */
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
+    margin: 1rem;
 }
 
 .user-detail-grid > * {
-  min-width: 0;
+    min-width: 0;
 }
 
 @media (min-width: 48em) {
-  .user-detail-grid {
-    /* fixed 24rem + 1fr ran ~22px over at exactly 768px */
-    grid-template-columns: minmax(17rem, 24rem) minmax(0, 1fr);
-    gap: 3rem;
-    justify-content: center;
-    align-items: start;
-    margin: 1rem auto;
-    max-width: 60rem;
-  }
+    .user-detail-grid {
+        /* fixed 24rem + 1fr ran ~22px over at exactly 768px */
+        grid-template-columns: minmax(17rem, 24rem) minmax(0, 1fr);
+        gap: 3rem;
+        justify-content: center;
+        align-items: start;
+        margin: 1rem auto;
+        max-width: 60rem;
+    }
 }
 
 .tab-panel {
-  max-width: 30rem;
-  margin: 0 auto 1.5rem;
-  padding: 0;
+    max-width: 30rem;
+    margin: 0 auto 1.5rem;
+    padding: 0;
 }
 
 /* the panel owns width and centering — per-tab caps would drift apart again */
 .tab-panel .edit-form,
 .tab-panel .form-card {
-  max-width: none;
-  margin: 0;
+    max-width: none;
+    margin: 0;
 }
 
 .tab-panel__card {
-  padding: 1.25rem 1.5rem;
+    padding: 1.25rem 1.5rem;
 }
 
 .tab-panel__header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
 }
 
 .tab-panel__heading {
-  font-size: 1rem;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--textSubtile);
-  margin: 0;
+    font-size: 1rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--textSubtile);
+    margin: 0;
 }
 
 .tab-panel__close {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2rem;
-  height: 2rem;
-  border-radius: 50%;
-  color: var(--textSubtile);
-  font-size: 1.3rem;
-  line-height: 1;
-  text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    color: var(--textSubtile);
+    font-size: 1.3rem;
+    line-height: 1;
+    text-decoration: none;
 }
 
 .tab-panel__close:hover {
-  background: var(--mainBackground);
-  color: var(--text);
+    background: var(--mainBackground);
+    color: var(--text);
 }
 
 .step-card {
-  background: var(--componentBackgroundLight);
-  border-radius: var(--borderRadius);
-  box-shadow: var(--level2);
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+    background: var(--componentBackgroundLight);
+    border-radius: var(--borderRadius);
+    box-shadow: var(--level2);
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
 }
 
 .step-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
 }
 
 .step-caption {
-  margin: 0;
-  font-size: 0.75rem;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--textSubtile);
-  text-align: center;
+    margin: 0;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--textSubtile);
+    text-align: center;
 }
 
 .step-grid {
-  display: grid;
-  /* 3-up like the SPA; fits 320px only with the smaller button font below */
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
+    display: grid;
+    /* 3-up like the SPA; fits 320px only with the smaller button font below */
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
 }
 
 .step-form {
-  display: contents;
+    display: contents;
 }
 
 .step-btn {
-  display: block;
-  width: 100%;
-  padding: 0.5rem;
-  min-height: var(--touch-target);
-  border: 0;
-  border-radius: var(--borderRadius);
-  font-family: inherit;
-  font-size: 0.75rem;
-  font-weight: 500;
-  cursor: pointer;
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
+    display: block;
+    width: 100%;
+    padding: 0.5rem;
+    min-height: var(--touch-target);
+    border: 0;
+    border-radius: var(--borderRadius);
+    font-family: inherit;
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
 }
 
 .step-btn--green {
-  background: var(--buttonGreenBackground);
-  color: var(--buttonGreenFont);
+    background: var(--buttonGreenBackground);
+    color: var(--buttonGreenFont);
 }
 
 .step-btn--red {
-  background: var(--buttonRedBackground);
-  color: var(--buttonRedFont);
+    background: var(--buttonRedBackground);
+    color: var(--buttonRedFont);
 }
 
-.step-btn:hover:not(:disabled) { filter: brightness(0.97); }
-.step-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.step-btn:hover:not(:disabled) {
+    filter: brightness(0.97);
+}
+.step-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
 
 /* always-visible custom row between the step grids, like the SPA: − amount + */
 .custom-form {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  gap: 0.75rem;
-  align-items: center;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 0.75rem;
+    align-items: center;
 }
 
 .custom-form__fab {
-  width: var(--touch-target);
-  height: var(--touch-target);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: 2px solid var(--textSubtile);
-  border-radius: 50%;
-  background: transparent;
-  color: var(--textSubtile);
-  font-size: 1.1rem;
-  line-height: 1;
-  cursor: pointer;
+    width: var(--touch-target);
+    height: var(--touch-target);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--textSubtile);
+    border-radius: 50%;
+    background: transparent;
+    color: var(--textSubtile);
+    font-size: 1.1rem;
+    line-height: 1;
+    cursor: pointer;
 }
 
 /* the circles take their direction color once an amount is typed, like the SPA */
-.custom-form:has(.custom-form__amount:not(:placeholder-shown)) .custom-form__fab--green {
-  border-color: var(--greenText);
-  color: var(--greenText);
+.custom-form:has(.custom-form__amount:not(:placeholder-shown))
+    .custom-form__fab--green {
+    border-color: var(--greenText);
+    color: var(--greenText);
 }
-.custom-form:has(.custom-form__amount:not(:placeholder-shown)) .custom-form__fab--red {
-  border-color: var(--redText);
-  color: var(--redText);
+.custom-form:has(.custom-form__amount:not(:placeholder-shown))
+    .custom-form__fab--red {
+    border-color: var(--redText);
+    color: var(--redText);
 }
 
 .custom-form__amount {
-  width: 100%;
-  text-align: center;
-  font-variant-numeric: tabular-nums;
-  font-size: 0.889rem; /* >= 16px: avoid iOS zoom-on-focus */
-  padding: 0.65rem 0.25rem;
-  background: transparent;
-  border: 0;
-  /* reads as a field — testers took the bare gap for a label */
-  border-bottom: 1px solid var(--inputBorder);
-  color: var(--text);
+    width: 100%;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    font-size: 0.889rem; /* >= 16px: avoid iOS zoom-on-focus */
+    padding: 0.65rem 0.25rem;
+    background: transparent;
+    border: 0;
+    /* reads as a field — testers took the bare gap for a label */
+    border-bottom: 1px solid var(--inputBorder);
+    color: var(--text);
 }
 
 .custom-form__amount::placeholder {
-  color: var(--textSubtile);
-  text-transform: uppercase;
-  font-size: 0.75rem;
+    color: var(--textSubtile);
+    text-transform: uppercase;
+    font-size: 0.75rem;
 }
 
 /* 320px phones: the 3-up grid overflows the card and the circles starve the
    amount field — go 2-up and stack the custom row instead */
 @media (max-width: 22.5em) {
-  .step-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .custom-form {
-    grid-template-columns: 1fr 1fr;
-    grid-template-areas:
-      'amount amount'
-      'minus plus';
-  }
-  .custom-form__amount { grid-area: amount; }
-  .custom-form__fab--red { grid-area: minus; justify-self: start; }
-  .custom-form__fab--green { grid-area: plus; justify-self: end; }
+    .step-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .custom-form {
+        grid-template-columns: 1fr 1fr;
+        grid-template-areas:
+            'amount amount'
+            'minus plus';
+    }
+    .custom-form__amount {
+        grid-area: amount;
+    }
+    .custom-form__fab--red {
+        grid-area: minus;
+        justify-self: start;
+    }
+    .custom-form__fab--green {
+        grid-area: plus;
+        justify-self: end;
+    }
 }
 
 /* ---------- send-money tab ---------- */
 .send-form-wrap {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
 }
 
 .send-form {
-  display: grid;
-  grid-template-columns: minmax(0, 4fr) 1fr minmax(0, 4fr) 1fr;
-  grid-template-areas: 'amount arrow recipient submit';
-  gap: 1rem;
-  align-items: center;
-  margin: 1rem 0 0;
+    display: grid;
+    grid-template-columns: minmax(0, 4fr) 1fr minmax(0, 4fr) 1fr;
+    grid-template-areas: 'amount arrow recipient submit';
+    gap: 1rem;
+    align-items: center;
+    margin: 1rem 0 0;
 }
 
-.send-form__amount { grid-area: amount; }
-.send-form__arrow { grid-area: arrow; }
-.send-form__recipient { grid-area: recipient; }
-.send-form .circle-action { grid-area: submit; justify-self: end; }
+.send-form__amount {
+    grid-area: amount;
+}
+.send-form__arrow {
+    grid-area: arrow;
+}
+.send-form__recipient {
+    grid-area: recipient;
+}
+.send-form .circle-action {
+    grid-area: submit;
+    justify-self: end;
+}
 
 /* the 4-column row crushed the recipient select on phones; the arrow is
    decorative (aria-hidden) so it can go */
 @media (max-width: 36em) {
-  .send-form {
-    grid-template-columns: minmax(0, 1fr) auto;
-    grid-template-areas:
-      'amount amount'
-      'recipient submit';
-  }
-  /* double selector out-cascades the base display rule below */
-  .send-form .send-form__arrow { display: none; }
+    .send-form {
+        grid-template-columns: minmax(0, 1fr) auto;
+        grid-template-areas:
+            'amount amount'
+            'recipient submit';
+    }
+    /* double selector out-cascades the base display rule below */
+    .send-form .send-form__arrow {
+        display: none;
+    }
 }
 
 .send-form__amount {
-  width: 100%;
-  padding: 0.5rem 0.75rem;
-  background: var(--componentBackgroundLight);
-  border: 1px solid var(--inputBorder);
-  border-radius: var(--borderRadius);
-  color: var(--text);
-  font-size: 0.95rem;
-  text-align: center;
-  font-variant-numeric: tabular-nums;
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    background: var(--componentBackgroundLight);
+    border: 1px solid var(--inputBorder);
+    border-radius: var(--borderRadius);
+    color: var(--text);
+    font-size: 0.95rem;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
 }
-.send-form__amount::placeholder { color: var(--textSubtile); }
+.send-form__amount::placeholder {
+    color: var(--textSubtile);
+}
 
 .send-form__arrow {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--primary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary);
 }
 .send-form__arrow svg {
-  width: 0.9rem;
-  height: 0.9rem;
-  fill: currentColor;
+    width: 0.9rem;
+    height: 0.9rem;
+    fill: currentColor;
 }
 
 .send-form__recipient {
-  width: 100%;
-  appearance: none;
-  -webkit-appearance: none;
-  padding: 0.5rem 0.75rem;
-  background: var(--componentBackgroundLight);
-  border: 0;
-  border-radius: var(--borderRadius);
-  color: var(--buttonDefaultFont);
-  font-family: inherit;
-  font-size: 0.889rem; /* >= 16px: avoid iOS zoom-on-focus */
-  text-transform: uppercase;
-  text-align: center;
-  text-align-last: center;
-  cursor: pointer;
-  box-shadow: var(--level1);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+    width: 100%;
+    appearance: none;
+    -webkit-appearance: none;
+    padding: 0.5rem 0.75rem;
+    background: var(--componentBackgroundLight);
+    border: 0;
+    border-radius: var(--borderRadius);
+    color: var(--buttonDefaultFont);
+    font-family: inherit;
+    font-size: 0.889rem; /* >= 16px: avoid iOS zoom-on-focus */
+    text-transform: uppercase;
+    text-align: center;
+    text-align-last: center;
+    cursor: pointer;
+    box-shadow: var(--level1);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .send-form__notes {
-  width: 100%;
-  padding: 0.5rem 0.75rem;
-  background: var(--componentBackgroundLight);
-  border: 1px solid var(--inputBorder);
-  border-radius: var(--borderRadius);
-  color: var(--text);
-  font-size: 0.889rem; /* >= 16px: avoid iOS zoom-on-focus */
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    background: var(--componentBackgroundLight);
+    border: 1px solid var(--inputBorder);
+    border-radius: var(--borderRadius);
+    color: var(--text);
+    font-size: 0.889rem; /* >= 16px: avoid iOS zoom-on-focus */
 }
-.send-form__notes::placeholder { color: var(--textSubtile); }
+.send-form__notes::placeholder {
+    color: var(--textSubtile);
+}
 
-.undo-form { display: contents; }
+.undo-form {
+    display: contents;
+}
 
 .undo-btn {
-  /* the negative block margin keeps the hit area from making undoable rows
+    /* the negative block margin keeps the hit area from making undoable rows
      taller than the rest; it overlaps the row's own padding instead */
-  min-width: var(--touch-target);
-  min-height: var(--touch-target);
-  margin-block: -0.75rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1rem;
-  line-height: 1;
-  background: transparent;
-  color: var(--textSubtile);
-  border: 0;
-  cursor: pointer;
+    min-width: var(--touch-target);
+    min-height: var(--touch-target);
+    margin-block: -0.75rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    line-height: 1;
+    background: transparent;
+    color: var(--textSubtile);
+    border: 0;
+    cursor: pointer;
 }
-.undo-btn:hover { color: var(--text); }
+.undo-btn:hover {
+    color: var(--text);
+}
 
 /* recent-tx column on user-detail */
 .recent-tx__footer {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 1rem;
-  margin-top: 0.5rem;
-  padding: 0.5rem 0.75rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 0.5rem;
+    padding: 0.5rem 0.75rem;
 }
 .user-detail-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  min-height: var(--touch-target);
-  font-size: 0.75rem;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--primary);
-  text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    min-height: var(--touch-target);
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--primary);
+    text-decoration: none;
 }
-.user-detail-link:hover { text-decoration: underline; }
+.user-detail-link:hover {
+    text-decoration: underline;
+}
 .user-detail-link__icon {
-  width: 0.85rem;
-  height: 0.85rem;
-  fill: currentColor;
+    width: 0.85rem;
+    height: 0.85rem;
+    fill: currentColor;
 }
 
 /* ---------- article rows ---------- */
 .article-rows {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  /* unclamped rows put ~1000px between name and price on wide screens */
-  max-width: 56rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    /* unclamped rows put ~1000px between name and price on wide screens */
+    max-width: 56rem;
 }
 
 .article-row {
-  margin-bottom: 0.2rem;
+    margin-bottom: 0.2rem;
 }
 .article-row__link {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem;
-  border-bottom: 1px solid var(--border);
-  color: inherit;
-  text-decoration: none;
-  gap: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid var(--border);
+    color: inherit;
+    text-decoration: none;
+    gap: 1rem;
 }
 
 .article-row__link:hover {
-  background: var(--componentBackgroundLight);
+    background: var(--componentBackgroundLight);
 }
 
 .article-row__name {
-  font-size: 1.25rem;
-  color: var(--text);
-  /* article names are up to 255 chars */
-  overflow-wrap: anywhere;
+    font-size: 1.25rem;
+    color: var(--text);
+    /* article names are up to 255 chars */
+    overflow-wrap: anywhere;
 }
 
 .article-row__price {
-  font-size: 1.25rem;
-  color: var(--text);
-  font-variant-numeric: tabular-nums;
+    font-size: 1.25rem;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
 }
 
-.article-row--inactive { opacity: 0.7; } /* 4.65:1 for the 1.25rem text */
+.article-row--inactive {
+    opacity: 0.7;
+} /* 4.65:1 for the 1.25rem text */
 
 /* only used on the search-results page */
 .article-card__price {
-  color: var(--textSubtile);
-  font-variant-numeric: tabular-nums;
+    color: var(--textSubtile);
+    font-variant-numeric: tabular-nums;
 }
 
 /* ---------- tag filter + chips ---------- */
 .tag-filter {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  margin: 2rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    margin: 2rem;
 }
 
 /* :visited/:hover pin the color — the global a:visited rule otherwise wins */
 .tag-chip,
 .tag-chip:visited,
 .tag-chip:hover {
-  display: inline-block;
-  padding: 0.625rem;
-  margin: 0.5rem;
-  background: var(--componentBackgroundLight);
-  border: 0;
-  border-radius: var(--borderRadius);
-  box-shadow: var(--level1);
-  font-size: 1rem;
-  font-weight: 400;
-  text-transform: none;
-  letter-spacing: 0;
-  color: var(--text);
-  text-decoration: none;
+    display: inline-block;
+    padding: 0.625rem;
+    margin: 0.5rem;
+    background: var(--componentBackgroundLight);
+    border: 0;
+    border-radius: var(--borderRadius);
+    box-shadow: var(--level1);
+    font-size: 1rem;
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--text);
+    text-decoration: none;
 }
 .tag-chip:hover {
-  box-shadow: var(--level2);
+    box-shadow: var(--level2);
 }
 .tag-chip--active,
 .tag-chip--active:visited,
 .tag-chip--active:hover {
-  background: var(--buttonHighlightBackground);
-  color: var(--buttonHighlightFont);
+    background: var(--buttonHighlightBackground);
+    color: var(--buttonHighlightFont);
 }
 
 /* article-edit barcode/tag chips */
 .chip-list {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 1rem;
-  display: flex;
-  flex-direction: column;
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1rem;
+    display: flex;
+    flex-direction: column;
 }
 .chip {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.5rem 0;
-  background: transparent;
-  border: 0;
-  border-bottom: 1px solid var(--border);
-  border-radius: 0;
-  font-size: 0.95rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid var(--border);
+    border-radius: 0;
+    font-size: 0.95rem;
 }
 .chip__label {
-  color: var(--text);
-  /* barcodes are up to 32 unbroken chars */
-  overflow-wrap: anywhere;
-  min-width: 0;
+    color: var(--text);
+    /* barcodes are up to 32 unbroken chars */
+    overflow-wrap: anywhere;
+    min-width: 0;
 }
 .chip-list__empty {
-  color: var(--textSubtile);
-  font-size: 0.85rem;
-  padding: 0.5rem 0;
+    color: var(--textSubtile);
+    font-size: 0.85rem;
+    padding: 0.5rem 0;
 }
 .chip__remove {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  /* 44px touch target; the red circle draws smaller via background-clip */
-  width: var(--touch-target);
-  height: var(--touch-target);
-  padding: 0.475rem;
-  background-clip: content-box;
-  border-radius: 50%;
-  background: var(--buttonRedBackground);
-  color: var(--buttonRedFont);
-  border: 0;
-  cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    /* 44px touch target; the red circle draws smaller via background-clip */
+    width: var(--touch-target);
+    height: var(--touch-target);
+    padding: 0.475rem;
+    background-clip: content-box;
+    border-radius: 50%;
+    background: var(--buttonRedBackground);
+    color: var(--buttonRedFont);
+    border: 0;
+    cursor: pointer;
 }
 .chip__remove svg {
-  width: 0.6rem;
-  height: 0.6rem;
+    width: 0.6rem;
+    height: 0.6rem;
 }
-.inline-form { display: contents; }
+.inline-form {
+    display: contents;
+}
 .inline-add {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  gap: 0.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 0.5rem;
 }
 .inline-add__field input {
-  min-width: 0;
+    min-width: 0;
 }
-.inline-add__field { flex: 1; }
+.inline-add__field {
+    flex: 1;
+}
 /* 0.65rem matches the input's height so the button bottom-aligns with it */
 .inline-add .btn {
-  padding: 0.65rem 0.75rem;
-  white-space: nowrap;
+    padding: 0.65rem 0.75rem;
+    white-space: nowrap;
 }
 
 .barcode-section,
 .tag-section {
-  margin-top: 1rem;
+    margin-top: 1rem;
 }
 
 .banner--info {
-  background: var(--componentBackgroundLight);
-  border: 1px solid var(--border);
-  color: var(--text);
+    background: var(--componentBackgroundLight);
+    border: 1px solid var(--border);
+    color: var(--text);
 }
 
 /* ---------- buy-article tab ---------- */
 .buy-tab {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
 }
 
 .buy-tab__search {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  width: 100%;
-  max-width: 30rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+    max-width: 30rem;
 }
 
 .buy-tab__search-input {
-  flex: 1;
-  padding: 0.5rem 0.75rem;
-  background: var(--componentBackgroundLight);
-  color: var(--text);
-  border: 1px solid var(--inputBorder);
-  border-radius: var(--borderRadius);
-  font-size: 0.95rem;
+    flex: 1;
+    padding: 0.5rem 0.75rem;
+    background: var(--componentBackgroundLight);
+    color: var(--text);
+    border: 1px solid var(--inputBorder);
+    border-radius: var(--borderRadius);
+    font-size: 0.95rem;
 }
 
 .buy-tab__search-input::placeholder {
-  color: var(--textSubtile);
+    color: var(--textSubtile);
 }
 
 .buy-tab__pills {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.6rem;
-  width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.6rem;
+    width: 100%;
 }
 
 .buy-tab__pill-form {
-  display: contents;
+    display: contents;
 }
 
 .buy-tab__pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  /* a 255-char article name must not force page-level scroll */
-  max-width: 100%;
-  padding: 0.5rem 0.75rem;
-  min-height: var(--touch-target);
-  background: var(--componentBackgroundLight);
-  color: var(--buttonDefaultFont);
-  border: 0;
-  border-radius: var(--borderRadius);
-  box-shadow: var(--level1);
-  font-family: inherit;
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0;
-  cursor: pointer;
-  white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    /* a 255-char article name must not force page-level scroll */
+    max-width: 100%;
+    padding: 0.5rem 0.75rem;
+    min-height: var(--touch-target);
+    background: var(--componentBackgroundLight);
+    color: var(--buttonDefaultFont);
+    border: 0;
+    border-radius: var(--borderRadius);
+    box-shadow: var(--level1);
+    font-family: inherit;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0;
+    cursor: pointer;
+    white-space: nowrap;
 }
 
 .buy-tab__pill:hover {
-  box-shadow: var(--level2);
+    box-shadow: var(--level2);
 }
 
 .buy-tab__pill-name {
-  overflow: hidden;
-  text-overflow: ellipsis;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .buy-tab__pill-sep {
-  color: var(--textSubtile);
-  font-weight: 400;
+    color: var(--textSubtile);
+    font-weight: 400;
 }
 
 .buy-tab__pill-price {
-  font-variant-numeric: tabular-nums;
+    font-variant-numeric: tabular-nums;
 }
 
 /* hidden state set by the article-filter controller */
-.buy-tab__pill-form[hidden] { display: none !important; }
+.buy-tab__pill-form[hidden] {
+    display: none !important;
+}
 
 /* no-JS barcode fallback row (hidden by the controller when JS is alive) */
 .buy-tab__scan {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.8rem;
-  color: var(--textSubtile);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    color: var(--textSubtile);
 }
 .buy-tab__scan input[type='text'] {
-  flex: 1 1 8rem;
-  min-width: 0;
-  width: 11rem;
-  padding: 0.4rem 0.6rem;
-  background: var(--componentBackgroundLight);
-  color: var(--text);
-  border: 1px solid var(--inputBorder);
-  border-radius: var(--borderRadius);
+    flex: 1 1 8rem;
+    min-width: 0;
+    width: 11rem;
+    padding: 0.4rem 0.6rem;
+    background: var(--componentBackgroundLight);
+    color: var(--text);
+    border: 1px solid var(--inputBorder);
+    border-radius: var(--borderRadius);
 }
-.buy-tab__scan[hidden] { display: none !important; }
+.buy-tab__scan[hidden] {
+    display: none !important;
+}
 
 /* ---------- search page ---------- */
 .search-page-form {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
 }
-.search-page-form input { flex: 1; }
-.search-section { margin-bottom: 1.5rem; }
+.search-page-form input {
+    flex: 1;
+}
+.search-section {
+    margin-bottom: 1.5rem;
+}
 .search-section h2 {
-  font-size: 0.95rem;
-  margin-bottom: 0.5rem;
-  text-transform: none;
-  letter-spacing: 0;
+    font-size: 0.95rem;
+    margin-bottom: 0.5rem;
+    text-transform: none;
+    letter-spacing: 0;
 }
-.search-results { list-style: none; padding: 0; }
-.search-results a { text-decoration: underline; }
+.search-results {
+    list-style: none;
+    padding: 0;
+}
+.search-results a {
+    text-decoration: underline;
+}
 .search-results li {
-  overflow-wrap: anywhere;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.5rem 0.75rem;
-  background: var(--componentBackgroundLight);
-  border-radius: var(--borderRadius);
-  border: 1px solid var(--border);
-  margin-bottom: 0.25rem;
+    overflow-wrap: anywhere;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    background: var(--componentBackgroundLight);
+    border-radius: var(--borderRadius);
+    border: 1px solid var(--border);
+    margin-bottom: 0.25rem;
 }
 
 /* ---------- split-invoice ---------- */
 .split-invoice-wrapper {
-  max-width: 30em;
-  margin: 2rem auto;
-  padding: 0 1rem;
+    max-width: 30em;
+    margin: 2rem auto;
+    padding: 0 1rem;
 }
 .split-invoice__title {
-  text-align: center;
-  text-transform: uppercase;
-  font-size: 1rem;
-  font-weight: 400;
-  color: var(--text);
-  margin: 0 0 1rem;
+    text-align: center;
+    text-transform: uppercase;
+    font-size: 1rem;
+    font-weight: 400;
+    color: var(--text);
+    margin: 0 0 1rem;
 }
 
 .split-invoice-help {
-  text-align: center;
-  color: var(--textSubtile);
-  font-size: 0.85rem;
-  margin: 0 0 1.5rem;
+    text-align: center;
+    color: var(--textSubtile);
+    font-size: 0.85rem;
+    margin: 0 0 1.5rem;
 }
 
 .split-invoice-preview {
-  text-align: center;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  color: var(--text);
-  margin: 1rem 0 0;
+    text-align: center;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--text);
+    margin: 1rem 0 0;
 }
 
 .split-invoice-form {
-  display: block;
+    display: block;
 }
 
 /* invisible default submit: display:none still receives implicit Enter submission */
 .default-submit {
-  display: none;
+    display: none;
 }
 
 /* auto middle column for the conjunction — equal thirds squeezed the fields */
 .split-invoice-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-  gap: 1rem;
-  margin: 1rem 0;
-  align-items: center;
-  justify-content: center;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    gap: 1rem;
+    margin: 1rem 0;
+    align-items: center;
+    justify-content: center;
 }
 
 @media (max-width: 36em) {
-  .split-invoice-grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
+    .split-invoice-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
 }
 
 /* lift the base clamp — it truncated the "Select recipient" label */
 .split-invoice-grid .split-invoice-pick {
-  max-width: none;
+    max-width: none;
 }
 
 .split-invoice-conj {
-  text-align: center;
-  color: var(--text);
-  font-size: 1rem;
+    text-align: center;
+    color: var(--text);
+    font-size: 1rem;
 }
 .split-invoice-conj--block {
-  margin: 1rem 0;
+    margin: 1rem 0;
 }
 
 .split-invoice-input {
-  width: 100%;
-  padding: 0.5rem;
-  background: var(--componentBackgroundDark);
-  border: 1px solid var(--inputBorder);
-  border-radius: var(--borderRadius);
-  color: var(--text);
-  font-size: 0.889rem; /* >= 16px: avoid iOS zoom-on-focus */
-  font-family: inherit;
+    width: 100%;
+    padding: 0.5rem;
+    background: var(--componentBackgroundDark);
+    border: 1px solid var(--inputBorder);
+    border-radius: var(--borderRadius);
+    color: var(--text);
+    font-size: 0.889rem; /* >= 16px: avoid iOS zoom-on-focus */
+    font-family: inherit;
 }
-.split-invoice-input::placeholder { color: var(--textSubtile); }
+.split-invoice-input::placeholder {
+    color: var(--textSubtile);
+}
 
 /* native <select> dressed as the SPA's picker button */
 .split-invoice-pick {
-  appearance: none;
-  -webkit-appearance: none;
-  background: var(--componentBackgroundLight);
-  color: var(--buttonDefaultFont);
-  border: 0;
-  border-radius: var(--borderRadius);
-  padding: 0.5rem;
-  font-family: inherit;
-  font-size: 0.889rem; /* >= 16px: avoid iOS zoom-on-focus */
-  letter-spacing: 0;
-  text-transform: uppercase;
-  text-align: center;
-  text-align-last: center;
-  cursor: pointer;
-  width: 100%;
-  max-width: 10.5rem;
-  margin: 0 auto;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+    appearance: none;
+    -webkit-appearance: none;
+    background: var(--componentBackgroundLight);
+    color: var(--buttonDefaultFont);
+    border: 0;
+    border-radius: var(--borderRadius);
+    padding: 0.5rem;
+    font-family: inherit;
+    font-size: 0.889rem; /* >= 16px: avoid iOS zoom-on-focus */
+    letter-spacing: 0;
+    text-transform: uppercase;
+    text-align: center;
+    text-align-last: center;
+    cursor: pointer;
+    width: 100%;
+    max-width: 10.5rem;
+    margin: 0 auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .split-invoice-participants {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
 }
 .split-invoice-participants-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  width: 100%;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
 }
 .participants__row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    width: 100%;
 }
 .participants__row .split-invoice-pick {
-  margin: 0;
+    margin: 0;
 }
 .participants__remove {
-  background: var(--buttonCancelBackground);
-  color: var(--buttonCancelFont);
-  font-size: 1rem;
-  line-height: 1;
+    background: var(--buttonCancelBackground);
+    color: var(--buttonCancelFont);
+    font-size: 1rem;
+    line-height: 1;
 }
 .participants__remove[hidden] {
-  display: none !important;
+    display: none !important;
 }
 
 /* same chrome as the picker; the action is JS-only */
 .split-invoice-add {
-  background: var(--componentBackgroundLight);
-  color: var(--buttonDefaultFont);
-  border: 0;
-  border-radius: var(--borderRadius);
-  padding: 0.5rem;
-  font-family: inherit;
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  cursor: pointer;
-  max-width: 190px;
-  width: 100%;
-  white-space: nowrap;
+    background: var(--componentBackgroundLight);
+    color: var(--buttonDefaultFont);
+    border: 0;
+    border-radius: var(--borderRadius);
+    padding: 0.5rem;
+    font-family: inherit;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    cursor: pointer;
+    max-width: 190px;
+    width: 100%;
+    white-space: nowrap;
 }
 
 .split-invoice-actions {
-  margin: 2rem 0 0;
-  display: flex;
-  justify-content: center;
+    margin: 2rem 0 0;
+    display: flex;
+    justify-content: center;
 }
-.row-error { color: var(--redText); font-size: 0.8rem; }
+.row-error {
+    color: var(--redText);
+    font-size: 0.8rem;
+}
 
 /* ---------- metrics chart (Chart.js) ---------- */
 .metrics-chart {
-  margin: 1.5rem 0;
+    margin: 1.5rem 0;
 }
 .metrics-chart h2 {
-  font-size: 0.85rem;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--textSubtile);
-  margin-bottom: 0.75rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--textSubtile);
+    margin-bottom: 0.75rem;
 }
 .metrics-chart__canvas-wrap {
-  position: relative;
-  height: clamp(240px, 50vh, 400px);
-  background: var(--componentBackgroundLight);
-  border-radius: var(--borderRadius);
-  box-shadow: var(--level1);
-  padding: 1rem;
+    position: relative;
+    height: clamp(240px, 50vh, 400px);
+    background: var(--componentBackgroundLight);
+    border-radius: var(--borderRadius);
+    box-shadow: var(--level1);
+    padding: 1rem;
 }
 .metrics-table-details summary {
-  cursor: pointer;
-  font-size: 0.8rem;
-  color: var(--textSubtile);
-  padding: 0.5rem 0;
-  margin-top: 1rem;
+    cursor: pointer;
+    font-size: 0.8rem;
+    color: var(--textSubtile);
+    padding: 0.5rem 0;
+    margin-top: 1rem;
 }
-.metrics-table-details[open] summary { color: var(--text); }
+.metrics-table-details[open] summary {
+    color: var(--text);
+}
 
 /* ---------- metrics ---------- */
 .kpi-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
-  gap: 0.75rem;
-  margin-bottom: 1rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1rem;
 }
 .kpi {
-  background: var(--componentBackgroundLight);
-  border-radius: var(--borderRadius);
-  padding: 1rem;
-  box-shadow: var(--level1);
+    background: var(--componentBackgroundLight);
+    border-radius: var(--borderRadius);
+    padding: 1rem;
+    box-shadow: var(--level1);
 }
 .kpi__label {
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--textSubtile);
-  margin-bottom: 0.15rem;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--textSubtile);
+    margin-bottom: 0.15rem;
 }
 .kpi__value {
-  font-size: 1rem;
-  font-weight: 400;
-  font-variant-numeric: tabular-nums;
-  color: var(--text);
+    font-size: 1rem;
+    font-weight: 400;
+    font-variant-numeric: tabular-nums;
+    color: var(--text);
 }
 
-.kpi__value.is-positive { color: var(--greenText); }
-.kpi__value.is-negative { color: var(--redText); }
+.kpi__value.is-positive {
+    color: var(--greenText);
+}
+.kpi__value.is-negative {
+    color: var(--redText);
+}
 .kpi__sublist {
-  margin-top: 0.5rem;
-  list-style: none;
-  padding: 0;
-  font-size: 0.8rem;
-  color: var(--textSubtile);
+    margin-top: 0.5rem;
+    list-style: none;
+    padding: 0;
+    font-size: 0.8rem;
+    color: var(--textSubtile);
 }
 
 .metrics-table a {
-  text-decoration: underline;
+    text-decoration: underline;
 }
 
 /* scroll wrapper — display tricks on <table> strip its role for assistive tech */
 .table-scroll {
-  overflow-x: auto;
+    overflow-x: auto;
 }
 
 .metrics-note {
-  color: var(--textSubtile);
-  font-size: 0.8rem;
-  margin: -0.5rem 0 1rem;
+    color: var(--textSubtile);
+    font-size: 0.8rem;
+    margin: -0.5rem 0 1rem;
 }
 
 .metrics-table {
-  width: 100%;
-  background: var(--componentBackgroundLight);
-  border-radius: var(--borderRadius);
-  overflow: hidden;
-  border: 1px solid var(--border);
-  font-size: 0.85rem;
+    width: 100%;
+    background: var(--componentBackgroundLight);
+    border-radius: var(--borderRadius);
+    overflow: hidden;
+    border: 1px solid var(--border);
+    font-size: 0.85rem;
 }
 .metrics-table th,
 .metrics-table td {
-  padding: 0.5rem 0.75rem;
-  border-bottom: 1px solid var(--border);
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-  /* the wrapper scrolls — better than three-line wrapped dates */
-  white-space: nowrap;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    /* the wrapper scrolls — better than three-line wrapped dates */
+    white-space: nowrap;
 }
 .metrics-table th:first-child,
 .metrics-table td:first-child {
-  text-align: left;
-  font-variant-numeric: normal;
+    text-align: left;
+    font-variant-numeric: normal;
 }
 .metrics-table thead th {
-  background: var(--mainBackground);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  font-size: 0.75rem;
+    background: var(--mainBackground);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: 0.75rem;
 }
 .metrics-table tfoot th {
-  background: var(--mainBackground);
-  font-weight: 700;
+    background: var(--mainBackground);
+    font-weight: 700;
 }
 
 /* ---------- error page ---------- */
 .error-page {
-  text-align: center;
-  padding: 3rem 1rem;
+    text-align: center;
+    padding: 3rem 1rem;
 }
 
 .error-page__code {
-  font-size: 4rem;
-  font-weight: 700;
-  color: var(--textSubtile);
+    font-size: 4rem;
+    font-weight: 700;
+    color: var(--textSubtile);
 }
 
 .error-page__message {
-  font-size: 1.2rem;
-  margin-bottom: 1.5rem;
+    font-size: 1.2rem;
+    margin-bottom: 1.5rem;
 }
 
 /* ---------- list gutter rail — kept at EOF to out-cascade the margin
    shorthands declared above. Desktop only: at tablet width the rail pushed
    pages off-center with a dead left band. ---------- */
 @media (min-width: 64em) {
-  .list-toolbar { margin-left: 8rem; }
-  .user-grid { margin-left: 8rem; }
-  .article-rows { margin-left: 8rem; }
-  /* without the shift, wrapping tag chips slide under the FAB and get click-blocked */
-  .tag-filter { margin-left: 8rem; }
+    .list-toolbar {
+        margin-left: 8rem;
+    }
+    .user-grid {
+        margin-left: 8rem;
+    }
+    .article-rows {
+        margin-left: 8rem;
+    }
+    /* without the shift, wrapping tag chips slide under the FAB and get click-blocked */
+    .tag-filter {
+        margin-left: 8rem;
+    }
 }

@@ -6,9 +6,11 @@
     {# document-level barcode listener: a scanner burst anywhere on the page posts a
        buy, no visible input. Never armed for disabled accounts. #}
     {% if not user.disabled %}
-        <div data-controller="barcode-listener"
-             data-barcode-listener-action-value="{{ path('transactions_buy', {id: user.id}) }}"
-             data-barcode-listener-token-value="{{ csrf_token('buy' ~ user.id) }}"></div>
+        <div
+            data-controller="barcode-listener"
+            data-barcode-listener-action-value="{{ path('transactions_buy', {id: user.id}) }}"
+            data-barcode-listener-token-value="{{ csrf_token('buy' ~ user.id) }}"
+        ></div>
     {% endif %}
 
     <section class="user-hero" aria-labelledby="user-hero-name">
@@ -23,24 +25,25 @@
     {% if user.disabled %}
         {% include 'users/_disabled_banner.html.twig' %}
     {% endif %}
-
-    {% include 'users/_action_tabs.html.twig' with {
-        user: user,
-        activeTab: activeTab,
-        showSendTab: showSendTab,
-        showBuyTab: showBuyTab,
-        showPaypalTab: showPaypalTab,
-    } only %}
+    {%
+        include 'users/_action_tabs.html.twig' with {
+            user: user,
+            activeTab: activeTab,
+            showSendTab: showSendTab,
+            showBuyTab: showBuyTab,
+            showPaypalTab: showPaypalTab,
+        } only
+    %}
 
     {% if activeTab %}
         <section class="tab-panel" aria-label="{{ ('user.detail.tabs.' ~ activeTab)|trans }}">
             {% if activeTab == 'edit' %}
                 {{ include('users/_edit_form.html.twig', {form: editForm, user: user}) }}
-            {% elseif activeTab == 'send' %}
+                {% elseif activeTab == 'send' %}
                 {{ include('users/_tab_send.html.twig', {send: send, user: user}) }}
-            {% elseif activeTab == 'buy' %}
+                {% elseif activeTab == 'buy' %}
                 {{ include('users/_tab_buy.html.twig', {user: user, buy: buy}) }}
-            {% elseif activeTab == 'paypal' %}
+                {% elseif activeTab == 'paypal' %}
                 {{ include('users/_tab_paypal.html.twig', {user: user}) }}
             {% endif %}
         </section>
@@ -60,21 +63,25 @@
             {% else %}
                 <ul class="transaction-list">
                     {% for row in recentTransactions %}
-                        <twig:TransactionRow tx="{{ row.tx }}" deletable="{{ row.deletable }}" ownerUserId="{{ user.id }}" />
+                        <twig:TransactionRow
+                            tx="{{ row.tx }}"
+                            deletable="{{ row.deletable }}"
+                            ownerUserId="{{ user.id }}"
+                        />
                     {% endfor %}
                 </ul>
             {% endif %}
             <div class="recent-tx__footer">
                 <a href="{{ path('users_transactions', {id: user.id}) }}" class="user-detail-link">
                     <svg class="user-detail-link__icon" viewBox="0 0 16 16" aria-hidden="true">
-                        <path fill="currentColor" d="M8 1l4 4-1 1-2-2v8H7V4L5 6 4 5z"/>
-                        <path fill="currentColor" d="M8 15l-4-4 1-1 2 2V4h2v8l2-2 1 1z"/>
+                        <path fill="currentColor" d="M8 1l4 4-1 1-2-2v8H7V4L5 6 4 5z" />
+                        <path fill="currentColor" d="M8 15l-4-4 1-1 2 2V4h2v8l2-2 1 1z" />
                     </svg>
                     {{ 'user.detail.view_all'|trans }}
                 </a>
                 <a href="{{ path('metrics_user', {id: user.id}) }}" class="user-detail-link">
                     <svg class="user-detail-link__icon" viewBox="0 0 16 16" aria-hidden="true">
-                        <path fill="currentColor" d="M2 14V2h2v12zM5 14V7h2v7zM8 14V4h2v10zM11 14V8h2v6z"/>
+                        <path fill="currentColor" d="M2 14V2h2v12zM5 14V7h2v7zM8 14V4h2v10zM11 14V8h2v6z" />
                     </svg>
                     {{ 'user.detail.metrics'|trans }}
                 </a>

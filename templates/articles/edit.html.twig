@@ -17,13 +17,16 @@
             <div class="card article-form">
                 <h2 class="article-form__name">{{ article.name }}</h2>
                 {{ form_start(form) }}
-                    {{ form_row(form.name) }}
-                    {{ form_row(form.amount) }}
-                    {{ form_row(form.active) }}
-                    <div class="form-actions form-actions--circles">
-                        <twig:CancelCircle href="{{ article.active ? path('articles_active') : path('articles_inactive') }}" label="{{ 'common.cancel'|trans }}" />
-                        <twig:AcceptCheck label="{{ 'articles.edit.submit'|trans }}" />
-                    </div>
+                {{ form_row(form.name) }}
+                {{ form_row(form.amount) }}
+                {{ form_row(form.active) }}
+                <div class="form-actions form-actions--circles">
+                    <twig:CancelCircle
+                        href="{{ article.active ? path('articles_active') : path('articles_inactive') }}"
+                        label="{{ 'common.cancel'|trans }}"
+                    />
+                    <twig:AcceptCheck label="{{ 'articles.edit.submit'|trans }}" />
+                </div>
                 {{ form_end(form) }}
             </div>
 
@@ -33,10 +36,29 @@
                     {% for barcode in article.barcodes %}
                         <li class="chip">
                             <span class="chip__label">{{ barcode.barcode }}</span>
-                            <form method="post" action="{{ path('articles_barcodes_delete', {id: article.id, bid: barcode.id}) }}" class="inline-form">
-                                <input type="hidden" name="_token" value="{{ csrf_token('delete_barcode' ~ barcode.id) }}">
-                                <button type="submit" class="chip__remove" aria-label="{{ 'articles.barcodes.remove'|trans({'%barcode%': barcode.barcode}) }}">
-                                    <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 3L13 13M13 3L3 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                            <form
+                                method="post"
+                                action="{{ path('articles_barcodes_delete', {id: article.id, bid: barcode.id}) }}"
+                                class="inline-form"
+                            >
+                                <input
+                                    type="hidden"
+                                    name="_token"
+                                    value="{{ csrf_token('delete_barcode' ~ barcode.id) }}"
+                                />
+                                <button
+                                    type="submit"
+                                    class="chip__remove"
+                                    aria-label="{{ 'articles.barcodes.remove'|trans({'%barcode%': barcode.barcode}) }}"
+                                >
+                                    <svg viewBox="0 0 16 16" aria-hidden="true">
+                                        <path
+                                            d="M3 3L13 13M13 3L3 13"
+                                            stroke="currentColor"
+                                            stroke-width="2"
+                                            stroke-linecap="round"
+                                        />
+                                    </svg>
                                 </button>
                             </form>
                         </li>
@@ -47,9 +69,9 @@
                 <form method="post" action="{{ path('articles_barcodes_add', {id: article.id}) }}" class="inline-add">
                     <div class="inline-add__field">
                         <label for="new-barcode">{{ 'articles.barcodes.add_label'|trans }}</label>
-                        <input type="text" id="new-barcode" name="barcode" maxlength="32" required>
+                        <input type="text" id="new-barcode" name="barcode" maxlength="32" required />
                     </div>
-                    <input type="hidden" name="_token" value="{{ csrf_token('add_barcode' ~ article.id) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('add_barcode' ~ article.id) }}" />
                     <button type="submit" class="btn btn--add">+ {{ 'articles.barcodes.add_submit'|trans }}</button>
                 </form>
             </section>
@@ -62,10 +84,25 @@
                     {% for tag in article.tags %}
                         <li class="chip">
                             <span class="chip__label">{{ tag.tag }}</span>
-                            <form method="post" action="{{ path('articles_tags_delete', {id: article.id, tid: tag.id}) }}" class="inline-form">
-                                <input type="hidden" name="_token" value="{{ csrf_token('delete_tag' ~ tag.id) }}">
-                                <button type="submit" class="chip__remove" aria-label="{{ 'articles.tags.remove'|trans({'%tag%': tag.tag}) }}">
-                                    <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 3L13 13M13 3L3 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                            <form
+                                method="post"
+                                action="{{ path('articles_tags_delete', {id: article.id, tid: tag.id}) }}"
+                                class="inline-form"
+                            >
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete_tag' ~ tag.id) }}" />
+                                <button
+                                    type="submit"
+                                    class="chip__remove"
+                                    aria-label="{{ 'articles.tags.remove'|trans({'%tag%': tag.tag}) }}"
+                                >
+                                    <svg viewBox="0 0 16 16" aria-hidden="true">
+                                        <path
+                                            d="M3 3L13 13M13 3L3 13"
+                                            stroke="currentColor"
+                                            stroke-width="2"
+                                            stroke-linecap="round"
+                                        />
+                                    </svg>
                                 </button>
                             </form>
                         </li>
@@ -76,9 +113,9 @@
                 <form method="post" action="{{ path('articles_tags_add', {id: article.id}) }}" class="inline-add">
                     <div class="inline-add__field">
                         <label for="new-tag">{{ 'articles.tags.add_label'|trans }}</label>
-                        <input type="text" id="new-tag" name="tag" maxlength="64" required>
+                        <input type="text" id="new-tag" name="tag" maxlength="64" required />
                     </div>
-                    <input type="hidden" name="_token" value="{{ csrf_token('add_tag' ~ article.id) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('add_tag' ~ article.id) }}" />
                     <button type="submit" class="btn btn--add">+ {{ 'articles.tags.add_submit'|trans }}</button>
                 </form>
             </section>
@@ -87,7 +124,9 @@
 
     {% if article.active %}
         <div class="article-form-archive">
-            <a class="btn btn--red" href="{{ path('articles_delete', {id: article.id}) }}">{{ 'articles.edit.archive_cta'|trans }}</a>
+            <a class="btn btn--red" href="{{ path('articles_delete', {id: article.id}) }}"
+                >{{ 'articles.edit.archive_cta'|trans }}</a
+            >
         </div>
     {% endif %}
 {% endblock %}

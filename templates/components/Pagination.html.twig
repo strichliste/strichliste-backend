@@ -4,11 +4,23 @@
     {%- set nextPage = min(totalPages, currentPage + 1) -%}
     <nav class="pagination" aria-label="{{ 'pagination.label'|trans }}">
         {% if currentPage > 1 %}
-            <a class="pagination__link" href="{{ baseUrl }}?{{ ({(queryParam): prevPage}|merge(extraParams))|url_encode }}" rel="prev">{{ 'pagination.previous'|trans }}</a>
+            <a
+                class="pagination__link"
+                href="{{ baseUrl }}?{{ ({(queryParam): prevPage}|merge(extraParams))|url_encode }}"
+                rel="prev"
+                >{{ 'pagination.previous'|trans }}</a
+            >
         {% endif %}
-        <span class="pagination__status">{{ 'pagination.page_of'|trans({'%current%': currentPage, '%total%': totalPages}) }}</span>
+        <span class="pagination__status"
+            >{{ 'pagination.page_of'|trans({'%current%': currentPage, '%total%': totalPages}) }}</span
+        >
         {% if currentPage < totalPages %}
-            <a class="pagination__link" href="{{ baseUrl }}?{{ ({(queryParam): nextPage}|merge(extraParams))|url_encode }}" rel="next">{{ 'pagination.next'|trans }}</a>
+            <a
+                class="pagination__link"
+                href="{{ baseUrl }}?{{ ({(queryParam): nextPage}|merge(extraParams))|url_encode }}"
+                rel="next"
+                >{{ 'pagination.next'|trans }}</a
+            >
         {% endif %}
     </nav>
 {% endif %}

@@ -3,8 +3,10 @@
 {% block title %}{{ 'transactions.history.title'|trans({'%name%': user.name}) }} · Strichliste{% endblock %}
 
 {% block main %}
-    <twig:PageHeader title="{{ 'transactions.history.title'|trans({'%name%': user.name}) }}"
-                     subtitle="{{ (total == 1 ? 'transactions.history.count_one' : 'transactions.history.count_other')|trans({'%count%': total}) }}">
+    <twig:PageHeader
+        title="{{ 'transactions.history.title'|trans({'%name%': user.name}) }}"
+        subtitle="{{ (total == 1 ? 'transactions.history.count_one' : 'transactions.history.count_other')|trans({'%count%': total}) }}"
+    >
         <twig:block name="actions">
             <a class="btn" href="{{ path('users_detail', {id: user.id}) }}">&larr; {{ user.name }}</a>
         </twig:block>
@@ -15,11 +17,19 @@
     {% else %}
         <ul class="transaction-list">
             {% for row in rows %}
-                <twig:TransactionRow tx="{{ row.tx }}" deletable="{{ row.deletable }}" ownerUserId="{{ user.id }}" returnTo="history" />
+                <twig:TransactionRow
+                    tx="{{ row.tx }}"
+                    deletable="{{ row.deletable }}"
+                    ownerUserId="{{ user.id }}"
+                    returnTo="history"
+                />
             {% endfor %}
         </ul>
 
-        <twig:Pagination currentPage="{{ page }}" totalPages="{{ totalPages }}"
-                         baseUrl="{{ path('users_transactions', {id: user.id}) }}" />
+        <twig:Pagination
+            currentPage="{{ page }}"
+            totalPages="{{ totalPages }}"
+            baseUrl="{{ path('users_transactions', {id: user.id}) }}"
+        />
     {% endif %}
 {% endblock %}

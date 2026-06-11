@@ -5,8 +5,12 @@
     <div class="card">
         <p>{{ 'paypal.cancel.body'|trans }}</p>
         <p>
-            <a class="btn btn--highlight" href="{{ path('users_detail', {id: user.id, tab: 'paypal'}) }}">{{ 'paypal.cancel.try_again'|trans }}</a>
-            <a class="btn" href="{{ path('users_detail', {id: user.id}) }}">{{ 'paypal.cancel.back'|trans({'%name%': user.name}) }}</a>
+            <a class="btn btn--highlight" href="{{ path('users_detail', {id: user.id, tab: 'paypal'}) }}"
+                >{{ 'paypal.cancel.try_again'|trans }}</a
+            >
+            <a class="btn" href="{{ path('users_detail', {id: user.id}) }}"
+                >{{ 'paypal.cancel.back'|trans({'%name%': user.name}) }}</a
+            >
         </p>
     </div>
 {% endblock %}

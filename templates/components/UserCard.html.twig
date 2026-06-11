@@ -1,5 +1,12 @@
 {% props user %}
-<a class="user-card{% if user.disabled %} user-card--disabled{% endif %}" href="{{ path('users_detail', {id: user.id}) }}">
-    <span class="user-card__name">{{ user.name }}{% if user.disabled %} <span class="visually-hidden">{{ 'user.list.disabled_label'|trans }}</span>{% endif %}</span>
+<a
+    class="user-card{% if user.disabled %}user-card--disabled{% endif %}"
+    href="{{ path('users_detail', {id: user.id}) }}"
+>
+    <span class="user-card__name"
+        >{{ user.name }}{% if user.disabled %}
+            <span class="visually-hidden">{{ 'user.list.disabled_label'|trans }}</span>
+        {% endif %}</span
+    >
     <twig:BalancePill amount="{{ user.balance }}" />
 </a>

@@ -1,304 +1,352 @@
 /* self-hosted Inter; AssetMapper rewrites the url()s to hashed paths */
 @font-face {
-  font-family: 'Inter';
-  font-style: normal;
-  font-weight: 300;
-  font-display: swap;
-  src: url('../fonts/Inter-Light.woff2') format('woff2');
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 300;
+    font-display: swap;
+    src: url('../fonts/Inter-Light.woff2') format('woff2');
 }
 @font-face {
-  font-family: 'Inter';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url('../fonts/Inter-Regular.woff2') format('woff2');
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('../fonts/Inter-Regular.woff2') format('woff2');
 }
 @font-face {
-  font-family: 'Inter';
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-  src: url('../fonts/Inter-Medium.woff2') format('woff2');
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url('../fonts/Inter-Medium.woff2') format('woff2');
 }
 @font-face {
-  font-family: 'Inter';
-  font-style: normal;
-  font-weight: 600;
-  font-display: swap;
-  src: url('../fonts/Inter-SemiBold.woff2') format('woff2');
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url('../fonts/Inter-SemiBold.woff2') format('woff2');
 }
 @font-face {
-  font-family: 'Inter';
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url('../fonts/Inter-Bold.woff2') format('woff2');
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url('../fonts/Inter-Bold.woff2') format('woff2');
 }
 /* variable fallback for unpinned weights; last so the explicit weights win */
 @font-face {
-  font-family: 'Inter';
-  font-style: normal;
-  font-weight: 100 900;
-  font-display: swap;
-  src: url('../fonts/Inter-roman.woff2') format('woff2');
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url('../fonts/Inter-roman.woff2') format('woff2');
 }
 
 /* custom properties don't work in @media conditions; the canonical tablet
    breakpoint is 48em, repeated inline across app.css */
 
 :focus-visible {
-  outline: 3px solid var(--primary);
-  outline-offset: 2px;
+    outline: 3px solid var(--primary);
+    outline-offset: 2px;
 }
 
 /* skip link, hidden until focused. Highlight-button colors, not --primary —
    that inverts per theme and went white-on-white in dark mode. */
 .skip-link {
-  position: absolute;
-  left: 0.5rem;
-  top: -3rem;
-  z-index: 1000;
-  padding: 0.5rem 1rem;
-  background: var(--buttonHighlightBackground, #213440);
-  color: var(--buttonHighlightFont, #e8eaeb);
-  border-radius: var(--borderRadius, 4px);
-  transition: top 0.15s ease-in-out;
+    position: absolute;
+    left: 0.5rem;
+    top: -3rem;
+    z-index: 1000;
+    padding: 0.5rem 1rem;
+    background: var(--buttonHighlightBackground, #213440);
+    color: var(--buttonHighlightFont, #e8eaeb);
+    border-radius: var(--borderRadius, 4px);
+    transition: top 0.15s ease-in-out;
 }
 
 .skip-link:focus {
-  top: 0.5rem;
+    top: 0.5rem;
 }
 
 /* main is focused programmatically by the skip link; no outline needed */
 main:focus {
-  outline: none;
+    outline: none;
 }
 
 /* visually hidden but exposed to screen readers */
 .visually-hidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.001ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
-    scroll-behavior: auto !important;
-  }
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+    }
 }
 
 html {
-  --borderRadius: 4px;
-  /* 44px touch-target floor at the 112.5% root */
-  --touch-target: 2.444rem;
-  /* round icon button diameter */
-  --fab-size: var(--touch-target);
-  --buttonDisabled: #bababa;
-  --border: #e5e6e5;
-  --componentBackgroundDark: #fff;
-  --componentBackgroundLight: #fff;
-  --greenLight: #cfe9d1;
-  --mainBackground: #f2f3f2;
-  --primary: #28333d;
-  --redLight: #ffdce0;
-  --text: #343434;
-  /* clears 4.5:1 (AA) on both the white cards and the #f2f3f2 page */
-  --textSubtile: #646e7a;
-  /* input borders need >= 3:1 (WCAG 1.4.11); --border is too faint.
+    --borderRadius: 4px;
+    /* 44px touch-target floor at the 112.5% root */
+    --touch-target: 2.444rem;
+    /* round icon button diameter */
+    --fab-size: var(--touch-target);
+    --buttonDisabled: #bababa;
+    --border: #e5e6e5;
+    --componentBackgroundDark: #fff;
+    --componentBackgroundLight: #fff;
+    --greenLight: #cfe9d1;
+    --mainBackground: #f2f3f2;
+    --primary: #28333d;
+    --redLight: #ffdce0;
+    --text: #343434;
+    /* clears 4.5:1 (AA) on both the white cards and the #f2f3f2 page */
+    --textSubtile: #646e7a;
+    /* input borders need >= 3:1 (WCAG 1.4.11); --border is too faint.
      3.78:1 on #fff, 3.40:1 on #f2f3f2. */
-  --inputBorder: #7d848c;
-  --headerBackground: #fff;
-  /* 3.34:1 against the #ffedf0 icon (1.4.11 needs >= 3:1) */
-  --buttonCancelBackground: #e2515e;
-  /* accent tokens are per-theme so each clears 4.5:1 on its own surfaces */
-  --greenText: #0a7029;
-  --redText: #b00020;
-  --buttonGreenFont: #0a7029;
-  --buttonRedFont: #b00020;
-  --buttonHighlightFont: #e8eaeb;
-  --buttonHighlightBackground: #213440;
-  --buttonGreenBackground: #cbf5d7;
-  --buttonRedBackground: #ffdce0;
-  --buttonDefaultBackground: #fff;
-  --buttonDefaultFont: #58697d;
-  /* faint but real: hover promotes level1 -> level2 and the lift has to read */
-  --level1: 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-  --level2: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2),
-    0 1px 5px 0 rgba(0, 0, 0, 0.12);
-  --level3: 0 3px 4px 0 rgba(0, 0, 0, 0.14), 0 3px 3px -2px rgba(0, 0, 0, 0.2),
-    0 1px 8px 0 rgba(0, 0, 0, 0.12);
-  /* same on both themes: its background is a mid red in both */
-  --buttonCancelFont: #ffedf0;
-  font-family: 'Inter', sans-serif;
+    --inputBorder: #7d848c;
+    --headerBackground: #fff;
+    /* 3.34:1 against the #ffedf0 icon (1.4.11 needs >= 3:1) */
+    --buttonCancelBackground: #e2515e;
+    /* accent tokens are per-theme so each clears 4.5:1 on its own surfaces */
+    --greenText: #0a7029;
+    --redText: #b00020;
+    --buttonGreenFont: #0a7029;
+    --buttonRedFont: #b00020;
+    --buttonHighlightFont: #e8eaeb;
+    --buttonHighlightBackground: #213440;
+    --buttonGreenBackground: #cbf5d7;
+    --buttonRedBackground: #ffdce0;
+    --buttonDefaultBackground: #fff;
+    --buttonDefaultFont: #58697d;
+    /* faint but real: hover promotes level1 -> level2 and the lift has to read */
+    --level1: 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    --level2:
+        0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2),
+        0 1px 5px 0 rgba(0, 0, 0, 0.12);
+    --level3:
+        0 3px 4px 0 rgba(0, 0, 0, 0.14), 0 3px 3px -2px rgba(0, 0, 0, 0.2),
+        0 1px 8px 0 rgba(0, 0, 0, 0.12);
+    /* same on both themes: its background is a mid red in both */
+    --buttonCancelFont: #ffedf0;
+    font-family: 'Inter', sans-serif;
 }
 
 /* dark theme */
 @media (prefers-color-scheme: dark) {
-  html {
-    --border: #59687c;
-    --componentBackgroundDark: #1d2832;
-    --componentBackgroundLight: #2e3d4d;
-    /* 4.94:1 under --greenText #46d96a */
-    --greenLight: #27503f;
-    --mainBackground: #25333f;
-    --primary: #fdfdfd;
-    /* desaturated so banners read red, not purple, behind --redText */
-    --redLight: #4a2730;
-    --text: #fdfdfd;
-    /* AA on the dark surfaces (#1d2832 / #2e3d4d / #25333f) */
-    --textSubtile: #9aa7b5;
-    /* 3.87:1 on #2e3d4d cards, 4.51:1 on the #25333f page. */
-    --inputBorder: #8c9aab;
-    --greenText: #46d96a;
-    --redText: #ff7d90;
-    --headerBackground: #1d2832;
-    --buttonCancelBackground: #f54963;
-    --buttonHighlightFont: #353535;
-    --buttonHighlightBackground: #f2f3f2;
-    --buttonGreenBackground: #155949;
-    --buttonRedBackground: #544052;
-    --buttonGreenFont: #9be7ad;
-    --buttonRedFont: #ffb3c0;
-    --buttonDefaultBackground: #2a3e4f;
-    --buttonDefaultFont: #eaebed;
-  }
+    html {
+        --border: #59687c;
+        --componentBackgroundDark: #1d2832;
+        --componentBackgroundLight: #2e3d4d;
+        /* 4.94:1 under --greenText #46d96a */
+        --greenLight: #27503f;
+        --mainBackground: #25333f;
+        --primary: #fdfdfd;
+        /* desaturated so banners read red, not purple, behind --redText */
+        --redLight: #4a2730;
+        --text: #fdfdfd;
+        /* AA on the dark surfaces (#1d2832 / #2e3d4d / #25333f) */
+        --textSubtile: #9aa7b5;
+        /* 3.87:1 on #2e3d4d cards, 4.51:1 on the #25333f page. */
+        --inputBorder: #8c9aab;
+        --greenText: #46d96a;
+        --redText: #ff7d90;
+        --headerBackground: #1d2832;
+        --buttonCancelBackground: #f54963;
+        --buttonHighlightFont: #353535;
+        --buttonHighlightBackground: #f2f3f2;
+        --buttonGreenBackground: #155949;
+        --buttonRedBackground: #544052;
+        --buttonGreenFont: #9be7ad;
+        --buttonRedFont: #ffb3c0;
+        --buttonDefaultBackground: #2a3e4f;
+        --buttonDefaultFont: #eaebed;
+    }
 }
 
 /* reset */
 *,
 *::before,
 *::after {
-  box-sizing: border-box;
-  outline-color: var(--primary);
+    box-sizing: border-box;
+    outline-color: var(--primary);
 }
 
 html {
-  background: var(--mainBackground);
-  color: var(--text);
-  /* 112.5% = 18px, but scales with the user's browser default */
-  font-size: 112.5%;
-  min-height: 100vh;
+    background: var(--mainBackground);
+    color: var(--text);
+    /* 112.5% = 18px, but scales with the user's browser default */
+    font-size: 112.5%;
+    min-height: 100vh;
 }
 
 label {
-  display: block;
+    display: block;
 }
 h1,
 h2,
 h3 {
-  /* mixed-case headings; uppercase only via explicit class */
-  text-transform: none;
-  font-weight: lighter;
+    /* mixed-case headings; uppercase only via explicit class */
+    text-transform: none;
+    font-weight: lighter;
 }
 
 button,
 input[type='reset'],
 input[type='button'],
 input[type='submit'] {
-  overflow: visible;
-  width: auto;
+    overflow: visible;
+    width: auto;
 }
-blockquote, body, dd, dl, dt, fieldset, figure,
-h1, h2, h3, h4, h5, h6, hr, html, iframe, legend,
-li, ol, p, pre, textarea, ul {
-  margin: 0;
-  padding: 0;
+blockquote,
+body,
+dd,
+dl,
+dt,
+fieldset,
+figure,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+hr,
+html,
+iframe,
+legend,
+li,
+ol,
+p,
+pre,
+textarea,
+ul {
+    margin: 0;
+    padding: 0;
 }
-h1, h2, h3, h4, h5, h6 {
-  font-size: 100%;
-  font-weight: 400;
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-size: 100%;
+    font-weight: 400;
 }
 ul {
-  list-style: none;
+    list-style: none;
 }
-audio, embed, iframe, img, object, video {
-  height: auto;
-  max-width: 100%;
+audio,
+embed,
+iframe,
+img,
+object,
+video {
+    height: auto;
+    max-width: 100%;
 }
 iframe {
-  border: 0;
+    border: 0;
 }
 table {
-  border-collapse: collapse;
-  border-spacing: 0;
+    border-collapse: collapse;
+    border-spacing: 0;
 }
-td, th {
-  padding: 0;
-  text-align: left;
+td,
+th {
+    padding: 0;
+    text-align: left;
 }
 select[multiple] {
-  vertical-align: top;
+    vertical-align: top;
 }
-button, input, label, select, textarea {
-  margin: 0;
-  border: 0;
-  padding: 0;
-  display: inline-block;
-  vertical-align: middle;
-  white-space: normal;
-  background: 0 0;
-  line-height: 1;
-  font-size: 0.8rem;
-  font-family: 'Inter', sans-serif;
+button,
+input,
+label,
+select,
+textarea {
+    margin: 0;
+    border: 0;
+    padding: 0;
+    display: inline-block;
+    vertical-align: middle;
+    white-space: normal;
+    background: 0 0;
+    line-height: 1;
+    font-size: 0.8rem;
+    font-family: 'Inter', sans-serif;
 }
 /* iOS Safari zooms (and stays zoomed) on focused text controls under 16px;
    0.889rem = 16px at the 18px root. Buttons don't trigger it and keep 0.8rem. */
-input, select, textarea {
-  font-size: 0.889rem;
+input,
+select,
+textarea {
+    font-size: 0.889rem;
 }
-select[multiple], textarea {
-  vertical-align: top;
+select[multiple],
+textarea {
+    vertical-align: top;
 }
-input[type='checkbox'], input[type='radio'] {
-  width: 1rem;
-  height: 1rem;
+input[type='checkbox'],
+input[type='radio'] {
+    width: 1rem;
+    height: 1rem;
 }
 textarea {
-  overflow: auto;
+    overflow: auto;
 }
 input {
-  padding: 0.5rem;
-  font-family: 'Inter', sans-serif;
-  width: 100%;
-  border-radius: 2px;
+    padding: 0.5rem;
+    font-family: 'Inter', sans-serif;
+    width: 100%;
+    border-radius: 2px;
 }
-input, button {
-  align-items: center;
-  align-content: center;
+input,
+button {
+    align-items: center;
+    align-content: center;
 }
 
 a:visited,
 a:hover,
 a {
-  text-decoration: none;
-  color: var(--primary);
+    text-decoration: none;
+    color: var(--primary);
 }
 
 svg {
-  fill: var(--primary);
+    fill: var(--primary);
 }
 
 @media (hover: none) and (pointer: coarse) {
-  body {
-    user-select: none;
-  }
+    body {
+        user-select: none;
+    }
 }
 
 /* Safari input resets */
 input[type='search'] {
-  -webkit-appearance: textfield;
-  -webkit-box-sizing: content-box;
+    -webkit-appearance: textfield;
+    -webkit-box-sizing: content-box;
 }
-::-webkit-search-decoration { display: none; }
-::-webkit-file-upload-button { padding: 0; border: 0; background: 0 0; }
+::-webkit-search-decoration {
+    display: none;
+}
+::-webkit-file-upload-button {
+    padding: 0;
+    border: 0;
+    background: 0 0;
+}

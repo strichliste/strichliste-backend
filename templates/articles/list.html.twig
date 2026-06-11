@@ -3,27 +3,44 @@
 {% block title %}{{ (active ? 'articles.list.title.active' : 'articles.list.title.inactive')|trans }} · Strichliste{% endblock %}
 
 {% block main %}
-    <h1 class="visually-hidden">{{ (active ? 'articles.list.title.active' : 'articles.list.title.inactive')|trans }}</h1>
+    <h1 class="visually-hidden">
+        {{ (active ? 'articles.list.title.active' : 'articles.list.title.inactive')|trans }}
+    </h1>
 
     {% if active %}
-        <a class="fab fab--floating" href="{{ path('articles_create') }}" aria-label="{{ 'articles.list.add_cta'|trans }}">+</a>
+        <a
+            class="fab fab--floating"
+            href="{{ path('articles_create') }}"
+            aria-label="{{ 'articles.list.add_cta'|trans }}"
+            >+</a
+        >
     {% endif %}
     <div class="list-toolbar">
         <nav class="tabs" aria-label="{{ 'articles.list.filter_aria'|trans }}">
-            <a href="{{ path('articles_active') }}" {% if active %}aria-current="page"{% endif %}>{{ 'articles.list.title.active'|trans }}</a>
-            <a href="{{ path('articles_inactive') }}" {% if not active %}aria-current="page"{% endif %}>{{ 'articles.list.title.inactive'|trans }}</a>
+            <a href="{{ path('articles_active') }}" {% if active %}aria-current="page"{% endif %}
+                >{{ 'articles.list.title.active'|trans }}</a
+            >
+            <a href="{{ path('articles_inactive') }}" {% if not active %}aria-current="page"{% endif %}
+                >{{ 'articles.list.title.inactive'|trans }}</a
+            >
         </nav>
     </div>
 
     {% if tags is not empty %}
         <div class="tag-filter">
-            <a class="tag-chip {% if activeTag is null %}tag-chip--active{% endif %}"
-               {% if activeTag is null %}aria-current="true"{% endif %}
-               href="{{ path(active ? 'articles_active' : 'articles_inactive') }}">{{ 'articles.list.filter.all'|trans }}</a>
+            <a
+                class="tag-chip {% if activeTag is null %}tag-chip--active{% endif %}"
+                {% if activeTag is null %}aria-current="true"{% endif %}
+                href="{{ path(active ? 'articles_active' : 'articles_inactive') }}"
+                >{{ 'articles.list.filter.all'|trans }}</a
+            >
             {% for tag in tags %}
-                <a class="tag-chip {% if activeTag == tag.tag %}tag-chip--active{% endif %}"
-                   {% if activeTag == tag.tag %}aria-current="true"{% endif %}
-                   href="{{ path(active ? 'articles_active' : 'articles_inactive') }}?tag={{ tag.tag|url_encode }}">{{ tag.tag }}</a>
+                <a
+                    class="tag-chip {% if activeTag == tag.tag %}tag-chip--active{% endif %}"
+                    {% if activeTag == tag.tag %}aria-current="true"{% endif %}
+                    href="{{ path(active ? 'articles_active' : 'articles_inactive') }}?tag={{ tag.tag|url_encode }}"
+                    >{{ tag.tag }}</a
+                >
             {% endfor %}
         </div>
     {% endif %}
@@ -31,7 +48,9 @@
     {% if articles is empty %}
         {% if active %}
             <twig:EmptyState title="{{ 'articles.list.empty'|trans }}">
-                <a class="fab" href="{{ path('articles_create') }}" aria-label="{{ 'articles.list.add_cta'|trans }}">+</a>
+                <a class="fab" href="{{ path('articles_create') }}" aria-label="{{ 'articles.list.add_cta'|trans }}"
+                    >+</a
+                >
             </twig:EmptyState>
         {% else %}
             <twig:EmptyState>{{ 'articles.list.empty_inactive'|trans }}</twig:EmptyState>
@@ -48,8 +67,11 @@
             {% endfor %}
         </ul>
 
-        <twig:Pagination currentPage="{{ page }}" totalPages="{{ totalPages }}"
-                         baseUrl="{{ active ? path('articles_active') : path('articles_inactive') }}"
-                         extraParams="{{ activeTag ? {tag: activeTag} : {} }}" />
+        <twig:Pagination
+            currentPage="{{ page }}"
+            totalPages="{{ totalPages }}"
+            baseUrl="{{ active ? path('articles_active') : path('articles_inactive') }}"
+            extraParams="{{ activeTag ? {tag: activeTag} : {} }}"
+        />
     {% endif %}
 {% endblock %}

@@ -1,16 +1,18 @@
 {#- clicking the active tab links back to the no-tab state -#}
-{%- set tabs = [
-    {key: 'send',   gated: showSendTab,   icon: 'M13 4V2l3 3-3 3V6H4v3H2V4zM3 12v2l-3-3 3-3v2h9V8h2v6z'},
-    {key: 'buy',    gated: showBuyTab,    icon: 'M1 2h2l.5 2H15l-2 7H4.2L3 2zm3 11a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm8 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z'},
-    {key: 'edit',   gated: true,          icon: 'M0 0h7v7H0zM9 0h7v7H9zM0 9h7v7H0zM9 9h7v7H9z'},
-    {key: 'paypal', gated: showPaypalTab, icon: 'M3 1h6c2.2 0 4 1.3 4 3.5S11.2 8 9 8H6l-1 5H3zm3 5h2.5c1.2 0 2-.7 2-1.5S9.7 3 8.5 3H6.7L6 6z'},
-] -%}
+{%-
+    set tabs = [
+        {key: 'send',   gated: showSendTab,   icon: 'M13 4V2l3 3-3 3V6H4v3H2V4zM3 12v2l-3-3 3-3v2h9V8h2v6z'},
+        {key: 'buy',    gated: showBuyTab,    icon: 'M1 2h2l.5 2H15l-2 7H4.2L3 2zm3 11a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm8 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z'},
+        {key: 'edit',   gated: true,          icon: 'M0 0h7v7H0zM9 0h7v7H9zM0 9h7v7H0zM9 9h7v7H9z'},
+        {key: 'paypal', gated: showPaypalTab, icon: 'M3 1h6c2.2 0 4 1.3 4 3.5S11.2 8 9 8H6l-1 5H3zm3 5h2.5c1.2 0 2-.7 2-1.5S9.7 3 8.5 3H6.7L6 6z'},
+    ]
+-%}
 
 <nav class="user-tabs" aria-label="{{ 'user.detail.tabs_aria'|trans }}">
     {% for tab in tabs|filter(t => t.gated) %}
         {%- set href = path('users_detail', tab.key == activeTab ? {id: user.id} : {id: user.id, tab: tab.key}) -%}
         <a href="{{ href }}" {% if activeTab == tab.key %}aria-current="page"{% endif %}>
-            <svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="{{ tab.icon }}"/></svg>
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="{{ tab.icon }}" /></svg>
             {{ ('user.detail.tabs.' ~ tab.key)|trans }}
         </a>
     {% endfor %}

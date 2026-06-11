@@ -6,12 +6,18 @@
     <h1 class="visually-hidden">{{ (active ? 'user.active.title' : 'user.inactive.title')|trans }}</h1>
 
     {% if active %}
-        <a class="fab fab--floating" href="{{ path('users_create') }}" aria-label="{{ 'user.list.add_cta'|trans }}">+</a>
+        <a class="fab fab--floating" href="{{ path('users_create') }}" aria-label="{{ 'user.list.add_cta'|trans }}"
+            >+</a
+        >
     {% endif %}
     <div class="list-toolbar">
         <nav class="tabs" aria-label="{{ 'user.list.filter_aria'|trans }}">
-            <a href="{{ path('users_active') }}" {% if active %}aria-current="page"{% endif %}>{{ 'user.active.title'|trans }}</a>
-            <a href="{{ path('users_inactive') }}" {% if not active %}aria-current="page"{% endif %}>{{ 'user.inactive.title'|trans }}</a>
+            <a href="{{ path('users_active') }}" {% if active %}aria-current="page"{% endif %}
+                >{{ 'user.active.title'|trans }}</a
+            >
+            <a href="{{ path('users_inactive') }}" {% if not active %}aria-current="page"{% endif %}
+                >{{ 'user.inactive.title'|trans }}</a
+            >
         </nav>
     </div>
 
@@ -26,7 +32,10 @@
             {% endfor %}
         </div>
 
-        <twig:Pagination currentPage="{{ page }}" totalPages="{{ totalPages }}"
-                         baseUrl="{{ active ? path('users_active') : path('users_inactive') }}" />
+        <twig:Pagination
+            currentPage="{{ page }}"
+            totalPages="{{ totalPages }}"
+            baseUrl="{{ active ? path('users_active') : path('users_inactive') }}"
+        />
     {% endif %}
 {% endblock %}
