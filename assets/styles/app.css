@@ -755,10 +755,30 @@ body { padding-top: 4rem; }
   color: var(--textSubtile);
 }
 
+.transaction-row__meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  justify-self: end;
+}
+
 .transaction-row__date {
   font-size: 0.75rem;
   color: var(--textSubtile);
   font-variant-numeric: tabular-nums;
+}
+
+/* inline-block escapes the row's line-through */
+.transaction-row__reverted {
+  display: inline-block;
+  padding: 0.05rem 0.35rem;
+  border-radius: var(--borderRadius);
+  background: var(--redLight);
+  color: var(--redText);
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .transaction-row__comment {
@@ -770,17 +790,32 @@ body { padding-top: 4rem; }
   overflow-wrap: anywhere;
 }
 
-/* the auto date column left the desc only a few px on phones (letter-per-line
-   wrap). Date moves under the desc; min-height keeps undo rows level with
-   the resulting two-line rows. */
+/* the auto date/undo column left the desc only a few px on phones
+   (letter-per-line wrap). Date and undo move under the desc; min-height keeps
+   short rows level with the resulting two-line rows. */
 @media (max-width: 36em) {
   .transaction-row {
     row-gap: 0.3rem;
     min-height: 4.4rem;
   }
-  .transaction-row__date {
+  .transaction-row__meta {
     grid-row: 2;
     grid-column: 2 / -1;
+    display: flex;
+    justify-content: space-between;
+  }
+}
+
+/* the recent-tx sidebar is just as narrow between 48em and 64em — same fix */
+@media (min-width: 48em) and (max-width: 64em) {
+  .recent-tx .transaction-row {
+    row-gap: 0.3rem;
+  }
+  .recent-tx .transaction-row__meta {
+    grid-row: 2;
+    grid-column: 2 / -1;
+    display: flex;
+    justify-content: space-between;
   }
 }
 
