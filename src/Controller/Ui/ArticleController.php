@@ -10,7 +10,6 @@ use App\Repository\ArticleRepository;
 use App\Repository\TagRepository;
 use App\Repository\TransactionRepository;
 use App\Service\MoneyParser;
-use App\Service\SettingsService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -28,7 +27,6 @@ class ArticleController extends AbstractController {
         private TagRepository $tagRepository,
         private TransactionRepository $transactionRepository,
         private EntityManagerInterface $em,
-        private SettingsService $settings,
         private TranslatorInterface $translator,
         private \App\Service\ArticleService $articleService,
     ) {
@@ -81,7 +79,6 @@ class ArticleController extends AbstractController {
             'page' => $page,
             'totalPages' => $totalPages,
             'total' => $total,
-            'currencySymbol' => $this->settings->getOrDefault('i18n.currency.symbol', '€'),
         ]);
     }
 
@@ -136,7 +133,6 @@ class ArticleController extends AbstractController {
             'article' => $article,
             'form' => $form,
             'priceFrozen' => $referenceCount > 0,
-            'currencySymbol' => $this->settings->getOrDefault('i18n.currency.symbol', '€'),
         ]);
     }
 

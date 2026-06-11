@@ -16,7 +16,7 @@
             <span>{{ user.name }}</span>
         </h1>
         <div class="user-hero__balance">
-            <twig:BalancePill amount="{{ user.balance }}" currency="{{ currencySymbol }}" />
+            <twig:BalancePill amount="{{ user.balance }}" />
         </div>
     </section>
 
@@ -37,9 +37,9 @@
             {% if activeTab == 'edit' %}
                 {{ include('users/_edit_form.html.twig', {form: editForm, user: user}) }}
             {% elseif activeTab == 'send' %}
-                {{ include('users/_tab_send.html.twig', {send: send, user: user, currency: currencySymbol}) }}
+                {{ include('users/_tab_send.html.twig', {send: send, user: user}) }}
             {% elseif activeTab == 'buy' %}
-                {{ include('users/_tab_buy.html.twig', {user: user, buy: buy, currency: currencySymbol}) }}
+                {{ include('users/_tab_buy.html.twig', {user: user, buy: buy}) }}
             {% elseif activeTab == 'paypal' %}
                 {{ include('users/_tab_paypal.html.twig', {user: user}) }}
             {% endif %}
@@ -49,7 +49,7 @@
     <div class="user-detail-grid">
         <aside class="user-detail-grid__actions">
             {% if send %}
-                {% include 'users/_default_actions.html.twig' with {send: send, user: user, currency: currencySymbol} only %}
+                {% include 'users/_default_actions.html.twig' with {send: send, user: user} only %}
             {% endif %}
         </aside>
 
@@ -60,7 +60,7 @@
             {% else %}
                 <ul class="transaction-list">
                     {% for row in recentTransactions %}
-                        <twig:TransactionRow tx="{{ row.tx }}" currency="{{ currencySymbol }}" deletable="{{ row.deletable }}" ownerUserId="{{ user.id }}" />
+                        <twig:TransactionRow tx="{{ row.tx }}" deletable="{{ row.deletable }}" ownerUserId="{{ user.id }}" />
                     {% endfor %}
                 </ul>
             {% endif %}

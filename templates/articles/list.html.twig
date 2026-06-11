@@ -42,7 +42,7 @@
                 <li class="article-row {% if not article.active %}article-row--inactive{% endif %}">
                     <a href="{{ path('articles_edit', {id: article.id}) }}" class="article-row__link">
                         <span class="article-row__name">{{ article.name }}</span>
-                        <span class="article-row__price">{{ article.amount|currency_format(currencySymbol, false) }}</span>
+                        <span class="article-row__price">{{ article.amount|currency_format(signed=false) }}</span>
                     </a>
                 </li>
             {% endfor %}

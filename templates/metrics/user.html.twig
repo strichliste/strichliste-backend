@@ -14,8 +14,8 @@
             <div class="kpi__label">{{ 'metrics.user.card.transactions'|trans }}</div>
             <div class="kpi__value">{{ txCount }}</div>
             <ul class="kpi__sublist">
-                <li>{{ 'metrics.user.card.incoming'|trans }}: {{ incoming.cnt }} ({{ incoming.amount|currency_format(currencySymbol) }})</li>
-                <li>{{ 'metrics.user.card.outgoing'|trans }}: {{ outgoing.cnt }} ({{ outgoing.amount|currency_format(currencySymbol) }})</li>
+                <li>{{ 'metrics.user.card.incoming'|trans }}: {{ incoming.cnt }} ({{ incoming.amount|currency_format }})</li>
+                <li>{{ 'metrics.user.card.outgoing'|trans }}: {{ outgoing.cnt }} ({{ outgoing.amount|currency_format }})</li>
             </ul>
         </div>
         <div class="kpi">
@@ -42,7 +42,7 @@
                     <tr>
                         <td><a href="{{ path('articles_edit', {id: row.article.id}) }}">{{ row.article.name }}</a></td>
                         <td>{{ row.cnt }}</td>
-                        <td>{{ row.amt|currency_format(currencySymbol) }}</td>
+                        <td>{{ row.amt|currency_format }}</td>
                     </tr>
                 {% endfor %}
             </tbody>

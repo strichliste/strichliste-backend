@@ -8,7 +8,7 @@
     <div class="kpi-row">
         <div class="kpi">
             <div class="kpi__label">{{ 'metrics.global.kpi.balance'|trans }}</div>
-            <div class="kpi__value {{ balance|balance_class }}">{{ balance|currency_format(currencySymbol, false) }}</div>
+            <div class="kpi__value {{ balance|balance_class }}">{{ balance|currency_format(signed=false) }}</div>
         </div>
         <div class="kpi">
             <div class="kpi__label">{{ 'metrics.global.kpi.users'|trans }}</div>
@@ -25,7 +25,7 @@
         <div class="metrics-chart__canvas-wrap">
             <canvas role="img" aria-label="{{ 'metrics.global.chart.balance_alt'|trans }}"
                     data-controller="chart" data-chart-data-id-value="metrics-days-json"
-                    data-chart-currency-value="{{ currencySymbol }}"
+                    data-chart-currency-value="{{ setting('i18n.currency.symbol', '€') }}"
                     data-chart-labels-value="{{ {
                         charged: 'metrics.global.chart.series.charged'|trans,
                         spent: 'metrics.global.chart.series.spent'|trans,
@@ -72,9 +72,9 @@
                     <td>{{ d.date }}</td>
                     <td>{{ d.transactions }}</td>
                     <td>{{ d.distinctUsers }}</td>
-                    <td>{{ d.charged|currency_format(currencySymbol, false) }}</td>
-                    <td>{{ d.spent|currency_format(currencySymbol, false) }}</td>
-                    <td>{{ d.balance|currency_format(currencySymbol) }}</td>
+                    <td>{{ d.charged|currency_format(signed=false) }}</td>
+                    <td>{{ d.spent|currency_format(signed=false) }}</td>
+                    <td>{{ d.balance|currency_format }}</td>
                 </tr>
             {% endfor %}
         </tbody>
@@ -83,8 +83,8 @@
                 <th>{{ 'metrics.global.table.footer.total'|trans }}</th>
                 <th>{{ totalTx }}</th>
                 <th>—</th>
-                <th>{{ totalCharged|currency_format(currencySymbol, false) }}</th>
-                <th>{{ totalSpent|currency_format(currencySymbol, false) }}</th>
+                <th>{{ totalCharged|currency_format(signed=false) }}</th>
+                <th>{{ totalSpent|currency_format(signed=false) }}</th>
                 <th>—</th>
             </tr>
         </tfoot>

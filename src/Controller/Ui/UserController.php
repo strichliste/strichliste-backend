@@ -74,7 +74,6 @@ class UserController extends AbstractController {
             'user' => $user,
             'activeTab' => $tab,
             'recentTransactions' => $recentMeta,
-            'currencySymbol' => $this->settings->getOrDefault('i18n.currency.symbol', '€'),
             'editForm' => $editForm,
             'showSendTab' => $this->settings->getOrDefault('payment.transactions.enabled', true) && !$user->isDisabled(),
             'showBuyTab' => $this->settings->getOrDefault('article.enabled', true) && !$user->isDisabled(),

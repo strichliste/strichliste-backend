@@ -10,7 +10,7 @@
                     <input type="hidden" name="create_transaction[_token]" value="{{ csrf_token('create_transaction' ~ user.id) }}">
                     <button type="submit" class="step-btn step-btn--green"
                             {% if step.disabled %}disabled aria-describedby="deposit-disabled-help"{% endif %}>
-                        {{ step.amount|currency_format(currency) }}
+                        {{ step.amount|currency_format }}
                     </button>
                 </form>
             {% endfor %}
@@ -58,7 +58,7 @@
                     <input type="hidden" name="create_transaction[_token]" value="{{ csrf_token('create_transaction' ~ user.id) }}">
                     <button type="submit" class="step-btn step-btn--red"
                             {% if step.disabled %}disabled aria-describedby="dispense-disabled-help"{% endif %}>
-                        {{ step.amount|currency_format(currency) }}
+                        {{ step.amount|currency_format }}
                     </button>
                 </form>
             {% endfor %}

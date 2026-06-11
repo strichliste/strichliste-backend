@@ -22,7 +22,7 @@
                 <ul class="search-results">
                     {% for u in users %}
                         <li><a href="{{ path('users_detail', {id: u.id}) }}">{{ u.name }}</a>
-                            <twig:BalancePill amount="{{ u.balance }}" currency="{{ currencySymbol }}" /></li>
+                            <twig:BalancePill amount="{{ u.balance }}" /></li>
                     {% endfor %}
                 </ul>
                 <twig:Pagination currentPage="{{ userPage }}" totalPages="{{ userPages }}"
@@ -39,7 +39,7 @@
                 <ul class="search-results">
                     {% for a in articles %}
                         <li><a href="{{ path('articles_edit', {id: a.id}) }}">{{ a.name }}</a>
-                            <span class="article-card__price">{{ a.amount|currency_format(currencySymbol, false) }}</span></li>
+                            <span class="article-card__price">{{ a.amount|currency_format(signed=false) }}</span></li>
                     {% endfor %}
                 </ul>
                 <twig:Pagination currentPage="{{ articlePage }}" totalPages="{{ articlePages }}"

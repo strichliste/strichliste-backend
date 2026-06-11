@@ -40,7 +40,7 @@
                     <button type="submit" class="buy-tab__pill">
                         <span class="buy-tab__pill-name">{{ a.name }}</span>
                         <span class="buy-tab__pill-sep" aria-hidden="true">|</span>
-                        <span class="buy-tab__pill-price">{{ a.amount|currency_format(currency, false) }}</span>
+                        <span class="buy-tab__pill-price">{{ a.amount|currency_format(signed=false) }}</span>
                     </button>
                 </form>
             {% endfor %}

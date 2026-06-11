@@ -4,7 +4,6 @@ namespace App\Controller\Ui;
 
 use App\Entity\User;
 use App\Service\MetricsService;
-use App\Service\SettingsService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -13,7 +12,6 @@ class MetricsController extends AbstractController {
 
     public function __construct(
         private MetricsService $metrics,
-        private SettingsService $settings,
     ) {
     }
 
@@ -24,7 +22,6 @@ class MetricsController extends AbstractController {
             'transactionCount' => $this->metrics->totalTransactionCount(),
             'userCount' => $this->metrics->totalUserCount(),
             'days' => $this->metrics->transactionsPerDay(30),
-            'currencySymbol' => $this->settings->getOrDefault('i18n.currency.symbol', '€'),
         ]);
     }
 
@@ -36,7 +33,6 @@ class MetricsController extends AbstractController {
             'txCount' => $this->metrics->userTransactionCount($user),
             'outgoing' => $this->metrics->userOutgoing($user),
             'incoming' => $this->metrics->userIncoming($user),
-            'currencySymbol' => $this->settings->getOrDefault('i18n.currency.symbol', '€'),
         ]);
     }
 }

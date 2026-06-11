@@ -4,7 +4,6 @@ namespace App\Controller\Ui;
 
 use App\Entity\Article;
 use App\Entity\User;
-use App\Service\SettingsService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,7 +16,6 @@ class SearchController extends AbstractController {
 
     public function __construct(
         private EntityManagerInterface $em,
-        private SettingsService $settings,
     ) {
     }
 
@@ -47,7 +45,6 @@ class SearchController extends AbstractController {
             'articleTotal' => $articleTotal,
             'articlePage' => $articlePage,
             'articlePages' => max(1, (int) ceil(($articleTotal ?: 0) / self::PAGE_SIZE)),
-            'currencySymbol' => $this->settings->getOrDefault('i18n.currency.symbol', '€'),
         ]);
     }
 

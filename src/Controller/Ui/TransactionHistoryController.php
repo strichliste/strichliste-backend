@@ -4,7 +4,6 @@ namespace App\Controller\Ui;
 
 use App\Entity\User;
 use App\Repository\TransactionRepository;
-use App\Service\SettingsService;
 use App\Service\TransactionService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,7 +16,6 @@ class TransactionHistoryController extends AbstractController {
 
     public function __construct(
         private TransactionRepository $transactionRepository,
-        private SettingsService $settings,
         private TransactionService $transactionService,
     ) {
     }
@@ -42,7 +40,6 @@ class TransactionHistoryController extends AbstractController {
             'page' => $page,
             'totalPages' => $totalPages,
             'total' => $total,
-            'currencySymbol' => $this->settings->getOrDefault('i18n.currency.symbol', '€'),
         ]);
     }
 }

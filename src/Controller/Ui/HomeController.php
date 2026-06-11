@@ -3,7 +3,6 @@
 namespace App\Controller\Ui;
 
 use App\Repository\UserRepository;
-use App\Service\SettingsService;
 use App\Service\UserService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -18,7 +17,6 @@ class HomeController extends AbstractController {
     public function __construct(
         private UserRepository $userRepository,
         private UserService $userService,
-        private SettingsService $settingsService,
     ) {
     }
 
@@ -66,7 +64,6 @@ class HomeController extends AbstractController {
             'totalPages' => $totalPages,
             'total' => $result['total'],
             'active' => $active,
-            'currencySymbol' => $this->settingsService->getOrDefault('i18n.currency.symbol', '€'),
         ]);
     }
 }
