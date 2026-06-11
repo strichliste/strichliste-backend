@@ -1,5 +1,5 @@
 {%- set form = send.transfer_form -%}
-{{ form_start(form, {action: path('transactions_transfer', {id: user.id}), attr: {class: 'send-form-wrap', 'data-controller': 'disable-on-submit'}}) }}
+{{ form_start(form, {action: path('transactions_transfer', {id: user.id}), attr: {class: 'send-form-wrap'}}) }}
     <div class="send-form">
         <input class="send-form__amount"
                type="text"

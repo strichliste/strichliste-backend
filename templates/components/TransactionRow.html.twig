@@ -18,7 +18,7 @@
         {% if tx.comment %}<span class="transaction-row__comment">: {{ tx.comment }}</span>{% endif %}
     </span>
     {% if deletable and ownerUserId %}
-        <form method="post" action="{{ path('transactions_undo', {id: ownerUserId, txId: tx.id}) }}" class="undo-form" data-controller="disable-on-submit">
+        <form method="post" action="{{ path('transactions_undo', {id: ownerUserId, txId: tx.id}) }}" class="undo-form">
             <input type="hidden" name="_token" value="{{ csrf_token('undo' ~ ownerUserId ~ '_' ~ tx.id) }}">
             {% if returnTo %}<input type="hidden" name="return" value="{{ returnTo }}">{% endif %}
             {#- amount + counterpart in the name, or two same-second transactions announce identically -#}

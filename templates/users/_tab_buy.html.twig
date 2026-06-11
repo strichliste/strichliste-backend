@@ -19,7 +19,7 @@
     {# no-JS barcode fallback — the controller hides this form once it connects #}
     <form method="post" action="{{ path('transactions_buy', {id: user.id}) }}"
           class="buy-tab__scan" data-article-filter-target="scanForm"
-          data-controller="disable-on-submit">
+         >
         <input type="hidden" name="_token" value="{{ csrf_token('buy' ~ user.id) }}">
         <label for="buy-scan">{{ 'user.buy.scan.input_label'|trans }}</label>
         <input type="text" id="buy-scan" name="barcode" maxlength="32" required autocomplete="off">
@@ -32,7 +32,7 @@
         <div class="buy-tab__pills">
             {% for a in buy.articles %}
                 <form method="post" action="{{ path('transactions_buy', {id: user.id}) }}"
-                      class="buy-tab__pill-form" data-controller="disable-on-submit"
+                      class="buy-tab__pill-form"
                       data-article-filter-target="item"
                       data-article-name="{{ a.name|lower }}">
                     <input type="hidden" name="_token" value="{{ csrf_token('buy' ~ user.id) }}">

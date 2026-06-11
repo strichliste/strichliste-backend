@@ -16,7 +16,7 @@
         </div>
     {% endif %}
 
-    <form method="post" class="split-invoice-form" data-controller="disable-on-submit">
+    <form method="post" class="split-invoice-form">
         <input type="hidden" name="_token" value="{{ csrf_token('split_invoice') }}">
         {# catches implicit Enter submission — must precede the add_row submit.
            display:none, not aria-hidden: engines repair aria-hidden buttons into nameless ghosts. #}
