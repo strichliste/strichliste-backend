@@ -759,6 +759,20 @@ body { padding-top: 4rem; }
   overflow-wrap: anywhere;
 }
 
+/* the auto date column left the desc only a few px on phones (letter-per-line
+   wrap). Date moves under the desc; min-height keeps undo rows level with
+   the resulting two-line rows. */
+@media (max-width: 36em) {
+  .transaction-row {
+    row-gap: 0.3rem;
+    min-height: 4.4rem;
+  }
+  .transaction-row__date {
+    grid-row: 2;
+    grid-column: 2 / -1;
+  }
+}
+
 .transfer-address--to { color: var(--greenText); }
 .transfer-address--from { color: var(--text); }
 /* underlined: color alone can't distinguish these from body text */
@@ -1131,9 +1145,12 @@ details.custom-form[open] summary { color: var(--text); }
 .undo-form { display: contents; }
 
 .undo-btn {
-  /* 44px hit area — destructive money action on a touch kiosk */
+  /* 44px hit area — destructive money action on a touch kiosk. The negative
+     block margin keeps it from making undoable rows taller than the rest;
+     the hit area overlaps the row's own padding instead. */
   min-width: 2.444rem;
   min-height: 2.444rem;
+  margin-block: -0.75rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
