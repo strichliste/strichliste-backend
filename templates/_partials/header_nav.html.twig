@@ -4,10 +4,12 @@
        {% if route starts with 'articles_' %}aria-current="page"{% endif %}>
         {{ 'nav.articles'|trans }}
     </a>
-    <a href="{{ path('split_invoice_index') }}"
-       {% if route == 'split_invoice_index' %}aria-current="page"{% endif %}>
-        {{ 'nav.split_invoice'|trans }}
-    </a>
+    {% if setting('payment.splitInvoice.enabled', false) %}
+        <a href="{{ path('split_invoice_index') }}"
+           {% if route == 'split_invoice_index' %}aria-current="page"{% endif %}>
+            {{ 'nav.split_invoice'|trans }}
+        </a>
+    {% endif %}
     <a href="{{ path('metrics_global') }}"
        {% if route == 'metrics_global' or route == 'metrics_user' %}aria-current="page"{% endif %}>
         {{ 'nav.metrics'|trans }}
@@ -30,7 +32,7 @@
         {{ _self.links(route) }}
     </nav>
     {# phone burger — details, so it works without JS #}
-    <details class="app-header__menu">
+    <details class="app-header__menu" data-controller="disclosure">
         <summary>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
                 <line x1="4" y1="6"  x2="20" y2="6"/>

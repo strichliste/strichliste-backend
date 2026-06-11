@@ -6,6 +6,6 @@
     <div class="error-page">
         <div class="error-page__code">404</div>
         <div class="error-page__message">{{ 'errors.not_found_body'|trans }}</div>
-        <twig:Button href="{{ path('home') }}" variant="highlight">{{ 'errors.back_home'|trans }}</twig:Button>
+        <a class="btn btn--highlight" href="{{ path('home') }}">{{ 'errors.back_home'|trans }}</a>
     </div>
 {% endblock %}

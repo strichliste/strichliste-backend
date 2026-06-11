@@ -9,6 +9,9 @@ use Twig\TwigFunction;
 
 class AppExtension extends AbstractExtension {
 
+    /** @var array<string, \NumberFormatter> */
+    private array $formatters = [];
+
     public function __construct(private SettingsService $settings) {
     }
 
@@ -23,16 +26,7 @@ class AppExtension extends AbstractExtension {
     private const TEMPLATE_SETTING_ALLOWLIST = [
         'i18n.',
         'common.',
-        'article.enabled',
-        'article.autoOpen',
-        'payment.deposit.',
-        'payment.dispense.',
-        'payment.transactions.enabled',
         'payment.splitInvoice.enabled',
-        'payment.undo.enabled',
-        'payment.boundary.',
-        'account.boundary.',
-        'paypal.enabled',
         'paypal.sandbox',
         'paypal.fee',
     ];
@@ -70,10 +64,13 @@ class AppExtension extends AbstractExtension {
         }
         $abs = abs($cents) / 100;
 
-        $formatter = new \NumberFormatter($locale, \NumberFormatter::DECIMAL);
-        $formatter->setAttribute(\NumberFormatter::MIN_FRACTION_DIGITS, 2);
-        $formatter->setAttribute(\NumberFormatter::MAX_FRACTION_DIGITS, 2);
-        $number = $formatter->format($abs);
+        if (!isset($this->formatters[$locale])) {
+            $formatter = new \NumberFormatter($locale, \NumberFormatter::DECIMAL);
+            $formatter->setAttribute(\NumberFormatter::MIN_FRACTION_DIGITS, 2);
+            $formatter->setAttribute(\NumberFormatter::MAX_FRACTION_DIGITS, 2);
+            $this->formatters[$locale] = $formatter;
+        }
+        $number = $this->formatters[$locale]->format($abs);
         if ($number === false) {
             $number = number_format($abs, 2, '.', ',');
         }
