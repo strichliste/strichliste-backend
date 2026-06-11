@@ -160,7 +160,8 @@ class UserController extends AbstractController
 
         $isDisabled = $request->request->get('isDisabled');
         if (null !== $isDisabled) {
-            $user->setDisabled($isDisabled);
+            // explicit: the string "false" must not coerce to true
+            $user->setDisabled(filter_var($isDisabled, FILTER_VALIDATE_BOOLEAN));
         }
 
         $entityManager->persist($user);

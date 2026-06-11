@@ -41,6 +41,13 @@ class LdapImportCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        // symfony/ldap is optional and absent in --no-dev installs
+        if (!class_exists(Ldap::class)) {
+            $output->writeln('<error>symfony/ldap is not installed — run "composer require symfony/ldap" to use this command.</error>');
+
+            return Command::FAILURE;
+        }
+
         $ldapAdapter = new ExtLdap\Adapter([
             'host' => $input->getOption('host'),
             'port' => (int) $input->getOption('port'),

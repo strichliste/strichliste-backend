@@ -86,4 +86,22 @@ class TransactionControllerTest extends AbstractApplicationTestCase
         $ids = array_column($data, 'id');
         $this->assertSame([$first['id'], $second['id']], array_slice($ids, -2));
     }
+
+    public function testUserTransactionListHonorsLimitAndOffset(): void
+    {
+        $user = $this->requestJson('POST', '/api/user', ['name' => 'pager'], 'user');
+        foreach ([100, 200, 300] as $amount) {
+            $this->requestJson('POST', sprintf('/api/user/%d/transaction', $user['id']), ['amount' => $amount]);
+        }
+
+        $all = $this->requestJson('GET', sprintf('/api/user/%d/transaction', $user['id']));
+        $this->assertSame(3, $all['count']);
+        $this->assertCount(3, $all['transactions']);
+
+        $page = $this->requestJson('GET', sprintf('/api/user/%d/transaction?limit=1&offset=1', $user['id']));
+        $this->assertSame(3, $page['count']);
+        $this->assertCount(1, $page['transactions']);
+        // newest-first ordering: offset 1 of [300, 200, 100] is the 200 deposit
+        $this->assertSame(200, $page['transactions'][0]['amount']);
+    }
 }

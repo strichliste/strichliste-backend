@@ -128,7 +128,7 @@ class MetricsService
     }
 
     /**
-     * @return array<array{cnt: int, amt: int, article: Article}>
+     * @return list<array{cnt: int|numeric-string, amt: int|numeric-string, article: Article}>
      */
     public function topArticles(int $days, int $limit = 10): array
     {

@@ -227,14 +227,12 @@ class TransactionService
     }
 
     /**
+     * @throws TransactionNotFoundException
+     * @throws TransactionNotDeletableException
      * @throws AccountBalanceBoundaryException
      * @throws TransactionBoundaryException
      * @throws TransactionInvalidException
      * @throws ParameterNotFoundException
-     */
-    /**
-     * @throws TransactionNotFoundException
-     * @throws TransactionNotDeletableException
      */
     public function revertTransaction(int $transactionId): Transaction
     {

@@ -138,9 +138,8 @@ class User
     }
 
     /**
-     * @return Collection|Transaction[]
+     * @return Collection<int, Transaction>
      */
-    /** @return Collection<int, Transaction> */
     public function getTransactions(): Collection
     {
         return $this->transactions;
