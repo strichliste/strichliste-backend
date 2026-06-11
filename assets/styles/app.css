@@ -68,7 +68,10 @@ body { padding-top: 4rem; }
 }
 
 .app-header__nav a {
-  padding: 0.4rem 0;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 0.2rem;
+  min-height: var(--touch-target);
   color: var(--textSubtile);
   font-size: 0.8rem;
 }
@@ -177,7 +180,10 @@ body { padding-top: 4rem; }
     box-shadow: var(--level2);
   }
   .app-header__menu-panel a {
-    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    min-height: var(--touch-target);
+    padding: 0 1rem;
     color: var(--textSubtile);
     font-size: 0.889rem;
   }
@@ -454,7 +460,7 @@ body { padding-top: 4rem; }
 }
 
 /* keep the footer's "Code" link reachable under the fixed FAB */
-@media (max-width: 48em) {
+@media (max-width: 64em) {
   .app-footer {
     padding-right: 4.5rem;
   }
@@ -463,7 +469,8 @@ body { padding-top: 4rem; }
   }
 }
 
-@media (min-width: 48em) {
+/* desktop only — at tablet width the gutter left pages off-center */
+@media (min-width: 64em) {
   .fab--floating {
     position: absolute;
     bottom: auto;
@@ -876,6 +883,7 @@ body { padding-top: 4rem; }
   display: inline-flex;
   align-items: center;
   padding: 0.5rem;
+  min-height: var(--touch-target);
   color: var(--buttonDefaultFont);
   font-size: 0.8rem;
   font-weight: 400;
@@ -988,6 +996,22 @@ body { padding-top: 4rem; }
   gap: 1rem;
 }
 
+.step-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.step-caption {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--textSubtile);
+  text-align: center;
+}
+
 .step-grid {
   display: grid;
   /* 3-up like the SPA; fits 320px only with the smaller button font below */
@@ -1068,6 +1092,8 @@ body { padding-top: 4rem; }
   padding: 0.65rem 0.25rem;
   background: transparent;
   border: 0;
+  /* reads as a field — testers took the bare gap for a label */
+  border-bottom: 1px solid var(--inputBorder);
   color: var(--text);
 }
 
@@ -1218,6 +1244,7 @@ body { padding-top: 4rem; }
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
+  min-height: var(--touch-target);
   font-size: 0.75rem;
   font-weight: 500;
   text-transform: uppercase;
@@ -1443,6 +1470,7 @@ body { padding-top: 4rem; }
   /* a 255-char article name must not force page-level scroll */
   max-width: 100%;
   padding: 0.5rem 0.75rem;
+  min-height: var(--touch-target);
   background: var(--componentBackgroundLight);
   color: var(--buttonDefaultFont);
   border: 0;
@@ -1817,8 +1845,9 @@ body { padding-top: 4rem; }
 }
 
 /* ---------- list gutter rail — kept at EOF to out-cascade the margin
-   shorthands declared above ---------- */
-@media (min-width: 48em) {
+   shorthands declared above. Desktop only: at tablet width the rail pushed
+   pages off-center with a dead left band. ---------- */
+@media (min-width: 64em) {
   .list-toolbar { margin-left: 8rem; }
   .user-grid { margin-left: 8rem; }
   .article-rows { margin-left: 8rem; }

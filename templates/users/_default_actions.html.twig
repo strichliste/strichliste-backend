@@ -4,7 +4,9 @@
 {%- set form = send.custom_form -%}
 <div class="step-card">
     {% if send.deposit_enabled %}
-        <div class="step-grid" role="group" aria-label="{{ 'transactions.deposit.title'|trans }}">
+        <div class="step-group" role="group" aria-labelledby="deposit-caption">
+        <p class="step-caption" id="deposit-caption">{{ 'transactions.deposit.title'|trans }}</p>
+        <div class="step-grid">
             {% for step in send.deposit_steps %}
                 <form method="post" action="{{ path('transactions_create', {id: user.id}) }}" class="step-form">
                     <input type="hidden" name="{{ form.direction.vars.full_name }}" value="deposit">
@@ -16,6 +18,7 @@
                     </button>
                 </form>
             {% endfor %}
+        </div>
         </div>
         {% if send.deposit_steps|filter(s => s.disabled)|length > 0 %}
             <p id="deposit-disabled-help" class="form-help">{{ 'transactions.step_disabled_help'|trans }}</p>
@@ -51,7 +54,9 @@
     {% endif %}
 
     {% if send.dispense_enabled %}
-        <div class="step-grid" role="group" aria-label="{{ 'transactions.dispense.title'|trans }}">
+        <div class="step-group" role="group" aria-labelledby="dispense-caption">
+        <p class="step-caption" id="dispense-caption">{{ 'transactions.dispense.title'|trans }}</p>
+        <div class="step-grid">
             {% for step in send.dispense_steps %}
                 <form method="post" action="{{ path('transactions_create', {id: user.id}) }}" class="step-form">
                     <input type="hidden" name="{{ form.direction.vars.full_name }}" value="dispense">
@@ -63,6 +68,7 @@
                     </button>
                 </form>
             {% endfor %}
+        </div>
         </div>
         {% if send.dispense_steps|filter(s => s.disabled)|length > 0 %}
             <p id="dispense-disabled-help" class="form-help">{{ 'transactions.step_disabled_help'|trans }}</p>

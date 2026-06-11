@@ -93,8 +93,8 @@ transactions:
         title: Deposit
         submit: Deposit
     dispense:
-        title: Dispense
-        submit: Dispense
+        title: Withdraw
+        submit: Withdraw
     transfer:
         recipient_label: Recipient
         recipient_placeholder: Select recipient
@@ -117,7 +117,7 @@ transactions:
         generic: Something went wrong.
     flash:
         deposit_success: Deposit confirmed.
-        dispense_success: Dispense confirmed.
+        dispense_success: Withdrawal confirmed.
         transfer_success: 'Transferred to %recipient%.'
         undo_success: Transaction reverted.
 
