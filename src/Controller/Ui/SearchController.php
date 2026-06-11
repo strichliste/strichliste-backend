@@ -30,8 +30,8 @@ class SearchController extends AbstractController {
         $users = $articles = [];
         $userTotal = $articleTotal = 0;
         if (!$tooShort) {
-            [$users, $userTotal] = $this->searchUsers($q, $userPage);
-            [$articles, $articleTotal] = $this->searchArticles($q, $articlePage);
+            [$users, $userTotal, $userPage] = $this->searchUsers($q, $userPage);
+            [$articles, $articleTotal, $articlePage] = $this->searchArticles($q, $articlePage);
         }
 
         return $this->render('search/results.html.twig', [
@@ -49,7 +49,6 @@ class SearchController extends AbstractController {
     }
 
     private function searchUsers(string $q, int $page): array {
-        $offset = ($page - 1) * self::PAGE_SIZE;
         $repo = $this->em->getRepository(User::class);
         $like = '%' . $this->escapeLike($q) . '%';
 
@@ -60,6 +59,9 @@ class SearchController extends AbstractController {
             ->setParameter('q', $like)
             ->getQuery()->getSingleScalarResult();
 
+        $page = min($page, max(1, (int) ceil($count / self::PAGE_SIZE)));
+        $offset = ($page - 1) * self::PAGE_SIZE;
+
         $results = $repo->createQueryBuilder('u')
             ->where("LOWER(u.name) LIKE LOWER(:q) ESCAPE '!'")
             ->andWhere('u.disabled = false')
@@ -69,11 +71,10 @@ class SearchController extends AbstractController {
             ->setMaxResults(self::PAGE_SIZE)
             ->getQuery()->getResult();
 
-        return [$results, $count];
+        return [$results, $count, $page];
     }
 
     private function searchArticles(string $q, int $page): array {
-        $offset = ($page - 1) * self::PAGE_SIZE;
         $repo = $this->em->getRepository(Article::class);
         $like = '%' . $this->escapeLike($q) . '%';
 
@@ -84,6 +85,9 @@ class SearchController extends AbstractController {
             ->setParameter('q', $like)
             ->getQuery()->getSingleScalarResult();
 
+        $page = min($page, max(1, (int) ceil($count / self::PAGE_SIZE)));
+        $offset = ($page - 1) * self::PAGE_SIZE;
+
         $results = $repo->createQueryBuilder('a')
             ->where("LOWER(a.name) LIKE LOWER(:q) ESCAPE '!'")
             ->andWhere('a.active = true')
@@ -93,7 +97,7 @@ class SearchController extends AbstractController {
             ->setMaxResults(self::PAGE_SIZE)
             ->getQuery()->getResult();
 
-        return [$results, $count];
+        return [$results, $count, $page];
     }
 
     private function escapeLike(string $q): string {

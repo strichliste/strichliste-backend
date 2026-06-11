@@ -23,8 +23,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class UserController extends AbstractController {
 
-    private const TABS = ['send', 'buy', 'edit', 'paypal'];
-
     public function __construct(
         private UserRepository $userRepository,
         private TransactionRepository $transactionRepository,
@@ -38,12 +36,19 @@ class UserController extends AbstractController {
 
     #[Route('/user/{id}', name: 'users_detail', methods: ['GET'], requirements: ['id' => '\d+'])]
     public function detail(User $user, Request $request): Response {
+        $enabledTabs = [
+            'edit' => true,
+            'send' => $this->settings->getOrDefault('payment.transactions.enabled', true) && !$user->isDisabled(),
+            'buy' => $this->settings->getOrDefault('article.enabled', true) && !$user->isDisabled(),
+            'paypal' => $this->settings->getOrDefault('paypal.enabled', false) && !$user->isDisabled(),
+        ];
+
         // no tab by default; article.autoOpen forces the buy tab only when no ?tab= is present at all
         $tab = $request->query->get('tab');
-        if ($tab !== null && !in_array($tab, self::TABS, true)) {
+        if ($tab !== null && !($enabledTabs[$tab] ?? false)) {
             $tab = null;
         }
-        if ($tab === null && !$request->query->has('tab')
+        if ($tab === null && !$request->query->has('tab') && $enabledTabs['buy']
             && $this->settings->getOrDefault('article.autoOpen', false)) {
             $tab = 'buy';
         }
@@ -75,9 +80,9 @@ class UserController extends AbstractController {
             'activeTab' => $tab,
             'recentTransactions' => $recentMeta,
             'editForm' => $editForm,
-            'showSendTab' => $this->settings->getOrDefault('payment.transactions.enabled', true) && !$user->isDisabled(),
-            'showBuyTab' => $this->settings->getOrDefault('article.enabled', true) && !$user->isDisabled(),
-            'showPaypalTab' => $this->settings->getOrDefault('paypal.enabled', false) && !$user->isDisabled(),
+            'showSendTab' => $enabledTabs['send'],
+            'showBuyTab' => $enabledTabs['buy'],
+            'showPaypalTab' => $enabledTabs['paypal'],
             'send' => $sendData,
             'buy' => $buyData,
         ]);
@@ -86,19 +91,14 @@ class UserController extends AbstractController {
     /**
      * @param bool $includeTransferForm true only when the send tab is active — skips an EntityType SELECT otherwise
      */
-    private function prepareSendTab(User $user, bool $includeTransferForm = false): array {
+    private function prepareSendTab(User $user, bool $includeTransferForm = false): ?array {
+        if ($user->isDisabled() || !$this->settings->getOrDefault('payment.transactions.enabled', true)) {
+            return null;
+        }
+
         $transferForm = $includeTransferForm
             ? $this->createForm(TransferTransactionType::class, null, ['exclude_user' => $user])->createView()
             : null;
-
-        if ($user->isDisabled() || !$this->settings->getOrDefault('payment.transactions.enabled', true)) {
-            return [
-                'deposit_enabled' => false, 'deposit_custom' => false, 'deposit_steps' => [],
-                'dispense_enabled' => false, 'dispense_custom' => false, 'dispense_steps' => [],
-                'custom_form' => $this->createForm(CreateTransactionType::class, null, ['user_id' => $user->getId()])->createView(),
-                'transfer_form' => $transferForm,
-            ];
-        }
 
         $accountLower = (int) $this->settings->getOrDefault('account.boundary.lower', PHP_INT_MIN);
         $accountUpper = (int) $this->settings->getOrDefault('account.boundary.upper', PHP_INT_MAX);
