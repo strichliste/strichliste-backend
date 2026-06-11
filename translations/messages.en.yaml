@@ -57,7 +57,7 @@ user:
         recent_transactions: Recent transactions
         no_transactions: No transactions yet.
         view_all: All transactions
-        metrics: Metrics
+        metrics: My metrics
         disabled_banner: This user is disabled.
         tabs_aria: User actions
         tabs:
@@ -146,6 +146,13 @@ metrics:
                 users: Users
             balance_alt: 'Bar chart of money charged and spent per day, with a net balance line, over the period. Exact daily figures are in the data table below.'
             users_alt: 'Bar chart of distinct active users per day over the period. Exact daily figures are in the data table below.'
+        top_articles:
+            heading: Top sellers (last 30 days)
+            empty: No purchases in this period.
+            col:
+                article: Article
+                count: Units sold
+                revenue: Revenue
         table:
             show_table: Show data as table
             col:
@@ -159,6 +166,7 @@ metrics:
                 total: Total
     user:
         title: 'Metrics · %name%'
+        note: Reverted transactions are not counted here.
         card:
             transactions: Transactions
             articles: Articles purchased (distinct)

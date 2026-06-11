@@ -116,6 +116,23 @@ class MetricsService {
         return $qb->getQuery()->getResult();
     }
 
+    /**
+     * @return array<array{cnt: int, amt: int, article: Article}>
+     */
+    public function topArticles(int $days, int $limit = 10): array {
+        return $this->em->createQueryBuilder()
+            ->select('COUNT(a.id) as cnt, SUM(t.amount) * -1 as amt, a as article')
+            ->from(Transaction::class, 't')
+            ->innerJoin(Article::class, 'a', Join::WITH, 'a = t.article')
+            ->where('t.deleted = false')
+            ->andWhere('t.created >= :since')
+            ->setParameter('since', new \DateTimeImmutable("-{$days} days"))
+            ->groupBy('a')
+            ->orderBy('cnt', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()->getResult();
+    }
+
     public function userTransactionCount(User $user): int {
         return (int) $this->em->createQueryBuilder()
             ->select('COUNT(t.id)')

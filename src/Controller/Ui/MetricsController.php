@@ -22,6 +22,7 @@ class MetricsController extends AbstractController {
             'transactionCount' => $this->metrics->totalTransactionCount(),
             'userCount' => $this->metrics->totalUserCount(),
             'days' => $this->metrics->transactionsPerDay(30),
+            'topArticles' => $this->metrics->topArticles(30),
         ]);
     }
 

@@ -46,6 +46,34 @@
     {# JSON_HEX_* keeps user-supplied text from breaking out of the <script> island #}
     <script id="metrics-days-json" type="application/json">{{ days|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }}</script>
 
+    <section class="metrics-chart" aria-labelledby="metrics-top-articles">
+        <h2 id="metrics-top-articles">{{ 'metrics.global.top_articles.heading'|trans }}</h2>
+        {% if topArticles is empty %}
+            <twig:EmptyState>{{ 'metrics.global.top_articles.empty'|trans }}</twig:EmptyState>
+        {% else %}
+            <div class="table-scroll">
+            <table class="metrics-table">
+                <thead>
+                    <tr>
+                        <th>{{ 'metrics.global.top_articles.col.article'|trans }}</th>
+                        <th>{{ 'metrics.global.top_articles.col.count'|trans }}</th>
+                        <th>{{ 'metrics.global.top_articles.col.revenue'|trans }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in topArticles %}
+                        <tr>
+                            <td><a href="{{ path('articles_edit', {id: row.article.id}) }}">{{ row.article.name }}</a></td>
+                            <td>{{ row.cnt }}</td>
+                            <td>{{ row.amt|currency_format(signed=false) }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            </div>
+        {% endif %}
+    </section>
+
     <details class="metrics-table-details" data-controller="disclosure">
         <summary>{{ 'metrics.global.table.show_table'|trans }}</summary>
     <div class="table-scroll">

@@ -57,7 +57,7 @@ user:
         recent_transactions: Letzte Transaktionen
         no_transactions: Noch keine Transaktionen.
         view_all: Alle Transaktionen
-        metrics: Statistiken
+        metrics: Meine Statistiken
         disabled_banner: Dieser Benutzer ist deaktiviert.
         tabs_aria: Benutzeraktionen
         tabs:
@@ -146,6 +146,13 @@ metrics:
                 users: Benutzer
             balance_alt: 'Balkendiagramm der pro Tag eingezahlten und ausgegebenen Beträge mit einer Netto-Linie über den Zeitraum. Genaue Tageswerte stehen in der Datentabelle darunter.'
             users_alt: 'Balkendiagramm der pro Tag aktiven Benutzer über den Zeitraum. Genaue Tageswerte stehen in der Datentabelle darunter.'
+        top_articles:
+            heading: Topseller (letzte 30 Tage)
+            empty: Keine Käufe in diesem Zeitraum.
+            col:
+                article: Artikel
+                count: Verkäufe
+                revenue: Umsatz
         table:
             show_table: Daten als Tabelle anzeigen
             col:
@@ -159,6 +166,7 @@ metrics:
                 total: Gesamt
     user:
         title: 'Statistiken · %name%'
+        note: Stornierte Transaktionen werden hier nicht mitgezählt.
         card:
             transactions: Transaktionen
             articles: Gekaufte Artikel (verschiedene)

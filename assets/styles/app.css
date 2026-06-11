@@ -1809,6 +1809,12 @@ body { padding-top: 4rem; }
   overflow-x: auto;
 }
 
+.metrics-note {
+  color: var(--textSubtile);
+  font-size: 0.8rem;
+  margin: -0.5rem 0 1rem;
+}
+
 .metrics-table {
   width: 100%;
   background: var(--componentBackgroundLight);
