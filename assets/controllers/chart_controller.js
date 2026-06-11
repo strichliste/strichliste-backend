@@ -9,6 +9,7 @@ import {
   CategoryScale,
   LinearScale,
   Tooltip,
+  Legend,
 } from 'chart.js';
 
 Chart.register(
@@ -20,7 +21,10 @@ Chart.register(
   CategoryScale,
   LinearScale,
   Tooltip,
+  Legend,
 );
+
+/* stimulusFetch: 'lazy' */
 
 export default class extends Controller {
   static values = {
@@ -50,6 +54,7 @@ export default class extends Controller {
     const redText = css.getPropertyValue('--redText').trim() || '#c62828';
     const text = css.getPropertyValue('--text').trim() || '#343434';
     const surface = css.getPropertyValue('--componentBackgroundLight').trim() || '#fff';
+    const grid = css.getPropertyValue('--border').trim() || '#ccc';
 
     const reducedMotion =
       window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -120,11 +125,11 @@ export default class extends Controller {
         },
         scales: {
           x: {
-            grid: { color: '#ccc', borderDash: [3, 3] },
+            grid: { color: grid },
             ticks: { color: text, maxRotation: 0, autoSkip: true },
           },
           y: {
-            grid: { color: '#ccc', borderDash: [3, 3] },
+            grid: { color: grid },
             ticks: { color: text, count: 5 },
           },
         },

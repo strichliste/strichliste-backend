@@ -14,7 +14,7 @@
         {{ importmap('app') }}
     {% endblock %}
 </head>
-<body {% block body_attributes %}data-controller="idle" data-idle-timeout-value="{{ setting('common.idleTimeout', 0) }}"{% endblock %}>
+<body {% block body_attributes %}data-controller="idle" data-idle-timeout-value="{{ setting('common.idleTimeout', 0) }}" data-idle-redirect-value="{{ path('users_active') }}"{% endblock %}>
     {# kept across Turbo body swaps (data-turbo-permanent) — a freshly inserted,
        already-populated live region isn't announced, so the flash controller fills these in. #}
     <div class="visually-hidden" id="flash-announcer-status" data-turbo-permanent role="status" aria-live="polite" aria-atomic="true"></div>

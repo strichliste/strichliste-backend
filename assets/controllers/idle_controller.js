@@ -55,8 +55,7 @@ export default class extends Controller {
     }
     // Already on the target? Re-visiting would reload-loop the idle kiosk.
     const target = new URL(this.redirectValue, window.location.origin);
-    const here = window.location.pathname;
-    if (here === target.pathname || (target.pathname === '/' && here === '/user/active')) {
+    if (window.location.pathname === target.pathname) {
       this.reset();
       return;
     }
