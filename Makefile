@@ -16,7 +16,7 @@ else
 endif
 
 .DEFAULT_GOAL := help
-.PHONY: help up down build logs sh test lint cs cs-fix phpstan rector rector-fix prettier prettier-fix tls tls-linux tls-mac tls-windows
+.PHONY: help up down build logs sh test e2e lint cs cs-fix phpstan rector rector-fix prettier prettier-fix tls tls-linux tls-mac tls-windows
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-12s\033[0m %s\n", $$1, $$2}'
@@ -37,6 +37,9 @@ sh: ## Open a shell in the app container
 ## —— Quality ——
 test: ## Run the PHPUnit suite (local PHP)
 	@$(PHP) vendor/bin/phpunit
+
+e2e: ## Run the Playwright end-to-end suite (own sqlite db, boots its own server)
+	@npx playwright test
 
 lint: ## Run the twig/yaml/container lints (local PHP)
 	@$(PHP) bin/console lint:twig templates

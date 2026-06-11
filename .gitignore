@@ -34,3 +34,8 @@ data.sqlite
 ###> prettier ###
 /node_modules/
 ###< prettier ###
+
+###> playwright e2e ###
+/test-results/
+/playwright-report/
+###< playwright e2e ###
