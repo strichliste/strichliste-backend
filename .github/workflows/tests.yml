@@ -46,8 +46,8 @@ jobs:
       fail-fast: false
       matrix:
         db: [sqlite, mariadb, pgsql]
-        # 8.2 is the composer.json floor; 8.5 matches the FrankenPHP image.
-        php: ["8.2", "8.5"]
+        # 8.4 is the composer.json floor; 8.5 matches the FrankenPHP image.
+        php: ["8.4", "8.5"]
         include:
           - db: sqlite
             database_url: "sqlite:////tmp/strichliste_test.db"
@@ -60,8 +60,12 @@ jobs:
             php_extensions: pdo_pgsql
 
     services:
+      # an empty image skips the service, so each cell only starts the database
+      # it tests — previously every cell pulled both images. ECR Public mirrors
+      # the Docker Hub official images without the anonymous-pull rate limits
+      # that made these pulls time out.
       mariadb:
-        image: mariadb:11.8
+        image: ${{ matrix.db == 'mariadb' && 'public.ecr.aws/docker/library/mariadb:11.8' || '' }}
         env:
           MARIADB_DATABASE: strichliste
           MARIADB_USER: strichliste
@@ -73,7 +77,7 @@ jobs:
           --health-interval=10s --health-timeout=5s --health-retries=10
 
       postgres:
-        image: postgres:16
+        image: ${{ matrix.db == 'pgsql' && 'public.ecr.aws/docker/library/postgres:16' || '' }}
         env:
           POSTGRES_DB: strichliste
           POSTGRES_USER: strichliste
