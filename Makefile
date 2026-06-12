@@ -26,7 +26,9 @@ up: ## Build and start the dev stack (then open https://localhost)
 	@$(DOCKER_COMP) up -d --build --wait --wait-timeout 300
 
 prod: ## Build and start the production stack (requires APP_SECRET in .env)
-	@$(DOCKER_COMP) -f compose.yaml -f compose.prod.yaml up -d --build --wait --wait-timeout 120
+	@$(DOCKER_COMP) -f compose.yaml -f compose.prod.yaml pull --ignore-buildable
+	@$(DOCKER_COMP) -f compose.yaml -f compose.prod.yaml build --pull
+	@$(DOCKER_COMP) -f compose.yaml -f compose.prod.yaml up -d --wait --wait-timeout 120
 
 down: ## Stop the stack
 	@$(DOCKER_COMP) down

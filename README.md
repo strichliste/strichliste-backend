@@ -133,11 +133,18 @@ What the containers do for you:
   applies pending migrations before serving traffic.
 - **Settings without rebuilding** — bind-mount your own settings file
   into the `app` service; the entrypoint recompiles the container cache
-  on boot so it is picked up:
+  on boot so it is picked up. Put the snippet in a **new** file, e.g.
+  `compose.custom.yaml` (not `compose.override.yaml` — that one is the
+  development override and is not loaded in production), and extend the
+  `COMPOSE_FILE` pin in `.env` to
+  `compose.yaml:compose.prod.yaml:compose.custom.yaml`:
 
   ```yaml
-  volumes:
-    - ./config/strichliste.yaml:/app/config/strichliste.yaml:ro
+  # compose.custom.yaml
+  services:
+    app:
+      volumes:
+        - ./config/strichliste.yaml:/app/config/strichliste.yaml:ro
   ```
 
 - **Health checks, restart policies and log rotation** are
@@ -183,7 +190,9 @@ Restore Postgres with `docker compose exec -T database psql -U
 strichliste strichliste < dump.sql` (into an empty database).
 
 Upgrading is `git pull && make prod` — migrations apply automatically
-on boot. To roll back to an older build afterwards, first revert the
+on boot, and `make prod` re-pulls the base images so FrankenPHP/PHP and
+Postgres security patches arrive too (a plain `up --build` reuses the
+cached base layers forever). To roll back to an older build afterwards, first revert the
 schema **while the new code still runs**:
 
 ```
