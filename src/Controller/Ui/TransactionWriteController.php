@@ -171,7 +171,7 @@ class TransactionWriteController extends AbstractController
             $this->addFlash('error', $this->translator->trans('transactions.errors.generic'));
         }
 
-        $return = $request->request->get('return');
+        $return = $request->request->getString('return');
         if ('history' === $return) {
             return $this->redirectToRoute('users_transactions', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
         }

@@ -45,11 +45,11 @@ class BuyArticleController extends AbstractController
             return $this->redirectToRoute('users_detail', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
         }
 
-        $articleId = $request->request->get('articleId');
-        $code = trim((string) $request->request->get('barcode', ''));
+        $articleId = $request->request->getString('articleId');
+        $code = trim($request->request->getString('barcode'));
 
         $article = null;
-        if (null !== $articleId && '' !== $articleId) {
+        if ('' !== $articleId) {
             $article = $this->articleRepository->findOneActive((int) $articleId);
         } elseif ('' !== $code) {
             $barcode = $this->barcodeRepository->findByBarcode($code);

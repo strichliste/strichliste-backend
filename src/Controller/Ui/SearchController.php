@@ -22,7 +22,7 @@ class SearchController extends AbstractController
     #[Route('/search-results', name: 'search_results', methods: ['GET'])]
     public function index(Request $request): Response
     {
-        $q = trim((string) $request->query->get('q', ''));
+        $q = trim($request->query->getString('q'));
         $userPage = max(1, (int) $request->query->get('user_page', 1));
         $articlePage = max(1, (int) $request->query->get('article_page', 1));
 

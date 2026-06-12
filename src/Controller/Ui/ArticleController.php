@@ -53,7 +53,7 @@ class ArticleController extends AbstractController
     private function renderList(bool $active, Request $request): Response
     {
         // natural sort ("Beer 2" < "Beer 10") has no portable SQL equivalent, so sort and slice in PHP
-        $tag = trim((string) $request->query->get('tag', ''));
+        $tag = trim($request->query->getString('tag'));
         $qb = $this->articleRepository->createQueryBuilder('a')
             ->where('a.active = :active')
             ->setParameter('active', $active);

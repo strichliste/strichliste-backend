@@ -30,7 +30,7 @@ class ArticleBarcodeController extends AbstractController
             return $this->redirectToRoute('articles_edit', ['id' => $article->getId()], Response::HTTP_SEE_OTHER);
         }
 
-        $code = trim((string) $request->request->get('barcode', ''));
+        $code = trim($request->request->getString('barcode'));
         if ('' === $code || mb_strlen($code) > 32) {
             $this->addFlash('error', $this->translator->trans('articles.barcodes.errors.invalid'));
 

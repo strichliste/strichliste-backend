@@ -29,7 +29,7 @@ class ArticleTagController extends AbstractController
             return $this->redirectToRoute('articles_edit', ['id' => $article->getId()], Response::HTTP_SEE_OTHER);
         }
 
-        $name = trim((string) $request->request->get('tag', ''));
+        $name = trim($request->request->getString('tag'));
         if ('' === $name || mb_strlen($name) > 64) {
             $this->addFlash('error', $this->translator->trans('articles.tags.errors.invalid'));
 
