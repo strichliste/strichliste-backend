@@ -35,12 +35,3 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
-
-# the test suite overrides settings on the live instance (see TestSettingsService
-# for why replacing the service via the test container doesn't work)
-when@test:
-    services:
-        App\Service\SettingsService:
-            class: App\Tests\Support\TestSettingsService
-            arguments:
-                $strichlisteSettings: '%strichliste%'

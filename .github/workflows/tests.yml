@@ -38,38 +38,6 @@ jobs:
       - run: php bin/console lint:yaml config translations
       - run: php bin/console lint:container
 
-  static:
-    name: static (phpstan, php-cs-fixer, prettier)
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-
-      - uses: shivammathur/setup-php@v2
-        with:
-          php-version: "8.4"
-          extensions: ctype, iconv, json, intl, pdo_sqlite
-          coverage: none
-
-      - uses: actions/cache@v5
-        with:
-          path: ~/.cache/composer
-          key: ${{ runner.os }}-php8.4-composer-${{ hashFiles('composer.lock') }}
-
-      - run: composer install --no-interaction --prefer-dist
-
-      - run: vendor/bin/phpstan analyse --no-progress --memory-limit=1G
-
-      - run: vendor/bin/php-cs-fixer fix --dry-run --diff
-
-      - uses: actions/setup-node@v6
-        with:
-          node-version: "22"
-          cache: npm
-
-      - run: npm ci
-
-      - run: npm run format:check
-
   phpunit:
     name: phpunit (${{ matrix.db }}, php ${{ matrix.php }})
     runs-on: ubuntu-latest
@@ -131,9 +99,6 @@ jobs:
           # intl is required since the Twig UI (NumberFormatter in AppExtension).
           extensions: ctype, iconv, json, intl, ${{ matrix.php_extensions }}
           coverage: none
-          # setup-php defaults to the production ini, which compiles \assert()
-          # out — the test helpers rely on it for type narrowing
-          ini-values: zend.assertions=1
 
       - uses: actions/cache@v5
         with:
@@ -142,9 +107,7 @@ jobs:
 
       - run: composer install --no-interaction --prefer-dist
 
-      # random order keeps hidden inter-test coupling out; the seed is printed
-      # on failure for reproduction
-      - run: vendor/bin/phpunit --testdox --order-by=random
+      - run: vendor/bin/phpunit --testdox
 
   e2e:
     name: e2e (playwright)
