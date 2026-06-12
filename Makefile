@@ -16,14 +16,17 @@ else
 endif
 
 .DEFAULT_GOAL := help
-.PHONY: help up down build logs sh test e2e lint cs cs-fix phpstan rector rector-fix prettier prettier-fix tls tls-linux tls-mac tls-windows
+.PHONY: help up prod down logs sh test e2e lint cs cs-fix phpstan rector rector-fix prettier prettier-fix tls tls-linux tls-mac tls-windows
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-12s\033[0m %s\n", $$1, $$2}'
 
 ## —— Stack ——
-up: ## Build and start the stack (then open https://localhost)
-	@$(DOCKER_COMP) up -d --build
+up: ## Build and start the dev stack (then open https://localhost)
+	@$(DOCKER_COMP) up -d --build --wait
+
+prod: ## Build and start the production stack (requires APP_SECRET in .env)
+	@$(DOCKER_COMP) -f compose.yaml -f compose.prod.yaml up -d --build --wait
 
 down: ## Stop the stack
 	@$(DOCKER_COMP) down

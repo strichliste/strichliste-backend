@@ -1,0 +1,11 @@
+# Production environment override:
+#   docker compose -f compose.yaml -f compose.prod.yaml up -d --build --wait
+services:
+  app:
+    build:
+      context: .
+      target: frankenphp_prod
+    environment:
+      # The committed dev value is publicly known — replace it in .env for any real
+      # deployment ("openssl rand -hex 32"); the container warns loudly if you don't.
+      APP_SECRET: ${APP_SECRET}

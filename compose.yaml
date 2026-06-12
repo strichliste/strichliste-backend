@@ -1,70 +1,57 @@
 services:
   app:
-    build: .
+    image: ${IMAGES_PREFIX:-}strichliste-app
     restart: unless-stopped
     environment:
       # localhost = self-signed local CA, real hostname = Let's Encrypt, ":80" = plain HTTP (LAN-IP kiosks).
       SERVER_NAME: ${SERVER_NAME:-localhost}
-      DATABASE_URL: postgresql://${POSTGRES_USER:-strichliste}:${POSTGRES_PASSWORD:-strichliste}@database:5432/${POSTGRES_DB:-strichliste}?serverVersion=${POSTGRES_VERSION:-16}&charset=${POSTGRES_CHARSET:-utf8}
-      # Override for a real deployment — the baked-in default is publicly known:
-      # APP_SECRET: change-me
-    # To customize app settings without rebuilding, mount your copy (the entrypoint recompiles the cache on boot):
-    # volumes:
-    #   - ./config/strichliste.yaml:/app/config/strichliste.yaml:ro
+      # Defaults to the bundled Postgres service. Set DATABASE_URL in .env to use any other
+      # Doctrine DSN (MariaDB/MySQL, SQLite, external Postgres) — see .env for examples.
+      DATABASE_URL: ${DATABASE_URL:-postgresql://${POSTGRES_USER:-strichliste}:${POSTGRES_PASSWORD:-!ChangeMe!}@database:5432/${POSTGRES_DB:-strichliste}?serverVersion=${POSTGRES_VERSION:-16}&charset=${POSTGRES_CHARSET:-utf8}}
     volumes:
-      # Persist Caddy's local CA so the browser trust (make tls) survives recreation.
+      # Caddy state; persisting it keeps the local CA (make tls) across recreations.
       - caddy_data:/data
       - caddy_config:/config
+      # var/ holds logs and — when DATABASE_URL points at SQLite — the database itself.
+      - app_var:/app/var
     ports:
-      # HTTP
-      - target: 80
+      - name: http
+        target: 80
         published: ${HTTP_PORT:-80}
         protocol: tcp
-      # HTTPS
-      - target: 443
+      - name: https
+        target: 443
         published: ${HTTPS_PORT:-443}
         protocol: tcp
-      # HTTP/3
-      - target: 443
+      - name: http3
+        target: 443
         published: ${HTTP3_PORT:-443}
         protocol: udp
-    healthcheck:
-      # HTTPS without peer verification (local CA), HTTP fallback for SERVER_NAME=":80"; $$ escapes compose interpolation.
-      test:
-        - CMD
-        - php
-        - -r
-        - >-
-          $$c = stream_context_create(['ssl' => ['verify_peer' => false, 'verify_peer_name' => false]]);
-          exit((@file_get_contents('https://localhost/user/active', false, $$c)
-            ?: @file_get_contents('http://localhost/user/active')) ? 0 : 1);
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 30s
     depends_on:
       database:
         condition: service_healthy
+        # The database service only exists while COMPOSE_PROFILES=database (see .env).
+        required: false
 
   database:
     image: postgres:${POSTGRES_VERSION:-16}-alpine
     restart: unless-stopped
+    # Disabled by setting COMPOSE_PROFILES= in .env when DATABASE_URL points elsewhere.
+    profiles: [database]
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-strichliste}
       POSTGRES_USER: ${POSTGRES_USER:-strichliste}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-strichliste}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-!ChangeMe!}
     healthcheck:
       test: ["CMD", "pg_isready", "-d", "${POSTGRES_DB:-strichliste}", "-U", "${POSTGRES_USER:-strichliste}"]
       timeout: 5s
       retries: 5
       start_period: 60s
-    # Loopback only (default credentials); 5433 matches the DATABASE_URL default in .env for non-Docker setups.
-    ports:
-      - "127.0.0.1:5433:5432"
     volumes:
       - database_data:/var/lib/postgresql/data:rw
 
 volumes:
   caddy_data:
   caddy_config:
+  app_var:
   database_data:
