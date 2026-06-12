@@ -47,7 +47,7 @@ class PayPalController extends AbstractController
             throw new NotFoundHttpException();
         }
 
-        if (!$this->isCsrfTokenValid('paypal_start'.$user->getId(), (string) $request->request->get('_token'))) {
+        if (!$this->isCsrfTokenValid('paypal_start'.$user->getId(), $request->request->getString('_token'))) {
             $this->addFlash('error', $this->translator->trans('transactions.errors.generic'));
 
             return $this->redirectToRoute('users_detail', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
@@ -59,7 +59,7 @@ class PayPalController extends AbstractController
             return $this->redirectToRoute('users_detail', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
         }
 
-        $cents = $this->moneyParser->parseToCents($request->request->get('amount'));
+        $cents = $this->moneyParser->parseToCents($request->request->getString('amount'));
         if (null === $cents || $cents <= 0) {
             $this->addFlash('error', $this->translator->trans('split_invoice.errors.invalid_amount'));
 
@@ -133,7 +133,7 @@ class PayPalController extends AbstractController
         }
 
         // unknown nonce = already processed or never issued; treat as replay, don't credit again
-        $nonce = (string) $request->query->get('nonce', '');
+        $nonce = $request->query->getString('nonce');
         $session = $request->getSession();
         $pending = $session->get(self::PENDING_SESSION_KEY, []);
         if ('' === $nonce || !array_key_exists($nonce, $pending)) {
