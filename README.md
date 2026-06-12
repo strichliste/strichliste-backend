@@ -37,6 +37,9 @@ three compose files:
 | `compose.override.yaml` | Dev override, picked up automatically: source bind-mounted, worker restarts on file changes, Xdebug available, Postgres reachable from the host on `127.0.0.1:5433`. |
 | `compose.prod.yaml` | Prod override: baked image, compiled assets and warmed cache. |
 
+Requires a reasonably current Docker (Engine 25+ with Compose v2.30+ —
+any recent Docker Desktop or `docker-ce` qualifies).
+
 ### Development
 
 ```
@@ -54,11 +57,16 @@ make tls
 ```
 
 The CA lives in the `caddy_data` volume, so the trust survives
-container rebuilds. The entrypoint waits for the database, installs
-`vendor/` if missing and applies migrations before serving traffic;
-code changes restart the worker automatically (`watch` mode). To
-step-debug, set `XDEBUG_MODE=debug` in `.env`. `make help` lists the
+container rebuilds (Windows: run `make tls` from cmd.exe). The
+entrypoint waits for the database, installs `vendor/` if missing and
+applies migrations before serving traffic; code changes restart the
+worker automatically (`watch` mode). To step-debug, start with
+`XDEBUG_MODE=debug docker compose up -d`. `make help` lists the
 shortcuts (`make up`, `make logs`, `make test`, ...).
+
+On Linux hosts note that the dev container runs as root, so files it
+creates on the bind mount (`vendor/`, `assets/vendor/`) end up
+root-owned — same trade-off as upstream symfony-docker.
 
 ### Production
 
@@ -71,6 +79,17 @@ docker compose -f compose.yaml -f compose.prod.yaml up -d --build --wait
 
 or `make prod`. The prod image bakes the code, compiled assets and a
 warmed cache; nothing is bind-mounted. Migrations still run on boot.
+
+Two production guardrails:
+
+- Uncomment `COMPOSE_FILE=compose.yaml:compose.prod.yaml` in `.env` on
+  the production host. Without it, a plain `docker compose up -d` weeks
+  later silently loads the *development* override — bind mount, dev
+  image, and an empty anonymous `var/` volume that makes a SQLite setup
+  look like all balances vanished.
+- The prod image bakes `.env` into it (`composer dump-env`). Fine for
+  an image built and run on the same box — but don't push an image to a
+  registry with real secrets in `.env`; pass those at runtime instead.
 
 If host ports 80/443 are already taken, remap them in `.env`
 (`HTTP_PORT=8080`, `HTTPS_PORT=8443`, `HTTP3_PORT=8443`) and open
@@ -121,20 +140,60 @@ What the containers do for you:
     - ./config/strichliste.yaml:/app/config/strichliste.yaml:ro
   ```
 
-- **Health checks and restart policies** are preconfigured; `--wait`
-  blocks until the app actually serves traffic.
+- **Health checks, restart policies and log rotation** are
+  preconfigured; `--wait` blocks until the app actually serves traffic.
+  If `up --wait` hangs or fails, `docker compose logs app` shows
+  exactly what the entrypoint is waiting for.
 
-Single container without compose:
+Single container without compose (generate the secret **once** and keep
+it — don't regenerate it on every run):
 
 ```
 docker build --target frankenphp_prod -t strichliste .
-docker run -d -p 80:80 -p 443:443 -p 443:443/udp \
+echo "APP_SECRET=$(openssl rand -hex 32)" > strichliste.env   # keep this file
+docker run -d --restart unless-stopped \
+  -p 80:80 -p 443:443 -p 443:443/udp \
   -e SERVER_NAME=localhost \
   -e DATABASE_URL="sqlite:////app/var/data.db" \
-  -e APP_SECRET="$(openssl rand -hex 32)" \
+  --env-file strichliste.env \
   -v strichliste-data:/app/var \
   strichliste
 ```
+
+### Backup, upgrades, rollback
+
+The state lives in named volumes: `database_data` (Postgres),
+`app_var` (the SQLite database, if you use one) and `caddy_data` (the
+TLS certificates / local CA). **`docker compose down -v` deletes all of
+them — and with them every balance.** Plain `down` / `up` is always
+safe.
+
+Back up before every upgrade (cron-able one-liners):
+
+```
+# bundled Postgres
+docker compose exec database pg_dump -U strichliste strichliste > strichliste-$(date +%F).sql
+
+# SQLite (consistent snapshot even while running)
+docker compose exec app php bin/console dbal:run-sql "VACUUM INTO '/app/var/backup.db'"
+docker compose cp app:/app/var/backup.db strichliste-$(date +%F).db
+```
+
+Restore Postgres with `docker compose exec -T database psql -U
+strichliste strichliste < dump.sql` (into an empty database).
+
+Upgrading is `git pull && make prod` — migrations apply automatically
+on boot. To roll back to an older build afterwards, first revert the
+schema **while the new code still runs**:
+
+```
+docker compose exec app php bin/console doctrine:migrations:migrate prev --no-interaction
+```
+
+then start the older build (or simply restore the backup). Note for
+MariaDB/MySQL users: DDL is not transactional there, so a migration
+that fails halfway cannot roll itself back — on those databases the
+pre-upgrade backup is your only safety net.
 
 ## Run locally (without Docker)
 
