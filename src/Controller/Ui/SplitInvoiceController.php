@@ -71,13 +71,14 @@ class SplitInvoiceController extends AbstractController
             return $renderError();
         }
 
+        // not getInt(): the placeholder option submits "", which must stay a 422 validation error, not a 400
         $recipientId = (int) $request->request->get('recipient', 0);
-        $amountCents = $this->moneyParser->parseToCents($request->request->get('amount'));
-        $comment = trim((string) $request->request->get('comment', '')) ?: null;
-        $participantIds = array_map(intval(...), (array) $request->request->all('participants'));
+        $amountCents = $this->moneyParser->parseToCents($request->request->getString('amount'));
+        $comment = trim($request->request->getString('comment')) ?: null;
+        $participantIds = array_map(intval(...), $request->request->all('participants'));
 
         $formData['recipient'] = $recipientId;
-        $formData['amount_major'] = $request->request->get('amount');
+        $formData['amount_major'] = $request->request->getString('amount');
         $formData['comment'] = $comment;
         $formData['participants'] = $participantIds;
 
