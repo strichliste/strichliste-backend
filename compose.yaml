@@ -7,7 +7,7 @@ services:
       SERVER_NAME: ${SERVER_NAME:-localhost}
       # Defaults to the bundled Postgres service. Set DATABASE_URL in .env to use any other
       # Doctrine DSN (MariaDB/MySQL, SQLite, external Postgres) — see .env for examples.
-      DATABASE_URL: ${DATABASE_URL:-postgresql://${POSTGRES_USER:-strichliste}:${POSTGRES_PASSWORD:-!ChangeMe!}@database:5432/${POSTGRES_DB:-strichliste}?serverVersion=${POSTGRES_VERSION:-16}&charset=${POSTGRES_CHARSET:-utf8}}
+      DATABASE_URL: ${DATABASE_URL:-postgresql://${POSTGRES_USER:-strichliste}:${POSTGRES_PASSWORD:-strichliste}@database:5432/${POSTGRES_DB:-strichliste}?serverVersion=${POSTGRES_VERSION:-16}&charset=${POSTGRES_CHARSET:-utf8}}
     volumes:
       # Caddy state; persisting it keeps the local CA (make tls) across recreations.
       - caddy_data:/data
@@ -41,7 +41,7 @@ services:
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-strichliste}
       POSTGRES_USER: ${POSTGRES_USER:-strichliste}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-!ChangeMe!}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-strichliste}
     healthcheck:
       test: ["CMD", "pg_isready", "-d", "${POSTGRES_DB:-strichliste}", "-U", "${POSTGRES_USER:-strichliste}"]
       timeout: 5s

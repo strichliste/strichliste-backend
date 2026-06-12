@@ -153,7 +153,7 @@ APP_ENV=dev APP_DEBUG=1 symfony serve
 
 Open `http://127.0.0.1:8000`. To use the compose Postgres instead, run
 `docker compose up -d database` and set
-`DATABASE_URL="postgresql://strichliste:!ChangeMe!@127.0.0.1:5433/strichliste?serverVersion=16&charset=utf8"`
+`DATABASE_URL="postgresql://strichliste:strichliste@127.0.0.1:5433/strichliste?serverVersion=16&charset=utf8"`
 in `.env.local` (the dev override publishes it loopback-only on 5433).
 
 For a bare-metal production build:
