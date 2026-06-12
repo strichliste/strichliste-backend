@@ -45,8 +45,8 @@ class UserController extends AbstractController
         ];
 
         // no tab by default; article.autoOpen forces the buy tab only when no ?tab= is present at all
-        $tab = $request->query->get('tab');
-        if (null !== $tab && !($enabledTabs[$tab] ?? false)) {
+        $tab = $request->query->getString('tab');
+        if (!($enabledTabs[$tab] ?? false)) {
             $tab = null;
         }
         if (null === $tab && !$request->query->has('tab') && $enabledTabs['buy']
