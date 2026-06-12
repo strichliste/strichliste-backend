@@ -3,8 +3,6 @@
 namespace App\Serializer;
 
 use App\Entity\Article;
-use App\Entity\ArticleTag;
-use App\Entity\Barcode;
 
 class ArticleSerializer
 {
@@ -25,8 +23,8 @@ class ArticleSerializer
         return [
             'id' => $article->getId(),
             'name' => $article->getName(),
-            'barcodes' => array_map(fn (Barcode $barcode) => $this->barcodeSerializer->serialize($barcode), $article->getBarcodes()),
-            'tags' => array_map(fn (ArticleTag $articleTag) => $this->articleTagSerializer->serialize($articleTag), $article->getArticleTags()),
+            'barcodes' => array_map($this->barcodeSerializer->serialize(...), $article->getBarcodes()),
+            'tags' => array_map($this->articleTagSerializer->serialize(...), $article->getArticleTags()),
             'amount' => $article->getAmount(),
             'isActive' => $article->isActive(),
             'usageCount' => $article->getUsageCount(),

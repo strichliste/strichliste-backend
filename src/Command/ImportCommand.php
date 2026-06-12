@@ -47,7 +47,7 @@ class ImportCommand extends Command
 
         try {
             $result = $connection->executeQuery('select id, name, mailAddress, createDate from users');
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             $result = $connection->executeQuery("select id, name, '' as mailAddress, createDate from users");
         }
 

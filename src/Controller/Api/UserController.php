@@ -41,7 +41,7 @@ class UserController extends AbstractController
         usort($users, fn (User $a, User $b) => strnatcasecmp((string) $a->getName(), (string) $b->getName()));
 
         return $this->json([
-            'users' => array_map(fn (User $user) => $this->userSerializer->serialize($user), $users),
+            'users' => array_map($this->userSerializer->serialize(...), $users),
         ]);
     }
 
@@ -100,7 +100,7 @@ class UserController extends AbstractController
 
         return $this->json([
             'count' => count($results),
-            'users' => array_map(fn (User $user) => $this->userSerializer->serialize($user), $results),
+            'users' => array_map($this->userSerializer->serialize(...), $results),
         ]);
     }
 

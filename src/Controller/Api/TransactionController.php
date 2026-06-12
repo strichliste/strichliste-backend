@@ -34,7 +34,7 @@ class TransactionController extends AbstractController
 
         return $this->json([
             'count' => $count,
-            'transactions' => array_map(fn (Transaction $transaction) => $this->transactionSerializer->serialize($transaction), $transactions),
+            'transactions' => array_map($this->transactionSerializer->serialize(...), $transactions),
         ]);
     }
 
@@ -79,7 +79,7 @@ class TransactionController extends AbstractController
 
         return $this->json([
             'count' => $count,
-            'transactions' => array_map(fn (Transaction $transaction) => $this->transactionSerializer->serialize($transaction), $transactions),
+            'transactions' => array_map($this->transactionSerializer->serialize(...), $transactions),
         ]);
     }
 

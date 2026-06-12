@@ -32,7 +32,7 @@ class BarcodeController extends AbstractController
 
         return $this->json([
             'count' => count($barcodes),
-            'barcodes' => array_map(fn (Barcode $barcode) => $this->barcodeSerializer->serialize($barcode), $barcodes),
+            'barcodes' => array_map($this->barcodeSerializer->serialize(...), $barcodes),
         ]);
     }
 
@@ -48,7 +48,7 @@ class BarcodeController extends AbstractController
 
         return $this->json([
             'count' => count($barcodes),
-            'barcodes' => array_map(fn (Barcode $barcode) => $this->barcodeSerializer->serialize($barcode), $barcodes),
+            'barcodes' => array_map($this->barcodeSerializer->serialize(...), $barcodes),
         ]);
     }
 
