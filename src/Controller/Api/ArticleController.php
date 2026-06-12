@@ -39,7 +39,7 @@ class ArticleController extends AbstractController
             ->where('a1.active = :active')
             ->setParameter('active', $active);
 
-        $barcode = trim($request->query->get('barcode', ''));
+        $barcode = trim($request->query->getString('barcode'));
         if ($barcode) {
             $queryBuilder
                 ->andWhere('b.barcode = :barcode')
@@ -51,7 +51,7 @@ class ArticleController extends AbstractController
             $queryBuilder->andWhere('a1.precursor IS NULL');
         }
 
-        $ancestor = $request->query->get('ancestor', null);
+        $ancestor = $request->query->getString('ancestor');
         if ('true' === $ancestor) {
             $queryBuilder->leftJoin(Article::class, 'a2', Join::WITH, 'a2.precursor = a1.id')->andWhere('a2.id IS NOT NULL');
         } elseif ('false' === $ancestor) {
@@ -88,10 +88,10 @@ class ArticleController extends AbstractController
     #[Route('/search', methods: ['GET'])]
     public function search(Request $request, EntityManagerInterface $entityManager): JsonResponse
     {
-        $query = $request->query->get('query');
+        $query = $request->query->getString('query');
         $limit = (int) $request->query->get('limit', 25);
-        $barcode = trim($request->query->get('barcode', ''));
-        $tag = trim($request->query->get('tag', ''));
+        $barcode = trim($request->query->getString('barcode'));
+        $tag = trim($request->query->getString('tag'));
 
         $queryBuilder = $entityManager
             ->getRepository(Article::class)

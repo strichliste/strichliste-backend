@@ -26,7 +26,7 @@ class UserController extends AbstractController
     #[Route(methods: ['GET'])]
     public function list(Request $request, UserService $userService, UserRepository $userRepository): JsonResponse
     {
-        $active = $request->query->get('active');
+        $active = $request->query->getString('active');
 
         $staleDateTime = $userService->getStaleDateTime();
 
@@ -86,7 +86,7 @@ class UserController extends AbstractController
     #[Route('/search', methods: ['GET'])]
     public function search(Request $request, UserRepository $userRepository): JsonResponse
     {
-        $query = $request->query->get('query');
+        $query = $request->query->getString('query');
         $limit = (int) $request->query->get('limit', 25);
 
         $results = $userRepository->createQueryBuilder('u')
