@@ -28,8 +28,8 @@ class ArticleController extends AbstractController
     #[Route(methods: ['GET'])]
     public function list(Request $request, EntityManagerInterface $entityManager, ArticleRepository $articleRepository): JsonResponse
     {
-        $limit = (int) $request->query->get('limit', 25);
-        $offset = $request->query->get('offset');
+        $limit = $request->query->getInt('limit', 25);
+        $offset = $request->query->has('offset') ? $request->query->getInt('offset') : null;
         $active = $request->query->getBoolean('active', true);
 
         $queryBuilder = $entityManager->createQueryBuilder()
@@ -60,7 +60,7 @@ class ArticleController extends AbstractController
 
         $queryBuilder
             ->groupBy('a1')
-            ->setFirstResult(null === $offset ? null : (int) $offset)
+            ->setFirstResult($offset)
             ->setMaxResults($limit)
             ->orderBy('a1.name', 'ASC');
 
@@ -89,7 +89,7 @@ class ArticleController extends AbstractController
     public function search(Request $request, EntityManagerInterface $entityManager): JsonResponse
     {
         $query = $request->query->getString('query');
-        $limit = (int) $request->query->get('limit', 25);
+        $limit = $request->query->getInt('limit', 25);
         $barcode = trim($request->query->getString('barcode'));
         $tag = trim($request->query->getString('tag'));
 
@@ -143,7 +143,7 @@ class ArticleController extends AbstractController
     #[Route('/{articleId}', methods: ['GET'])]
     public function getArticle(string $articleId, Request $request, EntityManagerInterface $entityManager): JsonResponse
     {
-        $depth = (int) $request->query->get('depth', 1);
+        $depth = $request->query->getInt('depth', 1);
 
         $article = $entityManager->getRepository(Article::class)->find($articleId);
         if (!$article) {

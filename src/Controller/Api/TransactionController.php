@@ -26,11 +26,11 @@ class TransactionController extends AbstractController
     #[Route('/transaction', methods: ['GET'])]
     public function list(Request $request, TransactionRepository $transactionRepository): JsonResponse
     {
-        $limit = (int) $request->query->get('limit', 25);
-        $offset = $request->query->get('offset');
+        $limit = $request->query->getInt('limit', 25);
+        $offset = $request->query->has('offset') ? $request->query->getInt('offset') : null;
 
         $count = $transactionRepository->count([]);
-        $transactions = $transactionRepository->findAllPaginated($limit, null === $offset ? null : (int) $offset);
+        $transactions = $transactionRepository->findAllPaginated($limit, $offset);
 
         return $this->json([
             'count' => $count,
@@ -66,8 +66,8 @@ class TransactionController extends AbstractController
     #[Route('/user/{userId}/transaction', methods: ['GET'])]
     public function getUserTransactions(string $userId, Request $request, EntityManagerInterface $entityManager, TransactionRepository $transactionRepository): JsonResponse
     {
-        $limit = (int) $request->query->get('limit', 25);
-        $offset = $request->query->get('offset');
+        $limit = $request->query->getInt('limit', 25);
+        $offset = $request->query->has('offset') ? $request->query->getInt('offset') : null;
 
         $user = $entityManager->getRepository(User::class)->find($userId);
         if (!$user) {
@@ -75,7 +75,7 @@ class TransactionController extends AbstractController
         }
 
         $count = $transactionRepository->countByUser($user);
-        $transactions = $transactionRepository->findByUser($user, $limit, null === $offset ? null : (int) $offset);
+        $transactions = $transactionRepository->findByUser($user, $limit, $offset);
 
         return $this->json([
             'count' => $count,

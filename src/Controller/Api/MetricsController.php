@@ -23,7 +23,7 @@ class MetricsController extends AbstractController
     public function metrics(Request $request, ArticleRepository $articleRepository, ArticleSerializer $articleSerializer): JsonResponse
     {
         // clamp: huge values allocate an array row per day, negative ones make DateTime throw
-        $days = max(1, min(3650, (int) $request->query->get('days', 30)));
+        $days = max(1, min(3650, $request->query->getInt('days', 30)));
         $articles = $articleRepository->findBy(['active' => true], ['usageCount' => 'DESC']);
 
         return $this->json([

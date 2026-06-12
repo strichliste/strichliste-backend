@@ -87,7 +87,7 @@ class UserController extends AbstractController
     public function search(Request $request, UserRepository $userRepository): JsonResponse
     {
         $query = $request->query->getString('query');
-        $limit = (int) $request->query->get('limit', 25);
+        $limit = $request->query->getInt('limit', 25);
 
         $results = $userRepository->createQueryBuilder('u')
             ->where('u.name LIKE :query')
