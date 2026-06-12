@@ -33,7 +33,7 @@ class HomeController extends AbstractController
 
         return $this->renderList(
             fn (int $offset) => $this->userRepository->findAllActivePaginated($since, self::PAGE_SIZE, $offset),
-            max(1, (int) $request->query->get('page', 1)),
+            max(1, $request->query->getInt('page', 1)),
             true,
         );
     }
@@ -45,7 +45,7 @@ class HomeController extends AbstractController
 
         return $this->renderList(
             fn (int $offset) => $this->userRepository->findAllInactivePaginated($since, self::PAGE_SIZE, $offset),
-            max(1, (int) $request->query->get('page', 1)),
+            max(1, $request->query->getInt('page', 1)),
             false,
         );
     }

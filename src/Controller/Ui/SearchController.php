@@ -23,8 +23,8 @@ class SearchController extends AbstractController
     public function index(Request $request): Response
     {
         $q = trim($request->query->getString('q'));
-        $userPage = max(1, (int) $request->query->get('user_page', 1));
-        $articlePage = max(1, (int) $request->query->get('article_page', 1));
+        $userPage = max(1, $request->query->getInt('user_page', 1));
+        $articlePage = max(1, $request->query->getInt('article_page', 1));
 
         $tooShort = mb_strlen($q) < 2;
 

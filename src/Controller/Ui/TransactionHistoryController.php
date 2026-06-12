@@ -23,7 +23,7 @@ class TransactionHistoryController extends AbstractController
     #[Route('/user/{id}/transactions', name: 'users_transactions', methods: ['GET'], requirements: ['id' => '\d+'])]
     public function index(User $user, Request $request): Response
     {
-        $page = max(1, (int) $request->query->get('page', 1));
+        $page = max(1, $request->query->getInt('page', 1));
         $total = $this->transactionRepository->countByUser($user);
         $totalPages = $total > 0 ? (int) ceil($total / self::PAGE_SIZE) : 1;
         $page = min($page, $totalPages);

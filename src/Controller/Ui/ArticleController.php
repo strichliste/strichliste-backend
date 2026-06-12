@@ -71,7 +71,7 @@ class ArticleController extends AbstractController
 
         $total = count($articles);
         $totalPages = max(1, (int) ceil($total / self::PAGE_SIZE));
-        $page = max(1, min((int) $request->query->get('page', 1), $totalPages));
+        $page = max(1, min($request->query->getInt('page', 1), $totalPages));
         $offset = ($page - 1) * self::PAGE_SIZE;
         $slice = array_slice($articles, $offset, self::PAGE_SIZE);
 
