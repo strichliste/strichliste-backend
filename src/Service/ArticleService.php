@@ -82,6 +82,8 @@ class ArticleService
             throw new ParameterMissingException('name');
         }
 
+        // not getInt(): the legacy contract truncates float amounts, and missing/zero
+        // must answer ParameterMissingException, not InputBag's envelope-less 400
         $amount = (int) $request->request->get('amount', 0);
         if (!$amount) {
             throw new ParameterMissingException('amount');
