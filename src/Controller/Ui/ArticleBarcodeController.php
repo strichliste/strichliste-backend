@@ -24,7 +24,7 @@ class ArticleBarcodeController extends AbstractController
     #[Route('/articles/{id}/barcodes', name: 'articles_barcodes_add', methods: ['POST'], requirements: ['id' => '\d+'])]
     public function add(Article $article, Request $request): Response
     {
-        if (!$this->isCsrfTokenValid('add_barcode'.$article->getId(), (string) $request->request->get('_token'))) {
+        if (!$this->isCsrfTokenValid('add_barcode'.$article->getId(), $request->request->getString('_token'))) {
             $this->addFlash('error', $this->translator->trans('transactions.errors.generic'));
 
             return $this->redirectToRoute('articles_edit', ['id' => $article->getId()], Response::HTTP_SEE_OTHER);
@@ -59,7 +59,7 @@ class ArticleBarcodeController extends AbstractController
     #[Route('/articles/{id}/barcodes/{bid}/delete', name: 'articles_barcodes_delete', methods: ['POST'], requirements: ['id' => '\d+', 'bid' => '\d+'])]
     public function delete(Article $article, int $bid, Request $request): Response
     {
-        if (!$this->isCsrfTokenValid('delete_barcode'.$bid, (string) $request->request->get('_token'))) {
+        if (!$this->isCsrfTokenValid('delete_barcode'.$bid, $request->request->getString('_token'))) {
             return $this->redirectToRoute('articles_edit', ['id' => $article->getId()], Response::HTTP_SEE_OTHER);
         }
 

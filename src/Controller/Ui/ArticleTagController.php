@@ -25,7 +25,7 @@ class ArticleTagController extends AbstractController
     #[Route('/articles/{id}/tags', name: 'articles_tags_add', methods: ['POST'], requirements: ['id' => '\d+'])]
     public function add(Article $article, Request $request): Response
     {
-        if (!$this->isCsrfTokenValid('add_tag'.$article->getId(), (string) $request->request->get('_token'))) {
+        if (!$this->isCsrfTokenValid('add_tag'.$article->getId(), $request->request->getString('_token'))) {
             return $this->redirectToRoute('articles_edit', ['id' => $article->getId()], Response::HTTP_SEE_OTHER);
         }
 
@@ -60,7 +60,7 @@ class ArticleTagController extends AbstractController
     #[Route('/articles/{id}/tags/{tid}/delete', name: 'articles_tags_delete', methods: ['POST'], requirements: ['id' => '\d+', 'tid' => '\d+'])]
     public function delete(Article $article, int $tid, Request $request): Response
     {
-        if (!$this->isCsrfTokenValid('delete_tag'.$tid, (string) $request->request->get('_token'))) {
+        if (!$this->isCsrfTokenValid('delete_tag'.$tid, $request->request->getString('_token'))) {
             return $this->redirectToRoute('articles_edit', ['id' => $article->getId()], Response::HTTP_SEE_OTHER);
         }
 

@@ -139,7 +139,7 @@ class TransactionWriteController extends AbstractController
     #[Route('/user/{id}/transactions/{txId}/undo', name: 'transactions_undo', methods: ['POST'], requirements: ['id' => '\d+', 'txId' => '\d+'])]
     public function undo(User $user, int $txId, Request $request): Response
     {
-        if (!$this->isCsrfTokenValid('undo'.$user->getId().'_'.$txId, (string) $request->request->get('_token'))) {
+        if (!$this->isCsrfTokenValid('undo'.$user->getId().'_'.$txId, $request->request->getString('_token'))) {
             $this->addFlash('error', $this->translator->trans('transactions.errors.generic'));
 
             return $this->redirectToRoute('users_detail', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);

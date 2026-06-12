@@ -65,7 +65,7 @@ class SplitInvoiceController extends AbstractController
             return $this->render('split_invoice/index.html.twig', $renderArgs());
         }
 
-        if (!$this->isCsrfTokenValid('split_invoice', (string) $request->request->get('_token'))) {
+        if (!$this->isCsrfTokenValid('split_invoice', $request->request->getString('_token'))) {
             $errors[] = $this->translator->trans('transactions.errors.generic');
 
             return $renderError();

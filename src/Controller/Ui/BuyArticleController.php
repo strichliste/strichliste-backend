@@ -32,7 +32,7 @@ class BuyArticleController extends AbstractController
     #[Route('/user/{id}/transactions/buy', name: 'transactions_buy', methods: ['POST'], requirements: ['id' => '\d+'])]
     public function buy(User $user, Request $request): Response
     {
-        if (!$this->isCsrfTokenValid('buy'.$user->getId(), (string) $request->request->get('_token'))) {
+        if (!$this->isCsrfTokenValid('buy'.$user->getId(), $request->request->getString('_token'))) {
             $this->addFlash('error', $this->translator->trans('transactions.errors.generic'));
 
             return $this->redirectToRoute('users_detail', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);

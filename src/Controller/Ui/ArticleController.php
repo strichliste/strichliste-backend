@@ -148,7 +148,7 @@ class ArticleController extends AbstractController
     public function delete(Article $article, Request $request): Response
     {
         if ($request->isMethod('POST')) {
-            if (!$this->isCsrfTokenValid('delete_article'.$article->getId(), (string) $request->request->get('_token'))) {
+            if (!$this->isCsrfTokenValid('delete_article'.$article->getId(), $request->request->getString('_token'))) {
                 $this->addFlash('error', $this->translator->trans('transactions.errors.generic'));
 
                 return $this->redirectToRoute('articles_delete', ['id' => $article->getId()], Response::HTTP_SEE_OTHER);
