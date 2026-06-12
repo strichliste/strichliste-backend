@@ -77,7 +77,7 @@ class ArticleService
      */
     public function createArticleByRequest(Request $request): Article
     {
-        $name = $request->request->get('name');
+        $name = $request->request->getString('name');
         if (!$name) {
             throw new ParameterMissingException('name');
         }

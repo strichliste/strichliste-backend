@@ -77,7 +77,7 @@ class TagController extends AbstractController
     #[Route('/article/{articleId}/tag', methods: ['POST'])]
     public function addArticleTag(int $articleId, Request $request, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager, TagRepository $tagRepository): JsonResponse
     {
-        $tag = trim($request->request->get('tag', ''));
+        $tag = trim($request->request->getString('tag'));
         if (!$tag) {
             throw new ParameterInvalidException('tag');
         }

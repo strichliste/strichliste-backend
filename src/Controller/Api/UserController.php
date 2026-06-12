@@ -48,7 +48,7 @@ class UserController extends AbstractController
     #[Route(methods: ['POST'])]
     public function createUser(Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager): JsonResponse
     {
-        $name = $request->request->get('name');
+        $name = $request->request->getString('name');
         if (!$name) {
             throw new ParameterMissingException('name');
         }
@@ -66,7 +66,7 @@ class UserController extends AbstractController
         $user = new User();
         $user->setName($name);
 
-        $email = $request->request->get('email');
+        $email = $request->request->getString('email');
         if ($email) {
             if (!filter_var($email, FILTER_VALIDATE_EMAIL) || mb_strlen($email) > 255) {
                 throw new ParameterInvalidException('email');
@@ -125,7 +125,7 @@ class UserController extends AbstractController
             throw new UserNotFoundException($userId);
         }
 
-        $name = $request->request->get('name');
+        $name = $request->request->getString('name');
         if (mb_strlen($name) > 64) {
             throw new ParameterInvalidException('name');
         }
@@ -140,7 +140,7 @@ class UserController extends AbstractController
             $user->setName($name);
         }
 
-        $email = $request->request->get('email');
+        $email = $request->request->getString('email');
         if ($email) {
             if (!filter_var($email, FILTER_VALIDATE_EMAIL) || mb_strlen($email) > 255) {
                 throw new ParameterInvalidException('email');
