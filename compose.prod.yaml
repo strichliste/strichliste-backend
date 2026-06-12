@@ -9,3 +9,10 @@ services:
       # The committed dev value is publicly known — replace it in .env for any real
       # deployment ("openssl rand -hex 32"); the container warns loudly if you don't.
       APP_SECRET: ${APP_SECRET}
+      # On small boxes (1GB Pi-class), also cap the PHP thread count, e.g.:
+      # FRANKENPHP_CONFIG: "num_threads 4"
+    # Uncomment to keep the app from starving the database on small boxes:
+    # deploy:
+    #   resources:
+    #     limits:
+    #       memory: 512M

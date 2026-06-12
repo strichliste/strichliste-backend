@@ -5,6 +5,8 @@
 .env.local
 .env.*.local
 .env.local.php
+.env.test
+bin/phpunit
 .web-server-pid
 var/
 vendor/

@@ -2,6 +2,11 @@ services:
   app:
     image: ${IMAGES_PREFIX:-}strichliste-app
     restart: unless-stopped
+    logging: &bounded-logs
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
     environment:
       # localhost = self-signed local CA, real hostname = Let's Encrypt, ":80" = plain HTTP (LAN-IP kiosks).
       SERVER_NAME: ${SERVER_NAME:-localhost}
@@ -36,6 +41,7 @@ services:
   database:
     image: postgres:${POSTGRES_VERSION:-16}-alpine
     restart: unless-stopped
+    logging: *bounded-logs
     # Disabled by setting COMPOSE_PROFILES= in .env when DATABASE_URL points elsewhere.
     profiles: [database]
     environment:
@@ -44,6 +50,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-strichliste}
     healthcheck:
       test: ["CMD", "pg_isready", "-d", "${POSTGRES_DB:-strichliste}", "-U", "${POSTGRES_USER:-strichliste}"]
+      interval: 5s
       timeout: 5s
       retries: 5
       start_period: 60s

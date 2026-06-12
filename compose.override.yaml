@@ -16,6 +16,11 @@ services:
       FRANKENPHP_WORKER_CONFIG: watch
       # See https://xdebug.org/docs/all_settings#mode — e.g. XDEBUG_MODE=debug to step-debug.
       XDEBUG_MODE: ${XDEBUG_MODE:-off}
+    healthcheck:
+      # The first dev boot may composer-install and download importmap vendors
+      # before Caddy listens — give it room (probing every 5s keeps --wait fast).
+      start_period: 300s
+      start_interval: 5s
     extra_hosts:
       # Ensure that host.docker.internal is correctly defined on Linux
       - host.docker.internal:host-gateway
