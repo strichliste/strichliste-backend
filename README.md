@@ -71,7 +71,8 @@ shortcuts (`make up`, `make logs`, `make test`, ...).
 
 On Linux hosts note that the dev container runs as root, so files it
 creates on the bind mount (`vendor/`, `assets/vendor/`) end up
-root-owned — same trade-off as upstream symfony-docker.
+root-owned — same trade-off as upstream symfony-docker. Run
+`make fix-perms` to hand them back to your user.
 
 ### Production
 
