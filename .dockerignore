@@ -22,8 +22,6 @@ test-results/
 .playwright-mcp/
 tests/
 docs/
-contrib/
-examples/
 phpunit.xml
 phpunit.dist.xml
 .phpunit.cache/

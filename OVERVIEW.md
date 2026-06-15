@@ -376,8 +376,8 @@ The classic setup the old website describes still works, modernized:
    ```
 
 4. **Configure the web server**: point the document root at `public/`
-   and route everything through `public/index.php`. Working nginx
-   (plain + SSL) and Apache examples live in [`examples/`](examples/).
+   and route everything through `public/index.php` — any standard
+   PHP-FPM vhost (nginx or Apache) works.
 5. Set `APP_ENV=prod`, `APP_DEBUG=0` and a unique `APP_SECRET` in the
    environment, then warm the cache: `php bin/console cache:clear`.
    Errors land in your PHP-FPM/web-server error log (the app does not
@@ -729,7 +729,5 @@ differences:
 - **`/api/doc`** on your instance — interactive API documentation.
 - **`make e2e`** — the Playwright suite clicks through every UI flow;
   reading `tests/e2e/` doubles as a tour of what the app can do.
-- **`contrib/ansible/`** — a stale community playbook targeting the
-  *previous* version (Debian Buster, PHP 7) — prefer the Docker setup.
 - **Contributing**: run `make test` (API contract), `make e2e`
   (browser tests), `make lint` before sending changes.
