@@ -2,7 +2,7 @@
 
 namespace App\Controller\Api;
 
-use App\ApiDoc\Transaction as TransactionSchema;
+use App\Dto\Api\Transaction as TransactionSchema;
 use App\Dto\Api\CreateTransactionDto;
 use App\Entity\Transaction;
 use App\Entity\User;

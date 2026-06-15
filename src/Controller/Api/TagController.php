@@ -2,8 +2,8 @@
 
 namespace App\Controller\Api;
 
-use App\ApiDoc\Article as ArticleSchema;
-use App\ApiDoc\Tag as TagSchema;
+use App\Dto\Api\Article as ArticleSchema;
+use App\Dto\Api\Tag as TagSchema;
 use App\Dto\Api\AddTagDto;
 use App\Entity\Article;
 use App\Entity\ArticleTag;

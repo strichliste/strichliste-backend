@@ -2,7 +2,7 @@
 
 namespace App\Controller\Api;
 
-use App\ApiDoc\Article as ArticleSchema;
+use App\Dto\Api\Article as ArticleSchema;
 use App\Dto\Api\WriteArticleDto;
 use App\Entity\Article;
 use App\Entity\ArticleTag;

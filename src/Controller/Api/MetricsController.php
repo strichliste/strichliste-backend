@@ -2,8 +2,8 @@
 
 namespace App\Controller\Api;
 
-use App\ApiDoc\Article as ArticleSchema;
-use App\ApiDoc\MetricsDay as MetricsDaySchema;
+use App\Dto\Api\Article as ArticleSchema;
+use App\Dto\Api\MetricsDay as MetricsDaySchema;
 use App\Entity\Article;
 use App\Exception\UserNotFoundException;
 use App\Repository\ArticleRepository;

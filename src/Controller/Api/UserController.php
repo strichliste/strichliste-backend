@@ -2,7 +2,7 @@
 
 namespace App\Controller\Api;
 
-use App\ApiDoc\User as UserSchema;
+use App\Dto\Api\User as UserSchema;
 use App\Dto\Api\CreateUserDto;
 use App\Dto\Api\UpdateUserDto;
 use App\Entity\User;

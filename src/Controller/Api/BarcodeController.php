@@ -2,8 +2,8 @@
 
 namespace App\Controller\Api;
 
-use App\ApiDoc\Article as ArticleSchema;
-use App\ApiDoc\Barcode as BarcodeSchema;
+use App\Dto\Api\Article as ArticleSchema;
+use App\Dto\Api\Barcode as BarcodeSchema;
 use App\Dto\Api\AddBarcodeDto;
 use App\Entity\Article;
 use App\Entity\Barcode;
