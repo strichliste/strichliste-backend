@@ -15,7 +15,7 @@ use OpenApi\Attributes as OA;
     properties: [
         new OA\Property(property: 'id', type: 'integer'),
         new OA\Property(property: 'name', type: 'string'),
-        new OA\Property(property: 'email', type: 'string', nullable: true),
+        new OA\Property(property: 'email', type: 'string', format: 'email', nullable: true),
         new OA\Property(property: 'balance', type: 'integer', description: 'Balance in cents.'),
         new OA\Property(property: 'isActive', type: 'boolean', description: 'Had a transaction within the staleness window.'),
         new OA\Property(property: 'isDisabled', type: 'boolean'),

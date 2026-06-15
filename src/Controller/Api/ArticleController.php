@@ -3,6 +3,7 @@
 namespace App\Controller\Api;
 
 use App\ApiDoc\Article as ArticleSchema;
+use App\ApiDoc\WriteArticleRequest;
 use App\ApiDoc\Error as ErrorSchema;
 use App\Entity\Article;
 use App\Entity\ArticleTag;
@@ -98,13 +99,10 @@ class ArticleController extends AbstractController
     #[OA\Post(
         summary: 'Create an article',
         tags: ['article'],
-        requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(
-            required: ['name', 'amount'],
-            properties: [
-                new OA\Property(property: 'name', type: 'string'),
-                new OA\Property(property: 'amount', type: 'integer', description: 'Price in cents.'),
-            ],
-        )),
+        requestBody: new OA\RequestBody(required: true, content: [
+            new OA\MediaType(mediaType: 'application/json', schema: new OA\Schema(ref: new Model(type: WriteArticleRequest::class))),
+            new OA\MediaType(mediaType: 'application/x-www-form-urlencoded', schema: new OA\Schema(ref: new Model(type: WriteArticleRequest::class))),
+        ]),
         responses: [
             new OA\Response(response: 200, description: 'The created article.', content: new OA\JsonContent(properties: [
                 new OA\Property(property: 'article', ref: new Model(type: ArticleSchema::class)),
@@ -233,13 +231,10 @@ class ArticleController extends AbstractController
         parameters: [
             new OA\Parameter(name: 'articleId', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
         ],
-        requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(
-            required: ['name', 'amount'],
-            properties: [
-                new OA\Property(property: 'name', type: 'string'),
-                new OA\Property(property: 'amount', type: 'integer', description: 'Price in cents.'),
-            ],
-        )),
+        requestBody: new OA\RequestBody(required: true, content: [
+            new OA\MediaType(mediaType: 'application/json', schema: new OA\Schema(ref: new Model(type: WriteArticleRequest::class))),
+            new OA\MediaType(mediaType: 'application/x-www-form-urlencoded', schema: new OA\Schema(ref: new Model(type: WriteArticleRequest::class))),
+        ]),
         responses: [
             new OA\Response(response: 200, description: 'The new active revision.', content: new OA\JsonContent(properties: [
                 new OA\Property(property: 'article', ref: new Model(type: ArticleSchema::class)),

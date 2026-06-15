@@ -2,7 +2,9 @@
 
 namespace App\Controller\Api;
 
+use App\ApiDoc\CreateUserRequest;
 use App\ApiDoc\Error as ErrorSchema;
+use App\ApiDoc\UpdateUserRequest;
 use App\ApiDoc\User as UserSchema;
 use App\Entity\User;
 use App\Exception\ParameterInvalidException;
@@ -65,13 +67,10 @@ class UserController extends AbstractController
     #[OA\Post(
         summary: 'Create a user',
         tags: ['user'],
-        requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(
-            required: ['name'],
-            properties: [
-                new OA\Property(property: 'name', type: 'string', maxLength: 64),
-                new OA\Property(property: 'email', type: 'string', maxLength: 255),
-            ],
-        )),
+        requestBody: new OA\RequestBody(required: true, content: [
+            new OA\MediaType(mediaType: 'application/json', schema: new OA\Schema(ref: new Model(type: CreateUserRequest::class))),
+            new OA\MediaType(mediaType: 'application/x-www-form-urlencoded', schema: new OA\Schema(ref: new Model(type: CreateUserRequest::class))),
+        ]),
         responses: [
             new OA\Response(response: 200, description: 'The created user.', content: new OA\JsonContent(properties: [
                 new OA\Property(property: 'user', ref: new Model(type: UserSchema::class)),
@@ -185,11 +184,10 @@ class UserController extends AbstractController
         parameters: [
             new OA\Parameter(name: 'userId', in: 'path', required: true, description: 'User id, or the exact user name.', schema: new OA\Schema(type: 'string')),
         ],
-        requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(properties: [
-            new OA\Property(property: 'name', type: 'string', maxLength: 64),
-            new OA\Property(property: 'email', type: 'string', maxLength: 255),
-            new OA\Property(property: 'isDisabled', type: 'boolean'),
-        ])),
+        requestBody: new OA\RequestBody(required: true, content: [
+            new OA\MediaType(mediaType: 'application/json', schema: new OA\Schema(ref: new Model(type: UpdateUserRequest::class))),
+            new OA\MediaType(mediaType: 'application/x-www-form-urlencoded', schema: new OA\Schema(ref: new Model(type: UpdateUserRequest::class))),
+        ]),
         responses: [
             new OA\Response(response: 200, description: 'The updated user.', content: new OA\JsonContent(properties: [
                 new OA\Property(property: 'user', ref: new Model(type: UserSchema::class)),

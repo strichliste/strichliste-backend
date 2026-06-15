@@ -2,6 +2,7 @@
 
 namespace App\Controller\Api;
 
+use App\ApiDoc\CreateTransactionRequest;
 use App\ApiDoc\Error as ErrorSchema;
 use App\ApiDoc\Transaction as TransactionSchema;
 use App\Entity\Transaction;
@@ -65,13 +66,10 @@ class TransactionController extends AbstractController
         parameters: [
             new OA\Parameter(name: 'userId', in: 'path', required: true, description: 'User id, or the exact user name.', schema: new OA\Schema(type: 'string')),
         ],
-        requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(properties: [
-            new OA\Property(property: 'amount', type: 'integer', description: 'Signed amount in cents.'),
-            new OA\Property(property: 'quantity', type: 'integer'),
-            new OA\Property(property: 'comment', type: 'string', maxLength: 255),
-            new OA\Property(property: 'recipientId', type: 'integer'),
-            new OA\Property(property: 'articleId', type: 'integer'),
-        ])),
+        requestBody: new OA\RequestBody(required: true, content: [
+            new OA\MediaType(mediaType: 'application/json', schema: new OA\Schema(ref: new Model(type: CreateTransactionRequest::class))),
+            new OA\MediaType(mediaType: 'application/x-www-form-urlencoded', schema: new OA\Schema(ref: new Model(type: CreateTransactionRequest::class))),
+        ]),
         responses: [
             new OA\Response(response: 200, description: 'The created transaction.', content: new OA\JsonContent(properties: [
                 new OA\Property(property: 'transaction', ref: new Model(type: TransactionSchema::class)),
