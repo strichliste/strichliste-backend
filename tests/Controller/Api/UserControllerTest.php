@@ -36,6 +36,23 @@ class UserControllerTest extends AbstractApplicationTestCase
         $this->assertSame('json@example.com', $data['user']['email']);
     }
 
+    public function testMalformedJsonBodyIsEnvelopedNotA500(): void
+    {
+        $this->client->request(
+            'POST',
+            '/api/user',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            '{ this is not json',
+        );
+
+        $this->assertResponseStatusCodeSame(400);
+        $body = json_decode($this->client->getResponse()->getContent(), true);
+        $this->assertSame(['class', 'code', 'message'], array_keys($body['error']));
+        $this->assertSame(\App\Exception\ValidationException::class, $body['error']['class']);
+    }
+
     public function testSearchFindsUserByPartialName(): void
     {
         $this->requestJson('POST', '/api/user', ['name' => 'searchme']);
