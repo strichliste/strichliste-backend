@@ -8,8 +8,8 @@ parameters:
 doctrine:
     dbal:
         url: '%env(resolve:DATABASE_URL)%'
-        # doSplit nests wrapInTransaction calls, and dama/doctrine-test-bundle needs savepoints on DBAL 3.
-        use_savepoints: true
+        # DBAL 4 always uses savepoints for nested transactions; the explicit
+        # use_savepoints option was removed in DoctrineBundle 3.
     orm:
         # PHP 8.4 lazy objects instead of generated proxy classes; the old
         # proxy autoloader is deprecated in ORM 3.6 and gone in ORM 4.
