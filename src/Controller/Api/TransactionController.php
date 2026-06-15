@@ -5,6 +5,7 @@ namespace App\Controller\Api;
 use App\Entity\Transaction;
 use App\Entity\User;
 use App\Exception\ParameterInvalidException;
+use App\Exception\TransactionNotDeletableException;
 use App\Exception\TransactionNotFoundException;
 use App\Exception\UserNotFoundException;
 use App\Repository\TransactionRepository;
@@ -116,6 +117,13 @@ class TransactionController extends AbstractController
         $transaction = $entityManager->getRepository(Transaction::class)->find($transactionId);
         if (!$transaction || $transaction->getUser()->getId() !== $user->getId()) {
             throw new TransactionNotFoundException($transactionId);
+        }
+
+        // honor the configured undo policy (payment.undo.enabled / timeout) on the API path too,
+        // mirroring the UI undo guard — otherwise a client can revert transactions the policy
+        // means to be final (undo disabled, or older than the undo window).
+        if (!$transactionService->isDeletable($transaction)) {
+            throw new TransactionNotDeletableException($transaction);
         }
 
         $reverted = $transactionService->revertTransaction((int) $transactionId);

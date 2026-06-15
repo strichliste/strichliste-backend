@@ -2,6 +2,9 @@
 
 namespace App\Tests\Controller\Api;
 
+use App\Entity\Transaction;
+use Doctrine\ORM\EntityManagerInterface;
+
 class TransactionControllerTest extends AbstractApplicationTestCase
 {
     private int $userId;
@@ -116,6 +119,52 @@ class TransactionControllerTest extends AbstractApplicationTestCase
 
         $body = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertSame(\App\Exception\TransactionNotFoundException::class, $body['error']['class']);
+    }
+
+    public function testCannotDeleteTransactionPastUndoTimeout(): void
+    {
+        $payout = $this->requestJson('POST', "/api/user/{$this->userId}/transaction", [
+            'amount' => -500,
+        ], 'transaction');
+
+        // age the transaction beyond the configured undo timeout (payment.undo.timeout = 5 minute)
+        $em = static::getContainer()->get(EntityManagerInterface::class);
+        $transaction = $em->getRepository(Transaction::class)->find($payout['id']);
+        $transaction->setCreated(new \DateTime('-1 hour'));
+        $em->flush();
+
+        $this->client->request('DELETE', "/api/user/{$this->userId}/transaction/{$payout['id']}");
+        $this->assertResponseStatusCodeSame(400);
+
+        $body = json_decode($this->client->getResponse()->getContent(), true);
+        $this->assertSame(\App\Exception\TransactionNotDeletableException::class, $body['error']['class']);
+
+        // the stale transaction was not reverted, so the balance is unchanged
+        $this->assertUserBalance($this->userId, -500);
+    }
+
+    public function testCannotUndoAnAlreadyUndoneTransaction(): void
+    {
+        $payout = $this->requestJson('POST', "/api/user/{$this->userId}/transaction", [
+            'amount' => -500,
+        ], 'transaction');
+
+        // first undo succeeds and restores the balance
+        $this->requestJson(
+            'DELETE',
+            "/api/user/{$this->userId}/transaction/{$payout['id']}",
+            unpackKey: 'transaction',
+        );
+        $this->assertUserBalance($this->userId, 0);
+
+        // a second undo of the same (now deleted) transaction is rejected and does not double-credit
+        $this->client->request('DELETE', "/api/user/{$this->userId}/transaction/{$payout['id']}");
+        $this->assertResponseStatusCodeSame(400);
+
+        $body = json_decode($this->client->getResponse()->getContent(), true);
+        $this->assertSame(\App\Exception\TransactionNotDeletableException::class, $body['error']['class']);
+
+        $this->assertUserBalance($this->userId, 0);
     }
 
     public function testGlobalListKeepsLegacyOldestFirstOrder(): void
