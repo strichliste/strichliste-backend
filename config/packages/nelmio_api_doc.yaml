@@ -1,5 +1,8 @@
-# Hand-written spec for the frozen legacy /api, kept out of the controllers.
-# Shapes mirror src/Serializer/* and are pinned by tests/Controller/Api/*.
+# OpenAPI metadata for the frozen legacy /api. Every operation and schema
+# component now lives in PHP attributes on src/Controller/Api/* and the
+# documentation-only carriers in src/ApiDoc/* (whose shapes mirror
+# src/Serializer/* and are pinned by tests/Controller/Api/*). Only the
+# document-level `info`, which has no natural per-controller home, stays here.
 nelmio_api_doc:
     areas:
         default:
@@ -20,102 +23,3 @@ nelmio_api_doc:
                 Errors use a uniform envelope:
                 `{"error": {"class": "...", "code": 4xx, "message": "..."}}`.
             version: '1.8'
-        components:
-            schemas:
-                User:
-                    type: object
-                    properties:
-                        id: { type: integer }
-                        name: { type: string }
-                        email: { type: string, nullable: true }
-                        balance: { type: integer, description: Balance in cents. }
-                        isActive: { type: boolean, description: Had a transaction within the staleness window. }
-                        isDisabled: { type: boolean }
-                        created: { type: string, example: '2026-06-10 12:34:56' }
-                        updated: { type: string, nullable: true, example: '2026-06-10 12:34:56' }
-                Barcode:
-                    type: object
-                    properties:
-                        id: { type: integer }
-                        barcode: { type: string }
-                        created: { type: string, example: '2026-06-10 12:34:56' }
-                ArticleTag:
-                    type: object
-                    description: Tag as embedded in an article.
-                    properties:
-                        id: { type: integer }
-                        tag: { type: string }
-                        created: { type: string, example: '2026-06-10 12:34:56' }
-                Tag:
-                    type: object
-                    properties:
-                        id: { type: integer }
-                        tag: { type: string }
-                        usageCount: { type: integer }
-                        created: { type: string, example: '2026-06-10 12:34:56' }
-                Article:
-                    type: object
-                    properties:
-                        id: { type: integer }
-                        name: { type: string }
-                        barcodes:
-                            type: array
-                            items: { $ref: '#/components/schemas/Barcode' }
-                        tags:
-                            type: array
-                            items: { $ref: '#/components/schemas/ArticleTag' }
-                        amount: { type: integer, description: Price in cents. }
-                        isActive: { type: boolean }
-                        usageCount: { type: integer }
-                        precursor:
-                            nullable: true
-                            description: Previous revision of this article (depth-limited; null at depth 0).
-                            allOf: [{ $ref: '#/components/schemas/Article' }]
-                        created: { type: string, example: '2026-06-10 12:34:56' }
-                Transaction:
-                    type: object
-                    properties:
-                        id: { type: integer }
-                        user: { $ref: '#/components/schemas/User' }
-                        quantity: { type: integer, nullable: true }
-                        article:
-                            nullable: true
-                            allOf: [{ $ref: '#/components/schemas/Article' }]
-                        sender:
-                            nullable: true
-                            description: Sending user when this transaction received a transfer.
-                            allOf: [{ $ref: '#/components/schemas/User' }]
-                        recipient:
-                            nullable: true
-                            description: Receiving user when this transaction sent a transfer.
-                            allOf: [{ $ref: '#/components/schemas/User' }]
-                        comment: { type: string, nullable: true }
-                        amount: { type: integer, description: Signed amount in cents. }
-                        isDeleted: { type: boolean }
-                        isDeletable: { type: boolean, description: Whether the undo window (payment.undo.*) still allows reverting. }
-                        created: { type: string, example: '2026-06-10 12:34:56' }
-                MetricsDay:
-                    type: object
-                    description: >
-                        Daily aggregate. On days WITHOUT transactions, `charged`
-                        and `spent` are the integer 0; on days with activity
-                        they are {amount, transactions} objects (legacy quirk).
-                    properties:
-                        date: { type: string, example: '2026-06-10' }
-                        transactions: { type: integer }
-                        distinctUsers: { type: integer }
-                        balance: { type: integer, description: Net amount of the day in cents. }
-                        charged:
-                            oneOf:
-                                - { type: integer, enum: [0] }
-                                - type: object
-                                  properties:
-                                      amount: { type: integer }
-                                      transactions: { type: integer }
-                        spent:
-                            oneOf:
-                                - { type: integer, enum: [0] }
-                                - type: object
-                                  properties:
-                                      amount: { type: integer }
-                                      transactions: { type: integer }

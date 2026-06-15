@@ -2,7 +2,9 @@
 
 namespace App\Controller\Api;
 
+use App\ApiDoc\Article as ArticleSchema;
 use App\ApiDoc\Error as ErrorSchema;
+use App\ApiDoc\Tag as TagSchema;
 use App\Entity\Article;
 use App\Entity\ArticleTag;
 use App\Entity\Tag;
@@ -35,7 +37,7 @@ class TagController extends AbstractController
         responses: [
             new OA\Response(response: 200, description: 'All tags.', content: new OA\JsonContent(properties: [
                 new OA\Property(property: 'count', type: 'integer'),
-                new OA\Property(property: 'tags', type: 'array', items: new OA\Items(ref: '#/components/schemas/Tag')),
+                new OA\Property(property: 'tags', type: 'array', items: new OA\Items(ref: new Model(type: TagSchema::class))),
             ])),
         ],
     )]
@@ -63,7 +65,7 @@ class TagController extends AbstractController
         responses: [
             new OA\Response(response: 200, description: 'The article\'s tags.', content: new OA\JsonContent(properties: [
                 new OA\Property(property: 'count', type: 'integer'),
-                new OA\Property(property: 'tags', type: 'array', items: new OA\Items(ref: '#/components/schemas/Tag')),
+                new OA\Property(property: 'tags', type: 'array', items: new OA\Items(ref: new Model(type: TagSchema::class))),
             ])),
             new OA\Response(response: 404, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
         ],
@@ -93,7 +95,7 @@ class TagController extends AbstractController
         ],
         responses: [
             new OA\Response(response: 200, description: 'The tag.', content: new OA\JsonContent(properties: [
-                new OA\Property(property: 'tag', ref: '#/components/schemas/Tag'),
+                new OA\Property(property: 'tag', ref: new Model(type: TagSchema::class)),
             ])),
             new OA\Response(response: 404, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
         ],
@@ -130,7 +132,7 @@ class TagController extends AbstractController
         )),
         responses: [
             new OA\Response(response: 200, description: 'The article including the new tag.', content: new OA\JsonContent(properties: [
-                new OA\Property(property: 'article', ref: '#/components/schemas/Article'),
+                new OA\Property(property: 'article', ref: new Model(type: ArticleSchema::class)),
             ])),
             new OA\Response(response: 400, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
             new OA\Response(response: 404, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
@@ -178,7 +180,7 @@ class TagController extends AbstractController
         ],
         responses: [
             new OA\Response(response: 200, description: 'The article without the removed tag.', content: new OA\JsonContent(properties: [
-                new OA\Property(property: 'article', ref: '#/components/schemas/Article'),
+                new OA\Property(property: 'article', ref: new Model(type: ArticleSchema::class)),
             ])),
             new OA\Response(response: 404, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
         ],

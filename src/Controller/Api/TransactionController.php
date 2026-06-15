@@ -3,6 +3,7 @@
 namespace App\Controller\Api;
 
 use App\ApiDoc\Error as ErrorSchema;
+use App\ApiDoc\Transaction as TransactionSchema;
 use App\Entity\Transaction;
 use App\Entity\User;
 use App\Exception\ParameterInvalidException;
@@ -38,7 +39,7 @@ class TransactionController extends AbstractController
         responses: [
             new OA\Response(response: 200, description: 'Transactions with total count.', content: new OA\JsonContent(properties: [
                 new OA\Property(property: 'count', type: 'integer'),
-                new OA\Property(property: 'transactions', type: 'array', items: new OA\Items(ref: '#/components/schemas/Transaction')),
+                new OA\Property(property: 'transactions', type: 'array', items: new OA\Items(ref: new Model(type: TransactionSchema::class))),
             ])),
         ],
     )]
@@ -73,7 +74,7 @@ class TransactionController extends AbstractController
         ])),
         responses: [
             new OA\Response(response: 200, description: 'The created transaction.', content: new OA\JsonContent(properties: [
-                new OA\Property(property: 'transaction', ref: '#/components/schemas/Transaction'),
+                new OA\Property(property: 'transaction', ref: new Model(type: TransactionSchema::class)),
             ])),
             new OA\Response(response: 400, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
             new OA\Response(response: 404, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
@@ -115,7 +116,7 @@ class TransactionController extends AbstractController
         responses: [
             new OA\Response(response: 200, description: 'Transactions with total count.', content: new OA\JsonContent(properties: [
                 new OA\Property(property: 'count', type: 'integer'),
-                new OA\Property(property: 'transactions', type: 'array', items: new OA\Items(ref: '#/components/schemas/Transaction')),
+                new OA\Property(property: 'transactions', type: 'array', items: new OA\Items(ref: new Model(type: TransactionSchema::class))),
             ])),
             new OA\Response(response: 404, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
         ],
@@ -149,7 +150,7 @@ class TransactionController extends AbstractController
         ],
         responses: [
             new OA\Response(response: 200, description: 'The transaction.', content: new OA\JsonContent(properties: [
-                new OA\Property(property: 'transaction', ref: '#/components/schemas/Transaction'),
+                new OA\Property(property: 'transaction', ref: new Model(type: TransactionSchema::class)),
             ])),
             new OA\Response(response: 404, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
         ],
@@ -181,7 +182,7 @@ class TransactionController extends AbstractController
         ],
         responses: [
             new OA\Response(response: 200, description: 'The reverted transaction (isDeleted=true).', content: new OA\JsonContent(properties: [
-                new OA\Property(property: 'transaction', ref: '#/components/schemas/Transaction'),
+                new OA\Property(property: 'transaction', ref: new Model(type: TransactionSchema::class)),
             ])),
             new OA\Response(response: 400, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
             new OA\Response(response: 404, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),

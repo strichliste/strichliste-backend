@@ -2,7 +2,9 @@
 
 namespace App\Controller\Api;
 
+use App\ApiDoc\Article as ArticleSchema;
 use App\ApiDoc\Error as ErrorSchema;
+use App\ApiDoc\MetricsDay as MetricsDaySchema;
 use App\Entity\Article;
 use App\Exception\UserNotFoundException;
 use App\Repository\ArticleRepository;
@@ -34,8 +36,8 @@ class MetricsController extends AbstractController
                 new OA\Property(property: 'balance', type: 'integer'),
                 new OA\Property(property: 'transactionCount', type: 'integer'),
                 new OA\Property(property: 'userCount', type: 'integer'),
-                new OA\Property(property: 'articles', type: 'array', items: new OA\Items(ref: '#/components/schemas/Article')),
-                new OA\Property(property: 'days', type: 'array', items: new OA\Items(ref: '#/components/schemas/MetricsDay')),
+                new OA\Property(property: 'articles', type: 'array', items: new OA\Items(ref: new Model(type: ArticleSchema::class))),
+                new OA\Property(property: 'days', type: 'array', items: new OA\Items(ref: new Model(type: MetricsDaySchema::class))),
             ])),
         ],
     )]
@@ -68,7 +70,7 @@ class MetricsController extends AbstractController
             new OA\Response(response: 200, description: 'Balance, article purchase breakdown (reverted purchases included — legacy behavior) and transfer counters.', content: new OA\JsonContent(properties: [
                 new OA\Property(property: 'balance', type: 'integer'),
                 new OA\Property(property: 'articles', type: 'array', items: new OA\Items(type: 'object', properties: [
-                    new OA\Property(property: 'article', ref: '#/components/schemas/Article'),
+                    new OA\Property(property: 'article', ref: new Model(type: ArticleSchema::class)),
                     new OA\Property(property: 'count', type: 'integer'),
                     new OA\Property(property: 'amount', type: 'integer'),
                 ])),

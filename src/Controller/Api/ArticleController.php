@@ -2,6 +2,7 @@
 
 namespace App\Controller\Api;
 
+use App\ApiDoc\Article as ArticleSchema;
 use App\ApiDoc\Error as ErrorSchema;
 use App\Entity\Article;
 use App\Entity\ArticleTag;
@@ -43,7 +44,7 @@ class ArticleController extends AbstractController
         responses: [
             new OA\Response(response: 200, description: 'Articles; `count` is the total number of ACTIVE articles.', content: new OA\JsonContent(properties: [
                 new OA\Property(property: 'count', type: 'integer'),
-                new OA\Property(property: 'articles', type: 'array', items: new OA\Items(ref: '#/components/schemas/Article')),
+                new OA\Property(property: 'articles', type: 'array', items: new OA\Items(ref: new Model(type: ArticleSchema::class))),
             ])),
         ],
     )]
@@ -106,7 +107,7 @@ class ArticleController extends AbstractController
         )),
         responses: [
             new OA\Response(response: 200, description: 'The created article.', content: new OA\JsonContent(properties: [
-                new OA\Property(property: 'article', ref: '#/components/schemas/Article'),
+                new OA\Property(property: 'article', ref: new Model(type: ArticleSchema::class)),
             ])),
             new OA\Response(response: 400, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
         ],
@@ -137,7 +138,7 @@ class ArticleController extends AbstractController
         responses: [
             new OA\Response(response: 200, description: 'Matching active articles.', content: new OA\JsonContent(properties: [
                 new OA\Property(property: 'count', type: 'integer'),
-                new OA\Property(property: 'articles', type: 'array', items: new OA\Items(ref: '#/components/schemas/Article')),
+                new OA\Property(property: 'articles', type: 'array', items: new OA\Items(ref: new Model(type: ArticleSchema::class))),
             ])),
         ],
     )]
@@ -205,7 +206,7 @@ class ArticleController extends AbstractController
         ],
         responses: [
             new OA\Response(response: 200, description: 'The article.', content: new OA\JsonContent(properties: [
-                new OA\Property(property: 'article', ref: '#/components/schemas/Article'),
+                new OA\Property(property: 'article', ref: new Model(type: ArticleSchema::class)),
             ])),
             new OA\Response(response: 404, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
         ],
@@ -241,7 +242,7 @@ class ArticleController extends AbstractController
         )),
         responses: [
             new OA\Response(response: 200, description: 'The new active revision.', content: new OA\JsonContent(properties: [
-                new OA\Property(property: 'article', ref: '#/components/schemas/Article'),
+                new OA\Property(property: 'article', ref: new Model(type: ArticleSchema::class)),
             ])),
             new OA\Response(response: 400, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
             new OA\Response(response: 404, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
@@ -276,7 +277,7 @@ class ArticleController extends AbstractController
         ],
         responses: [
             new OA\Response(response: 200, description: 'The deactivated article.', content: new OA\JsonContent(properties: [
-                new OA\Property(property: 'article', ref: '#/components/schemas/Article'),
+                new OA\Property(property: 'article', ref: new Model(type: ArticleSchema::class)),
             ])),
             new OA\Response(response: 404, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
         ],

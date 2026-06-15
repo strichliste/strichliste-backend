@@ -3,6 +3,7 @@
 namespace App\Controller\Api;
 
 use App\ApiDoc\Error as ErrorSchema;
+use App\ApiDoc\User as UserSchema;
 use App\Entity\User;
 use App\Exception\ParameterInvalidException;
 use App\Exception\ParameterMissingException;
@@ -35,7 +36,7 @@ class UserController extends AbstractController
         ],
         responses: [
             new OA\Response(response: 200, description: 'Users sorted naturally by name.', content: new OA\JsonContent(properties: [
-                new OA\Property(property: 'users', type: 'array', items: new OA\Items(ref: '#/components/schemas/User')),
+                new OA\Property(property: 'users', type: 'array', items: new OA\Items(ref: new Model(type: UserSchema::class))),
             ])),
         ],
     )]
@@ -73,7 +74,7 @@ class UserController extends AbstractController
         )),
         responses: [
             new OA\Response(response: 200, description: 'The created user.', content: new OA\JsonContent(properties: [
-                new OA\Property(property: 'user', ref: '#/components/schemas/User'),
+                new OA\Property(property: 'user', ref: new Model(type: UserSchema::class)),
             ])),
             new OA\Response(response: 400, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
             new OA\Response(response: 409, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
@@ -127,7 +128,7 @@ class UserController extends AbstractController
         responses: [
             new OA\Response(response: 200, description: 'Matching users.', content: new OA\JsonContent(properties: [
                 new OA\Property(property: 'count', type: 'integer'),
-                new OA\Property(property: 'users', type: 'array', items: new OA\Items(ref: '#/components/schemas/User')),
+                new OA\Property(property: 'users', type: 'array', items: new OA\Items(ref: new Model(type: UserSchema::class))),
             ])),
         ],
     )]
@@ -160,7 +161,7 @@ class UserController extends AbstractController
         ],
         responses: [
             new OA\Response(response: 200, description: 'The user.', content: new OA\JsonContent(properties: [
-                new OA\Property(property: 'user', ref: '#/components/schemas/User'),
+                new OA\Property(property: 'user', ref: new Model(type: UserSchema::class)),
             ])),
             new OA\Response(response: 404, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
         ],
@@ -191,7 +192,7 @@ class UserController extends AbstractController
         ])),
         responses: [
             new OA\Response(response: 200, description: 'The updated user.', content: new OA\JsonContent(properties: [
-                new OA\Property(property: 'user', ref: '#/components/schemas/User'),
+                new OA\Property(property: 'user', ref: new Model(type: UserSchema::class)),
             ])),
             new OA\Response(response: 400, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
             new OA\Response(response: 404, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
