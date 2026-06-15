@@ -167,6 +167,49 @@ docker run -d --restart unless-stopped \
   strichliste
 ```
 
+### Reusing an existing database
+
+Already running strichliste and want to keep your data? You do **not**
+need an import step — point the app at the old database and start it.
+The schema migrations are written to be safe to run on a populated
+database (they detect an existing schema and skip it), so the entrypoint
+brings an old database up to the current version on first boot.
+
+- **An existing SQLite file** (e.g. `data.db` from an older install):
+  copy it into the `app_var` volume and point `DATABASE_URL` at it.
+
+  ```dotenv
+  DATABASE_URL="sqlite:////app/var/data.db"
+  COMPOSE_PROFILES=
+  ```
+
+  ```
+  docker compose cp ./your-old-data.db app:/app/var/data.db
+  docker compose restart app
+  ```
+
+- **An existing MySQL/MariaDB or Postgres server**: set `DATABASE_URL`
+  to its DSN and disable the bundled Postgres (`COMPOSE_PROFILES=`):
+
+  ```dotenv
+  DATABASE_URL="mysql://user:pass@192.168.1.10:3306/strichliste?serverVersion=10.11.2-MariaDB&charset=utf8mb4"
+  COMPOSE_PROFILES=
+  ```
+
+- **An old dump, loaded into the bundled Postgres**: keep
+  `COMPOSE_PROFILES=database`, start the stack, then restore into it —
+  `docker compose exec -T database psql -U strichliste strichliste < dump.sql`.
+
+**Back up first** — and on MySQL/MariaDB this is not optional: DDL there
+is not transactional, so a forward migration that fails halfway cannot
+roll itself back. The pre-migration backup is your only safety net (see
+the backup one-liners below).
+
+Coming from the much older **strichliste 1** (different schema)? That one
+*does* need a conversion: `php bin/console app:import old.sqlite`. It
+**replaces** all current data and refuses to run against a non-empty
+database without `--force`.
+
 ### Backup, upgrades, rollback
 
 The state lives in named volumes: `database_data` (Postgres),
