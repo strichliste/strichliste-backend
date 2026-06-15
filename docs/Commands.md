@@ -2,17 +2,26 @@
 
 # Import strichliste 1 database
 
-To import your old strichliste 1 database, copy your `database.sqlite` file, copy it to the strichliste2 directory and run:
+> **This is only for migrating from strichliste _1_.** It **wipes** all
+> users, transactions and articles in the current database before importing.
+> If you are already on strichliste 2 and just want to keep your data, do
+> **not** use this command — point `DATABASE_URL` at your existing database
+> and start the app; the migrations run safely on it.
+
+To import your old strichliste 1 database, copy your `database.sqlite` file to the strichliste 2 directory and run:
 
 ```bash
 php bin/console app:import <filename>
 ```
 
-| argument   | description                             |
-|------------|-----------------------------------------|
-| filename   | database to import                      |
+| argument/option | description                                                  |
+|-----------------|--------------------------------------------------------------|
+| filename        | strichliste 1 SQLite database to import                      |
+| --force         | required when the target database already holds data (wipes it) |
 
-After import the terminal outputs "Import done!"
+If the target already contains users the command refuses to run without
+`--force`, so you can never overwrite an existing install by accident.
+After a successful import the terminal outputs "Import done!"
 
 # User Status
 

@@ -11,6 +11,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class ImportCommand extends Command
@@ -25,8 +26,9 @@ class ImportCommand extends Command
     {
         $this
             ->setName('app:import')
-            ->setDescription('Import strichliste1 database')
-            ->addArgument('database', InputArgument::REQUIRED, 'SQLite database file from strichliste 1');
+            ->setDescription('Import a strichliste 1 SQLite database (replaces all current data)')
+            ->addArgument('database', InputArgument::REQUIRED, 'SQLite database file from strichliste 1')
+            ->addOption('force', null, InputOption::VALUE_NONE, 'Required to wipe and replace a target database that already holds data');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -41,6 +43,26 @@ class ImportCommand extends Command
         $connection->connect();
 
         $entityManager = $this->entityManager;
+
+        // This importer is for strichliste 1 only and starts by wiping the target.
+        // If the target already holds data (e.g. a strichliste 2 install someone is
+        // trying to "import into"), refuse unless --force so we never silently delete
+        // existing balances. To reuse an existing strichliste 2 database, point
+        // DATABASE_URL at it and boot instead — the migrations run safely on it.
+        $existingUsers = (int) $entityManager->createQueryBuilder()
+            ->select('COUNT(u.id)')
+            ->from(User::class, 'u')
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        if ($existingUsers > 0 && !$input->getOption('force')) {
+            $output->writeln(sprintf('<error>The target database already contains %d user(s).</error>', $existingUsers));
+            $output->writeln('app:import wipes all users, transactions and articles before importing.');
+            $output->writeln('Re-run with <info>--force</info> if you really want to replace this data.');
+            $output->writeln('(To keep an existing strichliste 2 database, set DATABASE_URL to it and start the app — no import needed.)');
+
+            return Command::FAILURE;
+        }
 
         $entityManager->createQueryBuilder()->delete(Transaction::class)->getQuery()->execute();
         $entityManager->createQueryBuilder()->delete(User::class)->getQuery()->execute();
