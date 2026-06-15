@@ -13,6 +13,7 @@ use App\Repository\TagRepository;
 use App\Serializer\ArticleSerializer;
 use App\Serializer\TagSerializer;
 use Doctrine\ORM\EntityManagerInterface;
+use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,6 +27,16 @@ class TagController extends AbstractController
     }
 
     #[Route('/tag', methods: ['GET'])]
+    #[OA\Get(
+        summary: 'List all tags',
+        tags: ['tag'],
+        responses: [
+            new OA\Response(response: 200, description: 'All tags.', content: new OA\JsonContent(properties: [
+                new OA\Property(property: 'count', type: 'integer'),
+                new OA\Property(property: 'tags', type: 'array', items: new OA\Items(ref: '#/components/schemas/Tag')),
+            ])),
+        ],
+    )]
     public function listTags(EntityManagerInterface $entityManager): JsonResponse
     {
         $tags = $entityManager->getRepository(Tag::class)->findAll();
@@ -41,6 +52,20 @@ class TagController extends AbstractController
     }
 
     #[Route('/article/{articleId}/tag', methods: ['GET'])]
+    #[OA\Get(
+        summary: 'List an article\'s tags',
+        tags: ['tag'],
+        parameters: [
+            new OA\Parameter(name: 'articleId', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'The article\'s tags.', content: new OA\JsonContent(properties: [
+                new OA\Property(property: 'count', type: 'integer'),
+                new OA\Property(property: 'tags', type: 'array', items: new OA\Items(ref: '#/components/schemas/Tag')),
+            ])),
+            new OA\Response(response: 404, ref: '#/components/responses/Error'),
+        ],
+    )]
     public function listArticleTags(int $articleId, EntityManagerInterface $entityManager): JsonResponse
     {
         $article = $entityManager->getRepository(Article::class)->find($articleId);
@@ -57,6 +82,20 @@ class TagController extends AbstractController
     }
 
     #[Route('/article/{articleId}/tag/{tagId}', methods: ['GET'])]
+    #[OA\Get(
+        summary: 'Get a single tag of an article',
+        tags: ['tag'],
+        parameters: [
+            new OA\Parameter(name: 'articleId', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+            new OA\Parameter(name: 'tagId', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'The tag.', content: new OA\JsonContent(properties: [
+                new OA\Property(property: 'tag', ref: '#/components/schemas/Tag'),
+            ])),
+            new OA\Response(response: 404, ref: '#/components/responses/Error'),
+        ],
+    )]
     public function getArticleTag(int $articleId, int $tagId, EntityManagerInterface $entityManager): JsonResponse
     {
         $article = $entityManager->getRepository(Article::class)->find($articleId);
@@ -75,6 +114,26 @@ class TagController extends AbstractController
     }
 
     #[Route('/article/{articleId}/tag', methods: ['POST'])]
+    #[OA\Post(
+        summary: 'Add a tag to an article',
+        tags: ['tag'],
+        parameters: [
+            new OA\Parameter(name: 'articleId', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+        ],
+        requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(
+            required: ['tag'],
+            properties: [
+                new OA\Property(property: 'tag', type: 'string'),
+            ],
+        )),
+        responses: [
+            new OA\Response(response: 200, description: 'The article including the new tag.', content: new OA\JsonContent(properties: [
+                new OA\Property(property: 'article', ref: '#/components/schemas/Article'),
+            ])),
+            new OA\Response(response: 400, ref: '#/components/responses/Error'),
+            new OA\Response(response: 404, ref: '#/components/responses/Error'),
+        ],
+    )]
     public function addArticleTag(int $articleId, Request $request, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager, TagRepository $tagRepository): JsonResponse
     {
         $tag = trim($request->request->getString('tag'));
@@ -108,6 +167,20 @@ class TagController extends AbstractController
     }
 
     #[Route('/article/{articleId}/tag/{tagId}', methods: ['DELETE'])]
+    #[OA\Delete(
+        summary: 'Remove a tag from an article',
+        tags: ['tag'],
+        parameters: [
+            new OA\Parameter(name: 'articleId', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+            new OA\Parameter(name: 'tagId', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'The article without the removed tag.', content: new OA\JsonContent(properties: [
+                new OA\Property(property: 'article', ref: '#/components/schemas/Article'),
+            ])),
+            new OA\Response(response: 404, ref: '#/components/responses/Error'),
+        ],
+    )]
     public function deleteArticleTag(int $articleId, int $tagId, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager): JsonResponse
     {
         $article = $entityManager->getRepository(Article::class)->find($articleId);
