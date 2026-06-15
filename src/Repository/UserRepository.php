@@ -8,31 +8,28 @@ use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @method User|null find($id, $lockMode = null, $lockVersion = null)
- * @method User|null findOneBy(array $criteria, array $orderBy = null)
- * @method User[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @extends ServiceEntityRepository<User>
  */
-class UserRepository extends ServiceEntityRepository {
-
-    function __construct(ManagerRegistry $registry) {
+class UserRepository extends ServiceEntityRepository
+{
+    public function __construct(ManagerRegistry $registry)
+    {
         parent::__construct($registry, User::class);
     }
 
-    function findAll(): array {
+    #[\Override]
+    public function findAll(): array
+    {
         return $this->getBaseQueryBuilder()
             ->getQuery()
             ->getResult();
     }
 
-    function findAllDisabled(): array {
-        return $this->createQueryBuilder('u')
-            ->where('u.disabled = true')
-            ->orderBy('u.name')
-            ->getQuery()
-            ->getResult();
-    }
-
-    function findAllInactive(\DateTime $since): array {
+    /**
+     * @return list<User>
+     */
+    public function findAllInactive(\DateTime $since): array
+    {
         return $this->getBaseQueryBuilder()
             ->andWhere('(u.updated IS NULL or u.updated <= :since)')
             ->setParameter('since', $since)
@@ -40,7 +37,11 @@ class UserRepository extends ServiceEntityRepository {
             ->getResult();
     }
 
-    function findAllActive(\DateTime $since): array {
+    /**
+     * @return list<User>
+     */
+    public function findAllActive(\DateTime $since): array
+    {
         return $this->getBaseQueryBuilder()
             ->andWhere('u.updated IS NOT NULL')
             ->andWhere('u.updated >= :since')
@@ -49,7 +50,53 @@ class UserRepository extends ServiceEntityRepository {
             ->getResult();
     }
 
-    function findByIdentifier($identifier): ?User {
+    /**
+     * @return array{users: list<User>, total: int}
+     */
+    public function findAllActivePaginated(\DateTime $since, int $limit, int $offset): array
+    {
+        $base = $this->getBaseQueryBuilder()
+            ->andWhere('u.updated IS NOT NULL')
+            ->andWhere('u.updated >= :since')
+            ->setParameter('since', $since);
+
+        $total = (int) (clone $base)
+            ->select('COUNT(u.id)')
+            ->resetDQLPart('orderBy')
+            ->getQuery()->getSingleScalarResult();
+
+        $users = $base
+            ->setFirstResult($offset)
+            ->setMaxResults($limit)
+            ->getQuery()->getResult();
+
+        return ['users' => $users, 'total' => $total];
+    }
+
+    /**
+     * @return array{users: list<User>, total: int}
+     */
+    public function findAllInactivePaginated(\DateTime $since, int $limit, int $offset): array
+    {
+        $base = $this->getBaseQueryBuilder()
+            ->andWhere('(u.updated IS NULL or u.updated <= :since)')
+            ->setParameter('since', $since);
+
+        $total = (int) (clone $base)
+            ->select('COUNT(u.id)')
+            ->resetDQLPart('orderBy')
+            ->getQuery()->getSingleScalarResult();
+
+        $users = $base
+            ->setFirstResult($offset)
+            ->setMaxResults($limit)
+            ->getQuery()->getResult();
+
+        return ['users' => $users, 'total' => $total];
+    }
+
+    public function findByIdentifier(int|string $identifier): ?User
+    {
         if (is_numeric($identifier)) {
             return $this->find($identifier);
         }
@@ -57,11 +104,13 @@ class UserRepository extends ServiceEntityRepository {
         return $this->findByName($identifier);
     }
 
-    function findByName(string $name): ?User {
+    public function findByName(string $name): ?User
+    {
         return $this->findOneBy(['name' => $name]);
     }
 
-    private function getBaseQueryBuilder(): QueryBuilder {
+    private function getBaseQueryBuilder(): QueryBuilder
+    {
         return $this->createQueryBuilder('u')
             ->select('u')
             ->where('u.disabled = false')

@@ -8,30 +8,30 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
-class ApiExceptionSubscriber implements EventSubscriberInterface {
-
-    static function getSubscribedEvents() {
+class ApiExceptionSubscriber implements EventSubscriberInterface
+{
+    public static function getSubscribedEvents(): array
+    {
         return [
             KernelEvents::EXCEPTION => 'onKernelException',
         ];
     }
 
-    function onKernelException(ExceptionEvent $event) {
-
+    public function onKernelException(ExceptionEvent $event): void
+    {
         $exception = $event->getThrowable();
 
         if (!$exception instanceof ApiException) {
             return;
         }
 
-        $response = [
-            'error' => [
-                'class' => get_class($exception),
-                'code' => $exception->getCode(),
-                'message' => $exception->getMessage()
-            ]
+        // frozen legacy envelope: clients key off `class`, even in prod
+        $error = [
+            'class' => $exception::class,
+            'code' => $exception->getCode(),
+            'message' => $exception->getMessage(),
         ];
 
-        $event->setResponse(new JsonResponse($response, $exception->getCode()));
+        $event->setResponse(new JsonResponse(['error' => $error], $exception->getCode()));
     }
 }

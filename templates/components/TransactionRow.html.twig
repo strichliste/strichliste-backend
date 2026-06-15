@@ -1,0 +1,49 @@
+{% props tx, deletable = false, ownerUserId = null, returnTo = null %}
+{%- set classes = ['transaction-row'] -%}
+{%- if tx.deleted %}{% set classes = classes|merge(['transaction-row--deleted']) %}{% endif -%}
+<li class="{{ classes|join(' ') }}">
+    <span class="transaction-row__amount">
+        <twig:BalancePill amount="{{ tx.amount }}" />
+    </span>
+    <span class="transaction-row__desc">
+        {% if tx.deleted %}
+            <span class="transaction-row__reverted">{{ 'transactions.reverted_label'|trans }}</span>
+        {% endif %}
+        {% if tx.recipientTransaction %}
+            <twig:TransferAddress otherUser="{{ tx.recipientTransaction.user }}" direction="to" />
+            {% elseif tx.senderTransaction %}
+            <twig:TransferAddress otherUser="{{ tx.senderTransaction.user }}" direction="from" />
+            {% elseif tx.article %}
+            <twig:ArticleBadge article="{{ tx.article }}" />
+        {% endif %}
+        {% if tx.comment %}<span class="transaction-row__comment">: {{ tx.comment }}</span>{% endif %}
+    </span>
+    <span class="transaction-row__meta">
+        <time class="transaction-row__date" datetime="{{ tx.created|date('c') }}"
+            >{{ tx.created|date('Y-m-d H:i:s') }}</time
+        >
+        {% if deletable and ownerUserId %}
+            <form
+                method="post"
+                action="{{ path('transactions_undo', {id: ownerUserId, txId: tx.id}) }}"
+                class="undo-form"
+            >
+                <input type="hidden" name="_token" value="{{ csrf_token('undo' ~ ownerUserId ~ '_' ~ tx.id) }}" />
+                {% if returnTo %}<input type="hidden" name="return" value="{{ returnTo }}" />{% endif %}
+                {#- amount + counterpart in the name, or two same-second transactions announce identically -#}
+                {%-
+                    set undoLabel = 'transactions.undo.button_aria'|trans({
+                        '%amount%': tx.amount|currency_format,
+                        '%when%': tx.created|date('Y-m-d H:i:s'),
+                    })
+                -%}
+                {%- if tx.senderTransaction -%}
+                    {%- set undoLabel = undoLabel ~ ' (' ~ 'transactions.transfer.direction_from'|trans ~ ' ' ~ tx.senderTransaction.user.name ~ ')' -%}
+                    {%- elseif tx.recipientTransaction -%}
+                    {%- set undoLabel = undoLabel ~ ' (' ~ 'transactions.transfer.direction_to'|trans ~ ' ' ~ tx.recipientTransaction.user.name ~ ')' -%}
+                {%- endif -%}
+                <button type="submit" class="undo-btn" aria-label="{{ undoLabel }}">↺</button>
+            </form>
+        {% endif %}
+    </span>
+</li>

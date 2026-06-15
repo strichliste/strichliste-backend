@@ -19,30 +19,20 @@ use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\ORM\EntityManagerInterface;
 
-class TransactionService {
-
-    /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
-
-    /**
-     * @var SettingsService
-     */
-    private $settingsService;
-
-    function __construct(SettingsService $settingsService, EntityManagerInterface $entityManager) {
-        $this->entityManager = $entityManager;
-        $this->settingsService = $settingsService;
-
-        $connection = $entityManager->getConnection();
+class TransactionService
+{
+    public function __construct(
+        private readonly SettingsService $settingsService,
+        private readonly EntityManagerInterface $entityManager,
+    ) {
+        $connection = $this->entityManager->getConnection();
         if ($connection->getDatabasePlatform() instanceof AbstractMySQLPlatform) {
             $connection->setTransactionIsolation(TransactionIsolationLevel::READ_COMMITTED);
         }
     }
 
-
-    function isDeletable(Transaction $transaction): bool {
+    public function isDeletable(Transaction $transaction): bool
+    {
         if ($transaction->isDeleted()) {
             return false;
         }
@@ -65,25 +55,19 @@ class TransactionService {
     }
 
     /**
-     * @param User $user
-     * @param int|null $amount
-     * @param null|string $comment
-     * @param int|null $quantity
-     * @param int|null $articleId
-     * @param int|null $recipientId
      * @throws AccountBalanceBoundaryException
      * @throws TransactionBoundaryException
      * @throws TransactionInvalidException
      * @throws ParameterNotFoundException
-     * @return Transaction
      */
-    function doTransaction(User $user, ?int $amount, ?string $comment = null, ?int $quantity = 1, ?int $articleId = null, ?int $recipientId = null): Transaction {
-
+    public function doTransaction(User $user, ?int $amount, ?string $comment = null, ?int $quantity = 1, ?int $articleId = null, ?int $recipientId = null): Transaction
+    {
         if (($recipientId || $articleId) && $amount > 0) {
             throw new TransactionInvalidException('Amount can\'t be positive when sending money or buying an article');
         }
 
         $senderId = $user->getId();
+
         return $this->entityManager->wrapInTransaction(function () use ($senderId, $amount, $comment, $quantity, $articleId, $recipientId) {
             $transaction = new Transaction();
             $transaction->setComment($comment);
@@ -117,7 +101,7 @@ class TransactionService {
 
                 $transaction->setQuantity($quantity ?: 1);
 
-                if ($amount === null) {
+                if (null === $amount) {
                     $amount = $article->getAmount() * $transaction->getQuantity() * -1;
                 }
 
@@ -163,14 +147,95 @@ class TransactionService {
     }
 
     /**
-     * @param int $transactionId
+     * Deposit (positive) or dispense (negative) cents on a single user account.
+     */
+    public function createForUser(User $user, int $cents, ?string $comment = null): Transaction
+    {
+        return $this->doTransaction($user, $cents, $comment);
+    }
+
+    /**
+     * Transfer `$cents` (negative — debits the sender) from $sender to $recipient.
+     */
+    public function transferBetween(User $sender, User $recipient, int $cents, ?string $comment = null): Transaction
+    {
+        $debit = $cents > 0 ? -$cents : $cents;
+
+        return $this->doTransaction($sender, $debit, $comment, null, null, $recipient->getId());
+    }
+
+    public function purchaseArticle(User $user, Article $article, int $quantity = 1, ?string $comment = null): Transaction
+    {
+        return $this->doTransaction($user, null, $comment, $quantity, $article->getId());
+    }
+
+    /**
+     * Atomic: relies on use_savepoints so the nested doTransaction calls roll
+     * back as one unit. Locks all involved users in id order first so two
+     * concurrent splits can't deadlock.
+     *
+     * @param User[] $participants
+     * @param int[]  $perRowCents  debit per row in cents; sums to the operator's total
+     *
+     * @return Transaction[] sender-side transaction per participant
+     *
+     * @throws TransactionInvalidException
+     */
+    public function doSplit(array $participants, User $recipient, array $perRowCents, ?string $comment = null): array
+    {
+        if (0 === count($participants)) {
+            throw new TransactionInvalidException('split needs at least one participant');
+        }
+        if (count($participants) !== count($perRowCents)) {
+            throw new TransactionInvalidException('participants and perRowCents must align');
+        }
+        foreach ($perRowCents as $c) {
+            if ($c <= 0) {
+                throw new TransactionInvalidException('per-row amount must be a positive int');
+            }
+        }
+
+        return $this->entityManager->wrapInTransaction(function () use ($participants, $recipient, $perRowCents, $comment) {
+            // take every lock upfront; doTransaction's own locking is then a no-op
+            $allIds = array_unique(array_merge(
+                [$recipient->getId()],
+                array_map(fn (User $u) => $u->getId(), $participants),
+            ));
+            sort($allIds, SORT_NUMERIC);
+            $userRepo = $this->entityManager->getRepository(User::class);
+            foreach ($allIds as $uid) {
+                $u = $userRepo->find($uid);
+                if (null !== $u) {
+                    $this->lockAndRefresh($u);
+                }
+            }
+
+            $results = [];
+            foreach ($participants as $idx => $participant) {
+                $results[] = $this->doTransaction(
+                    $participant,
+                    -$perRowCents[$idx],
+                    $comment,
+                    null,
+                    null,
+                    $recipient->getId(),
+                );
+            }
+
+            return $results;
+        });
+    }
+
+    /**
+     * @throws TransactionNotFoundException
+     * @throws TransactionNotDeletableException
      * @throws AccountBalanceBoundaryException
      * @throws TransactionBoundaryException
      * @throws TransactionInvalidException
      * @throws ParameterNotFoundException
-     * @return Transaction
      */
-    function revertTransaction(int $transactionId): Transaction {
+    public function revertTransaction(int $transactionId): Transaction
+    {
         return $this->entityManager->wrapInTransaction(function () use ($transactionId) {
             $txRepo = $this->entityManager->getRepository(Transaction::class);
 
@@ -234,16 +299,16 @@ class TransactionService {
     }
 
     /**
-     * @param Transaction $transaction
      * @throws AccountBalanceBoundaryException
      * @throws TransactionBoundaryException
      * @throws TransactionInvalidException
      * @throws ParameterNotFoundException
      */
-    private function undoTransaction(Transaction $transaction) {
+    private function undoTransaction(Transaction $transaction): void
+    {
         $user = $transaction->getUser();
-        $this->checkTransactionBoundary($transaction->getAmount());
 
+        // no boundary re-check: limits tightened after the fact must not block a reversal
         $user->addBalance($transaction->getAmount() * -1);
         $this->checkAccountBalanceBoundary($user);
 
@@ -258,53 +323,52 @@ class TransactionService {
     }
 
     /**
-     * @param object $entity
-     * @return void
      * @throws \Doctrine\ORM\Exception\ORMException
      * @throws \Doctrine\ORM\PessimisticLockException
      */
-    private function lockAndRefresh(object $entity) {
+    private function lockAndRefresh(object $entity): void
+    {
         $this->entityManager->lock($entity, LockMode::PESSIMISTIC_WRITE);
         $this->entityManager->refresh($entity);
     }
 
     /**
-     * @param int $amount
      * @throws TransactionBoundaryException
      * @throws TransactionInvalidException
      * @throws ParameterNotFoundException
      */
-    private function checkTransactionBoundary($amount) {
+    private function checkTransactionBoundary(?int $amount): void
+    {
         if (!$amount) {
             throw new TransactionInvalidException();
         }
 
         $upper = $this->settingsService->getOrDefault('payment.boundary.upper', false);
-        if ($upper !== false && $amount > $upper) {
+        if (false !== $upper && $amount > $upper) {
             throw new TransactionBoundaryException($amount, $upper);
         }
 
         $lower = $this->settingsService->getOrDefault('payment.boundary.lower', false);
-        if ($lower !== false && $amount < $lower) {
+        if (false !== $lower && $amount < $lower) {
             throw new TransactionBoundaryException($amount, $lower);
         }
     }
 
     /**
-     * @param User $user
      * @throws AccountBalanceBoundaryException
      * @throws ParameterNotFoundException
      */
-    private function checkAccountBalanceBoundary(User $user) {
+    private function checkAccountBalanceBoundary(User $user): void
+    {
         $balance = $user->getBalance();
 
         $upper = $this->settingsService->getOrDefault('account.boundary.upper', false);
-        if ($upper !== false && $balance > $upper) {
+        if (false !== $upper && $balance > $upper) {
             throw new AccountBalanceBoundaryException($user, $balance, $upper);
         }
 
         $lower = $this->settingsService->getOrDefault('account.boundary.lower', false);
-        if ($lower !== false && $balance < $lower) {
+        if (false !== $lower && $balance < $lower) {
             throw new AccountBalanceBoundaryException($user, $balance, $lower);
         }
     }

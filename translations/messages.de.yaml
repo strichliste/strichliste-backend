@@ -1,0 +1,295 @@
+app:
+    brand: Strichliste
+    skip_link: Zum Inhalt springen
+
+common:
+    cancel: Abbrechen
+    close: Schließen
+
+balance:
+    # Screen-Reader-Präfix, das vor einem Saldo angesagt wird.
+    positive: positiv
+    negative: negativ
+    zero: ausgeglichen
+
+nav:
+    main: Hauptnavigation
+    menu: Menü
+    articles: Artikelliste
+    split_invoice: Rechnung teilen
+    metrics: Statistiken
+    search:
+        input_label: Suche
+        input_placeholder: Suche
+        submit: Suchen
+
+
+user:
+    active:
+        title: Aktive Benutzer
+    inactive:
+        title: Inaktive Benutzer
+    list:
+        empty_title: Noch keine Benutzer
+        empty_active: Lege einen neuen Benutzer an, um loszulegen.
+        empty_inactive: Keine inaktiven Benutzer.
+        disabled_label: (deaktiviert)
+        add_cta: Benutzer anlegen
+        filter_aria: Benutzer-Statusfilter
+    create:
+        title: Benutzer anlegen
+        name_label: Name
+        submit: Benutzer anlegen
+        cancel: Abbrechen
+        success: 'Benutzer "%name%" angelegt.'
+        errors:
+            duplicate: Ein Benutzer mit diesem Namen existiert bereits.
+            invalid_name: Der Name enthält ungültige Zeichen.
+    edit:
+        title: '%name% bearbeiten'
+        name_label: Name
+        email_label: E-Mail-Adresse
+        disable_label: Dieses Konto deaktivieren
+        submit: Änderungen speichern
+        success: Benutzer aktualisiert.
+        disabled_success: '%name% deaktiviert.'
+    detail:
+        recent_transactions: Letzte Transaktionen
+        no_transactions: Noch keine Transaktionen.
+        view_all: Alle Transaktionen
+        metrics: Meine Statistiken
+        disabled_banner: Dieser Benutzer ist deaktiviert.
+        tabs_aria: Benutzeraktionen
+        tabs:
+            send: Geld senden
+            buy: Artikel kaufen
+            edit: Benutzer bearbeiten
+            paypal: PayPal
+    buy:
+        scan:
+            input_label: Barcode
+            submit: Kaufen
+        picker:
+            empty: Keine aktiven Artikel. Lege zuerst einen an.
+        search_label: Artikel suchen oder Barcode scannen
+        search_placeholder: Artikel suchen
+        results_label: passende Artikel
+        no_results_label: Keine passenden Artikel
+        success: '%article% gekauft.'
+        errors:
+            unknown_barcode: 'Kein Artikel mit Barcode "%barcode%".'
+
+transactions:
+    amount_label: Betrag
+    comment_label: Kommentar (optional)
+    custom_amount: Eigener Betrag
+    step_disabled_help: Ein Button ist deaktiviert, wenn er das Guthaben über eine konfigurierte Grenze schieben würde.
+    history:
+        title: 'Transaktionen · %name%'
+        empty: Noch keine Transaktionen.
+        count_one: '%count% Transaktion'
+        count_other: '%count% Transaktionen'
+    deposit:
+        title: Einzahlen
+        submit: Einzahlen
+    dispense:
+        title: Auszahlen
+        submit: Auszahlen
+    transfer:
+        recipient_label: Empfänger
+        recipient_placeholder: Empfänger wählen
+        notes_placeholder: Notiz zur Transaktion hinzufügen
+        submit: Senden
+        # Screen-Reader-Präfix für die Richtung einer Überweisung.
+        direction_to: Gesendet an
+        direction_from: Erhalten von
+    undo:
+        button_aria: '%amount% vom %when% rückgängig machen'
+    reverted_label: (storniert)
+    errors:
+        boundary: Diese Transaktion würde eine konfigurierte Grenze überschreiten.
+        invalid: Die Transaktion ist ungültig.
+        not_deletable: Diese Transaktion kann nicht mehr rückgängig gemacht werden.
+        recipient_missing: Empfänger wurde nicht gefunden.
+        self_transfer: Du kannst dir selbst nichts überweisen.
+        recipient_disabled: Empfänger ist nicht verfügbar.
+        account_disabled: Dieses Konto ist deaktiviert und kann keine Transaktionen ausführen.
+        generic: Etwas ist schiefgelaufen.
+    flash:
+        deposit_success: Einzahlung bestätigt.
+        dispense_success: Auszahlung bestätigt.
+        transfer_success: 'An %recipient% überwiesen.'
+        undo_success: Transaktion rückgängig gemacht.
+
+pagination:
+    label: Seitennavigation
+    previous: Zurück
+    next: Weiter
+    page_of: 'Seite %current% von %total%'
+
+
+
+metrics:
+    global:
+        title: Statistiken
+        kpi:
+            balance: Saldo
+            users: Benutzer
+            transactions: Transaktionen
+        chart:
+            balance_heading: Saldo
+            users_heading: Benutzer
+            series:
+                charged: Eingezahlt
+                spent: Ausgegeben
+                net: Netto
+                users: Benutzer
+            balance_alt: 'Balkendiagramm der pro Tag eingezahlten und ausgegebenen Beträge mit einer Netto-Linie über den Zeitraum. Genaue Tageswerte stehen in der Datentabelle darunter.'
+            users_alt: 'Balkendiagramm der pro Tag aktiven Benutzer über den Zeitraum. Genaue Tageswerte stehen in der Datentabelle darunter.'
+        top_articles:
+            heading: Topseller (letzte 30 Tage)
+            empty: Keine Käufe in diesem Zeitraum.
+            col:
+                article: Artikel
+                count: Verkäufe
+                revenue: Umsatz
+        table:
+            show_table: Daten als Tabelle anzeigen
+            col:
+                date: Datum
+                transactions: Tx
+                distinct_users: Benutzer
+                charged: Eingezahlt
+                spent: Ausgegeben
+                balance: Netto
+            footer:
+                total: Gesamt
+    user:
+        title: 'Statistiken · %name%'
+        note: Stornierte Transaktionen werden hier nicht mitgezählt.
+        card:
+            transactions: Transaktionen
+            articles: Gekaufte Artikel (verschiedene)
+            incoming: Eingehend
+            outgoing: Ausgehend
+        articles_table:
+            heading: Top-10-Artikel
+            empty: Noch keine Artikel gekauft.
+            col:
+                article: Artikel
+                count: Käufe
+                spent: Ausgegeben
+
+paypal:
+    tab:
+        title: PayPal
+        intro: Per PayPal aufladen. Du wirst zu PayPal weitergeleitet, um die Zahlung abzuschließen.
+        amount_label: Betrag
+        fee_preview: 'Vor der Zahlung wird eine PayPal-Gebühr von %fee% % aufgeschlagen.'
+        submit: Weiter zu PayPal
+        mode: 'PayPal-Modus: %mode%'
+    return:
+        success: 'Einzahlung über %amount% bestätigt.'
+        error_body: Die Einzahlung konnte nicht verbucht werden. Bitte wende dich an einen Betreiber.
+    cancel:
+        title: Zahlung abgebrochen
+        body: Deine PayPal-Zahlung wurde abgebrochen. Es wurde nichts abgebucht.
+        try_again: Erneut versuchen
+        back: 'Zurück zu %name%'
+
+search:
+    heading: 'Suche: %q%'
+    too_short: Gib mindestens 2 Zeichen ein.
+    section:
+        users: Benutzer
+        articles: Artikel
+    no_results:
+        users: Keine Benutzer gefunden.
+        articles: Keine Artikel gefunden.
+
+split_invoice:
+    title: Rechnung teilen
+    help: Der Betrag wird gleichmäßig auf alle in der Liste verteilt; jeder Anteil wird als Schuld an den Zahler gebucht. Der Zahler darf selbst in der Liste stehen — sein Anteil bleibt einfach bei ihm.
+    preview: '≈ %share% pro Person'
+    fields:
+        amount_placeholder: Betrag
+        comment_placeholder: Kommentar
+        recipient_placeholder: Empfänger wählen
+        with: mit
+        and: und
+    participants:
+        empty_slot: Teilnehmer wählen
+        row_label: Teilnehmer
+        add: Teilnehmer hinzufügen
+        remove: Teilnehmer entfernen
+    submit: Abschicken
+    flash:
+        success: '%total% mit einem Teilnehmer geteilt.|%total% mit %count% Teilnehmern geteilt.'
+        rolled_back: Keine Überweisungen angelegt. Korrigiere die markierten Zeilen und sende erneut.
+    errors:
+        recipient_missing: Wähle einen gültigen Empfänger.
+        only_payer: Füge mindestens eine weitere Person neben dem Zahler hinzu.
+        no_participants: Wähle mindestens einen Teilnehmer.
+        invalid_amount: Der Gesamtbetrag muss positiv sein.
+
+errors:
+    not_found_title: Seite nicht gefunden
+    not_found_body: Die gesuchte Seite existiert nicht.
+    back_home: Zurück zur Startseite
+
+articles:
+    list:
+        title:
+            active: Aktive Artikel
+            inactive: Inaktive Artikel
+        add_cta: Artikel anlegen
+        empty: Noch keine Artikel.
+        empty_inactive: Keine inaktiven Artikel. Artikel landen hier, wenn sie archiviert oder durch eine Preisänderung ersetzt wurden.
+        filter_aria: Artikel-Statusfilter
+        filter:
+            all: Alle
+    fields:
+        name: Name
+        amount: Preis
+        active: Aktiv
+    create:
+        title: Artikel anlegen
+        submit: Artikel anlegen
+        success: Artikel angelegt.
+    edit:
+        title: '%name% bearbeiten'
+        submit: Änderungen speichern
+        success: Artikel gespeichert.
+        precursor_success: Neuer Artikel angelegt; vorherige Version archiviert.
+        precursor_warning_title: Preisänderung erzeugt einen neuen Artikel
+        precursor_warning_body: Dieser Artikel wurde bereits gekauft. Eine Preisänderung archiviert diesen Artikel und legt einen neuen mit denselben Barcodes und Tags an.
+        archive_cta: Artikel archivieren
+    delete:
+        confirm_title: Artikel archivieren?
+        confirm_body: '"%name%" archivieren? Er wandert in die Liste der inaktiven Artikel.'
+        success: Artikel archiviert.
+    barcodes:
+        heading: Barcodes
+        empty: Noch keine Barcodes.
+        add_label: Neuer Barcode
+        add_submit: Barcode hinzufügen
+        added: Barcode hinzugefügt.
+        removed: Barcode entfernt.
+        remove: 'Barcode %barcode% entfernen'
+        errors:
+            invalid: Der Barcode ist leer oder zu lang.
+            taken: 'Der Barcode ist bereits %other% zugeordnet.'
+    tags:
+        heading: Tags
+        empty: Noch keine Tags.
+        add_label: Neuer Tag
+        add_submit: Tag hinzufügen
+        added: Tag hinzugefügt.
+        removed: Tag entfernt.
+        remove: 'Tag %tag% entfernen'
+        errors:
+            invalid: Der Tag ist leer oder zu lang.
+            already_attached: Der Tag ist bereits zugeordnet.
+    errors:
+        not_found: Artikel nicht gefunden.
+        inactive: Dieser Artikel ist inaktiv.

@@ -1,0 +1,2 @@
+# constraint messages resolve in the validators domain, not messages
+user.create.errors.invalid_name: Name contains invalid characters.

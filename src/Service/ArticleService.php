@@ -2,85 +2,89 @@
 
 namespace App\Service;
 
-
 use App\Entity\Article;
 use App\Exception\ParameterMissingException;
 use App\Repository\TransactionRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-class ArticleService {
-
-    /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
-
-    /**
-     * @var TransactionRepository
-     */
-    private $transactionRepository;
-
-    function __construct(TransactionRepository $transactionRepository, EntityManagerInterface $entityManager) {
-        $this->transactionRepository = $transactionRepository;
-        $this->entityManager = $entityManager;
+class ArticleService
+{
+    public function __construct(
+        private readonly TransactionRepository $transactionRepository,
+        private readonly EntityManagerInterface $entityManager,
+    ) {
     }
 
-    function updateArticle(Request $request, Article $article): Article {
-        $newArticle = $this->createArticleByRequest($request);
-
+    /**
+     * Used articles get archived and replaced via the precursor chain; returns
+     * the article callers should use afterwards.
+     *
+     * @param bool|null $active null = leave unchanged
+     */
+    public function update(Article $article, string $name, int $amountCents, ?bool $active = null): Article
+    {
         $referenceCount = $this->transactionRepository->getArticleReferenceCount($article);
 
-        // Article is not used before, just update the fields
-        if ($referenceCount == 0) {
-            $article->setName($newArticle->getName());
-            $article->setAmount($newArticle->getAmount());
-
+        if (0 === $referenceCount) {
+            $article->setName($name);
+            $article->setAmount($amountCents);
+            if (null !== $active) {
+                $article->setActive($active);
+            }
             $this->entityManager->persist($article);
             $this->entityManager->flush();
 
             return $article;
         }
 
-        $newArticle->setPrecursor($article);
-        $newArticle->setUsageCount($article->getUsageCount());
+        return $this->entityManager->wrapInTransaction(function () use ($article, $name, $amountCents, $active) {
+            $new = new Article();
+            $new->setName($name);
+            $new->setAmount($amountCents);
+            $new->setPrecursor($article);
+            $new->setUsageCount($article->getUsageCount());
+            $new->setActive($active ?? true);
+            $this->entityManager->persist($new);
 
-        // Reference all "old" barcodes to the new article
-        foreach ($article->getBarcodes() as $barcode) {
-            $barcode->setArticle($newArticle);
-        }
-
-        // Reference all "old" tags to the new article
-        foreach ($article->getArticleTags() as $articleTag) {
-            $articleTag->setArticle($newArticle);
-            $this->entityManager->persist($articleTag);
-        }
-
-        $article->setActive(false);
-
-        $this->entityManager->wrapInTransaction(function () use ($article, $newArticle) {
+            foreach ($article->getBarcodes() as $barcode) {
+                $barcode->setArticle($new);
+                $this->entityManager->persist($barcode);
+            }
+            foreach ($article->getArticleTags() as $articleTag) {
+                $articleTag->setArticle($new);
+                $this->entityManager->persist($articleTag);
+            }
+            $article->setActive(false);
             $this->entityManager->persist($article);
-            $this->entityManager->persist($newArticle);
+
+            $this->entityManager->flush();
+
+            return $new;
         });
+    }
 
-        $this->entityManager->flush();
+    // request-bound adapter for the legacy REST controller
+    public function updateArticle(Request $request, Article $article): Article
+    {
+        $newArticle = $this->createArticleByRequest($request);
 
-        return $newArticle;
+        return $this->update($article, $newArticle->getName(), $newArticle->getAmount());
     }
 
     /**
-     * @param Request $request
-     * @return Article
      * @throws ParameterMissingException
      */
-    function createArticleByRequest(Request $request): Article {
-
-        $name = $request->request->get('name');
+    public function createArticleByRequest(Request $request): Article
+    {
+        $name = $request->request->getString('name');
         if (!$name) {
             throw new ParameterMissingException('name');
         }
 
-        $amount = (int)$request->request->get('amount', 0);
+        // not getInt(): the legacy contract truncates float amounts, and missing/zero
+        // must answer ParameterMissingException, not InputBag's envelope-less 400
+        $amount = (int) $request->request->get('amount', 0);
         if (!$amount) {
             throw new ParameterMissingException('amount');
         }

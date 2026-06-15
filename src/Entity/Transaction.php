@@ -8,9 +8,11 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: TransactionRepository::class)]
 #[ORM\Table(name: 'transactions')]
+// the metrics queries filter on created; without this index they full-scan
+#[ORM\Index(name: 'transactions_created_idx', columns: ['created'])]
 #[ORM\HasLifecycleCallbacks]
-class Transaction {
-
+class Transaction
+{
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
@@ -47,102 +49,122 @@ class Transaction {
     #[ORM\Column(type: 'datetime')]
     private ?\DateTimeInterface $created = null;
 
-    function getId(): ?int {
+    public function getId(): ?int
+    {
         return $this->id;
     }
 
-    function getUser(): User {
+    public function getUser(): User
+    {
         return $this->user;
     }
 
-    function setUser(User $user): self {
+    public function setUser(User $user): self
+    {
         $this->user = $user;
 
         return $this;
     }
 
-    function getQuantity(): ?int {
+    public function getQuantity(): ?int
+    {
         return $this->quantity;
     }
 
-    function setQuantity(int $quantity): self {
+    public function setQuantity(int $quantity): self
+    {
         $this->quantity = $quantity;
 
         return $this;
     }
 
-    function getArticle(): ?Article {
+    public function getArticle(): ?Article
+    {
         return $this->article;
     }
 
-    function setArticle(?Article $article): self {
+    public function setArticle(?Article $article): self
+    {
         $this->article = $article;
 
         return $this;
     }
 
-    function getRecipientTransaction(): ?self {
+    public function getRecipientTransaction(): ?self
+    {
         return $this->recipientTransaction;
     }
 
-    function setRecipientTransaction(?self $recipientTransaction): self {
+    public function setRecipientTransaction(?self $recipientTransaction): self
+    {
         $this->recipientTransaction = $recipientTransaction;
 
         return $this;
     }
 
-    function getSenderTransaction(): ?self {
+    public function getSenderTransaction(): ?self
+    {
         return $this->senderTransaction;
     }
 
-    function setSenderTransaction(?self $senderTransaction): self {
+    public function setSenderTransaction(?self $senderTransaction): self
+    {
         $this->senderTransaction = $senderTransaction;
 
         return $this;
     }
 
-    function getComment(): ?string {
+    public function getComment(): ?string
+    {
         return $this->comment;
     }
 
-    function setComment(?string $comment): self {
+    public function setComment(?string $comment): self
+    {
         $this->comment = $comment;
 
         return $this;
     }
 
-    function getAmount(): int {
+    public function getAmount(): int
+    {
         return $this->amount;
     }
 
-    function setAmount(int $amount): self {
+    public function setAmount(int $amount): self
+    {
         $this->amount = $amount;
 
         return $this;
     }
 
-    function isDeleted(): ?bool {
+    public function isDeleted(): ?bool
+    {
         return $this->deleted;
     }
 
-    function setDeleted(bool $deleted): self {
+    public function setDeleted(bool $deleted): self
+    {
         $this->deleted = $deleted;
 
         return $this;
     }
 
-    function getCreated(): ?\DateTimeInterface {
+    public function getCreated(): ?\DateTimeInterface
+    {
         return $this->created;
     }
 
-    function setCreated(\DateTimeInterface $created): self {
+    public function setCreated(\DateTimeInterface $created): self
+    {
         $this->created = $created;
 
         return $this;
     }
 
     #[ORM\PrePersist]
-    function setHistoryColumnsOnPrePersist(PrePersistEventArgs $event) {
+    public function setHistoryColumnsOnPrePersist(PrePersistEventArgs $event): void
+    {
         if (!$this->getCreated()) {
             $this->setCreated(new \DateTime());
         }

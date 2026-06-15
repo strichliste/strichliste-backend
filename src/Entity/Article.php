@@ -10,8 +10,8 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ArticleRepository::class)]
 #[ORM\HasLifecycleCallbacks]
-class Article {
-
+class Article
+{
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
@@ -20,9 +20,11 @@ class Article {
     #[ORM\Column(type: 'string', length: 255)]
     private ?string $name = null;
 
+    /** @var Collection<int, Barcode> */
     #[ORM\OneToMany(targetEntity: Barcode::class, mappedBy: 'article', cascade: ['persist'], fetch: 'EAGER')]
     private Collection $barcodes;
 
+    /** @var Collection<int, ArticleTag> */
     #[ORM\OneToMany(targetEntity: ArticleTag::class, mappedBy: 'article', cascade: ['persist', 'remove'], fetch: 'EAGER')]
     private Collection $articleTags;
 
@@ -41,20 +43,24 @@ class Article {
     #[ORM\Column(type: 'integer')]
     private int $usageCount = 0;
 
-    function __construct() {
+    public function __construct()
+    {
         $this->barcodes = new ArrayCollection();
         $this->articleTags = new ArrayCollection();
     }
 
-    function getId(): ?int {
+    public function getId(): ?int
+    {
         return $this->id;
     }
 
-    function getName(): ?string {
+    public function getName(): ?string
+    {
         return $this->name;
     }
 
-    function setName(string $name): self {
+    public function setName(string $name): self
+    {
         $this->name = $name;
 
         return $this;
@@ -63,11 +69,13 @@ class Article {
     /**
      * @return Barcode[]
      */
-    function getBarcodes(): array {
+    public function getBarcodes(): array
+    {
         return $this->barcodes->getValues();
     }
 
-    function addBarcode(Barcode $barcode): self {
+    public function addBarcode(Barcode $barcode): self
+    {
         $barcode->setArticle($this);
         $this->barcodes[] = $barcode;
 
@@ -77,20 +85,21 @@ class Article {
     /**
      * @return Tag[]
      */
-    function getTags(): array {
-        return array_map(function(ArticleTag $articleTag) {
-            return $articleTag->getTag();
-        }, $this->articleTags->getValues());
+    public function getTags(): array
+    {
+        return array_map(fn (ArticleTag $articleTag) => $articleTag->getTag(), $this->articleTags->getValues());
     }
 
     /**
      * @return ArticleTag[]
      */
-    function getArticleTags(): array {
+    public function getArticleTags(): array
+    {
         return $this->articleTags->getValues();
     }
 
-    function addTag(Tag $tag): self {
+    public function addTag(Tag $tag): self
+    {
         $articleTag = new ArticleTag();
         $articleTag->setArticle($this);
         $articleTag->setTag($tag);
@@ -100,76 +109,84 @@ class Article {
         return $this;
     }
 
-    function hasTag(Tag $tag): bool {
-        foreach ($this->getTags() as $existingTag) {
-            if ($tag->getId() === $existingTag->getId()) {
-                return true;
-            }
-        }
-
-        return false;
+    public function hasTag(Tag $tag): bool
+    {
+        return array_any($this->getTags(), fn ($existingTag) => $tag->getId() === $existingTag->getId());
     }
 
-    function getAmount(): int {
+    public function getAmount(): int
+    {
         return $this->amount;
     }
 
-    function setAmount(int $amount): self {
+    public function setAmount(int $amount): self
+    {
         $this->amount = $amount;
 
         return $this;
     }
 
-    function getPrecursor(): ?self {
+    public function getPrecursor(): ?self
+    {
         return $this->precursor;
     }
 
-    function setPrecursor(?self $precursor): self {
+    public function setPrecursor(?self $precursor): self
+    {
         $this->precursor = $precursor;
 
         return $this;
     }
 
-    function isActive(): ?bool {
+    public function isActive(): ?bool
+    {
         return $this->active;
     }
 
-    function setActive(bool $active): self {
+    public function setActive(bool $active): self
+    {
         $this->active = $active;
 
         return $this;
     }
 
-    function getCreated(): ?\DateTimeInterface {
+    public function getCreated(): ?\DateTimeInterface
+    {
         return $this->created;
     }
 
-    function setCreated(\DateTimeInterface $created): self {
+    public function setCreated(\DateTimeInterface $created): self
+    {
         $this->created = $created;
 
         return $this;
     }
 
-    function getUsageCount(): ?int {
+    public function getUsageCount(): ?int
+    {
         return $this->usageCount;
     }
 
-    function setUsageCount(int $usageCount): self {
+    public function setUsageCount(int $usageCount): self
+    {
         $this->usageCount = $usageCount;
 
         return $this;
     }
 
-    function incrementUsageCount() {
-        $this->usageCount++;
+    public function incrementUsageCount(): void
+    {
+        ++$this->usageCount;
     }
 
-    function decrementUsageCount() {
-        $this->usageCount--;
+    public function decrementUsageCount(): void
+    {
+        --$this->usageCount;
     }
 
     #[ORM\PrePersist]
-    function setHistoryColumnsOnPrePersist(PrePersistEventArgs $event) {
+    public function setHistoryColumnsOnPrePersist(PrePersistEventArgs $event): void
+    {
         if (!$this->getCreated()) {
             $this->setCreated(new \DateTime());
         }

@@ -1,0 +1,10 @@
+{% props otherUser, direction %}
+{# direction: 'to' = current user sent → other; 'from' = current user received ← other #}
+<span class="transfer-address transfer-address--{{ direction }}">
+    {# the arrow glyph and color cue alone aren't enough for screen readers #}
+    <span class="visually-hidden"
+        >{{ (direction == 'to' ? 'transactions.transfer.direction_to' : 'transactions.transfer.direction_from')|trans }}
+    </span>
+    <span aria-hidden="true">{%- if direction == 'to' -%}&rarr;{% else %}&larr;{% endif -%}</span>
+    <a href="{{ path('users_detail', {id: otherUser.id}) }}">{{ otherUser.name }}</a>
+</span>

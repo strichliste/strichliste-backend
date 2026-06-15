@@ -1,0 +1,88 @@
+{%- set route = app.request.attributes.get('_route') -%}
+{%- macro links(route) -%}
+    <a href="{{ path('articles_index') }}" {% if route starts with 'articles_' %}aria-current="page"{% endif %}>
+        {{ 'nav.articles'|trans }}
+    </a>
+    {% if setting('payment.splitInvoice.enabled', false) %}
+        <a
+            href="{{ path('split_invoice_index') }}"
+            {% if route == 'split_invoice_index' %}aria-current="page"{% endif %}
+        >
+            {{ 'nav.split_invoice'|trans }}
+        </a>
+    {% endif %}
+    <a
+        href="{{ path('metrics_global') }}"
+        {% if route == 'metrics_global' or route == 'metrics_user' %}aria-current="page"{% endif %}
+    >
+        {{ 'nav.metrics'|trans }}
+    </a>
+{%- endmacro -%}
+<header class="app-header" role="banner">
+    <a
+        class="app-header__brand"
+        href="{{ path('users_active') }}"
+        {% if route starts with 'users_' or route == 'home' %}aria-current="page"{% endif %}
+    >
+        <svg
+            class="app-header__brand-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.4"
+            stroke-linecap="round"
+            aria-hidden="true"
+        >
+            <line x1="4" y1="5" x2="4" y2="19" />
+            <line x1="9" y1="5" x2="9" y2="19" />
+            <line x1="14" y1="5" x2="14" y2="19" />
+            <line x1="19" y1="5" x2="19" y2="19" />
+            <line x1="2" y1="17" x2="21" y2="9" />
+        </svg>
+        <span>{{ 'app.brand'|trans }}</span>
+    </a>
+    <nav class="app-header__nav" aria-label="{{ 'nav.main'|trans }}">{{ _self.links(route) }}</nav>
+    {# phone burger — details, so it works without JS #}
+    <details class="app-header__menu" data-controller="disclosure">
+        <summary>
+            <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                aria-hidden="true"
+            >
+                <line x1="4" y1="6" x2="20" y2="6" />
+                <line x1="4" y1="12" x2="20" y2="12" />
+                <line x1="4" y1="18" x2="20" y2="18" />
+            </svg>
+            <span class="visually-hidden">{{ 'nav.menu'|trans }}</span>
+        </summary>
+        <nav class="app-header__menu-panel" aria-label="{{ 'nav.main'|trans }}">{{ _self.links(route) }}</nav>
+    </details>
+    <form method="get" action="{{ path('search_results') }}" class="app-header__search" role="search">
+        <label class="visually-hidden" for="hsearch">{{ 'nav.search.input_label'|trans }}</label>
+        <input
+            type="text"
+            id="hsearch"
+            name="q"
+            minlength="2"
+            placeholder="{{ 'nav.search.input_placeholder'|trans }}"
+        />
+        <button type="submit" aria-label="{{ 'nav.search.submit'|trans }}">
+            <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+            >
+                <circle cx="11" cy="11" r="7" />
+                <line x1="20" y1="20" x2="16.5" y2="16.5" />
+            </svg>
+        </button>
+    </form>
+</header>

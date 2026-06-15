@@ -1,0 +1,157 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'split_invoice.title'|trans }} · Strichliste{% endblock %}
+
+{% block main %}
+    <div class="split-invoice-wrapper">
+        <h1 class="split-invoice__title">{{ 'split_invoice.title'|trans }}</h1>
+        <p class="split-invoice-help">{{ 'split_invoice.help'|trans }}</p>
+
+        {# announced via the persistent live regions (flash controller) — a swapped-in
+       role=alert isn't reliably read, and the role here would double-announce #}
+        {% if errors is not empty %}
+            <div data-controller="flash" data-turbo-temporary>
+                {% for error in errors %}
+                    <div class="flash flash--error" data-flash-level="alert">{{ error }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <form
+            method="post"
+            class="split-invoice-form"
+            data-controller="split-participants"
+            data-split-participants-row-label-value="{{ 'split_invoice.participants.row_label'|trans }}"
+            data-split-participants-remove-label-value="{{ 'split_invoice.participants.remove'|trans }}"
+            data-split-participants-preview-label-value="{{ 'split_invoice.preview'|trans }}"
+            data-split-participants-currency-value="{{ setting('i18n.currency.symbol', '€') }}"
+        >
+            <input type="hidden" name="_token" value="{{ csrf_token('split_invoice') }}" />
+            {# catches implicit Enter submission — must precede the add_row submit.
+           display:none, not aria-hidden: engines repair aria-hidden buttons into nameless ghosts. #}
+            <button type="submit" class="default-submit" tabindex="-1"></button>
+
+            <div class="split-invoice-grid">
+                <input
+                    class="split-invoice-input"
+                    type="text"
+                    inputmode="decimal"
+                    id="amount"
+                    name="amount"
+                    placeholder="{{ 'split_invoice.fields.amount_placeholder'|trans }}"
+                    value="{{ formData.amount_major }}"
+                    required
+                    aria-label="{{ 'split_invoice.fields.amount_placeholder'|trans }}"
+                    aria-describedby="split-preview"
+                />
+                <div class="split-invoice-conj">{{ 'split_invoice.fields.with'|trans }}</div>
+                <select
+                    class="split-invoice-pick"
+                    id="recipient"
+                    name="recipient"
+                    required
+                    aria-label="{{ 'split_invoice.fields.recipient_placeholder'|trans }}"
+                >
+                    <option value="">{{ 'split_invoice.fields.recipient_placeholder'|trans }}</option>
+                    {% for u in users %}
+                        <option value="{{ u.id }}" {% if formData.recipient == u.id %}selected{% endif %}>
+                            {{ u.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <input
+                class="split-invoice-input"
+                type="text"
+                id="comment"
+                name="comment"
+                maxlength="255"
+                placeholder="{{ 'split_invoice.fields.comment_placeholder'|trans }}"
+                value="{{ formData.comment }}"
+                aria-label="{{ 'split_invoice.fields.comment_placeholder'|trans }}"
+            />
+
+            <div class="split-invoice-conj split-invoice-conj--block">{{ 'split_invoice.fields.and'|trans }}</div>
+
+            <div class="split-invoice-participants">
+                <ul class="split-invoice-participants-list" data-split-participants-target="list">
+                    {% for idx, p in formData.participants %}
+                        <li class="participants__row">
+                            <button
+                                type="button"
+                                class="participants__remove"
+                                data-action="split-participants#remove"
+                                aria-label="{{ 'split_invoice.participants.remove'|trans }}"
+                                hidden
+                            >
+                                ×
+                            </button>
+                            <select
+                                class="split-invoice-pick"
+                                name="participants[]"
+                                aria-label="{{ 'split_invoice.participants.row_label'|trans }} {{ idx + 1 }}"
+                                {% if rowErrors[idx] is defined %}
+                                    aria-invalid="true" aria-describedby="participant-error-{{ idx }}"
+                                {% endif %}
+                            >
+                                <option value="">{{ 'split_invoice.participants.empty_slot'|trans }}</option>
+                                {% for u in users %}
+                                    <option value="{{ u.id }}" {% if p == u.id %}selected{% endif %}>
+                                        {{ u.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            {% if rowErrors[idx] is defined %}
+                                <span class="row-error" id="participant-error-{{ idx }}">{{ rowErrors[idx] }}</span>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+
+                <template data-split-participants-target="template">
+                    <li class="participants__row">
+                        <button
+                            type="button"
+                            class="participants__remove"
+                            data-action="split-participants#remove"
+                            aria-label="{{ 'split_invoice.participants.remove'|trans }}"
+                        >
+                            ×
+                        </button>
+                        <select
+                            class="split-invoice-pick"
+                            name="participants[]"
+                            aria-label="{{ 'split_invoice.participants.row_label'|trans }}"
+                        >
+                            <option value="">{{ 'split_invoice.participants.empty_slot'|trans }}</option>
+                            {% for u in users %}
+                                <option value="{{ u.id }}">{{ u.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </li>
+                </template>
+
+                {# without JS the server appends a row; with JS the controller
+               preventDefault()s and adds it client-side #}
+                <button
+                    type="submit"
+                    name="add_row"
+                    value="1"
+                    class="split-invoice-add"
+                    data-split-participants-target="add"
+                    data-action="split-participants#add"
+                >
+                    {{ 'split_invoice.participants.add'|trans }}
+                </button>
+            </div>
+
+            {# JS-only per-head preview; the help line above carries the no-JS explanation #}
+            <p class="split-invoice-preview" id="split-preview" data-split-participants-target="preview" hidden></p>
+
+            <div class="split-invoice-actions">
+                <twig:AcceptCheck label="{{ 'split_invoice.submit'|trans }}" />
+            </div>
+        </form>
+    </div>
+{% endblock %}

@@ -11,13 +11,15 @@ use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
-final class Version20191013083741 extends AbstractMigration {
-
-    function getDescription(): string {
+final class Version20191013083741 extends AbstractMigration
+{
+    public function getDescription(): string
+    {
         return 'Introduces multiple barcodes and tags for an article';
     }
 
-    function up(Schema $schema): void {
+    public function up(Schema $schema): void
+    {
         // Check if migration is already applied
         if (!$schema->getTable('article')->hasColumn('barcode')) {
             return;
@@ -35,11 +37,11 @@ final class Version20191013083741 extends AbstractMigration {
         );
 
         $this->abortIf(
-            $duplicates !== [],
+            [] !== $duplicates,
             sprintf(
-                "Cannot migrate: %d barcode value(s) appear on more than one active article. "
-                . "Remove duplicates in `article.barcode` first, then re-run the migration. "
-                . "Offending barcodes: %s",
+                'Cannot migrate: %d barcode value(s) appear on more than one active article. '
+                .'Remove duplicates in `article.barcode` first, then re-run the migration. '
+                .'Offending barcodes: %s',
                 count($duplicates),
                 implode(', ', $duplicates),
             ),
@@ -49,21 +51,25 @@ final class Version20191013083741 extends AbstractMigration {
 
         if ($platform instanceof AbstractMySQLPlatform) {
             $this->upMySQL();
+
             return;
         }
         if ($platform instanceof SqlitePlatform) {
             $this->upSQLite();
+
             return;
         }
         if ($platform instanceof PostgreSQLPlatform) {
             $this->upPostgreSQL();
+
             return;
         }
 
         $this->abortIf(true, sprintf("Database migration for Platform '%s' is not supported.", $platform::class));
     }
 
-    private function upMySQL(): void {
+    private function upMySQL(): void
+    {
         $this->addSql('CREATE TABLE barcode (id INT AUTO_INCREMENT NOT NULL, article_id INT NOT NULL, barcode VARCHAR(32) NOT NULL, created DATETIME NOT NULL, INDEX IDX_97AE02667294869C (article_id), UNIQUE INDEX UNIQ_97AE026697AE0266 (barcode), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB');
         $this->addSql('ALTER TABLE barcode ADD CONSTRAINT FK_97AE02667294869C FOREIGN KEY (article_id) REFERENCES article (id)');
 
@@ -79,7 +85,8 @@ final class Version20191013083741 extends AbstractMigration {
         $this->addSql('ALTER TABLE article DROP barcode');
     }
 
-    private function upSQLite() {
+    private function upSQLite()
+    {
         $this->addSql('CREATE TABLE tag (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, tag VARCHAR(255) NOT NULL, created DATETIME NOT NULL)');
 
         $this->addSql('CREATE TABLE article_tag (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, article_id INTEGER NOT NULL, tag_id INTEGER NOT NULL, created DATETIME NOT NULL, CONSTRAINT FK_919694F97294869C FOREIGN KEY (article_id) REFERENCES article (id) NOT DEFERRABLE INITIALLY IMMEDIATE, CONSTRAINT FK_919694F9BAD26311 FOREIGN KEY (tag_id) REFERENCES tag (id) NOT DEFERRABLE INITIALLY IMMEDIATE)');
@@ -97,7 +104,8 @@ final class Version20191013083741 extends AbstractMigration {
         $this->addSql('ALTER TABLE article DROP COLUMN barcode');
     }
 
-    private function upPostgreSQL() {
+    private function upPostgreSQL()
+    {
         $this->addSql('CREATE SEQUENCE barcode_id_seq INCREMENT BY 1 MINVALUE 1 START 1');
         $this->addSql('CREATE SEQUENCE tag_id_seq INCREMENT BY 1 MINVALUE 1 START 1');
         $this->addSql('CREATE SEQUENCE article_tag_id_seq INCREMENT BY 1 MINVALUE 1 START 1');
@@ -123,7 +131,8 @@ final class Version20191013083741 extends AbstractMigration {
         $this->addSql('ALTER TABLE article DROP barcode');
     }
 
-    function down(Schema $schema): void {
+    public function down(Schema $schema): void
+    {
         $this->throwIrreversibleMigrationException();
     }
 }

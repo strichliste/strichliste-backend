@@ -11,36 +11,38 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: TagRepository::class)]
 #[ORM\HasLifecycleCallbacks]
 #[ORM\Table(name: 'tag')]
-class Tag {
-
+class Tag
+{
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
-    #[ORM\Column(type: 'string', nullable: false)]
-    private string $tag = '';
-
+    /** @var Collection<int, ArticleTag> */
     #[ORM\OneToMany(targetEntity: ArticleTag::class, mappedBy: 'tag', cascade: ['persist', 'remove'], fetch: 'EAGER')]
     private Collection $articleTags;
 
     #[ORM\Column(type: 'datetime')]
     private ?\DateTime $created = null;
 
-    function __construct(string $tag = '') {
-        $this->tag = $tag;
+    public function __construct(#[ORM\Column(type: 'string', nullable: false)]
+        private string $tag = '')
+    {
         $this->articleTags = new ArrayCollection();
     }
 
-    function getId(): ?int {
+    public function getId(): ?int
+    {
         return $this->id;
     }
 
-    function getTag(): string {
+    public function getTag(): string
+    {
         return $this->tag;
     }
 
-    function setTag(string $tag): self {
+    public function setTag(string $tag): self
+    {
         $this->tag = $tag;
 
         return $this;
@@ -49,28 +51,31 @@ class Tag {
     /**
      * @return Article[]
      */
-    function getArticles(): array {
-        return array_map(function(ArticleTag $articleTag) {
-            return $articleTag->getArticle();
-        }, $this->articleTags->getValues());
+    public function getArticles(): array
+    {
+        return array_map(fn (ArticleTag $articleTag) => $articleTag->getArticle(), $this->articleTags->getValues());
     }
 
-    function getUsageCount(): int {
+    public function getUsageCount(): int
+    {
         return count($this->articleTags);
     }
 
-    function getCreated(): ?\DateTime {
+    public function getCreated(): ?\DateTime
+    {
         return $this->created;
     }
 
-    function setCreated(\DateTime $created): self {
+    public function setCreated(\DateTime $created): self
+    {
         $this->created = $created;
 
         return $this;
     }
 
     #[ORM\PrePersist]
-    function setHistoryColumnsOnPrePersist(PrePersistEventArgs $event) {
+    public function setHistoryColumnsOnPrePersist(PrePersistEventArgs $event): void
+    {
         if (!$this->getCreated()) {
             $this->setCreated(new \DateTime());
         }

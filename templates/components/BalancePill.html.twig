@@ -1,0 +1,7 @@
+{% props amount %}
+{%- set cls = amount|balance_class -%}
+{%- set srSignKey = amount > 0 ? 'balance.positive' : (amount < 0 ? 'balance.negative' : 'balance.zero') -%}
+<span class="balance-pill {{ cls }}">
+    <span class="visually-hidden">{{ srSignKey|trans }}:</span>
+    {{ amount|currency_format }}
+</span>

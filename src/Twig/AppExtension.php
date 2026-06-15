@@ -1,0 +1,90 @@
+<?php
+
+namespace App\Twig;
+
+use App\Service\SettingsService;
+use Twig\Extension\AbstractExtension;
+use Twig\TwigFilter;
+use Twig\TwigFunction;
+
+class AppExtension extends AbstractExtension
+{
+    /** @var array<string, \NumberFormatter> */
+    private array $formatters = [];
+
+    public function __construct(private readonly SettingsService $settings)
+    {
+    }
+
+    #[\Override]
+    public function getFilters(): array
+    {
+        return [
+            new TwigFilter('currency_format', $this->currencyFormat(...)),
+            new TwigFilter('balance_class', $this->balanceClass(...)),
+        ];
+    }
+
+    // paths the setting() Twig function may read; secrets like paypal.recipient stay out
+    private const array TEMPLATE_SETTING_ALLOWLIST = [
+        'i18n.',
+        'common.',
+        'payment.splitInvoice.enabled',
+        'paypal.sandbox',
+        'paypal.fee',
+    ];
+
+    #[\Override]
+    public function getFunctions(): array
+    {
+        return [
+            new TwigFunction('setting', function (string $path, mixed $default = null) {
+                $allowed = array_any(self::TEMPLATE_SETTING_ALLOWLIST, fn ($prefix) => $path === $prefix || str_starts_with($path, $prefix));
+                if (!$allowed) {
+                    // silently fall back rather than leak the value or throw
+                    return $default;
+                }
+
+                return $this->settings->getOrDefault($path, $default);
+            }),
+        ];
+    }
+
+    // signed (default) renders +€25.77 / -€8.52 / €0.00 like the SPA; unsigned is for plain prices
+    public function currencyFormat(?int $cents, ?string $currencySymbol = null, bool $signed = true): string
+    {
+        if (null === $cents) {
+            return '';
+        }
+        $symbol = $currencySymbol ?: $this->settings->getOrDefault('i18n.currency.symbol', '€');
+        $locale = (string) $this->settings->getOrDefault('i18n.language', 'en');
+
+        $sign = '';
+        if ($signed) {
+            $sign = $cents > 0 ? '+' : ($cents < 0 ? '-' : '');
+        }
+        $abs = abs($cents) / 100;
+
+        if (!isset($this->formatters[$locale])) {
+            $formatter = new \NumberFormatter($locale, \NumberFormatter::DECIMAL);
+            $formatter->setAttribute(\NumberFormatter::MIN_FRACTION_DIGITS, 2);
+            $formatter->setAttribute(\NumberFormatter::MAX_FRACTION_DIGITS, 2);
+            $this->formatters[$locale] = $formatter;
+        }
+        $number = $this->formatters[$locale]->format($abs);
+        if (false === $number) {
+            $number = number_format($abs, 2, '.', ',');
+        }
+
+        return $sign.$symbol.$number;
+    }
+
+    public function balanceClass(?int $cents): string
+    {
+        if (null === $cents || 0 === $cents) {
+            return 'is-zero';
+        }
+
+        return $cents > 0 ? 'is-positive' : 'is-negative';
+    }
+}

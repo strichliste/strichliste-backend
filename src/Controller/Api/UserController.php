@@ -7,75 +7,66 @@ use App\Exception\ParameterInvalidException;
 use App\Exception\ParameterMissingException;
 use App\Exception\UserAlreadyExistsException;
 use App\Exception\UserNotFoundException;
+use App\Repository\UserRepository;
 use App\Serializer\UserSerializer;
 use App\Service\UserService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api/user')]
-class UserController extends AbstractController {
-
-    /**
-     * @var UserSerializer
-     */
-    private $userSerializer;
-
-    function __construct(UserSerializer $userSerializer) {
-        $this->userSerializer = $userSerializer;
+class UserController extends AbstractController
+{
+    public function __construct(private readonly UserSerializer $userSerializer)
+    {
     }
 
     #[Route(methods: ['GET'])]
-    function list(Request $request, UserService $userService, EntityManagerInterface $entityManager) {
-        $active = $request->query->get('active');
+    public function list(Request $request, UserService $userService, UserRepository $userRepository): JsonResponse
+    {
+        $active = $request->query->getString('active');
 
         $staleDateTime = $userService->getStaleDateTime();
-        $userRepository = $entityManager->getRepository(User::class);
 
-        if ($active === 'true') {
+        if ('true' === $active) {
             $users = $userRepository->findAllActive($staleDateTime);
-        } elseif ($active === 'false') {
+        } elseif ('false' === $active) {
             $users = $userRepository->findAllInactive($staleDateTime);
         } else {
             $users = $userRepository->findAll();
         }
 
-        usort($users, function (User $a, User $b) {
-           return strnatcasecmp($a->getName(), $b->getName());
-        });
+        usort($users, fn (User $a, User $b) => strnatcasecmp((string) $a->getName(), (string) $b->getName()));
 
         return $this->json([
-            'users' => array_map(function (User $user) {
-                return $this->userSerializer->serialize($user);
-            }, $users)
+            'users' => array_map($this->userSerializer->serialize(...), $users),
         ]);
     }
 
     #[Route(methods: ['POST'])]
-    function createUser(Request $request, EntityManagerInterface $entityManager) {
-
-        $name = $request->request->get('name');
+    public function createUser(Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager): JsonResponse
+    {
+        $name = $request->request->getString('name');
         if (!$name) {
             throw new ParameterMissingException('name');
         }
 
-        // TODO: Use sanitize-helper
-        $name = trim($name);
-        $name = preg_replace('/[\x00-\x1F\x7F]/u', '', $name);
+        $name = User::sanitizeName($name);
 
         if (!$name || mb_strlen($name) > 64) {
             throw new ParameterInvalidException('name');
         }
 
-        if ($entityManager->getRepository(User::class)->findByName($name)) {
+        if ($userRepository->findByName($name)) {
             throw new UserAlreadyExistsException($name);
         }
 
         $user = new User();
         $user->setName($name);
 
-        $email = $request->request->get('email');
+        $email = $request->request->getString('email');
         if ($email) {
             if (!filter_var($email, FILTER_VALIDATE_EMAIL) || mb_strlen($email) > 255) {
                 throw new ParameterInvalidException('email');
@@ -93,14 +84,15 @@ class UserController extends AbstractController {
     }
 
     #[Route('/search', methods: ['GET'])]
-    function search(Request $request, EntityManagerInterface $entityManager) {
-        $query = $request->query->get('query');
-        $limit = $request->query->get('limit', 25);
+    public function search(Request $request, UserRepository $userRepository): JsonResponse
+    {
+        $query = $request->query->getString('query');
+        $limit = $request->query->getInt('limit', 25);
 
-        $results = $entityManager->getRepository(User::class)->createQueryBuilder('u')
+        $results = $userRepository->createQueryBuilder('u')
             ->where('u.name LIKE :query')
             ->andWhere('u.disabled = false')
-            ->setParameter('query', '%' . $query . '%')
+            ->setParameter('query', '%'.$query.'%')
             ->orderBy('u.name')
             ->setMaxResults($limit)
             ->getQuery()
@@ -108,15 +100,14 @@ class UserController extends AbstractController {
 
         return $this->json([
             'count' => count($results),
-            'users' => array_map(function (User $user) {
-                return $this->userSerializer->serialize($user);
-            }, $results),
+            'users' => array_map($this->userSerializer->serialize(...), $results),
         ]);
     }
 
     #[Route('/{userId}', methods: ['GET'])]
-    function user($userId, EntityManagerInterface $entityManager) {
-        $user = $entityManager->getRepository(User::class)->findByIdentifier($userId);
+    public function user(string $userId, UserRepository $userRepository): JsonResponse
+    {
+        $user = $userRepository->findByIdentifier($userId);
         if (!$user) {
             throw new UserNotFoundException($userId);
         }
@@ -127,29 +118,29 @@ class UserController extends AbstractController {
     }
 
     #[Route('/{userId}', methods: ['POST'])]
-    function updateUser($userId, Request $request, EntityManagerInterface $entityManager) {
-        $user = $entityManager->getRepository(User::class)->findByIdentifier($userId);
+    public function updateUser(string $userId, Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager): JsonResponse
+    {
+        $user = $userRepository->findByIdentifier($userId);
         if (!$user) {
             throw new UserNotFoundException($userId);
         }
 
-        $name = $request->request->get('name');
+        $name = $request->request->getString('name');
         if (mb_strlen($name) > 64) {
             throw new ParameterInvalidException('name');
         }
 
         if ($name) {
-            $name = trim($name);
-            $name = preg_replace('/[\x00-\x1F\x7F]/u', '', $name);
+            $name = User::sanitizeName($name);
 
-            if ($name !== $user->getName() && $entityManager->getRepository(User::class)->findByName($name)) {
+            if ($name !== $user->getName() && $userRepository->findByName($name)) {
                 throw new UserAlreadyExistsException($name);
             }
 
             $user->setName($name);
         }
 
-        $email = $request->request->get('email');
+        $email = $request->request->getString('email');
         if ($email) {
             if (!filter_var($email, FILTER_VALIDATE_EMAIL) || mb_strlen($email) > 255) {
                 throw new ParameterInvalidException('email');
@@ -159,8 +150,9 @@ class UserController extends AbstractController {
         }
 
         $isDisabled = $request->request->get('isDisabled');
-        if ($isDisabled !== null) {
-            $user->setDisabled($isDisabled);
+        if (null !== $isDisabled) {
+            // explicit: the string "false" must not coerce to true
+            $user->setDisabled(filter_var($isDisabled, FILTER_VALIDATE_BOOLEAN));
         }
 
         $entityManager->persist($user);

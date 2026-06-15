@@ -3,8 +3,41 @@ name: Tests
 on:
   push:
   pull_request:
+  schedule:
+    # Weekly run so new security advisories surface without waiting for a push.
+    - cron: "17 6 * * 1"
 
 jobs:
+  lint:
+    name: lint (twig, yaml, container)
+    runs-on: ubuntu-latest
+    env:
+      # lint:container and lint:twig boot the kernel; the DSN must parse but is never used.
+      DATABASE_URL: "sqlite:////tmp/strichliste_lint.db"
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.5"
+          extensions: ctype, iconv, json, intl, pdo_sqlite
+          coverage: none
+
+      - uses: actions/cache@v5
+        with:
+          path: ~/.cache/composer
+          key: ${{ runner.os }}-php8.5-composer-${{ hashFiles('composer.lock') }}
+
+      - run: composer validate --strict --no-check-publish
+
+      - run: composer install --no-interaction --prefer-dist
+
+      - run: composer audit
+
+      - run: php bin/console lint:twig templates
+      - run: php bin/console lint:yaml config translations
+      - run: php bin/console lint:container
+
   phpunit:
     name: phpunit (${{ matrix.db }}, php ${{ matrix.php }})
     runs-on: ubuntu-latest
@@ -13,7 +46,8 @@ jobs:
       fail-fast: false
       matrix:
         db: [sqlite, mariadb, pgsql]
-        php: ["8.2", "8.5"]
+        # 8.4 is the composer.json floor; 8.5 matches the FrankenPHP image.
+        php: ["8.4", "8.5"]
         include:
           - db: sqlite
             database_url: "sqlite:////tmp/strichliste_test.db"
@@ -22,12 +56,16 @@ jobs:
             database_url: "mysql://strichliste:strichliste@127.0.0.1:3306/strichliste?serverVersion=mariadb-11.8.0"
             php_extensions: pdo_mysql
           - db: pgsql
-            database_url: "postgresql://strichliste:strichliste@127.0.0.1:5432/strichliste?serverVersion=17"
+            database_url: "postgresql://strichliste:strichliste@127.0.0.1:5432/strichliste?serverVersion=16"
             php_extensions: pdo_pgsql
 
     services:
+      # an empty image skips the service, so each cell only starts the database
+      # it tests — previously every cell pulled both images. ECR Public mirrors
+      # the Docker Hub official images without the anonymous-pull rate limits
+      # that made these pulls time out.
       mariadb:
-        image: mariadb:11.8
+        image: ${{ matrix.db == 'mariadb' && 'public.ecr.aws/docker/library/mariadb:11.8' || '' }}
         env:
           MARIADB_DATABASE: strichliste
           MARIADB_USER: strichliste
@@ -39,7 +77,7 @@ jobs:
           --health-interval=10s --health-timeout=5s --health-retries=10
 
       postgres:
-        image: postgres:17
+        image: ${{ matrix.db == 'pgsql' && 'public.ecr.aws/docker/library/postgres:16' || '' }}
         env:
           POSTGRES_DB: strichliste
           POSTGRES_USER: strichliste
@@ -58,7 +96,8 @@ jobs:
       - uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          extensions: ctype, iconv, json, ${{ matrix.php_extensions }}
+          # intl is required since the Twig UI (NumberFormatter in AppExtension).
+          extensions: ctype, iconv, json, intl, ${{ matrix.php_extensions }}
           coverage: none
 
       - uses: actions/cache@v5
@@ -69,3 +108,41 @@ jobs:
       - run: composer install --no-interaction --prefer-dist
 
       - run: vendor/bin/phpunit --testdox
+
+  e2e:
+    name: e2e (playwright)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          extensions: ctype, iconv, json, intl, pdo_sqlite
+          coverage: none
+
+      - uses: actions/cache@v5
+        with:
+          path: ~/.cache/composer
+          key: ${{ runner.os }}-php8.4-composer-${{ hashFiles('composer.lock') }}
+
+      - run: composer install --no-interaction --prefer-dist
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: npm
+
+      - run: npm ci
+
+      - run: npx playwright install --with-deps chromium
+
+      # the suite seeds var/e2e.db and boots its own PHP server (playwright.config.js)
+      - run: npx playwright test
+
+      - uses: actions/upload-artifact@v6
+        if: failure()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7

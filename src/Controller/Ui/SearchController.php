@@ -1,0 +1,118 @@
+<?php
+
+namespace App\Controller\Ui;
+
+use App\Entity\Article;
+use App\Entity\User;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
+
+class SearchController extends AbstractController
+{
+    private const int PAGE_SIZE = 10;
+
+    public function __construct(
+        private readonly EntityManagerInterface $em,
+    ) {
+    }
+
+    #[Route('/search-results', name: 'search_results', methods: ['GET'])]
+    public function index(Request $request): Response
+    {
+        $q = trim($request->query->getString('q'));
+        $userPage = max(1, $request->query->getInt('user_page', 1));
+        $articlePage = max(1, $request->query->getInt('article_page', 1));
+
+        $tooShort = mb_strlen($q) < 2;
+
+        $users = $articles = [];
+        $userTotal = $articleTotal = 0;
+        if (!$tooShort) {
+            [$users, $userTotal, $userPage] = $this->searchUsers($q, $userPage);
+            [$articles, $articleTotal, $articlePage] = $this->searchArticles($q, $articlePage);
+        }
+
+        return $this->render('search/results.html.twig', [
+            'q' => $q,
+            'tooShort' => $tooShort,
+            'users' => $users,
+            'userTotal' => $userTotal,
+            'userPage' => $userPage,
+            'userPages' => max(1, (int) ceil(($userTotal ?: 0) / self::PAGE_SIZE)),
+            'articles' => $articles,
+            'articleTotal' => $articleTotal,
+            'articlePage' => $articlePage,
+            'articlePages' => max(1, (int) ceil(($articleTotal ?: 0) / self::PAGE_SIZE)),
+        ]);
+    }
+
+    /**
+     * @return array{0: list<User>, 1: int, 2: int}
+     */
+    private function searchUsers(string $q, int $page): array
+    {
+        $repo = $this->em->getRepository(User::class);
+        $like = '%'.$this->escapeLike($q).'%';
+
+        $count = (int) $repo->createQueryBuilder('u')
+            ->select('COUNT(u.id)')
+            ->where("LOWER(u.name) LIKE LOWER(:q) ESCAPE '!'")
+            ->andWhere('u.disabled = false')
+            ->setParameter('q', $like)
+            ->getQuery()->getSingleScalarResult();
+
+        $page = min($page, max(1, (int) ceil($count / self::PAGE_SIZE)));
+        $offset = ($page - 1) * self::PAGE_SIZE;
+
+        $results = $repo->createQueryBuilder('u')
+            ->where("LOWER(u.name) LIKE LOWER(:q) ESCAPE '!'")
+            ->andWhere('u.disabled = false')
+            ->setParameter('q', $like)
+            ->orderBy('u.name')
+            ->setFirstResult($offset)
+            ->setMaxResults(self::PAGE_SIZE)
+            ->getQuery()->getResult();
+
+        return [$results, $count, $page];
+    }
+
+    /**
+     * @return array{0: list<Article>, 1: int, 2: int}
+     */
+    private function searchArticles(string $q, int $page): array
+    {
+        $repo = $this->em->getRepository(Article::class);
+        $like = '%'.$this->escapeLike($q).'%';
+
+        $count = (int) $repo->createQueryBuilder('a')
+            ->select('COUNT(a.id)')
+            ->where("LOWER(a.name) LIKE LOWER(:q) ESCAPE '!'")
+            ->andWhere('a.active = true')
+            ->setParameter('q', $like)
+            ->getQuery()->getSingleScalarResult();
+
+        $page = min($page, max(1, (int) ceil($count / self::PAGE_SIZE)));
+        $offset = ($page - 1) * self::PAGE_SIZE;
+
+        $results = $repo->createQueryBuilder('a')
+            ->where("LOWER(a.name) LIKE LOWER(:q) ESCAPE '!'")
+            ->andWhere('a.active = true')
+            ->setParameter('q', $like)
+            ->orderBy('a.name')
+            ->setFirstResult($offset)
+            ->setMaxResults(self::PAGE_SIZE)
+            ->getQuery()->getResult();
+
+        return [$results, $count, $page];
+    }
+
+    private function escapeLike(string $q): string
+    {
+        // SQLite has no default LIKE escape char, hence the explicit ESCAPE '!' in the DQL;
+        // LOWER() on both sides keeps the match case-insensitive across engines
+        return str_replace(['!', '%', '_'], ['!!', '!%', '!_'], $q);
+    }
+}

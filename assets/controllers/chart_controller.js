@@ -1,0 +1,165 @@
+import { Controller } from '@hotwired/stimulus';
+import {
+    Chart,
+    LineController,
+    BarController,
+    LineElement,
+    BarElement,
+    PointElement,
+    CategoryScale,
+    LinearScale,
+    Tooltip,
+    Legend,
+} from 'chart.js';
+
+Chart.register(
+    LineController,
+    BarController,
+    LineElement,
+    BarElement,
+    PointElement,
+    CategoryScale,
+    LinearScale,
+    Tooltip,
+    Legend,
+);
+
+/* stimulusFetch: 'lazy' */
+
+export default class extends Controller {
+    static values = {
+        dataId: String,
+        variant: String,
+        labels: Object, // translated series names, from the template
+        currency: { type: String, default: '€' },
+    };
+
+    connect() {
+        const source = document.getElementById(this.dataIdValue);
+        if (!source) return;
+
+        // days arrive newest-first; the SPA shows newest on the left, so no reverse
+        let days;
+        try {
+            days = JSON.parse(source.textContent);
+        } catch (e) {
+            return;
+        }
+        if (!Array.isArray(days) || days.length === 0) return;
+
+        const labels = days.map((d) => d.date);
+
+        const css = getComputedStyle(document.documentElement);
+        const greenText =
+            css.getPropertyValue('--greenText').trim() || '#15803d';
+        const redText = css.getPropertyValue('--redText').trim() || '#c62828';
+        const text = css.getPropertyValue('--text').trim() || '#343434';
+        const surface =
+            css.getPropertyValue('--componentBackgroundLight').trim() || '#fff';
+        const grid = css.getPropertyValue('--border').trim() || '#ccc';
+
+        const reducedMotion =
+            window.matchMedia &&
+            window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        const variant = this.hasVariantValue ? this.variantValue : 'balance';
+        const L = {
+            charged: 'Charged',
+            spent: 'Spent',
+            net: 'Net',
+            users: 'Users',
+            ...this.labelsValue,
+        };
+        const datasets =
+            variant === 'users'
+                ? [
+                      {
+                          label: L.users,
+                          data: days.map((d) => d.distinctUsers ?? 0),
+                          backgroundColor: greenText,
+                          borderColor: greenText,
+                          categoryPercentage: 0.8,
+                          barPercentage: 0.9,
+                      },
+                  ]
+                : [
+                      {
+                          label: L.charged,
+                          data: days.map((d) => d.charged / 100),
+                          backgroundColor: greenText,
+                          borderColor: greenText,
+                          order: 2,
+                          categoryPercentage: 0.8,
+                          barPercentage: 0.9,
+                      },
+                      {
+                          label: L.spent,
+                          data: days.map((d) => d.spent / 100),
+                          backgroundColor: redText,
+                          borderColor: redText,
+                          order: 2,
+                          categoryPercentage: 0.8,
+                          barPercentage: 0.9,
+                      },
+                      {
+                          label: L.net,
+                          data: days.map((d) => d.balance / 100),
+                          type: 'line',
+                          // theme text color, so the net line survives dark mode
+                          borderColor: text,
+                          backgroundColor: text,
+                          tension: 0,
+                          fill: false,
+                          order: 1,
+                          pointRadius: 3,
+                          pointBackgroundColor: surface,
+                          pointBorderColor: text,
+                          pointBorderWidth: 1.5,
+                      },
+                  ];
+
+        this.chart = new Chart(this.element, {
+            type: 'bar',
+            data: { labels, datasets },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: reducedMotion ? false : undefined,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    // legend stays on: red vs. green alone is useless for color-blind users
+                    legend: { display: true, labels: { color: text } },
+                    tooltip: {
+                        callbacks:
+                            variant === 'users'
+                                ? {
+                                      label: (ctx) =>
+                                          `${ctx.dataset.label}: ${ctx.parsed.y}`,
+                                  }
+                                : {
+                                      label: (ctx) =>
+                                          `${ctx.dataset.label}: ${this.currencyValue}${ctx.parsed.y.toFixed(2)}`,
+                                  },
+                    },
+                },
+                scales: {
+                    x: {
+                        grid: { color: grid },
+                        ticks: { color: text, maxRotation: 0, autoSkip: true },
+                    },
+                    y: {
+                        grid: { color: grid },
+                        ticks: { color: text, count: 5 },
+                    },
+                },
+            },
+        });
+    }
+
+    disconnect() {
+        if (this.chart) {
+            this.chart.destroy();
+            this.chart = null;
+        }
+    }
+}

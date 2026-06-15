@@ -7,18 +7,17 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @method Barcode|null find($id, $lockMode = null, $lockVersion = null)
- * @method Barcode|null findOneBy(array $criteria, array $orderBy = null)
- * @method Barcode[]    findAll()
- * @method Barcode[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @extends ServiceEntityRepository<Barcode>
  */
-class BarcodeRepository extends ServiceEntityRepository {
-
-    function __construct(ManagerRegistry $registry) {
+class BarcodeRepository extends ServiceEntityRepository
+{
+    public function __construct(ManagerRegistry $registry)
+    {
         parent::__construct($registry, Barcode::class);
     }
 
-    function findByBarcode(string $barcode): ?Barcode {
+    public function findByBarcode(string $barcode): ?Barcode
+    {
         return $this->findOneBy(['barcode' => $barcode]);
     }
 }

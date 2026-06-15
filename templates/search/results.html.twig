@@ -1,0 +1,70 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'search.heading'|trans({'%q%': q}) }} · Strichliste{% endblock %}
+
+{% block main %}
+    <twig:PageHeader title="{{ 'search.heading'|trans({'%q%': q}) }}" />
+
+    <form method="get" action="{{ path('search_results') }}" class="search-page-form">
+        <label class="visually-hidden" for="search-q">{{ 'nav.search.input_label'|trans }}</label>
+        <input
+            type="text"
+            id="search-q"
+            name="q"
+            value="{{ q }}"
+            minlength="2"
+            placeholder="{{ 'nav.search.input_placeholder'|trans }}"
+        />
+        <button type="submit" class="btn btn--highlight">{{ 'nav.search.submit'|trans }}</button>
+    </form>
+
+    {% if tooShort %}
+        <twig:EmptyState>{{ 'search.too_short'|trans }}</twig:EmptyState>
+    {% else %}
+        <section class="search-section">
+            <h2>{{ 'search.section.users'|trans }} ({{ userTotal }})</h2>
+            {% if users is empty %}
+                <twig:EmptyState>{{ 'search.no_results.users'|trans }}</twig:EmptyState>
+            {% else %}
+                <ul class="search-results">
+                    {% for u in users %}
+                        <li>
+                            <a href="{{ path('users_detail', {id: u.id}) }}">{{ u.name }}</a>
+                            <twig:BalancePill amount="{{ u.balance }}" />
+                        </li>
+                    {% endfor %}
+                </ul>
+                <twig:Pagination
+                    currentPage="{{ userPage }}"
+                    totalPages="{{ userPages }}"
+                    baseUrl="{{ path('search_results') }}"
+                    queryParam="user_page"
+                    extraParams="{{ {q: q, article_page: articlePage} }}"
+                />
+            {% endif %}
+        </section>
+
+        <section class="search-section">
+            <h2>{{ 'search.section.articles'|trans }} ({{ articleTotal }})</h2>
+            {% if articles is empty %}
+                <twig:EmptyState>{{ 'search.no_results.articles'|trans }}</twig:EmptyState>
+            {% else %}
+                <ul class="search-results">
+                    {% for a in articles %}
+                        <li>
+                            <a href="{{ path('articles_edit', {id: a.id}) }}">{{ a.name }}</a>
+                            <span class="article-card__price">{{ a.amount|currency_format(signed=false) }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+                <twig:Pagination
+                    currentPage="{{ articlePage }}"
+                    totalPages="{{ articlePages }}"
+                    baseUrl="{{ path('search_results') }}"
+                    queryParam="article_page"
+                    extraParams="{{ {q: q, user_page: userPage} }}"
+                />
+            {% endif %}
+        </section>
+    {% endif %}
+{% endblock %}

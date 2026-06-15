@@ -1,0 +1,61 @@
+<section
+    class="buy-tab"
+    data-controller="article-filter"
+    data-article-filter-results-label-value="{{ 'user.buy.results_label'|trans }}"
+    data-article-filter-no-results-label-value="{{ 'user.buy.no_results_label'|trans }}"
+>
+    <div class="buy-tab__search">
+        <label class="visually-hidden" for="buy-search">{{ 'user.buy.search_label'|trans }}</label>
+        {# rendered hidden — the filter is JS-only, the controller reveals it #}
+        <input
+            type="text"
+            id="buy-search"
+            class="buy-tab__search-input"
+            placeholder="{{ 'user.buy.search_placeholder'|trans }}"
+            autocomplete="off"
+            data-article-filter-target="input"
+            data-action="input->article-filter#filter"
+            hidden
+        />
+        <twig:CancelCircle href="{{ path('users_detail', {id: user.id}) }}" label="{{ 'common.close'|trans }}" />
+    </div>
+
+    <p class="visually-hidden" role="status" aria-live="polite" data-article-filter-target="status"></p>
+
+    {# no-JS barcode fallback — the controller hides this form once it connects #}
+    <form
+        method="post"
+        action="{{ path('transactions_buy', {id: user.id}) }}"
+        class="buy-tab__scan"
+        data-article-filter-target="scanForm"
+    >
+        <input type="hidden" name="_token" value="{{ csrf_token('buy' ~ user.id) }}" />
+        <label for="buy-scan">{{ 'user.buy.scan.input_label'|trans }}</label>
+        <input type="text" id="buy-scan" name="barcode" maxlength="32" required autocomplete="off" />
+        <button type="submit" class="btn">{{ 'user.buy.scan.submit'|trans }}</button>
+    </form>
+
+    {% if buy.articles is empty %}
+        <twig:EmptyState>{{ 'user.buy.picker.empty'|trans }}</twig:EmptyState>
+    {% else %}
+        <div class="buy-tab__pills">
+            {% for a in buy.articles %}
+                <form
+                    method="post"
+                    action="{{ path('transactions_buy', {id: user.id}) }}"
+                    class="buy-tab__pill-form"
+                    data-article-filter-target="item"
+                    data-article-name="{{ a.name|lower }}"
+                >
+                    <input type="hidden" name="_token" value="{{ csrf_token('buy' ~ user.id) }}" />
+                    <input type="hidden" name="articleId" value="{{ a.id }}" />
+                    <button type="submit" class="buy-tab__pill">
+                        <span class="buy-tab__pill-name">{{ a.name }}</span>
+                        <span class="buy-tab__pill-sep" aria-hidden="true">|</span>
+                        <span class="buy-tab__pill-price">{{ a.amount|currency_format(signed=false) }}</span>
+                    </button>
+                </form>
+            {% endfor %}
+        </div>
+    {% endif %}
+</section>

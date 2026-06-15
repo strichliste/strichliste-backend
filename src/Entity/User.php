@@ -13,7 +13,13 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: '`user`')]
 #[ORM\Index(name: 'disabled_updated', columns: ['disabled', 'updated'])]
 #[ORM\HasLifecycleCallbacks]
-class User {
+class User
+{
+    public static function sanitizeName(string $name): string
+    {
+        // preg_replace returns null on invalid UTF-8; coalesce so callers get a 400, not a TypeError
+        return preg_replace('/[\x00-\x1F\x7F]/u', '', trim($name)) ?? '';
+    }
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -42,102 +48,120 @@ class User {
     #[ORM\OneToMany(targetEntity: Transaction::class, mappedBy: 'user')]
     private Collection $transactions;
 
-    function __construct() {
+    public function __construct()
+    {
         $this->transactions = new ArrayCollection();
     }
 
-    function getId(): ?int {
+    public function getId(): ?int
+    {
         return $this->id;
     }
 
-    function getName(): ?string {
+    public function getName(): ?string
+    {
         return $this->name;
     }
 
-    function setName(string $name): self {
+    public function setName(string $name): self
+    {
         $this->name = $name;
 
         return $this;
     }
 
-    function getEmail(): ?string {
+    public function getEmail(): ?string
+    {
         return $this->email;
     }
 
-    function setEmail(?string $email): self {
+    public function setEmail(?string $email): self
+    {
         $this->email = $email;
 
         return $this;
     }
 
-    function getBalance() {
+    public function getBalance(): int
+    {
         return $this->balance;
     }
 
-    function setBalance($balance): self {
+    public function setBalance(int $balance): self
+    {
         $this->balance = $balance;
 
         return $this;
     }
 
-    function addBalance($amount): self {
+    public function addBalance(int $amount): self
+    {
         $this->balance += $amount;
 
         return $this;
     }
 
-    function isDisabled(): bool {
+    public function isDisabled(): bool
+    {
         return $this->disabled;
     }
 
-    function setDisabled(bool $disabled): self {
+    public function setDisabled(bool $disabled): self
+    {
         $this->disabled = $disabled;
 
         return $this;
     }
 
-    function getCreated(): ?\DateTimeInterface {
+    public function getCreated(): ?\DateTimeInterface
+    {
         return $this->created;
     }
 
-    function setCreated(\DateTimeInterface $created): self {
+    public function setCreated(\DateTimeInterface $created): self
+    {
         $this->created = $created;
 
         return $this;
     }
 
-    function getUpdated(): ?\DateTimeInterface {
+    public function getUpdated(): ?\DateTimeInterface
+    {
         return $this->updated;
     }
 
-    function setUpdated(?\DateTimeInterface $updated): self {
+    public function setUpdated(?\DateTimeInterface $updated): self
+    {
         $this->updated = $updated;
 
         return $this;
     }
 
     /**
-     * @return Collection|Transaction[]
+     * @return Collection<int, Transaction>
      */
-    function getTransactions(): Collection {
+    public function getTransactions(): Collection
+    {
         return $this->transactions;
     }
 
     #[ORM\PrePersist]
-    function setHistoryColumnsOnPrePersist(PrePersistEventArgs $event) {
+    public function setHistoryColumnsOnPrePersist(PrePersistEventArgs $event): void
+    {
         $now = new \DateTime();
-  
+
         if (!$this->getCreated()) {
             $this->setCreated($now);
         }
 
-        if(!$this->getUpdated()) {
+        if (!$this->getUpdated()) {
             $this->setUpdated($now);
         }
     }
 
     #[ORM\PreUpdate]
-    function setHistoryColumnsOnPreUpdate(PreUpdateEventArgs $event) {
+    public function setHistoryColumnsOnPreUpdate(PreUpdateEventArgs $event): void
+    {
         if (!$event->hasChangedField('updated')) {
             $this->setUpdated(new \DateTime());
         }

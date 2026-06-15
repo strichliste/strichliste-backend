@@ -6,24 +6,21 @@ use App\Command\Helper\DateIntervalHelper;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 
-class UserCleanupCommand extends Command {
-
-    /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
-
-    function __construct(EntityManagerInterface $entityManager) {
+class UserCleanupCommand extends Command
+{
+    public function __construct(private readonly EntityManagerInterface $entityManager)
+    {
         parent::__construct();
-        $this->entityManager = $entityManager;
     }
 
-    protected function configure() {
+    protected function configure(): void
+    {
         $this
             ->setName('app:user:cleanup')
             ->setDescription('Deletes or deactivated expired accounts after a given period of time')
@@ -36,8 +33,12 @@ class UserCleanupCommand extends Command {
             ->addOption('maxBalance', null, InputOption::VALUE_OPTIONAL, 'Maximum balance', false);
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output): int {
+    protected function execute(InputInterface $input, OutputInterface $output): int
+    {
         $helper = $this->getHelper('question');
+        if (!$helper instanceof QuestionHelper) {
+            throw new \RuntimeException('question helper unavailable');
+        }
 
         $questions = [];
         $queryBuilder = $this->entityManager->createQueryBuilder();
@@ -65,7 +66,7 @@ class UserCleanupCommand extends Command {
         }
 
         $minBalance = $input->getOption('minBalance');
-        if ($minBalance !== false) {
+        if (false !== $minBalance) {
             $questions[] = sprintf('a minimum balance of %d', $minBalance);
             $queryBuilder->setParameter('minBalance', $minBalance);
 
@@ -77,7 +78,7 @@ class UserCleanupCommand extends Command {
         }
 
         $maxBalance = $input->getOption('maxBalance');
-        if ($maxBalance !== false) {
+        if (false !== $maxBalance) {
             $questions[] = sprintf('a maximum balance of %d', $maxBalance);
 
             $queryBuilder->setParameter('maxBalance', $maxBalance);
@@ -94,8 +95,8 @@ class UserCleanupCommand extends Command {
             $queryBuilder->andWhere('u.balance = 0');
         }
 
-        $question = 'Do you want to ' . join(', ', array_slice($questions, 0, count($questions) - 1));
-        $question .= ' and ' . $questions[count($questions) - 1] . ' [y/N]?';
+        $question = 'Do you want to '.join(', ', array_slice($questions, 0, count($questions) - 1));
+        $question .= ' and '.$questions[count($questions) - 1].' [y/N]?';
 
         $skipQuestion = $input->getOption('confirm');
         if (!$skipQuestion) {

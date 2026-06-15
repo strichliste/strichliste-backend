@@ -8,8 +8,12 @@ parameters:
 doctrine:
     dbal:
         url: '%env(resolve:DATABASE_URL)%'
+        # doSplit nests wrapInTransaction calls, and dama/doctrine-test-bundle needs savepoints on DBAL 3.
+        use_savepoints: true
     orm:
-        auto_generate_proxy_classes: '%kernel.debug%'
+        # PHP 8.4 lazy objects instead of generated proxy classes; the old
+        # proxy autoloader is deprecated in ORM 3.6 and gone in ORM 4.
+        enable_native_lazy_objects: true
         naming_strategy: doctrine.orm.naming_strategy.underscore
         auto_mapping: true
         # Silence DBAL 3->4 deprecation warning ("Relying on non-optimal defaults for ID generation is deprecated")

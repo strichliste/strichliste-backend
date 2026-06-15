@@ -4,7 +4,7 @@
     "name": "strichliste/strichliste-backend",
     "description": "Backend component of strichliste, a digital tallysheet",
     "require": {
-        "php": "^8.2",
+        "php": "^8.4",
         "ext-ctype": "*",
         "ext-iconv": "*",
         "ext-json": "*",
@@ -12,19 +12,40 @@
         "doctrine/doctrine-bundle": "^2.13",
         "doctrine/doctrine-migrations-bundle": "^3.3",
         "doctrine/orm": "^3.3",
+        "nelmio/api-doc-bundle": "^5.10",
         "nelmio/cors-bundle": "^2.6",
+        "runtime/frankenphp-symfony": "^1.0",
+        "symfony/asset": "^7.4",
+        "symfony/asset-mapper": "^7.4",
         "symfony/console": "^7.4",
         "symfony/dotenv": "^7.4",
         "symfony/flex": "^2.4",
+        "symfony/form": "^7.4",
         "symfony/framework-bundle": "^7.4",
         "symfony/runtime": "^7.4",
-        "symfony/yaml": "^7.4"
+        "symfony/security-csrf": "^7.4",
+        "symfony/stimulus-bundle": "^2.35",
+        "symfony/translation": "^7.4",
+        "symfony/twig-bundle": "^7.4",
+        "symfony/ux-turbo": "^2.35",
+        "symfony/ux-twig-component": "^2.35",
+        "symfony/validator": "^7.4",
+        "symfony/yaml": "^7.4",
+        "twig/extra-bundle": "^3.24",
+        "twig/intl-extra": "^3.24"
     },
     "require-dev": {
         "dama/doctrine-test-bundle": "^8.6",
+        "friendsofphp/php-cs-fixer": "^3.95",
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan": "^2.2",
+        "phpstan/phpstan-doctrine": "^2.0",
+        "phpstan/phpstan-symfony": "^2.0",
         "phpunit/phpunit": "^11.5",
+        "rector/rector": "^2.4",
         "symfony/browser-kit": "^7.4",
         "symfony/css-selector": "^7.4",
+        "symfony/ldap": "^7.4",
         "symfony/maker-bundle": "^1.6"
     },
     "config": {
@@ -34,10 +55,11 @@
         "sort-packages": true,
         "allow-plugins": {
             "symfony/flex": true,
-            "symfony/runtime": true
+            "symfony/runtime": true,
+            "phpstan/extension-installer": true
         },
         "platform": {
-            "php": "8.2"
+            "php": "8.4"
         }
     },
     "autoload": {
@@ -60,7 +82,8 @@
     "scripts": {
         "auto-scripts": {
             "cache:clear": "symfony-cmd",
-            "assets:install %PUBLIC_DIR%": "symfony-cmd"
+            "assets:install %PUBLIC_DIR%": "symfony-cmd",
+            "importmap:install": "symfony-cmd"
         },
         "post-install-cmd": [
             "@auto-scripts"

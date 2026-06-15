@@ -1,4 +1,4 @@
-name: CI
+name: Package
 
 defaults:
   run:
@@ -16,13 +16,22 @@ jobs:
   build-and-package:
     runs-on: ubuntu-latest
     env:
-      PHP_VERSION: "8.2"
+      APP_ENV: prod
+      # Console commands at build time boot the kernel but never connect.
+      DATABASE_URL: "sqlite:////tmp/strichliste_build.db"
 
     steps:
       - name: Check out repository code
         uses: actions/checkout@v6
         with:
           path: build
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          # Matches the FrankenPHP image.
+          php-version: "8.5"
+          extensions: ctype, iconv, json, intl, pdo_sqlite, pdo_mysql, pdo_pgsql
+          coverage: none
 
       - name: Extract tag name
         id: tag
@@ -35,27 +44,21 @@ jobs:
           jq --arg v "$VERSION" '{version: $v} + .' composer.json > composer.json.tmp
           mv composer.json.tmp composer.json
 
-      - name: Sync composer.lock
-        uses: php-actions/composer@v6
-        with:
-          php_version: ${{ env.PHP_VERSION }}
-          command: update
-          args: --lock --no-install --no-scripts
-          working_dir: build
-          php_extensions: pdo_sqlite pdo_mysql
+      - name: Sync composer.lock with the injected version
+        run: composer update --lock --no-install --no-scripts --no-interaction
 
-      - name: Build
-        uses: php-actions/composer@v6
-        with:
-          php_version: ${{ env.PHP_VERSION }}
-          dev: no
-          args: --optimize-autoloader
-          working_dir: build
-          php_extensions: pdo_sqlite pdo_mysql
+      - name: Install production dependencies
+        run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+
+      - name: Download importmap vendors and compile assets
+        # assets/vendor/ is gitignored — the tarball must ship the JS vendors and the hashed public/assets/.
+        run: |
+          php bin/console importmap:install
+          php bin/console asset-map:compile
 
       - name: Package
         run: |
-          sudo rm -rf var/cache/*
+          sudo rm -rf var/cache/* var/log/* var/*.db
           tar -czf strichliste-backend-${{ steps.tag.outputs.SOURCE_TAG }}.tar.gz .env *
 
       - name: Create Release and Upload Artifact

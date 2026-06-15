@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ (active ? 'user.active.title' : 'user.inactive.title')|trans }} · Strichliste{% endblock %}
+
+{% block main %}
+    <h1 class="visually-hidden">{{ (active ? 'user.active.title' : 'user.inactive.title')|trans }}</h1>
+
+    {% if active %}
+        <a class="fab fab--floating" href="{{ path('users_create') }}" aria-label="{{ 'user.list.add_cta'|trans }}"
+            >+</a
+        >
+    {% endif %}
+    <div class="list-toolbar">
+        <nav class="tabs" aria-label="{{ 'user.list.filter_aria'|trans }}">
+            <a href="{{ path('users_active') }}" {% if active %}aria-current="page"{% endif %}
+                >{{ 'user.active.title'|trans }}</a
+            >
+            <a href="{{ path('users_inactive') }}" {% if not active %}aria-current="page"{% endif %}
+                >{{ 'user.inactive.title'|trans }}</a
+            >
+        </nav>
+    </div>
+
+    {% if users is empty %}
+        <twig:EmptyState title="{{ 'user.list.empty_title'|trans }}">
+            {{ (active ? 'user.list.empty_active' : 'user.list.empty_inactive')|trans }}
+        </twig:EmptyState>
+    {% else %}
+        <div class="user-grid">
+            {% for user in users %}
+                <twig:UserCard user="{{ user }}" />
+            {% endfor %}
+        </div>
+
+        <twig:Pagination
+            currentPage="{{ page }}"
+            totalPages="{{ totalPages }}"
+            baseUrl="{{ active ? path('users_active') : path('users_inactive') }}"
+        />
+    {% endif %}
+{% endblock %}

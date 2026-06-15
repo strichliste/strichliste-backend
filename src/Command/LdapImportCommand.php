@@ -11,20 +11,15 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Ldap\Adapter\ExtLdap;
 use Symfony\Component\Ldap\Ldap;
 
-class LdapImportCommand extends Command {
-
-    /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
-
-    function __construct(EntityManagerInterface $entityManager) {
+class LdapImportCommand extends Command
+{
+    public function __construct(private readonly EntityManagerInterface $entityManager)
+    {
         parent::__construct();
-
-        $this->entityManager = $entityManager;
     }
 
-    protected function configure() {
+    protected function configure(): void
+    {
         $this
             ->setName('app:ldapimport')
             ->setDescription('Imports users from LDAP')
@@ -40,12 +35,19 @@ class LdapImportCommand extends Command {
             ->addOption('update', null, InputOption::VALUE_OPTIONAL, 'Update mail address if user already exists', false);
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output): int {
+    protected function execute(InputInterface $input, OutputInterface $output): int
+    {
+        // symfony/ldap is optional and absent in --no-dev installs
+        if (!class_exists(Ldap::class)) {
+            $output->writeln('<error>symfony/ldap is not installed — run "composer require symfony/ldap" to use this command.</error>');
+
+            return Command::FAILURE;
+        }
 
         $ldapAdapter = new ExtLdap\Adapter([
             'host' => $input->getOption('host'),
-            'port' => (int)$input->getOption('port'),
-            'encryption' => $input->getOption('ssl')
+            'port' => (int) $input->getOption('port'),
+            'encryption' => $input->getOption('ssl'),
         ]);
 
         $ldap = new Ldap($ldapAdapter);
@@ -66,10 +68,10 @@ class LdapImportCommand extends Command {
         }
 
         $ldapQuery = $ldap->query($input->getOption('baseDn'), $query, [
-            'filter' => $fields
+            'filter' => $fields,
         ]);
 
-        foreach($ldapQuery->execute()->toArray() as $result) {
+        foreach ($ldapQuery->execute()->toArray() as $result) {
             $uid = $result->getAttribute($userField);
 
             if (!$uid) {
@@ -98,7 +100,6 @@ class LdapImportCommand extends Command {
             }
 
             if ($existingUser && $update) {
-
                 // Don't show message if nothing has changed
                 if ($existingUser->getEmail() == $user->getEmail()) {
                     continue;
@@ -113,7 +114,8 @@ class LdapImportCommand extends Command {
             $this->entityManager->flush();
         }
 
-        $output->writeln("Done!");
+        $output->writeln('Done!');
+
         return Command::SUCCESS;
     }
 }

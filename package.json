@@ -1,0 +1,14 @@
+{
+    "name": "strichliste-backend",
+    "private": true,
+    "scripts": {
+        "format": "prettier --write assets templates tests/e2e playwright.config.js",
+        "format:check": "prettier --check assets templates tests/e2e playwright.config.js"
+    },
+    "devDependencies": {
+        "@playwright/test": "^1.60.0",
+        "@zackad/prettier-plugin-twig": "^0.17.0",
+        "prettier": "^3.8.4",
+        "prettier-plugin-jinja-template": "^2.2.0"
+    }
+}

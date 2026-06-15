@@ -1,0 +1,14 @@
+{
+    "singleQuote": true,
+    "overrides": [
+        {
+            "files": "*.twig",
+            "options": {
+                "plugins": ["prettier-plugin-jinja-template"],
+                "parser": "jinja-template",
+                "tabWidth": 4,
+                "printWidth": 120
+            }
+        }
+    ]
+}

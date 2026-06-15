@@ -12,33 +12,29 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class ImportCommand extends Command {
-
-    /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
-
-    function __construct(EntityManagerInterface $entityManager) {
+class ImportCommand extends Command
+{
+    public function __construct(private readonly EntityManagerInterface $entityManager)
+    {
         parent::__construct();
         ini_set('memory_limit', '1024M');
-
-        $this->entityManager = $entityManager;
     }
 
-    protected function configure() {
+    protected function configure(): void
+    {
         $this
             ->setName('app:import')
             ->setDescription('Import strichliste1 database')
             ->addArgument('database', InputArgument::REQUIRED, 'SQLite database file from strichliste 1');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output): int {
+    protected function execute(InputInterface $input, OutputInterface $output): int
+    {
         $databaseFile = $input->getArgument('database');
 
         $config = new \Doctrine\DBAL\Configuration();
         $connection = DriverManager::getConnection([
-            'url' => sprintf('sqlite:///%s', $databaseFile)
+            'url' => sprintf('sqlite:///%s', $databaseFile),
         ], $config);
 
         $connection->connect();
@@ -51,13 +47,13 @@ class ImportCommand extends Command {
 
         try {
             $result = $connection->executeQuery('select id, name, mailAddress, createDate from users');
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             $result = $connection->executeQuery("select id, name, '' as mailAddress, createDate from users");
         }
 
         $userMapping = [];
         foreach ($result->iterateAssociative() as $user) {
-            $id = (int)$user['id'];
+            $id = (int) $user['id'];
             $name = $user['name'];
 
             // Just in case there is a dub from strichliste1, append id
@@ -84,18 +80,18 @@ class ImportCommand extends Command {
 
         try {
             $result = $connection->executeQuery('select t.userId, value, t.comment, t.createDate from transactions as t join users on users.id = t.userId');
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             $result = $connection->executeQuery("select t.userId, value, '' as comment, t.createDate from transactions as t join users on users.id = t.userId");
         }
 
         $count = 0;
         foreach ($result->iterateAssociative() as $transaction) {
-            $userId = (int)$transaction['userId'];
+            $userId = (int) $transaction['userId'];
             $user = $userMapping[$userId];
 
             $newTransaction = new Transaction();
             $newTransaction->setUser($user);
-            $newTransaction->setAmount((int)($transaction['value'] * 100));
+            $newTransaction->setAmount((int) ($transaction['value'] * 100));
             $newTransaction->setCreated(new \DateTime($transaction['createDate']));
 
             if ($transaction['comment']) {
@@ -106,13 +102,12 @@ class ImportCommand extends Command {
         }
 
         $entityManager->flush();
-        $output->writeln(sprintf("Imported %d transactions", $count));
+        $output->writeln(sprintf('Imported %d transactions', $count));
 
         /**
          * @var User $user
          */
         foreach ($userMapping as $user) {
-
             $result = $entityManager->createQueryBuilder()
                 ->select('SUM(t.amount) as amount, MAX(t.created) as latestTransaction')
                 ->from(Transaction::class, 't')

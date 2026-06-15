@@ -20,3 +20,22 @@ data.sqlite
 /phpunit.xml
 /.phpunit.cache/
 ###< phpunit/phpunit ###
+
+###> symfony/asset-mapper ###
+/public/assets/
+/assets/vendor/
+###< symfony/asset-mapper ###
+
+###> friendsofphp/php-cs-fixer ###
+/.php-cs-fixer.php
+/.php-cs-fixer.cache
+###< friendsofphp/php-cs-fixer ###
+
+###> prettier ###
+/node_modules/
+###< prettier ###
+
+###> playwright e2e ###
+/test-results/
+/playwright-report/
+###< playwright e2e ###

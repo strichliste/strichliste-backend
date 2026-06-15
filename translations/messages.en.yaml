@@ -1,0 +1,296 @@
+app:
+    brand: Strichliste
+    skip_link: Skip to main content
+
+common:
+    cancel: Cancel
+    close: Close
+
+balance:
+    # Screen-reader-only sign prefix announced before a balance amount.
+    positive: positive
+    negative: negative
+    zero: zero
+
+nav:
+    main: Main navigation
+    menu: Menu
+    articles: Article List
+    split_invoice: Split Invoice
+    metrics: Metrics
+    search:
+        input_label: Search
+        input_placeholder: Search
+        submit: Search
+
+
+user:
+    active:
+        title: Active users
+    inactive:
+        title: Inactive users
+    list:
+        empty_title: No users yet
+        empty_active: Create a new user to get started.
+        empty_inactive: No inactive users.
+        disabled_label: (disabled)
+        add_cta: Add user
+        filter_aria: User status filter
+    create:
+        title: Create user
+        name_label: Name
+        submit: Create user
+        cancel: Cancel
+        success: 'User "%name%" created.'
+        errors:
+            duplicate: A user with this name already exists.
+            invalid_name: Name contains invalid characters.
+    edit:
+        title: 'Edit %name%'
+        name_label: Name
+        email_label: Email address
+        disable_label: Disable this account
+        submit: Save changes
+        success: User updated.
+        disabled_success: '%name% disabled.'
+    detail:
+        recent_transactions: Recent transactions
+        no_transactions: No transactions yet.
+        view_all: All transactions
+        metrics: My metrics
+        disabled_banner: This user is disabled.
+        tabs_aria: User actions
+        tabs:
+            send: Send money
+            buy: Buy article
+            edit: Edit user
+            paypal: PayPal
+    buy:
+        scan:
+            input_label: Barcode
+            submit: Buy
+        picker:
+            empty: No active articles. Add one first.
+        search_label: Search for article or scan barcode
+        search_placeholder: search for article
+        results_label: matching articles
+        no_results_label: No matching articles
+        success: 'Bought %article%.'
+        errors:
+            unknown_barcode: 'No article with barcode "%barcode%".'
+
+transactions:
+    amount_label: Amount
+    comment_label: Comment (optional)
+    custom_amount: Custom amount
+    step_disabled_help: A button is disabled when it would push the balance past a configured boundary.
+    history:
+        title: 'Transactions · %name%'
+        empty: No transactions yet.
+        count_one: '%count% transaction'
+        count_other: '%count% transactions'
+    deposit:
+        title: Deposit
+        submit: Deposit
+    dispense:
+        title: Withdraw
+        submit: Withdraw
+    transfer:
+        recipient_label: Recipient
+        recipient_placeholder: Select recipient
+        notes_placeholder: Add notes to your transaction
+        submit: Send
+        # Screen-reader-only direction prefix on a transfer row.
+        direction_to: Sent to
+        direction_from: Received from
+    undo:
+        button_aria: 'Undo %amount% from %when%'
+    reverted_label: (reverted)
+    errors:
+        boundary: This transaction would cross a configured boundary.
+        invalid: The transaction is invalid.
+        not_deletable: This transaction can no longer be undone.
+        recipient_missing: Recipient was not found.
+        self_transfer: You cannot transfer to yourself.
+        recipient_disabled: Recipient is not available.
+        account_disabled: This account is disabled and cannot transact.
+        generic: Something went wrong.
+    flash:
+        deposit_success: Deposit confirmed.
+        dispense_success: Withdrawal confirmed.
+        transfer_success: 'Transferred to %recipient%.'
+        undo_success: Transaction reverted.
+
+pagination:
+    label: Pagination
+    previous: Previous
+    next: Next
+    page_of: 'Page %current% of %total%'
+
+
+
+metrics:
+    global:
+        title: Metrics
+        kpi:
+            balance: Balance
+            users: Users
+            transactions: Transactions
+        chart:
+            balance_heading: Balance
+            users_heading: Users
+            series:
+                charged: Charged
+                spent: Spent
+                net: Net
+                users: Users
+            balance_alt: 'Bar chart of money charged and spent per day, with a net balance line, over the period. Exact daily figures are in the data table below.'
+            users_alt: 'Bar chart of distinct active users per day over the period. Exact daily figures are in the data table below.'
+        top_articles:
+            heading: Top sellers (last 30 days)
+            empty: No purchases in this period.
+            col:
+                article: Article
+                count: Units sold
+                revenue: Revenue
+        table:
+            show_table: Show data as table
+            col:
+                date: Date
+                transactions: Tx
+                distinct_users: Users
+                charged: Charged
+                spent: Spent
+                balance: Net
+            footer:
+                total: Total
+    user:
+        title: 'Metrics · %name%'
+        note: Reverted transactions are not counted here.
+        card:
+            transactions: Transactions
+            articles: Articles purchased (distinct)
+            incoming: Incoming
+            outgoing: Outgoing
+        articles_table:
+            heading: Top 10 articles
+            empty: No articles bought yet.
+            col:
+                article: Article
+                count: Times bought
+                spent: Spent
+
+paypal:
+    tab:
+        title: PayPal
+        intro: Top up via PayPal. You will be redirected to PayPal to complete payment.
+        amount_label: Amount
+        fee_preview: 'A %fee%% PayPal fee will be added before payment.'
+        submit: Continue to PayPal
+        mode: 'PayPal mode: %mode%'
+    return:
+        success: 'Deposit of %amount% confirmed.'
+        error_body: We could not record the deposit. Please contact an operator.
+    cancel:
+        title: Payment cancelled
+        body: Your PayPal payment was cancelled. No money was charged.
+        try_again: Try again
+        back: 'Back to %name%'
+
+search:
+    heading: 'Search: %q%'
+    too_short: Enter at least 2 characters.
+    section:
+        users: Users
+        articles: Articles
+    no_results:
+        users: No users matched.
+        articles: No articles matched.
+
+split_invoice:
+    title: Split Invoice
+    help: The amount is split evenly between everyone listed; each share is booked as owed to the payer. The payer can be on the list too — their own share simply stays with them.
+    preview: '≈ %share% per person'
+    fields:
+        amount_placeholder: amount
+        comment_placeholder: comment
+        recipient_placeholder: select recipient
+        with: with
+        and: and
+    participants:
+        empty_slot: select participant
+        row_label: Participant
+        add: add participant
+        remove: Remove participant
+    submit: Submit
+    flash:
+        success: 'Split %total% with one participant.|Split %total% with %count% participants.'
+        rolled_back: No transfers created. Fix the highlighted rows and submit again.
+    errors:
+        recipient_missing: Pick a valid recipient.
+        only_payer: Add at least one person besides the payer.
+        no_participants: Pick at least one participant.
+        invalid_amount: Total amount must be positive.
+
+errors:
+    not_found_title: Page not found
+    not_found_body: The page you were looking for does not exist.
+    back_home: Back to the home page
+
+articles:
+    list:
+        title:
+            active: Active articles
+            inactive: Inactive articles
+        add_cta: Add article
+        empty: No articles yet.
+        empty_inactive: No inactive articles. Articles land here when they are archived or replaced by a price change.
+        filter_aria: Article status filter
+        filter:
+            all: All
+    fields:
+        name: Name
+        amount: Price
+        active: Active
+    create:
+        title: Create article
+        submit: Create article
+        success: Article created.
+    edit:
+        title: 'Edit %name%'
+        submit: Save changes
+        success: Article saved.
+        precursor_success: New article created; previous version archived.
+        precursor_warning_title: Price change creates a new article
+        precursor_warning_body: This article has been purchased before. Changing the price archives this article and creates a new one with the same barcodes and tags.
+        archive_cta: Archive article
+    delete:
+        confirm_title: Archive article?
+        confirm_body: 'Archive "%name%"? It will move to the Inactive list.'
+        success: Article archived.
+    barcodes:
+        heading: Barcodes
+        empty: No barcodes yet.
+        add_label: New barcode
+        add_submit: Add barcode
+        added: Barcode added.
+        removed: Barcode removed.
+        remove: 'Remove barcode %barcode%'
+        errors:
+            invalid: Barcode is empty or too long.
+            taken: 'Barcode is already assigned to %other%.'
+    tags:
+        heading: Tags
+        empty: No tags yet.
+        add_label: New tag
+        add_submit: Add tag
+        added: Tag added.
+        removed: Tag removed.
+        remove: 'Remove tag %tag%'
+        errors:
+            invalid: Tag is empty or too long.
+            already_attached: Tag is already attached.
+    errors:
+        not_found: Article not found.
+        inactive: This article is inactive.
+

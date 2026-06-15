@@ -1,0 +1,122 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'metrics.global.title'|trans }} · Strichliste{% endblock %}
+
+{% block main %}
+    <h1 class="visually-hidden">{{ 'metrics.global.title'|trans }}</h1>
+
+    <div class="kpi-row">
+        <div class="kpi">
+            <div class="kpi__label">{{ 'metrics.global.kpi.balance'|trans }}</div>
+            <div class="kpi__value {{ balance|balance_class }}">{{ balance|currency_format(signed=false) }}</div>
+        </div>
+        <div class="kpi">
+            <div class="kpi__label">{{ 'metrics.global.kpi.users'|trans }}</div>
+            <div class="kpi__value">{{ userCount }}</div>
+        </div>
+        <div class="kpi">
+            <div class="kpi__label">{{ 'metrics.global.kpi.transactions'|trans }}</div>
+            <div class="kpi__value">{{ transactionCount }}</div>
+        </div>
+    </div>
+
+    <section class="metrics-chart" aria-labelledby="metrics-chart-balance">
+        <h2 id="metrics-chart-balance">{{ 'metrics.global.chart.balance_heading'|trans }}</h2>
+        <div class="metrics-chart__canvas-wrap">
+            <canvas role="img" aria-label="{{ 'metrics.global.chart.balance_alt'|trans }}"
+                    data-controller="chart" data-chart-data-id-value="metrics-days-json"
+                    data-chart-currency-value="{{ setting('i18n.currency.symbol', '€') }}"
+                    data-chart-labels-value="{{ {
+                        charged: 'metrics.global.chart.series.charged'|trans,
+                        spent: 'metrics.global.chart.series.spent'|trans,
+                        net: 'metrics.global.chart.series.net'|trans,
+                    }|json_encode }}"></canvas>
+        </div>
+    </section>
+
+    <section class="metrics-chart" aria-labelledby="metrics-chart-users">
+        <h2 id="metrics-chart-users">{{ 'metrics.global.chart.users_heading'|trans }}</h2>
+        <div class="metrics-chart__canvas-wrap">
+            <canvas role="img" aria-label="{{ 'metrics.global.chart.users_alt'|trans }}"
+                    data-controller="chart" data-chart-data-id-value="metrics-days-json" data-chart-variant-value="users"
+                    data-chart-labels-value="{{ {users: 'metrics.global.chart.series.users'|trans}|json_encode }}"></canvas>
+        </div>
+    </section>
+
+    {# JSON_HEX_* keeps user-supplied text from breaking out of the <script> island #}
+    <script id="metrics-days-json" type="application/json">{{ days|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }}</script>
+
+    <section class="metrics-chart" aria-labelledby="metrics-top-articles">
+        <h2 id="metrics-top-articles">{{ 'metrics.global.top_articles.heading'|trans }}</h2>
+        {% if topArticles is empty %}
+            <twig:EmptyState>{{ 'metrics.global.top_articles.empty'|trans }}</twig:EmptyState>
+        {% else %}
+            <div class="table-scroll">
+            <table class="metrics-table">
+                <thead>
+                    <tr>
+                        <th>{{ 'metrics.global.top_articles.col.article'|trans }}</th>
+                        <th>{{ 'metrics.global.top_articles.col.count'|trans }}</th>
+                        <th>{{ 'metrics.global.top_articles.col.revenue'|trans }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in topArticles %}
+                        <tr>
+                            <td><a href="{{ path('articles_edit', {id: row.article.id}) }}">{{ row.article.name }}</a></td>
+                            <td>{{ row.cnt }}</td>
+                            <td>{{ row.amt|currency_format(signed=false) }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            </div>
+        {% endif %}
+    </section>
+
+    <details class="metrics-table-details" data-controller="disclosure">
+        <summary>{{ 'metrics.global.table.show_table'|trans }}</summary>
+    <div class="table-scroll">
+    <table class="metrics-table">
+        <thead>
+            <tr>
+                <th>{{ 'metrics.global.table.col.date'|trans }}</th>
+                <th>{{ 'metrics.global.table.col.transactions'|trans }}</th>
+                <th>{{ 'metrics.global.table.col.distinct_users'|trans }}</th>
+                <th>{{ 'metrics.global.table.col.charged'|trans }}</th>
+                <th>{{ 'metrics.global.table.col.spent'|trans }}</th>
+                <th>{{ 'metrics.global.table.col.balance'|trans }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% set totalTx = 0 %}
+            {% set totalCharged = 0 %}
+            {% set totalSpent = 0 %}
+            {% for d in days %}
+                {% set totalTx = totalTx + d.transactions %}
+                {% set totalCharged = totalCharged + d.charged %}
+                {% set totalSpent = totalSpent + d.spent %}
+                <tr>
+                    <td>{{ d.date }}</td>
+                    <td>{{ d.transactions }}</td>
+                    <td>{{ d.distinctUsers }}</td>
+                    <td>{{ d.charged|currency_format(signed=false) }}</td>
+                    <td>{{ d.spent|currency_format(signed=false) }}</td>
+                    <td>{{ d.balance|currency_format }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <th>{{ 'metrics.global.table.footer.total'|trans }}</th>
+                <th>{{ totalTx }}</th>
+                <th>—</th>
+                <th>{{ totalCharged|currency_format(signed=false) }}</th>
+                <th>{{ totalSpent|currency_format(signed=false) }}</th>
+                <th>—</th>
+            </tr>
+        </tfoot>
+    </table>
+    </div>
+    </details>
+{% endblock %}

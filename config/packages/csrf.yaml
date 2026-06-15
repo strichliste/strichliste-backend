@@ -1,0 +1,9 @@
+# Stateful CSRF — the stateless Symfony 7.3+ default needs JS to inject the token, which breaks no-JS forms.
+framework:
+    form:
+        csrf_protection:
+            enabled: true
+            field_attr: []
+    csrf_protection:
+        enabled: true
+        stateless_token_ids: []
