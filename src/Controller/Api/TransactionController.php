@@ -12,6 +12,7 @@ use App\Repository\TransactionRepository;
 use App\Serializer\TransactionSerializer;
 use App\Service\TransactionService;
 use Doctrine\ORM\EntityManagerInterface;
+use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,6 +26,20 @@ class TransactionController extends AbstractController
     }
 
     #[Route('/transaction', methods: ['GET'])]
+    #[OA\Get(
+        summary: 'List all transactions (oldest first)',
+        tags: ['transaction'],
+        parameters: [
+            new OA\Parameter(name: 'limit', in: 'query', required: false, schema: new OA\Schema(type: 'integer', default: 25)),
+            new OA\Parameter(name: 'offset', in: 'query', required: false, schema: new OA\Schema(type: 'integer')),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Transactions with total count.', content: new OA\JsonContent(properties: [
+                new OA\Property(property: 'count', type: 'integer'),
+                new OA\Property(property: 'transactions', type: 'array', items: new OA\Items(ref: '#/components/schemas/Transaction')),
+            ])),
+        ],
+    )]
     public function list(Request $request, TransactionRepository $transactionRepository): JsonResponse
     {
         $limit = $request->query->getInt('limit', 25);
@@ -40,6 +55,28 @@ class TransactionController extends AbstractController
     }
 
     #[Route('/user/{userId}/transaction', methods: ['POST'])]
+    #[OA\Post(
+        summary: 'Create a transaction',
+        description: 'Deposit/dispense (`amount`), article purchase (`articleId`, optional `quantity`) or transfer (`amount` + `recipientId`). Amounts are signed cents.',
+        tags: ['transaction'],
+        parameters: [
+            new OA\Parameter(name: 'userId', in: 'path', required: true, description: 'User id, or the exact user name.', schema: new OA\Schema(type: 'string')),
+        ],
+        requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(properties: [
+            new OA\Property(property: 'amount', type: 'integer', description: 'Signed amount in cents.'),
+            new OA\Property(property: 'quantity', type: 'integer'),
+            new OA\Property(property: 'comment', type: 'string', maxLength: 255),
+            new OA\Property(property: 'recipientId', type: 'integer'),
+            new OA\Property(property: 'articleId', type: 'integer'),
+        ])),
+        responses: [
+            new OA\Response(response: 200, description: 'The created transaction.', content: new OA\JsonContent(properties: [
+                new OA\Property(property: 'transaction', ref: '#/components/schemas/Transaction'),
+            ])),
+            new OA\Response(response: 400, ref: '#/components/responses/Error'),
+            new OA\Response(response: 404, ref: '#/components/responses/Error'),
+        ],
+    )]
     public function createUserTransactions(string $userId, Request $request, TransactionService $transactionService, EntityManagerInterface $entityManager): JsonResponse
     {
         $amount = $request->request->get('amount');
@@ -65,6 +102,22 @@ class TransactionController extends AbstractController
     }
 
     #[Route('/user/{userId}/transaction', methods: ['GET'])]
+    #[OA\Get(
+        summary: 'List a user\'s transactions (newest first)',
+        tags: ['transaction'],
+        parameters: [
+            new OA\Parameter(name: 'userId', in: 'path', required: true, description: 'User id, or the exact user name.', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'limit', in: 'query', required: false, schema: new OA\Schema(type: 'integer', default: 25)),
+            new OA\Parameter(name: 'offset', in: 'query', required: false, schema: new OA\Schema(type: 'integer')),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Transactions with total count.', content: new OA\JsonContent(properties: [
+                new OA\Property(property: 'count', type: 'integer'),
+                new OA\Property(property: 'transactions', type: 'array', items: new OA\Items(ref: '#/components/schemas/Transaction')),
+            ])),
+            new OA\Response(response: 404, ref: '#/components/responses/Error'),
+        ],
+    )]
     public function getUserTransactions(string $userId, Request $request, EntityManagerInterface $entityManager, TransactionRepository $transactionRepository): JsonResponse
     {
         $limit = $request->query->getInt('limit', 25);
@@ -85,6 +138,20 @@ class TransactionController extends AbstractController
     }
 
     #[Route('/user/{userId}/transaction/{transactionId}', methods: ['GET'])]
+    #[OA\Get(
+        summary: 'Get a single transaction',
+        tags: ['transaction'],
+        parameters: [
+            new OA\Parameter(name: 'userId', in: 'path', required: true, description: 'User id, or the exact user name.', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'transactionId', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'The transaction.', content: new OA\JsonContent(properties: [
+                new OA\Property(property: 'transaction', ref: '#/components/schemas/Transaction'),
+            ])),
+            new OA\Response(response: 404, ref: '#/components/responses/Error'),
+        ],
+    )]
     public function getUserTransaction(string $userId, string $transactionId, EntityManagerInterface $entityManager): JsonResponse
     {
         $user = $entityManager->getRepository(User::class)->find($userId);
@@ -103,6 +170,21 @@ class TransactionController extends AbstractController
     }
 
     #[Route('/user/{userId}/transaction/{transactionId}', methods: ['DELETE'])]
+    #[OA\Delete(
+        summary: 'Revert (undo) a transaction',
+        tags: ['transaction'],
+        parameters: [
+            new OA\Parameter(name: 'userId', in: 'path', required: true, description: 'User id, or the exact user name.', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'transactionId', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'The reverted transaction (isDeleted=true).', content: new OA\JsonContent(properties: [
+                new OA\Property(property: 'transaction', ref: '#/components/schemas/Transaction'),
+            ])),
+            new OA\Response(response: 400, ref: '#/components/responses/Error'),
+            new OA\Response(response: 404, ref: '#/components/responses/Error'),
+        ],
+    )]
     public function deleteTransaction(string $userId, string $transactionId, TransactionService $transactionService, EntityManagerInterface $entityManager): JsonResponse
     {
         $user = $entityManager->getRepository(User::class)->find($userId);
