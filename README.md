@@ -43,8 +43,13 @@ any recent Docker Desktop or `docker-ce` qualifies).
 ### Development
 
 ```
-docker compose up -d --build --wait
+make up
 ```
+
+(equivalent to `docker compose up -d --build --wait`, but with a generous
+first-boot timeout — the initial build downloads dependencies, which can
+outlast the default wait). No `make`? Run the `docker compose` line and
+add `--wait-timeout 300`.
 
 Open **`https://localhost`**. Caddy serves TLS out of the box using its
 local CA, so browsers (which try HTTPS first these days) connect
