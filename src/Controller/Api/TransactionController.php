@@ -2,12 +2,11 @@
 
 namespace App\Controller\Api;
 
-use App\ApiDoc\CreateTransactionRequest;
 use App\ApiDoc\Error as ErrorSchema;
 use App\ApiDoc\Transaction as TransactionSchema;
+use App\Dto\Api\CreateTransactionDto;
 use App\Entity\Transaction;
 use App\Entity\User;
-use App\Exception\ParameterInvalidException;
 use App\Exception\TransactionNotDeletableException;
 use App\Exception\TransactionNotFoundException;
 use App\Exception\UserNotFoundException;
@@ -20,6 +19,7 @@ use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api')]
@@ -67,35 +67,25 @@ class TransactionController extends AbstractController
             new OA\Parameter(name: 'userId', in: 'path', required: true, description: 'User id, or the exact user name.', schema: new OA\Schema(type: 'string')),
         ],
         requestBody: new OA\RequestBody(required: true, content: [
-            new OA\MediaType(mediaType: 'application/json', schema: new OA\Schema(ref: new Model(type: CreateTransactionRequest::class))),
-            new OA\MediaType(mediaType: 'application/x-www-form-urlencoded', schema: new OA\Schema(ref: new Model(type: CreateTransactionRequest::class))),
+            new OA\MediaType(mediaType: 'application/json', schema: new OA\Schema(ref: new Model(type: CreateTransactionDto::class))),
+            new OA\MediaType(mediaType: 'application/x-www-form-urlencoded', schema: new OA\Schema(ref: new Model(type: CreateTransactionDto::class))),
         ]),
         responses: [
             new OA\Response(response: 200, description: 'The created transaction.', content: new OA\JsonContent(properties: [
                 new OA\Property(property: 'transaction', ref: new Model(type: TransactionSchema::class)),
             ])),
-            new OA\Response(response: 400, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
+            new OA\Response(response: 422, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
             new OA\Response(response: 404, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
         ],
     )]
-    public function createUserTransactions(string $userId, Request $request, TransactionService $transactionService, EntityManagerInterface $entityManager): JsonResponse
+    public function createUserTransactions(string $userId, #[MapRequestPayload] CreateTransactionDto $dto, TransactionService $transactionService, EntityManagerInterface $entityManager): JsonResponse
     {
-        $amount = $request->request->get('amount');
-        $quantity = $request->request->get('quantity');
-        $comment = $request->request->get('comment');
-        $recipientId = $request->request->get('recipientId');
-        $articleId = $request->request->get('articleId');
-
-        if (mb_strlen($comment ?? '') > 255) {
-            throw new ParameterInvalidException('comment');
-        }
-
         $user = $entityManager->getRepository(User::class)->find($userId);
         if (!$user) {
             throw new UserNotFoundException($userId);
         }
 
-        $transaction = $transactionService->doTransaction($user, $amount, $comment, $quantity, $articleId, $recipientId);
+        $transaction = $transactionService->doTransaction($user, $dto->amount, $dto->comment, $dto->quantity, $dto->articleId, $dto->recipientId);
 
         return $this->json([
             'transaction' => $this->transactionSerializer->serialize($transaction),

@@ -14,7 +14,7 @@ class BarcodeControllerTest extends AbstractApplicationTestCase
         $articleId = $this->createArticleDb('Club Mate', 150);
 
         $this->client->request('POST', "/api/article/{$articleId}/barcode", ['barcode' => $barcode]);
-        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        $this->assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 
     public function testAddAndListBarcodeOnArticle(): void

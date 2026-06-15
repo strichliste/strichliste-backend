@@ -3,11 +3,10 @@
 namespace App\Controller\Api;
 
 use App\ApiDoc\Error as ErrorSchema;
-use App\ApiDoc\UpdateUserRequest;
 use App\ApiDoc\User as UserSchema;
 use App\Dto\Api\CreateUserDto;
+use App\Dto\Api\UpdateUserDto;
 use App\Entity\User;
-use App\Exception\ParameterInvalidException;
 use App\Exception\UserAlreadyExistsException;
 use App\Exception\UserNotFoundException;
 use App\Repository\UserRepository;
@@ -169,53 +168,39 @@ class UserController extends AbstractController
             new OA\Parameter(name: 'userId', in: 'path', required: true, description: 'User id, or the exact user name.', schema: new OA\Schema(type: 'string')),
         ],
         requestBody: new OA\RequestBody(required: true, content: [
-            new OA\MediaType(mediaType: 'application/json', schema: new OA\Schema(ref: new Model(type: UpdateUserRequest::class))),
-            new OA\MediaType(mediaType: 'application/x-www-form-urlencoded', schema: new OA\Schema(ref: new Model(type: UpdateUserRequest::class))),
+            new OA\MediaType(mediaType: 'application/json', schema: new OA\Schema(ref: new Model(type: UpdateUserDto::class))),
+            new OA\MediaType(mediaType: 'application/x-www-form-urlencoded', schema: new OA\Schema(ref: new Model(type: UpdateUserDto::class))),
         ]),
         responses: [
             new OA\Response(response: 200, description: 'The updated user.', content: new OA\JsonContent(properties: [
                 new OA\Property(property: 'user', ref: new Model(type: UserSchema::class)),
             ])),
-            new OA\Response(response: 400, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
+            new OA\Response(response: 422, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
             new OA\Response(response: 404, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
             new OA\Response(response: 409, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
         ],
     )]
-    public function updateUser(string $userId, Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager): JsonResponse
+    public function updateUser(string $userId, #[MapRequestPayload] UpdateUserDto $dto, UserRepository $userRepository, EntityManagerInterface $entityManager): JsonResponse
     {
         $user = $userRepository->findByIdentifier($userId);
         if (!$user) {
             throw new UserNotFoundException($userId);
         }
 
-        $name = $request->request->getString('name');
-        if (mb_strlen($name) > 64) {
-            throw new ParameterInvalidException('name');
-        }
-
-        if ($name) {
-            $name = User::sanitizeName($name);
-
-            if ($name !== $user->getName() && $userRepository->findByName($name)) {
-                throw new UserAlreadyExistsException($name);
+        if ($dto->name) {
+            if ($dto->name !== $user->getName() && $userRepository->findByName($dto->name)) {
+                throw new UserAlreadyExistsException($dto->name);
             }
 
-            $user->setName($name);
+            $user->setName($dto->name);
         }
 
-        $email = $request->request->getString('email');
-        if ($email) {
-            if (!filter_var($email, FILTER_VALIDATE_EMAIL) || mb_strlen($email) > 255) {
-                throw new ParameterInvalidException('email');
-            }
-
-            $user->setEmail($email);
+        if ($dto->email) {
+            $user->setEmail($dto->email);
         }
 
-        $isDisabled = $request->request->get('isDisabled');
-        if (null !== $isDisabled) {
-            // explicit: the string "false" must not coerce to true
-            $user->setDisabled(filter_var($isDisabled, FILTER_VALIDATE_BOOLEAN));
+        if (null !== $dto->isDisabled) {
+            $user->setDisabled($dto->isDisabled);
         }
 
         $entityManager->persist($user);

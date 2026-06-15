@@ -2,17 +2,16 @@
 
 namespace App\Controller\Api;
 
-use App\ApiDoc\AddBarcodeRequest;
 use App\ApiDoc\Article as ArticleSchema;
 use App\ApiDoc\Barcode as BarcodeSchema;
 use App\ApiDoc\Error as ErrorSchema;
+use App\Dto\Api\AddBarcodeDto;
 use App\Entity\Article;
 use App\Entity\Barcode;
 use App\Exception\ArticleBarcodeAlreadyExistsException;
 use App\Exception\ArticleInactiveException;
 use App\Exception\ArticleNotFoundException;
 use App\Exception\BarcodeNotFoundException;
-use App\Exception\ParameterInvalidException;
 use App\Repository\BarcodeRepository;
 use App\Serializer\ArticleSerializer;
 use App\Serializer\BarcodeSerializer;
@@ -21,7 +20,7 @@ use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api')]
@@ -122,25 +121,20 @@ class BarcodeController extends AbstractController
             new OA\Parameter(name: 'articleId', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
         ],
         requestBody: new OA\RequestBody(required: true, content: [
-            new OA\MediaType(mediaType: 'application/json', schema: new OA\Schema(ref: new Model(type: AddBarcodeRequest::class))),
-            new OA\MediaType(mediaType: 'application/x-www-form-urlencoded', schema: new OA\Schema(ref: new Model(type: AddBarcodeRequest::class))),
+            new OA\MediaType(mediaType: 'application/json', schema: new OA\Schema(ref: new Model(type: AddBarcodeDto::class))),
+            new OA\MediaType(mediaType: 'application/x-www-form-urlencoded', schema: new OA\Schema(ref: new Model(type: AddBarcodeDto::class))),
         ]),
         responses: [
             new OA\Response(response: 200, description: 'The article including the new barcode.', content: new OA\JsonContent(properties: [
                 new OA\Property(property: 'article', ref: new Model(type: ArticleSchema::class)),
             ])),
-            new OA\Response(response: 400, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
+            new OA\Response(response: 422, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
             new OA\Response(response: 404, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
             new OA\Response(response: 409, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
         ],
     )]
-    public function addArticleBarcode(int $articleId, Request $request, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager, BarcodeRepository $barcodeRepository): JsonResponse
+    public function addArticleBarcode(int $articleId, #[MapRequestPayload] AddBarcodeDto $dto, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager, BarcodeRepository $barcodeRepository): JsonResponse
     {
-        $barcode = trim($request->request->getString('barcode'));
-        if (!$barcode) {
-            throw new ParameterInvalidException('barcode');
-        }
-
         $article = $entityManager->getRepository(Article::class)->find($articleId);
         if (!$article) {
             throw new ArticleNotFoundException($articleId);
@@ -150,12 +144,12 @@ class BarcodeController extends AbstractController
             throw new ArticleInactiveException($article);
         }
 
-        $existingBarcode = $barcodeRepository->findByBarcode($barcode);
+        $existingBarcode = $barcodeRepository->findByBarcode($dto->barcode);
         if ($existingBarcode) {
             throw new ArticleBarcodeAlreadyExistsException($existingBarcode);
         }
 
-        $newBarcode = new Barcode($barcode);
+        $newBarcode = new Barcode($dto->barcode);
         $article->addBarcode($newBarcode);
 
         $entityManager->persist($article);

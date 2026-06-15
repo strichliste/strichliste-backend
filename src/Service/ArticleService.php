@@ -3,10 +3,8 @@
 namespace App\Service;
 
 use App\Entity\Article;
-use App\Exception\ParameterMissingException;
 use App\Repository\TransactionRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpFoundation\Request;
 
 class ArticleService
 {
@@ -64,34 +62,15 @@ class ArticleService
         });
     }
 
-    // request-bound adapter for the legacy REST controller
-    public function updateArticle(Request $request, Article $article): Article
-    {
-        $newArticle = $this->createArticleByRequest($request);
-
-        return $this->update($article, $newArticle->getName(), $newArticle->getAmount());
-    }
-
     /**
-     * @throws ParameterMissingException
+     * Build a new (unpersisted) article. Input is validated upstream by
+     * {@see \App\Dto\Api\WriteArticleDto}; `$amountCents` is raw integer cents.
      */
-    public function createArticleByRequest(Request $request): Article
+    public function create(string $name, int $amountCents): Article
     {
-        $name = $request->request->getString('name');
-        if (!$name) {
-            throw new ParameterMissingException('name');
-        }
-
-        // not getInt(): the legacy contract truncates float amounts, and missing/zero
-        // must answer ParameterMissingException, not InputBag's envelope-less 400
-        $amount = (int) $request->request->get('amount', 0);
-        if (!$amount) {
-            throw new ParameterMissingException('amount');
-        }
-
         $article = new Article();
-        $article->setName(trim($name));
-        $article->setAmount($amount);
+        $article->setName($name);
+        $article->setAmount($amountCents);
 
         return $article;
     }

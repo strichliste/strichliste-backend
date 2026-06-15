@@ -2,16 +2,15 @@
 
 namespace App\Controller\Api;
 
-use App\ApiDoc\AddTagRequest;
 use App\ApiDoc\Article as ArticleSchema;
 use App\ApiDoc\Error as ErrorSchema;
 use App\ApiDoc\Tag as TagSchema;
+use App\Dto\Api\AddTagDto;
 use App\Entity\Article;
 use App\Entity\ArticleTag;
 use App\Entity\Tag;
 use App\Exception\ArticleNotFoundException;
 use App\Exception\ArticleTagAlreadyExistsException;
-use App\Exception\ParameterInvalidException;
 use App\Exception\TagNotFoundException;
 use App\Repository\TagRepository;
 use App\Serializer\ArticleSerializer;
@@ -21,7 +20,7 @@ use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api')]
@@ -126,31 +125,26 @@ class TagController extends AbstractController
             new OA\Parameter(name: 'articleId', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
         ],
         requestBody: new OA\RequestBody(required: true, content: [
-            new OA\MediaType(mediaType: 'application/json', schema: new OA\Schema(ref: new Model(type: AddTagRequest::class))),
-            new OA\MediaType(mediaType: 'application/x-www-form-urlencoded', schema: new OA\Schema(ref: new Model(type: AddTagRequest::class))),
+            new OA\MediaType(mediaType: 'application/json', schema: new OA\Schema(ref: new Model(type: AddTagDto::class))),
+            new OA\MediaType(mediaType: 'application/x-www-form-urlencoded', schema: new OA\Schema(ref: new Model(type: AddTagDto::class))),
         ]),
         responses: [
             new OA\Response(response: 200, description: 'The article including the new tag.', content: new OA\JsonContent(properties: [
                 new OA\Property(property: 'article', ref: new Model(type: ArticleSchema::class)),
             ])),
-            new OA\Response(response: 400, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
+            new OA\Response(response: 422, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
             new OA\Response(response: 404, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
         ],
     )]
-    public function addArticleTag(int $articleId, Request $request, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager, TagRepository $tagRepository): JsonResponse
+    public function addArticleTag(int $articleId, #[MapRequestPayload] AddTagDto $dto, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager, TagRepository $tagRepository): JsonResponse
     {
-        $tag = trim($request->request->getString('tag'));
-        if (!$tag) {
-            throw new ParameterInvalidException('tag');
-        }
-
         $article = $entityManager->getRepository(Article::class)->find($articleId);
         if (!$article) {
             throw new ArticleNotFoundException($articleId);
         }
 
-        $newTag = new Tag($tag);
-        $existingTag = $tagRepository->findByTag($tag);
+        $newTag = new Tag($dto->tag);
+        $existingTag = $tagRepository->findByTag($dto->tag);
         if ($existingTag) {
             if ($article->hasTag($existingTag)) {
                 throw new ArticleTagAlreadyExistsException($article, $existingTag);
