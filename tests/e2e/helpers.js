@@ -19,3 +19,16 @@ export async function createUser(page, name) {
 export async function expectBalance(page, text) {
     await expect(page.locator('.user-hero__balance')).toContainText(text);
 }
+
+// drives a ux-autocomplete (Tom Select) recipient combobox: the native <select>
+// is hidden once enhanced, so selectOption() no longer applies — open the
+// control, type to filter, then click the matching option. `wrapper` is a
+// locator for the .ts-wrapper element.
+export async function pickRecipient(wrapper, optionLabel) {
+    await wrapper.locator('.ts-control').click();
+    await wrapper.locator('.ts-control input').fill(optionLabel);
+    await wrapper
+        .locator('.ts-dropdown .option', { hasText: optionLabel })
+        .first()
+        .click();
+}

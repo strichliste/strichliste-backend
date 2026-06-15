@@ -73,16 +73,11 @@
             {% endif %}
             <div class="recent-tx__footer">
                 <a href="{{ path('users_transactions', {id: user.id}) }}" class="user-detail-link">
-                    <svg class="user-detail-link__icon" viewBox="0 0 16 16" aria-hidden="true">
-                        <path fill="currentColor" d="M8 1l4 4-1 1-2-2v8H7V4L5 6 4 5z" />
-                        <path fill="currentColor" d="M8 15l-4-4 1-1 2 2V4h2v8l2-2 1 1z" />
-                    </svg>
+                    <twig:ux:icon name="history" class="user-detail-link__icon" aria-hidden="true" />
                     {{ 'user.detail.view_all'|trans }}
                 </a>
                 <a href="{{ path('metrics_user', {id: user.id}) }}" class="user-detail-link">
-                    <svg class="user-detail-link__icon" viewBox="0 0 16 16" aria-hidden="true">
-                        <path fill="currentColor" d="M2 14V2h2v12zM5 14V7h2v7zM8 14V4h2v10zM11 14V8h2v6z" />
-                    </svg>
+                    <twig:ux:icon name="chart" class="user-detail-link__icon" aria-hidden="true" />
                     {{ 'user.detail.metrics'|trans }}
                 </a>
             </div>

@@ -1,0 +1,15 @@
+# Full configuration reference: https://symfony.com/bundles/ux-icons/current/index.html#configuration
+ux_icons:
+
+    # No default_icon_attributes: the project's icon files are authoritative
+    # (they carry their own fill/stroke), and sizing is done entirely in CSS.
+    # Injecting defaults here would override the files' own root attributes.
+    default_icon_attributes: []
+
+    # Throw an exception if an icon is not found
+    ignore_not_found: false
+
+when@prod:
+    ux_icons:
+        # Suppress exceptions for missing icons in production
+        ignore_not_found: true
