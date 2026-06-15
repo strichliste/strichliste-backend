@@ -23,3 +23,14 @@ nelmio_api_doc:
                 Errors use a uniform envelope:
                 `{"error": {"class": "...", "code": 4xx, "message": "..."}}`.
             version: '1.8'
+        # Tag descriptions for Swagger-UI grouping. The tags themselves are
+        # declared per-operation via the controllers' #[OA\*] attributes;
+        # these entries only attach human-readable descriptions by name.
+        tags:
+            - { name: user, description: 'User accounts and their balances.' }
+            - { name: transaction, description: 'Deposits, dispenses, article purchases and transfers.' }
+            - { name: article, description: 'Purchasable articles and their revisions.' }
+            - { name: barcode, description: 'Barcodes attached to articles.' }
+            - { name: tag, description: 'Tags attached to articles.' }
+            - { name: settings, description: 'Server configuration exposed to clients.' }
+            - { name: metrics, description: 'Global and per-user aggregate statistics.' }
