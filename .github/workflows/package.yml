@@ -59,7 +59,26 @@ jobs:
       - name: Package
         run: |
           sudo rm -rf var/cache/* var/log/* var/*.db
-          tar -czf strichliste-backend-${{ steps.tag.outputs.SOURCE_TAG }}.tar.gz .env *
+          # The committed .env carries APP_ENV=dev and a publicly-known dev
+          # APP_SECRET — neither belongs in a release. Ship a prod .env with the
+          # secret blanked so the operator must set their own (see the install docs).
+          sed -i 's/^APP_ENV=.*/APP_ENV=prod/' .env
+          sed -i 's/^APP_SECRET=.*/APP_SECRET=/' .env
+          # The leading `*` is shell-globbed and already skips dotfiles (.git,
+          # .env.test, the cs-fixer/phpunit caches); .env is added back explicitly.
+          # Exclude the dev/test tooling that has no place in a deployable tarball.
+          tar -czf strichliste-backend-${{ steps.tag.outputs.SOURCE_TAG }}.tar.gz \
+            --exclude=tests \
+            --exclude=node_modules \
+            --exclude=test-results \
+            --exclude=playwright-report \
+            --exclude=playwright.config.js \
+            --exclude=package.json \
+            --exclude=package-lock.json \
+            --exclude=phpunit.dist.xml \
+            --exclude=phpstan.dist.neon \
+            --exclude=rector.php \
+            .env *
 
       - name: Create Release and Upload Artifact
         uses: softprops/action-gh-release@v3
