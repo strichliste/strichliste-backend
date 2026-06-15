@@ -5,6 +5,7 @@ namespace App\Command;
 use App\Entity\Article;
 use App\Entity\Transaction;
 use App\Entity\User;
+use App\Service\MoneyParser;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
@@ -91,7 +92,8 @@ class ImportCommand extends Command
 
             $newTransaction = new Transaction();
             $newTransaction->setUser($user);
-            $newTransaction->setAmount((int) ($transaction['value'] * 100));
+            // round() dodges 1.50 * 100 = 149 float-truncation artifacts (see MoneyParser)
+            $newTransaction->setAmount(MoneyParser::majorToCents((float) $transaction['value']));
             $newTransaction->setCreated(new \DateTime($transaction['createDate']));
 
             if ($transaction['comment']) {
@@ -99,6 +101,7 @@ class ImportCommand extends Command
             }
 
             $entityManager->persist($newTransaction);
+            ++$count;
         }
 
         $entityManager->flush();
