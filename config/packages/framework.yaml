@@ -11,6 +11,12 @@ framework:
     session:
         handler_id: ~
 
+    # Required by #[MapRequestPayload]/#[MapQueryString] to deserialize request
+    # input into the App\Dto\Api\* DTOs. Responses still use the hand-rolled
+    # src/Serializer/* projections, not this serializer.
+    serializer:
+        enabled: true
+
     #esi: true
     #fragments: true
     php_errors:

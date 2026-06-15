@@ -182,10 +182,13 @@ application itself:
 - **`/api/doc.json`** — the raw OpenAPI document, ready for code
   generators or Postman/Insomnia import.
 
-The spec is hand-maintained in `config/packages/nelmio_api_doc.yaml`
-(deliberately not generated from code, so the frozen contract can't
-drift by accident). A prose version with more request/response
-examples lives in `docs/API.md`.
+The spec is hand-maintained as `#[OA\*]` attributes on the
+`src/Controller/Api/*` actions, with the reusable schema components in
+`src/ApiDoc/*` and the document-level `info` in
+`config/packages/nelmio_api_doc.yaml`. It is deliberately hand-written
+(not introspected from the serializers), so the frozen contract is
+described explicitly and can't drift by accident. A prose version with
+more request/response examples lives in `docs/API.md`.
 
 ### Code map
 

@@ -19,7 +19,8 @@ class ApiDocTest extends AbstractApplicationTestCase
                 array_flip(['get', 'post', 'put', 'delete', 'patch'])
             ));
         }
-        // 29 = every /api route; update nelmio_api_doc.yaml when endpoints change.
+        // 29 = every /api route; update the #[OA\*] attributes on the matching
+        // src/Controller/Api/* action when endpoints change.
         $this->assertSame(29, $operations);
 
         foreach (['User', 'Article', 'Transaction', 'Error'] as $schema) {

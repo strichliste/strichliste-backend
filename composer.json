@@ -24,6 +24,7 @@
         "symfony/framework-bundle": "^7.4",
         "symfony/runtime": "^7.4",
         "symfony/security-csrf": "^7.4",
+        "symfony/serializer": "^7.4",
         "symfony/stimulus-bundle": "^2.35",
         "symfony/translation": "^7.4",
         "symfony/twig-bundle": "^7.4",
