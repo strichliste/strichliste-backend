@@ -127,9 +127,10 @@ class BarcodeController extends AbstractController
             new OA\Response(response: 200, description: 'The article including the new barcode.', content: new OA\JsonContent(properties: [
                 new OA\Property(property: 'article', ref: new Model(type: ArticleSchema::class)),
             ])),
-            new OA\Response(response: 422, ref: '#/components/responses/Error'),
+            new OA\Response(response: 400, ref: '#/components/responses/Error'),
             new OA\Response(response: 404, ref: '#/components/responses/Error'),
             new OA\Response(response: 409, ref: '#/components/responses/Error'),
+            new OA\Response(response: 422, ref: '#/components/responses/Error'),
         ],
     )]
     public function addArticleBarcode(int $articleId, #[MapRequestPayload] AddBarcodeDto $dto, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager, BarcodeRepository $barcodeRepository): JsonResponse

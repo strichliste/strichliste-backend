@@ -239,8 +239,9 @@ class ArticleController extends AbstractController
             new OA\Response(response: 200, description: 'The new active revision.', content: new OA\JsonContent(properties: [
                 new OA\Property(property: 'article', ref: new Model(type: ArticleSchema::class)),
             ])),
-            new OA\Response(response: 422, ref: '#/components/responses/Error'),
+            new OA\Response(response: 400, ref: '#/components/responses/Error'),
             new OA\Response(response: 404, ref: '#/components/responses/Error'),
+            new OA\Response(response: 422, ref: '#/components/responses/Error'),
         ],
     )]
     public function updateArticle(string $articleId, #[MapRequestPayload] WriteArticleDto $dto, ArticleService $articleService, EntityManagerInterface $entityManager): JsonResponse

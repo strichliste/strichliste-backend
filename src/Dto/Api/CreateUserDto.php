@@ -18,7 +18,7 @@ final class CreateUserDto
 {
     #[Assert\NotBlank]
     #[Assert\Length(max: 64)]
-    public ?string $name;
+    public string $name;
 
     #[Assert\Email]
     #[Assert\Length(max: 255)]
@@ -27,7 +27,8 @@ final class CreateUserDto
 
     public function __construct(?string $name = null, ?string $email = null)
     {
-        $this->name = null === $name ? null : User::sanitizeName($name);
+        // missing -> '' so NotBlank reports it as a clean validation failure
+        $this->name = User::sanitizeName($name ?? '');
         $this->email = null === $email ? null : trim($email);
     }
 }

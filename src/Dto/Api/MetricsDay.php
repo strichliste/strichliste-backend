@@ -10,7 +10,10 @@ use OpenApi\Attributes as OA;
  * Documentation-only: mirrors the per-day rows produced by
  * {@see \App\Service\MetricsService::transactionsPerDay()}.
  */
-#[OA\Schema(description: 'Daily aggregate. On days WITHOUT transactions, `charged` and `spent` are the integer 0; on days with activity they are {amount, transactions} objects (legacy quirk).')]
+#[OA\Schema(
+    description: 'Daily aggregate. On days WITHOUT transactions, `charged` and `spent` are the integer 0; on days with activity they are {amount, transactions} objects (legacy quirk).',
+    required: ['date', 'transactions', 'distinctUsers', 'balance', 'charged', 'spent'],
+)]
 final class MetricsDay
 {
     public function __construct(
@@ -20,7 +23,9 @@ final class MetricsDay
         public int $distinctUsers,
         #[OA\Property(description: 'Net amount of the day in cents.')]
         public int $balance,
-        #[OA\Property(oneOf: [
+        // mixed (int-0 or {amount,transactions}); nullable:false stops the
+        // `mixed` PHP type from leaking a spurious `nullable: true`.
+        #[OA\Property(nullable: false, oneOf: [
             new OA\Schema(type: 'integer', enum: [0]),
             new OA\Schema(type: 'object', properties: [
                 new OA\Property(property: 'amount', type: 'integer'),
@@ -28,7 +33,7 @@ final class MetricsDay
             ]),
         ])]
         public mixed $charged,
-        #[OA\Property(oneOf: [
+        #[OA\Property(nullable: false, oneOf: [
             new OA\Schema(type: 'integer', enum: [0]),
             new OA\Schema(type: 'object', properties: [
                 new OA\Property(property: 'amount', type: 'integer'),

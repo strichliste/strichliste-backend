@@ -2,20 +2,18 @@
 
 namespace App\Dto\Api;
 
-use OpenApi\Attributes as OA;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Request payload for POST /api/article/{articleId}/barcode.
  */
-#[OA\Schema(required: ['barcode'])]
 final class AddBarcodeDto
 {
     #[Assert\NotBlank]
-    public ?string $barcode;
+    public string $barcode;
 
-    public function __construct(?string $barcode = null)
+    public function __construct(string $barcode)
     {
-        $this->barcode = null === $barcode ? null : trim($barcode);
+        $this->barcode = trim($barcode);
     }
 }

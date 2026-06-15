@@ -15,15 +15,15 @@ use Symfony\Component\Validator\Constraints as Assert;
 final class WriteArticleDto
 {
     #[Assert\NotBlank]
-    public ?string $name;
+    public string $name;
 
-    public function __construct(
-        ?string $name = null,
-        #[Assert\NotBlank]
-        #[Assert\NotEqualTo(0)]
-        #[OA\Property(description: 'Price in cents.')]
-        public ?int $amount = null,
-    ) {
-        $this->name = null === $name ? null : trim($name);
+    #[Assert\NotEqualTo(0)]
+    #[OA\Property(description: 'Price in cents.')]
+    public int $amount;
+
+    public function __construct(string $name = '', int $amount = 0)
+    {
+        $this->name = trim($name);
+        $this->amount = $amount;
     }
 }

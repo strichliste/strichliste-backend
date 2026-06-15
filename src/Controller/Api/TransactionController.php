@@ -73,8 +73,9 @@ class TransactionController extends AbstractController
             new OA\Response(response: 200, description: 'The created transaction.', content: new OA\JsonContent(properties: [
                 new OA\Property(property: 'transaction', ref: new Model(type: TransactionSchema::class)),
             ])),
-            new OA\Response(response: 422, ref: '#/components/responses/Error'),
+            new OA\Response(response: 400, ref: '#/components/responses/Error'),
             new OA\Response(response: 404, ref: '#/components/responses/Error'),
+            new OA\Response(response: 422, ref: '#/components/responses/Error'),
         ],
     )]
     public function createUserTransactions(string $userId, #[MapRequestPayload] CreateTransactionDto $dto, TransactionService $transactionService, EntityManagerInterface $entityManager): JsonResponse
