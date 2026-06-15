@@ -6,6 +6,7 @@ use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Service\MoneyParser;
 use App\Service\SettingsService;
+use App\Service\SplitCalculator;
 use App\Service\TransactionService;
 use App\Twig\AppExtension;
 use Psr\Log\LoggerInterface;
@@ -26,6 +27,7 @@ class SplitInvoiceController extends AbstractController
         private readonly MoneyParser $moneyParser,
         private readonly AppExtension $appExtension,
         private readonly LoggerInterface $logger,
+        private readonly SplitCalculator $splitCalculator,
     ) {
     }
 
@@ -109,7 +111,7 @@ class SplitInvoiceController extends AbstractController
         $debtors = [];
         $debtorAmounts = [];
         if ($recipient) {
-            $shares = $this->distributeAmount($amountCents ?? 0, max(1, count($cleanParticipants)));
+            $shares = $this->splitCalculator->distribute($amountCents ?? 0, max(1, count($cleanParticipants)));
             $i = 0;
             foreach ($cleanParticipants as $participant) {
                 if ($participant->getId() !== $recipient->getId()) {
@@ -164,22 +166,5 @@ class SplitInvoiceController extends AbstractController
         }
 
         return $clean;
-    }
-
-    /**
-     * The remainder goes to the first rows so the total stays exact: 1001/3 → [334, 334, 333].
-     *
-     * @return int[]
-     */
-    private function distributeAmount(int $totalCents, int $count): array
-    {
-        $base = intdiv($totalCents, $count);
-        $remainder = $totalCents - $base * $count;
-        $amounts = array_fill(0, $count, $base);
-        for ($i = 0; $i < $remainder; ++$i) {
-            ++$amounts[$i];
-        }
-
-        return $amounts;
     }
 }

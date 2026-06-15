@@ -13,11 +13,20 @@ document.addEventListener('submit', (e) => {
     });
 });
 
-// Turbo snapshots the page before navigating; without this reset a
-// back/forward restore would bring the buttons back disabled.
-document.addEventListener('turbo:before-cache', () => {
+const reEnable = () => {
     document.querySelectorAll('[aria-busy="true"]').forEach((b) => {
         b.disabled = false;
         b.removeAttribute('aria-busy');
     });
-});
+};
+
+// Turbo snapshots the page before navigating; without this reset a
+// back/forward restore would bring the buttons back disabled.
+document.addEventListener('turbo:before-cache', reEnable);
+
+// On the happy path (PRG redirect) the navigation replaces the page anyway,
+// but a failed submit — validation 422, or a network drop on an offline
+// kiosk — would otherwise leave the buttons disabled forever. Re-enable
+// once the submit settles, and on a fetch-layer error.
+document.addEventListener('turbo:submit-end', reEnable);
+document.addEventListener('turbo:fetch-request-error', reEnable);

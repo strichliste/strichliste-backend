@@ -7,6 +7,7 @@
         {# uppercased via CSS, not in the text — kinder to screen readers and non-ASCII locales #}
         <h1 class="article-form__subhead">{{ 'articles.create.title'|trans }}</h1>
         {{ form_start(form) }}
+        {{ form_errors(form) }}
         {{ form_row(form.name) }}
         {{ form_row(form.amount) }}
         <div class="form-actions form-actions--circles">

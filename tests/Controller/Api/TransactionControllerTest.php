@@ -2,6 +2,9 @@
 
 namespace App\Tests\Controller\Api;
 
+use App\Entity\Transaction;
+use Doctrine\ORM\EntityManagerInterface;
+
 class TransactionControllerTest extends AbstractApplicationTestCase
 {
     private int $userId;
@@ -73,6 +76,95 @@ class TransactionControllerTest extends AbstractApplicationTestCase
 
         $this->assertUserBalance($this->userId, 0);
         $this->assertUserBalance($recipientId, 0);
+    }
+
+    public function testCannotDeleteAnotherUsersTransaction(): void
+    {
+        $malloryId = $this->createUserDb('Mallory');
+
+        $payout = $this->requestJson('POST', "/api/user/{$this->userId}/transaction", [
+            'amount' => -500,
+        ], 'transaction');
+
+        // Mallory tries to revert Alice's transaction through her own {userId} scope.
+        $this->client->request('DELETE', "/api/user/{$malloryId}/transaction/{$payout['id']}");
+        $this->assertResponseStatusCodeSame(404);
+
+        $body = json_decode($this->client->getResponse()->getContent(), true);
+        $this->assertSame(\App\Exception\TransactionNotFoundException::class, $body['error']['class']);
+
+        // Alice's transaction (and balance) must be untouched.
+        $this->assertUserBalance($this->userId, -500);
+    }
+
+    public function testDeleteWithUnknownUserReturns404(): void
+    {
+        $payout = $this->requestJson('POST', "/api/user/{$this->userId}/transaction", [
+            'amount' => -500,
+        ], 'transaction');
+
+        $this->client->request('DELETE', "/api/user/999999/transaction/{$payout['id']}");
+        $this->assertResponseStatusCodeSame(404);
+
+        $body = json_decode($this->client->getResponse()->getContent(), true);
+        $this->assertSame(\App\Exception\UserNotFoundException::class, $body['error']['class']);
+
+        $this->assertUserBalance($this->userId, -500);
+    }
+
+    public function testDeleteUnknownTransactionReturns404(): void
+    {
+        $this->client->request('DELETE', "/api/user/{$this->userId}/transaction/999999");
+        $this->assertResponseStatusCodeSame(404);
+
+        $body = json_decode($this->client->getResponse()->getContent(), true);
+        $this->assertSame(\App\Exception\TransactionNotFoundException::class, $body['error']['class']);
+    }
+
+    public function testCannotDeleteTransactionPastUndoTimeout(): void
+    {
+        $payout = $this->requestJson('POST', "/api/user/{$this->userId}/transaction", [
+            'amount' => -500,
+        ], 'transaction');
+
+        // age the transaction beyond the configured undo timeout (payment.undo.timeout = 5 minute)
+        $em = static::getContainer()->get(EntityManagerInterface::class);
+        $transaction = $em->getRepository(Transaction::class)->find($payout['id']);
+        $transaction->setCreated(new \DateTime('-1 hour'));
+        $em->flush();
+
+        $this->client->request('DELETE', "/api/user/{$this->userId}/transaction/{$payout['id']}");
+        $this->assertResponseStatusCodeSame(400);
+
+        $body = json_decode($this->client->getResponse()->getContent(), true);
+        $this->assertSame(\App\Exception\TransactionNotDeletableException::class, $body['error']['class']);
+
+        // the stale transaction was not reverted, so the balance is unchanged
+        $this->assertUserBalance($this->userId, -500);
+    }
+
+    public function testCannotUndoAnAlreadyUndoneTransaction(): void
+    {
+        $payout = $this->requestJson('POST', "/api/user/{$this->userId}/transaction", [
+            'amount' => -500,
+        ], 'transaction');
+
+        // first undo succeeds and restores the balance
+        $this->requestJson(
+            'DELETE',
+            "/api/user/{$this->userId}/transaction/{$payout['id']}",
+            unpackKey: 'transaction',
+        );
+        $this->assertUserBalance($this->userId, 0);
+
+        // a second undo of the same (now deleted) transaction is rejected and does not double-credit
+        $this->client->request('DELETE', "/api/user/{$this->userId}/transaction/{$payout['id']}");
+        $this->assertResponseStatusCodeSame(400);
+
+        $body = json_decode($this->client->getResponse()->getContent(), true);
+        $this->assertSame(\App\Exception\TransactionNotDeletableException::class, $body['error']['class']);
+
+        $this->assertUserBalance($this->userId, 0);
     }
 
     public function testGlobalListKeepsLegacyOldestFirstOrder(): void

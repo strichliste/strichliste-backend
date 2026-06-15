@@ -5,6 +5,7 @@ namespace App\Controller\Api;
 use App\Entity\Transaction;
 use App\Entity\User;
 use App\Exception\ParameterInvalidException;
+use App\Exception\TransactionNotDeletableException;
 use App\Exception\TransactionNotFoundException;
 use App\Exception\UserNotFoundException;
 use App\Repository\TransactionRepository;
@@ -102,12 +103,33 @@ class TransactionController extends AbstractController
     }
 
     #[Route('/user/{userId}/transaction/{transactionId}', methods: ['DELETE'])]
-    public function deleteTransaction(string $userId, string $transactionId, TransactionService $transactionService): JsonResponse
+    public function deleteTransaction(string $userId, string $transactionId, TransactionService $transactionService, EntityManagerInterface $entityManager): JsonResponse
     {
-        $transaction = $transactionService->revertTransaction((int) $transactionId);
+        $user = $entityManager->getRepository(User::class)->find($userId);
+        if (!$user) {
+            throw new UserNotFoundException($userId);
+        }
+
+        // the {userId} segment alone authorizes nothing — the transaction must belong to this
+        // user, otherwise any client could revert any transaction by id (mirrors the UI undo
+        // guard in TransactionWriteController). A mismatch is reported as not-found, not 403,
+        // to stay inside the frozen error envelope and not disclose other users' transactions.
+        $transaction = $entityManager->getRepository(Transaction::class)->find($transactionId);
+        if (!$transaction || $transaction->getUser()->getId() !== $user->getId()) {
+            throw new TransactionNotFoundException($transactionId);
+        }
+
+        // honor the configured undo policy (payment.undo.enabled / timeout) on the API path too,
+        // mirroring the UI undo guard — otherwise a client can revert transactions the policy
+        // means to be final (undo disabled, or older than the undo window).
+        if (!$transactionService->isDeletable($transaction)) {
+            throw new TransactionNotDeletableException($transaction);
+        }
+
+        $reverted = $transactionService->revertTransaction((int) $transactionId);
 
         return $this->json([
-            'transaction' => $this->transactionSerializer->serialize($transaction),
+            'transaction' => $this->transactionSerializer->serialize($reverted),
         ]);
     }
 }

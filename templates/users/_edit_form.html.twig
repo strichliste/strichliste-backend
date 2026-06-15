@@ -1,5 +1,6 @@
 <div class="edit-form form-card">
     {{ form_start(form, {action: path('users_edit', {id: user.id}), attr: {novalidate: 'novalidate' }}) }}
+    {{ form_errors(form) }}
     {{ form_row(form.name) }}
     {{ form_row(form.email) }}
     <div class="edit-form__checkbox-row">
