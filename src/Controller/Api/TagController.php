@@ -2,8 +2,8 @@
 
 namespace App\Controller\Api;
 
-use App\ApiDoc\Article as ArticleSchema;
 use App\ApiDoc\AddTagRequest;
+use App\ApiDoc\Article as ArticleSchema;
 use App\ApiDoc\Error as ErrorSchema;
 use App\ApiDoc\Tag as TagSchema;
 use App\Entity\Article;

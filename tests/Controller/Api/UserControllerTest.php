@@ -17,6 +17,25 @@ class UserControllerTest extends AbstractApplicationTestCase
         $this->assertArrayHasKey('id', $data['user']);
     }
 
+    public function testCreateUserAcceptsJsonBody(): void
+    {
+        // legacy clients (Android/kiosk) send JSON; #[MapRequestPayload] must
+        // accept it as well as the form-encoded bodies the other tests use.
+        $this->client->request(
+            'POST',
+            '/api/user',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode(['name' => 'JsonUser', 'email' => 'json@example.com']),
+        );
+
+        $this->assertResponseIsSuccessful();
+        $data = json_decode($this->client->getResponse()->getContent(), true);
+        $this->assertSame('JsonUser', $data['user']['name']);
+        $this->assertSame('json@example.com', $data['user']['email']);
+    }
+
     public function testSearchFindsUserByPartialName(): void
     {
         $this->requestJson('POST', '/api/user', ['name' => 'searchme']);

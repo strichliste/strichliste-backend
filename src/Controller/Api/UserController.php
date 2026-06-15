@@ -2,13 +2,12 @@
 
 namespace App\Controller\Api;
 
-use App\ApiDoc\CreateUserRequest;
 use App\ApiDoc\Error as ErrorSchema;
 use App\ApiDoc\UpdateUserRequest;
 use App\ApiDoc\User as UserSchema;
+use App\Dto\Api\CreateUserDto;
 use App\Entity\User;
 use App\Exception\ParameterInvalidException;
-use App\Exception\ParameterMissingException;
 use App\Exception\UserAlreadyExistsException;
 use App\Exception\UserNotFoundException;
 use App\Repository\UserRepository;
@@ -20,6 +19,7 @@ use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api/user')]
@@ -68,44 +68,28 @@ class UserController extends AbstractController
         summary: 'Create a user',
         tags: ['user'],
         requestBody: new OA\RequestBody(required: true, content: [
-            new OA\MediaType(mediaType: 'application/json', schema: new OA\Schema(ref: new Model(type: CreateUserRequest::class))),
-            new OA\MediaType(mediaType: 'application/x-www-form-urlencoded', schema: new OA\Schema(ref: new Model(type: CreateUserRequest::class))),
+            new OA\MediaType(mediaType: 'application/json', schema: new OA\Schema(ref: new Model(type: CreateUserDto::class))),
+            new OA\MediaType(mediaType: 'application/x-www-form-urlencoded', schema: new OA\Schema(ref: new Model(type: CreateUserDto::class))),
         ]),
         responses: [
             new OA\Response(response: 200, description: 'The created user.', content: new OA\JsonContent(properties: [
                 new OA\Property(property: 'user', ref: new Model(type: UserSchema::class)),
             ])),
-            new OA\Response(response: 400, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
+            new OA\Response(response: 422, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
             new OA\Response(response: 409, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
         ],
     )]
-    public function createUser(Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager): JsonResponse
+    public function createUser(#[MapRequestPayload] CreateUserDto $dto, UserRepository $userRepository, EntityManagerInterface $entityManager): JsonResponse
     {
-        $name = $request->request->getString('name');
-        if (!$name) {
-            throw new ParameterMissingException('name');
-        }
-
-        $name = User::sanitizeName($name);
-
-        if (!$name || mb_strlen($name) > 64) {
-            throw new ParameterInvalidException('name');
-        }
-
-        if ($userRepository->findByName($name)) {
-            throw new UserAlreadyExistsException($name);
+        if ($userRepository->findByName($dto->name)) {
+            throw new UserAlreadyExistsException($dto->name);
         }
 
         $user = new User();
-        $user->setName($name);
+        $user->setName($dto->name);
 
-        $email = $request->request->getString('email');
-        if ($email) {
-            if (!filter_var($email, FILTER_VALIDATE_EMAIL) || mb_strlen($email) > 255) {
-                throw new ParameterInvalidException('email');
-            }
-
-            $user->setEmail(trim($email));
+        if ($dto->email) {
+            $user->setEmail($dto->email);
         }
 
         $entityManager->persist($user);

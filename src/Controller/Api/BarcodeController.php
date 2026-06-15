@@ -2,9 +2,9 @@
 
 namespace App\Controller\Api;
 
+use App\ApiDoc\AddBarcodeRequest;
 use App\ApiDoc\Article as ArticleSchema;
 use App\ApiDoc\Barcode as BarcodeSchema;
-use App\ApiDoc\AddBarcodeRequest;
 use App\ApiDoc\Error as ErrorSchema;
 use App\Entity\Article;
 use App\Entity\Barcode;

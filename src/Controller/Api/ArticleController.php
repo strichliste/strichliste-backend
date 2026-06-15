@@ -3,8 +3,8 @@
 namespace App\Controller\Api;
 
 use App\ApiDoc\Article as ArticleSchema;
-use App\ApiDoc\WriteArticleRequest;
 use App\ApiDoc\Error as ErrorSchema;
+use App\ApiDoc\WriteArticleRequest;
 use App\Entity\Article;
 use App\Entity\ArticleTag;
 use App\Entity\Barcode;
