@@ -102,12 +102,26 @@ class TransactionController extends AbstractController
     }
 
     #[Route('/user/{userId}/transaction/{transactionId}', methods: ['DELETE'])]
-    public function deleteTransaction(string $userId, string $transactionId, TransactionService $transactionService): JsonResponse
+    public function deleteTransaction(string $userId, string $transactionId, TransactionService $transactionService, EntityManagerInterface $entityManager): JsonResponse
     {
-        $transaction = $transactionService->revertTransaction((int) $transactionId);
+        $user = $entityManager->getRepository(User::class)->find($userId);
+        if (!$user) {
+            throw new UserNotFoundException($userId);
+        }
+
+        // the {userId} segment alone authorizes nothing — the transaction must belong to this
+        // user, otherwise any client could revert any transaction by id (mirrors the UI undo
+        // guard in TransactionWriteController). A mismatch is reported as not-found, not 403,
+        // to stay inside the frozen error envelope and not disclose other users' transactions.
+        $transaction = $entityManager->getRepository(Transaction::class)->find($transactionId);
+        if (!$transaction || $transaction->getUser()->getId() !== $user->getId()) {
+            throw new TransactionNotFoundException($transactionId);
+        }
+
+        $reverted = $transactionService->revertTransaction((int) $transactionId);
 
         return $this->json([
-            'transaction' => $this->transactionSerializer->serialize($transaction),
+            'transaction' => $this->transactionSerializer->serialize($reverted),
         ]);
     }
 }

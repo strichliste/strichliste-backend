@@ -75,6 +75,49 @@ class TransactionControllerTest extends AbstractApplicationTestCase
         $this->assertUserBalance($recipientId, 0);
     }
 
+    public function testCannotDeleteAnotherUsersTransaction(): void
+    {
+        $malloryId = $this->createUserDb('Mallory');
+
+        $payout = $this->requestJson('POST', "/api/user/{$this->userId}/transaction", [
+            'amount' => -500,
+        ], 'transaction');
+
+        // Mallory tries to revert Alice's transaction through her own {userId} scope.
+        $this->client->request('DELETE', "/api/user/{$malloryId}/transaction/{$payout['id']}");
+        $this->assertResponseStatusCodeSame(404);
+
+        $body = json_decode($this->client->getResponse()->getContent(), true);
+        $this->assertSame(\App\Exception\TransactionNotFoundException::class, $body['error']['class']);
+
+        // Alice's transaction (and balance) must be untouched.
+        $this->assertUserBalance($this->userId, -500);
+    }
+
+    public function testDeleteWithUnknownUserReturns404(): void
+    {
+        $payout = $this->requestJson('POST', "/api/user/{$this->userId}/transaction", [
+            'amount' => -500,
+        ], 'transaction');
+
+        $this->client->request('DELETE', "/api/user/999999/transaction/{$payout['id']}");
+        $this->assertResponseStatusCodeSame(404);
+
+        $body = json_decode($this->client->getResponse()->getContent(), true);
+        $this->assertSame(\App\Exception\UserNotFoundException::class, $body['error']['class']);
+
+        $this->assertUserBalance($this->userId, -500);
+    }
+
+    public function testDeleteUnknownTransactionReturns404(): void
+    {
+        $this->client->request('DELETE', "/api/user/{$this->userId}/transaction/999999");
+        $this->assertResponseStatusCodeSame(404);
+
+        $body = json_decode($this->client->getResponse()->getContent(), true);
+        $this->assertSame(\App\Exception\TransactionNotFoundException::class, $body['error']['class']);
+    }
+
     public function testGlobalListKeepsLegacyOldestFirstOrder(): void
     {
         $first = $this->requestJson('POST', "/api/user/{$this->userId}/transaction", ['amount' => 100], 'transaction');
