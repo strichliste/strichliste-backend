@@ -4,7 +4,7 @@
     "name": "strichliste/strichliste-backend",
     "description": "Backend component of strichliste, a digital tallysheet",
     "require": {
-        "php": "^8.4",
+        "php": "^8.4.1",
         "ext-ctype": "*",
         "ext-iconv": "*",
         "ext-json": "*",
@@ -62,7 +62,7 @@
             "phpstan/extension-installer": true
         },
         "platform": {
-            "php": "8.4"
+            "php": "8.4.1"
         }
     },
     "autoload": {
