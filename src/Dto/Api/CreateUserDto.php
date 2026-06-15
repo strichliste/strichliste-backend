@@ -13,6 +13,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * #[Assert] constraints drive both validation and the generated OpenAPI schema.
  * The name is sanitized on construction so validation runs on the stored value.
  */
+#[OA\Schema(required: ['name'])]
 final class CreateUserDto
 {
     #[Assert\NotBlank]

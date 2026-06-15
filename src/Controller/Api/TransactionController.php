@@ -2,7 +2,6 @@
 
 namespace App\Controller\Api;
 
-use App\ApiDoc\Error as ErrorSchema;
 use App\ApiDoc\Transaction as TransactionSchema;
 use App\Dto\Api\CreateTransactionDto;
 use App\Entity\Transaction;
@@ -74,8 +73,8 @@ class TransactionController extends AbstractController
             new OA\Response(response: 200, description: 'The created transaction.', content: new OA\JsonContent(properties: [
                 new OA\Property(property: 'transaction', ref: new Model(type: TransactionSchema::class)),
             ])),
-            new OA\Response(response: 422, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
-            new OA\Response(response: 404, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
+            new OA\Response(response: 422, ref: '#/components/responses/Error'),
+            new OA\Response(response: 404, ref: '#/components/responses/Error'),
         ],
     )]
     public function createUserTransactions(string $userId, #[MapRequestPayload] CreateTransactionDto $dto, TransactionService $transactionService, EntityManagerInterface $entityManager): JsonResponse
@@ -106,7 +105,7 @@ class TransactionController extends AbstractController
                 new OA\Property(property: 'count', type: 'integer'),
                 new OA\Property(property: 'transactions', type: 'array', items: new OA\Items(ref: new Model(type: TransactionSchema::class))),
             ])),
-            new OA\Response(response: 404, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
+            new OA\Response(response: 404, ref: '#/components/responses/Error'),
         ],
     )]
     public function getUserTransactions(string $userId, Request $request, EntityManagerInterface $entityManager, TransactionRepository $transactionRepository): JsonResponse
@@ -140,7 +139,7 @@ class TransactionController extends AbstractController
             new OA\Response(response: 200, description: 'The transaction.', content: new OA\JsonContent(properties: [
                 new OA\Property(property: 'transaction', ref: new Model(type: TransactionSchema::class)),
             ])),
-            new OA\Response(response: 404, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
+            new OA\Response(response: 404, ref: '#/components/responses/Error'),
         ],
     )]
     public function getUserTransaction(string $userId, string $transactionId, EntityManagerInterface $entityManager): JsonResponse
@@ -172,8 +171,8 @@ class TransactionController extends AbstractController
             new OA\Response(response: 200, description: 'The reverted transaction (isDeleted=true).', content: new OA\JsonContent(properties: [
                 new OA\Property(property: 'transaction', ref: new Model(type: TransactionSchema::class)),
             ])),
-            new OA\Response(response: 400, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
-            new OA\Response(response: 404, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
+            new OA\Response(response: 400, ref: '#/components/responses/Error'),
+            new OA\Response(response: 404, ref: '#/components/responses/Error'),
         ],
     )]
     public function deleteTransaction(string $userId, string $transactionId, TransactionService $transactionService, EntityManagerInterface $entityManager): JsonResponse

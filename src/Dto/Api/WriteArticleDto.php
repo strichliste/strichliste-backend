@@ -11,6 +11,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * `amount` is the price in integer cents and must be non-zero (a missing or
  * zero amount was a "parameter missing" error in the legacy contract).
  */
+#[OA\Schema(required: ['name', 'amount'])]
 final class WriteArticleDto
 {
     #[Assert\NotBlank]

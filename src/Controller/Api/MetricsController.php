@@ -3,7 +3,6 @@
 namespace App\Controller\Api;
 
 use App\ApiDoc\Article as ArticleSchema;
-use App\ApiDoc\Error as ErrorSchema;
 use App\ApiDoc\MetricsDay as MetricsDaySchema;
 use App\Entity\Article;
 use App\Exception\UserNotFoundException;
@@ -86,7 +85,7 @@ class MetricsController extends AbstractController
                     ]),
                 ]),
             ])),
-            new OA\Response(response: 404, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
+            new OA\Response(response: 404, ref: '#/components/responses/Error'),
         ],
     )]
     public function userMetrics(string $userId, ArticleSerializer $articleSerializer, UserRepository $userRepository): JsonResponse

@@ -2,11 +2,13 @@
 
 namespace App\Dto\Api;
 
+use OpenApi\Attributes as OA;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Request payload for POST /api/article/{articleId}/tag.
  */
+#[OA\Schema(required: ['tag'])]
 final class AddTagDto
 {
     #[Assert\NotBlank]
