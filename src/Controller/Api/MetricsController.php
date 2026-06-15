@@ -2,12 +2,14 @@
 
 namespace App\Controller\Api;
 
+use App\ApiDoc\Error as ErrorSchema;
 use App\Entity\Article;
 use App\Exception\UserNotFoundException;
 use App\Repository\ArticleRepository;
 use App\Repository\UserRepository;
 use App\Serializer\ArticleSerializer;
 use App\Service\MetricsService;
+use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -82,7 +84,7 @@ class MetricsController extends AbstractController
                     ]),
                 ]),
             ])),
-            new OA\Response(response: 404, ref: '#/components/responses/Error'),
+            new OA\Response(response: 404, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
         ],
     )]
     public function userMetrics(string $userId, ArticleSerializer $articleSerializer, UserRepository $userRepository): JsonResponse

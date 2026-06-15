@@ -119,18 +119,3 @@ nelmio_api_doc:
                                   properties:
                                       amount: { type: integer }
                                       transactions: { type: integer }
-                Error:
-                    type: object
-                    properties:
-                        error:
-                            type: object
-                            properties:
-                                class: { type: string, description: FQCN of the exception — the machine-readable discriminator., example: App\Exception\UserNotFoundException }
-                                code: { type: integer, example: 404 }
-                                message: { type: string }
-            responses:
-                Error:
-                    description: Error envelope (shape shared by all 4xx responses).
-                    content:
-                        application/json:
-                            schema: { $ref: '#/components/schemas/Error' }

@@ -2,6 +2,7 @@
 
 namespace App\Controller\Api;
 
+use App\ApiDoc\Error as ErrorSchema;
 use App\Entity\User;
 use App\Exception\ParameterInvalidException;
 use App\Exception\ParameterMissingException;
@@ -11,6 +12,7 @@ use App\Repository\UserRepository;
 use App\Serializer\UserSerializer;
 use App\Service\UserService;
 use Doctrine\ORM\EntityManagerInterface;
+use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -73,8 +75,8 @@ class UserController extends AbstractController
             new OA\Response(response: 200, description: 'The created user.', content: new OA\JsonContent(properties: [
                 new OA\Property(property: 'user', ref: '#/components/schemas/User'),
             ])),
-            new OA\Response(response: 400, ref: '#/components/responses/Error'),
-            new OA\Response(response: 409, ref: '#/components/responses/Error'),
+            new OA\Response(response: 400, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
+            new OA\Response(response: 409, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
         ],
     )]
     public function createUser(Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager): JsonResponse
@@ -160,7 +162,7 @@ class UserController extends AbstractController
             new OA\Response(response: 200, description: 'The user.', content: new OA\JsonContent(properties: [
                 new OA\Property(property: 'user', ref: '#/components/schemas/User'),
             ])),
-            new OA\Response(response: 404, ref: '#/components/responses/Error'),
+            new OA\Response(response: 404, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
         ],
     )]
     public function user(string $userId, UserRepository $userRepository): JsonResponse
@@ -191,9 +193,9 @@ class UserController extends AbstractController
             new OA\Response(response: 200, description: 'The updated user.', content: new OA\JsonContent(properties: [
                 new OA\Property(property: 'user', ref: '#/components/schemas/User'),
             ])),
-            new OA\Response(response: 400, ref: '#/components/responses/Error'),
-            new OA\Response(response: 404, ref: '#/components/responses/Error'),
-            new OA\Response(response: 409, ref: '#/components/responses/Error'),
+            new OA\Response(response: 400, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
+            new OA\Response(response: 404, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
+            new OA\Response(response: 409, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
         ],
     )]
     public function updateUser(string $userId, Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager): JsonResponse

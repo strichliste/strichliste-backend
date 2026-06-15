@@ -2,6 +2,7 @@
 
 namespace App\Controller\Api;
 
+use App\ApiDoc\Error as ErrorSchema;
 use App\Entity\Article;
 use App\Entity\ArticleTag;
 use App\Entity\Barcode;
@@ -13,6 +14,7 @@ use App\Serializer\ArticleSerializer;
 use App\Service\ArticleService;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Query\Expr\Join;
+use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -106,7 +108,7 @@ class ArticleController extends AbstractController
             new OA\Response(response: 200, description: 'The created article.', content: new OA\JsonContent(properties: [
                 new OA\Property(property: 'article', ref: '#/components/schemas/Article'),
             ])),
-            new OA\Response(response: 400, ref: '#/components/responses/Error'),
+            new OA\Response(response: 400, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
         ],
     )]
     public function createArticle(Request $request, ArticleService $articleService, EntityManagerInterface $entityManager): JsonResponse
@@ -205,7 +207,7 @@ class ArticleController extends AbstractController
             new OA\Response(response: 200, description: 'The article.', content: new OA\JsonContent(properties: [
                 new OA\Property(property: 'article', ref: '#/components/schemas/Article'),
             ])),
-            new OA\Response(response: 404, ref: '#/components/responses/Error'),
+            new OA\Response(response: 404, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
         ],
     )]
     public function getArticle(string $articleId, Request $request, EntityManagerInterface $entityManager): JsonResponse
@@ -241,8 +243,8 @@ class ArticleController extends AbstractController
             new OA\Response(response: 200, description: 'The new active revision.', content: new OA\JsonContent(properties: [
                 new OA\Property(property: 'article', ref: '#/components/schemas/Article'),
             ])),
-            new OA\Response(response: 400, ref: '#/components/responses/Error'),
-            new OA\Response(response: 404, ref: '#/components/responses/Error'),
+            new OA\Response(response: 400, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
+            new OA\Response(response: 404, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
         ],
     )]
     public function updateArticle(string $articleId, Request $request, ArticleService $articleService, EntityManagerInterface $entityManager): JsonResponse
@@ -276,7 +278,7 @@ class ArticleController extends AbstractController
             new OA\Response(response: 200, description: 'The deactivated article.', content: new OA\JsonContent(properties: [
                 new OA\Property(property: 'article', ref: '#/components/schemas/Article'),
             ])),
-            new OA\Response(response: 404, ref: '#/components/responses/Error'),
+            new OA\Response(response: 404, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
         ],
     )]
     public function deleteArticle(string $articleId, EntityManagerInterface $entityManager): JsonResponse

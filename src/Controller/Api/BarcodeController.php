@@ -2,6 +2,7 @@
 
 namespace App\Controller\Api;
 
+use App\ApiDoc\Error as ErrorSchema;
 use App\Entity\Article;
 use App\Entity\Barcode;
 use App\Exception\ArticleBarcodeAlreadyExistsException;
@@ -13,6 +14,7 @@ use App\Repository\BarcodeRepository;
 use App\Serializer\ArticleSerializer;
 use App\Serializer\BarcodeSerializer;
 use Doctrine\ORM\EntityManagerInterface;
+use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -59,7 +61,7 @@ class BarcodeController extends AbstractController
                 new OA\Property(property: 'count', type: 'integer'),
                 new OA\Property(property: 'barcodes', type: 'array', items: new OA\Items(ref: '#/components/schemas/Barcode')),
             ])),
-            new OA\Response(response: 404, ref: '#/components/responses/Error'),
+            new OA\Response(response: 404, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
         ],
     )]
     public function listArticleBarcode(int $articleId, EntityManagerInterface $entityManager): JsonResponse
@@ -89,7 +91,7 @@ class BarcodeController extends AbstractController
             new OA\Response(response: 200, description: 'The barcode.', content: new OA\JsonContent(properties: [
                 new OA\Property(property: 'barcode', ref: '#/components/schemas/Barcode'),
             ])),
-            new OA\Response(response: 404, ref: '#/components/responses/Error'),
+            new OA\Response(response: 404, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
         ],
     )]
     public function getArticleBarcode(int $articleId, int $barcodeId, EntityManagerInterface $entityManager): JsonResponse
@@ -126,9 +128,9 @@ class BarcodeController extends AbstractController
             new OA\Response(response: 200, description: 'The article including the new barcode.', content: new OA\JsonContent(properties: [
                 new OA\Property(property: 'article', ref: '#/components/schemas/Article'),
             ])),
-            new OA\Response(response: 400, ref: '#/components/responses/Error'),
-            new OA\Response(response: 404, ref: '#/components/responses/Error'),
-            new OA\Response(response: 409, ref: '#/components/responses/Error'),
+            new OA\Response(response: 400, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
+            new OA\Response(response: 404, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
+            new OA\Response(response: 409, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
         ],
     )]
     public function addArticleBarcode(int $articleId, Request $request, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager, BarcodeRepository $barcodeRepository): JsonResponse
@@ -175,7 +177,7 @@ class BarcodeController extends AbstractController
             new OA\Response(response: 200, description: 'The article without the removed barcode.', content: new OA\JsonContent(properties: [
                 new OA\Property(property: 'article', ref: '#/components/schemas/Article'),
             ])),
-            new OA\Response(response: 404, ref: '#/components/responses/Error'),
+            new OA\Response(response: 404, description: 'Error envelope (shape shared by all 4xx responses).', content: new OA\JsonContent(ref: new Model(type: ErrorSchema::class))),
         ],
     )]
     public function deleteArticleBarcode(int $articleId, int $barcodeId, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager): JsonResponse
