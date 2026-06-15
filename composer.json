@@ -27,6 +27,8 @@
         "symfony/stimulus-bundle": "^2.35",
         "symfony/translation": "^7.4",
         "symfony/twig-bundle": "^7.4",
+        "symfony/ux-autocomplete": "^3.1",
+        "symfony/ux-icons": "^3.1",
         "symfony/ux-turbo": "^2.35",
         "symfony/ux-twig-component": "^2.35",
         "symfony/validator": "^7.4",

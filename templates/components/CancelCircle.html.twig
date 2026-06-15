@@ -5,7 +5,7 @@
     <{{ tag }} class="form-cancel-circle"
        {%- if href %} href="{{ href }}"{% else %} type="button"{% endif %}
        aria-label="{{ label }}">
-        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 3L13 13M13 3L3 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <twig:ux:icon name="close" aria-hidden="true" />
     </{{ tag }}>
     <span class="circle-action__caption" aria-hidden="true">{{ label }}</span>
 </span>

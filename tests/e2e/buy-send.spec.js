@@ -1,5 +1,10 @@
 import { test, expect } from '@playwright/test';
-import { createUser, expectBalance, uniqueName } from './helpers.js';
+import {
+    createUser,
+    expectBalance,
+    pickRecipient,
+    uniqueName,
+} from './helpers.js';
 
 test.describe('buying and sending', () => {
     test('buy an article from the buy tab, with the search filter', async ({
@@ -30,7 +35,10 @@ test.describe('buying and sending', () => {
         // scope to the send composer — the quick-action card labels an "Amount" too
         const form = page.locator('.send-form-wrap');
         await form.getByLabel('Amount').fill('2.50');
-        await form.getByLabel('Recipient').selectOption({ label: recipient });
+        await pickRecipient(
+            form.locator('.send-form__recipient.ts-wrapper'),
+            recipient,
+        );
         await form.getByLabel('Comment (optional)').fill('pizza');
         await form.getByRole('button', { name: 'Send' }).click();
 

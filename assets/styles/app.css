@@ -926,8 +926,9 @@ body {
 .user-tabs a svg {
     fill: var(--buttonDefaultFont);
     margin-right: 0.5rem;
-    max-width: 1rem;
-    max-height: 1rem;
+    /* explicit dimensions: a viewBox-only <svg> with just max-* collapses to 0 */
+    width: 1rem;
+    height: 1rem;
 }
 
 .user-tabs a[aria-current='page'] {
@@ -1964,4 +1965,131 @@ body {
     .tag-filter {
         margin-left: 8rem;
     }
+}
+
+/* ----------------------------------------------------------------------------
+   Tom Select (symfony/ux-autocomplete)
+
+   The recipient pickers are native <select>s enhanced into searchable
+   comboboxes. With JS off they stay plain selects (graceful fallback), so this
+   block only dresses the enhanced widget. Rules are scoped under .ts-wrapper so
+   they out-cascade tom-select.default.css whatever the asset load order, and
+   they lean on the existing theme custom properties for light/dark parity.
+   ---------------------------------------------------------------------------- */
+.ts-wrapper {
+    font-family: inherit;
+}
+.ts-wrapper .ts-control {
+    min-height: 0;
+    padding: 0.5rem 0.75rem;
+    background: var(--componentBackgroundLight);
+    border: 1px solid var(--inputBorder);
+    border-radius: var(--borderRadius);
+    box-shadow: none;
+    color: var(--text);
+    font-size: 0.889rem;
+    cursor: pointer;
+}
+.ts-wrapper .ts-control input,
+.ts-wrapper .ts-control .item {
+    color: var(--text);
+}
+.ts-wrapper .ts-control input::placeholder {
+    color: var(--textSubtile);
+}
+.ts-wrapper.focus .ts-control {
+    border-color: var(--inputBorder);
+    outline: 3px solid var(--primary);
+    outline-offset: 0;
+    box-shadow: none;
+}
+.ts-wrapper .ts-dropdown {
+    margin: 0.25rem 0 0;
+    background: var(--componentBackgroundDark);
+    border: 1px solid var(--border);
+    border-radius: var(--borderRadius);
+    box-shadow: var(--level1);
+    color: var(--text);
+}
+.ts-wrapper .ts-dropdown .option,
+.ts-wrapper .ts-dropdown .no-results,
+.ts-wrapper .ts-dropdown .create {
+    color: var(--text);
+}
+.ts-wrapper .ts-dropdown .option.active,
+.ts-wrapper .ts-dropdown .active {
+    background: var(--componentBackgroundLight);
+    color: var(--text);
+}
+
+/* Tom Select copies the original <select>'s classes onto .ts-wrapper, so the
+   native field chrome lands on the wrapper. Strip it there and re-apply on the
+   inner control, keeping each picker's original placement/sizing intact. */
+.send-form .ts-wrapper.send-form__recipient,
+.split-invoice-pick.ts-wrapper {
+    padding: 0;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    overflow: visible;
+}
+/* The inner control is what the user sees; rebuild it to match the no-JS native
+   <select> button. Qualifying with .single lifts these past tom-select.default
+   .css's own `.ts-wrapper.single .ts-control` rules regardless of asset load
+   order — without it the selectors merely tie and the vendor gradient, inset
+   shadow and caret padding win. */
+.send-form .ts-wrapper.send-form__recipient.single .ts-control,
+.split-invoice-pick.ts-wrapper.single .ts-control {
+    /* tom-select reserves right padding for the (now hidden) caret and clear
+       button via these vars and a `!important` padding-right; zero them so the
+       max() collapses to a symmetric 0.75rem and the label stays centred. The
+       units matter: a unitless 0 makes max(<length>, <number>) invalid, which
+       silently resets padding-right to 0 — keep them as 0px. */
+    --ts-pr-caret: 0px;
+    --ts-pr-clear-button: 0px;
+    --ts-pr-min: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    background: var(--componentBackgroundLight);
+    background-image: none;
+    border: 0;
+    color: var(--buttonDefaultFont);
+    /* the control is a flexbox: text-align centres the placeholder/typed query
+       inside the input, justify-content centres the chosen .item — together they
+       reproduce the native select's text-align-last: center */
+    justify-content: center;
+    text-align: center;
+    text-transform: uppercase;
+}
+/* the native selects have no clear affordance; tom-select's clear_button is
+   absolutely positioned at the right and would both break the centred-label look
+   and collide with longer names, so drop it */
+.send-form .ts-wrapper.send-form__recipient.single .clear-button,
+.split-invoice-pick.ts-wrapper.single .clear-button {
+    display: none;
+}
+/* matches each picker's native counterpart: the send recipient is a raised
+   button, the split pickers sit flat next to their participant rows */
+.send-form .ts-wrapper.send-form__recipient.single .ts-control {
+    box-shadow: var(--level1);
+}
+.split-invoice-pick.ts-wrapper.single .ts-control {
+    box-shadow: none;
+}
+/* tom-select draws a dropdown caret and reserves right padding for it; the
+   native selects use appearance:none and show none, so drop both and keep the
+   label optically centred */
+.send-form .ts-wrapper.send-form__recipient.single .ts-control::after,
+.split-invoice-pick.ts-wrapper.single .ts-control::after {
+    display: none;
+}
+/* the placeholder and typed query live in tom-select's inner <input>, which
+   doesn't inherit the control's casing — carry the button styling onto both it
+   and the selected item */
+.send-form .ts-wrapper.send-form__recipient.single .ts-control .item,
+.send-form .ts-wrapper.send-form__recipient.single .ts-control input,
+.split-invoice-pick.ts-wrapper.single .ts-control .item,
+.split-invoice-pick.ts-wrapper.single .ts-control input {
+    color: var(--buttonDefaultFont);
+    text-align: center;
+    text-transform: uppercase;
 }

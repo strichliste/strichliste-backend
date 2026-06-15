@@ -51,6 +51,7 @@
                     name="recipient"
                     required
                     aria-label="{{ 'split_invoice.fields.recipient_placeholder'|trans }}"
+                    data-controller="symfony--ux-autocomplete--autocomplete"
                 >
                     <option value="">{{ 'split_invoice.fields.recipient_placeholder'|trans }}</option>
                     {% for u in users %}

@@ -1,5 +1,10 @@
 import { test, expect } from '@playwright/test';
-import { createUser, expectBalance, uniqueName } from './helpers.js';
+import {
+    createUser,
+    expectBalance,
+    pickRecipient,
+    uniqueName,
+} from './helpers.js';
 
 test.describe('split invoice', () => {
     test('three-way split with the payer on the list books equal shares', async ({
@@ -12,9 +17,10 @@ test.describe('split invoice', () => {
 
         await page.goto('/split-invoice');
         await page.getByLabel('amount').fill('27.50');
-        await page
-            .getByLabel('select recipient')
-            .selectOption({ label: payer });
+        await pickRecipient(
+            page.locator('.split-invoice-pick.ts-wrapper'),
+            payer,
+        );
 
         await page.getByRole('button', { name: 'add participant' }).click();
         await page.getByRole('button', { name: 'add participant' }).click();
