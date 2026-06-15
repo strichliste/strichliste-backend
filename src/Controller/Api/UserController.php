@@ -11,6 +11,7 @@ use App\Repository\UserRepository;
 use App\Serializer\UserSerializer;
 use App\Service\UserService;
 use Doctrine\ORM\EntityManagerInterface;
+use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,6 +25,18 @@ class UserController extends AbstractController
     }
 
     #[Route(methods: ['GET'])]
+    #[OA\Get(
+        summary: 'List users',
+        tags: ['user'],
+        parameters: [
+            new OA\Parameter(name: 'active', in: 'query', required: false, description: '"true" = users with recent activity, "false" = stale users, omitted = all.', schema: new OA\Schema(type: 'string', enum: ['true', 'false'])),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Users sorted naturally by name.', content: new OA\JsonContent(properties: [
+                new OA\Property(property: 'users', type: 'array', items: new OA\Items(ref: '#/components/schemas/User')),
+            ])),
+        ],
+    )]
     public function list(Request $request, UserService $userService, UserRepository $userRepository): JsonResponse
     {
         $active = $request->query->getString('active');
@@ -46,6 +59,24 @@ class UserController extends AbstractController
     }
 
     #[Route(methods: ['POST'])]
+    #[OA\Post(
+        summary: 'Create a user',
+        tags: ['user'],
+        requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(
+            required: ['name'],
+            properties: [
+                new OA\Property(property: 'name', type: 'string', maxLength: 64),
+                new OA\Property(property: 'email', type: 'string', maxLength: 255),
+            ],
+        )),
+        responses: [
+            new OA\Response(response: 200, description: 'The created user.', content: new OA\JsonContent(properties: [
+                new OA\Property(property: 'user', ref: '#/components/schemas/User'),
+            ])),
+            new OA\Response(response: 400, ref: '#/components/responses/Error'),
+            new OA\Response(response: 409, ref: '#/components/responses/Error'),
+        ],
+    )]
     public function createUser(Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager): JsonResponse
     {
         $name = $request->request->getString('name');
@@ -84,6 +115,20 @@ class UserController extends AbstractController
     }
 
     #[Route('/search', methods: ['GET'])]
+    #[OA\Get(
+        summary: 'Search enabled users by name',
+        tags: ['user'],
+        parameters: [
+            new OA\Parameter(name: 'query', in: 'query', required: false, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'limit', in: 'query', required: false, schema: new OA\Schema(type: 'integer', default: 25)),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Matching users.', content: new OA\JsonContent(properties: [
+                new OA\Property(property: 'count', type: 'integer'),
+                new OA\Property(property: 'users', type: 'array', items: new OA\Items(ref: '#/components/schemas/User')),
+            ])),
+        ],
+    )]
     public function search(Request $request, UserRepository $userRepository): JsonResponse
     {
         $query = $request->query->getString('query');
@@ -105,6 +150,19 @@ class UserController extends AbstractController
     }
 
     #[Route('/{userId}', methods: ['GET'])]
+    #[OA\Get(
+        summary: 'Get a user by id or name',
+        tags: ['user'],
+        parameters: [
+            new OA\Parameter(name: 'userId', in: 'path', required: true, description: 'User id, or the exact user name.', schema: new OA\Schema(type: 'string')),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'The user.', content: new OA\JsonContent(properties: [
+                new OA\Property(property: 'user', ref: '#/components/schemas/User'),
+            ])),
+            new OA\Response(response: 404, ref: '#/components/responses/Error'),
+        ],
+    )]
     public function user(string $userId, UserRepository $userRepository): JsonResponse
     {
         $user = $userRepository->findByIdentifier($userId);
@@ -118,6 +176,26 @@ class UserController extends AbstractController
     }
 
     #[Route('/{userId}', methods: ['POST'])]
+    #[OA\Post(
+        summary: 'Update a user',
+        tags: ['user'],
+        parameters: [
+            new OA\Parameter(name: 'userId', in: 'path', required: true, description: 'User id, or the exact user name.', schema: new OA\Schema(type: 'string')),
+        ],
+        requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(properties: [
+            new OA\Property(property: 'name', type: 'string', maxLength: 64),
+            new OA\Property(property: 'email', type: 'string', maxLength: 255),
+            new OA\Property(property: 'isDisabled', type: 'boolean'),
+        ])),
+        responses: [
+            new OA\Response(response: 200, description: 'The updated user.', content: new OA\JsonContent(properties: [
+                new OA\Property(property: 'user', ref: '#/components/schemas/User'),
+            ])),
+            new OA\Response(response: 400, ref: '#/components/responses/Error'),
+            new OA\Response(response: 404, ref: '#/components/responses/Error'),
+            new OA\Response(response: 409, ref: '#/components/responses/Error'),
+        ],
+    )]
     public function updateUser(string $userId, Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager): JsonResponse
     {
         $user = $userRepository->findByIdentifier($userId);
