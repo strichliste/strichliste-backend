@@ -13,6 +13,7 @@ use App\Serializer\ArticleSerializer;
 use App\Service\ArticleService;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Query\Expr\Join;
+use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,6 +27,24 @@ class ArticleController extends AbstractController
     }
 
     #[Route(methods: ['GET'])]
+    #[OA\Get(
+        summary: 'List articles',
+        tags: ['article'],
+        parameters: [
+            new OA\Parameter(name: 'limit', in: 'query', required: false, schema: new OA\Schema(type: 'integer', default: 25)),
+            new OA\Parameter(name: 'offset', in: 'query', required: false, schema: new OA\Schema(type: 'integer')),
+            new OA\Parameter(name: 'active', in: 'query', required: false, schema: new OA\Schema(type: 'boolean', default: true)),
+            new OA\Parameter(name: 'barcode', in: 'query', required: false, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'precursor', in: 'query', required: false, description: 'false = only articles without a precursor.', schema: new OA\Schema(type: 'boolean', default: true)),
+            new OA\Parameter(name: 'ancestor', in: 'query', required: false, description: '"true" = only articles that have a successor revision, "false" = only ones without.', schema: new OA\Schema(type: 'string', enum: ['true', 'false'])),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Articles; `count` is the total number of ACTIVE articles.', content: new OA\JsonContent(properties: [
+                new OA\Property(property: 'count', type: 'integer'),
+                new OA\Property(property: 'articles', type: 'array', items: new OA\Items(ref: '#/components/schemas/Article')),
+            ])),
+        ],
+    )]
     public function list(Request $request, EntityManagerInterface $entityManager, ArticleRepository $articleRepository): JsonResponse
     {
         $limit = $request->query->getInt('limit', 25);
@@ -73,6 +92,23 @@ class ArticleController extends AbstractController
     }
 
     #[Route(methods: ['POST'])]
+    #[OA\Post(
+        summary: 'Create an article',
+        tags: ['article'],
+        requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(
+            required: ['name', 'amount'],
+            properties: [
+                new OA\Property(property: 'name', type: 'string'),
+                new OA\Property(property: 'amount', type: 'integer', description: 'Price in cents.'),
+            ],
+        )),
+        responses: [
+            new OA\Response(response: 200, description: 'The created article.', content: new OA\JsonContent(properties: [
+                new OA\Property(property: 'article', ref: '#/components/schemas/Article'),
+            ])),
+            new OA\Response(response: 400, ref: '#/components/responses/Error'),
+        ],
+    )]
     public function createArticle(Request $request, ArticleService $articleService, EntityManagerInterface $entityManager): JsonResponse
     {
         $article = $articleService->createArticleByRequest($request);
@@ -86,6 +122,23 @@ class ArticleController extends AbstractController
     }
 
     #[Route('/search', methods: ['GET'])]
+    #[OA\Get(
+        summary: 'Search active articles',
+        description: 'With `barcode` or `tag` the match is exact on that field; otherwise `query` matches barcode, tag or name substring.',
+        tags: ['article'],
+        parameters: [
+            new OA\Parameter(name: 'query', in: 'query', required: false, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'barcode', in: 'query', required: false, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'tag', in: 'query', required: false, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'limit', in: 'query', required: false, schema: new OA\Schema(type: 'integer', default: 25)),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Matching active articles.', content: new OA\JsonContent(properties: [
+                new OA\Property(property: 'count', type: 'integer'),
+                new OA\Property(property: 'articles', type: 'array', items: new OA\Items(ref: '#/components/schemas/Article')),
+            ])),
+        ],
+    )]
     public function search(Request $request, EntityManagerInterface $entityManager): JsonResponse
     {
         $query = $request->query->getString('query');
@@ -141,6 +194,20 @@ class ArticleController extends AbstractController
     }
 
     #[Route('/{articleId}', methods: ['GET'])]
+    #[OA\Get(
+        summary: 'Get an article',
+        tags: ['article'],
+        parameters: [
+            new OA\Parameter(name: 'articleId', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+            new OA\Parameter(name: 'depth', in: 'query', required: false, description: 'How many precursor revisions to embed.', schema: new OA\Schema(type: 'integer', default: 1)),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'The article.', content: new OA\JsonContent(properties: [
+                new OA\Property(property: 'article', ref: '#/components/schemas/Article'),
+            ])),
+            new OA\Response(response: 404, ref: '#/components/responses/Error'),
+        ],
+    )]
     public function getArticle(string $articleId, Request $request, EntityManagerInterface $entityManager): JsonResponse
     {
         $depth = $request->query->getInt('depth', 1);
@@ -156,6 +223,28 @@ class ArticleController extends AbstractController
     }
 
     #[Route('/{articleId}', methods: ['POST'])]
+    #[OA\Post(
+        summary: 'Update an article (creates a new revision)',
+        description: 'The existing article becomes the inactive precursor of the returned revision; only active articles can be updated.',
+        tags: ['article'],
+        parameters: [
+            new OA\Parameter(name: 'articleId', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+        ],
+        requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(
+            required: ['name', 'amount'],
+            properties: [
+                new OA\Property(property: 'name', type: 'string'),
+                new OA\Property(property: 'amount', type: 'integer', description: 'Price in cents.'),
+            ],
+        )),
+        responses: [
+            new OA\Response(response: 200, description: 'The new active revision.', content: new OA\JsonContent(properties: [
+                new OA\Property(property: 'article', ref: '#/components/schemas/Article'),
+            ])),
+            new OA\Response(response: 400, ref: '#/components/responses/Error'),
+            new OA\Response(response: 404, ref: '#/components/responses/Error'),
+        ],
+    )]
     public function updateArticle(string $articleId, Request $request, ArticleService $articleService, EntityManagerInterface $entityManager): JsonResponse
     {
         $article = $entityManager->getRepository(Article::class)->find($articleId);
@@ -176,6 +265,20 @@ class ArticleController extends AbstractController
     }
 
     #[Route('/{articleId}', methods: ['DELETE'])]
+    #[OA\Delete(
+        summary: 'Deactivate an article',
+        description: 'Soft-delete — sets isActive=false and removes its barcodes.',
+        tags: ['article'],
+        parameters: [
+            new OA\Parameter(name: 'articleId', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'The deactivated article.', content: new OA\JsonContent(properties: [
+                new OA\Property(property: 'article', ref: '#/components/schemas/Article'),
+            ])),
+            new OA\Response(response: 404, ref: '#/components/responses/Error'),
+        ],
+    )]
     public function deleteArticle(string $articleId, EntityManagerInterface $entityManager): JsonResponse
     {
         $article = $entityManager->getRepository(Article::class)->find($articleId);
