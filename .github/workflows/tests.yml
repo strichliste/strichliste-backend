@@ -109,6 +109,37 @@ jobs:
 
       - run: vendor/bin/phpunit --testdox
 
+  migrations:
+    name: migrations idempotent on an existing schema
+    runs-on: ubuntu-latest
+    # Reattaching an existing database — the documented "keep your old data"
+    # path — re-runs the migrations against a schema that is already there.
+    # Every up() must no-op cleanly, or that path breaks. SQLite exercises the
+    # platform-agnostic guards; the phpunit matrix covers fresh runs per DB.
+    env:
+      DATABASE_URL: "sqlite:////tmp/strichliste_idem.db"
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.5"
+          extensions: ctype, iconv, json, intl, pdo_sqlite
+          coverage: none
+
+      - uses: actions/cache@v5
+        with:
+          path: ~/.cache/composer
+          key: ${{ runner.os }}-php8.5-composer-${{ hashFiles('composer.lock') }}
+
+      - run: composer install --no-interaction --prefer-dist
+
+      # Build the schema, then forget every version record to mimic an old or
+      # untracked database, then migrate again — this must exit 0.
+      - run: php bin/console doctrine:migrations:migrate --no-interaction
+      - run: php bin/console doctrine:migrations:version --delete --all --no-interaction
+      - run: php bin/console doctrine:migrations:migrate --no-interaction
+
   e2e:
     name: e2e (playwright)
     runs-on: ubuntu-latest

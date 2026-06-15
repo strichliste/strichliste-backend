@@ -16,7 +16,7 @@ else
 endif
 
 .DEFAULT_GOAL := help
-.PHONY: help up prod down logs sh test e2e lint cs cs-fix phpstan rector rector-fix prettier prettier-fix tls tls-linux tls-mac tls-windows
+.PHONY: help up prod down logs sh fix-perms test e2e lint cs cs-fix phpstan rector rector-fix prettier prettier-fix tls tls-linux tls-mac tls-windows
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-12s\033[0m %s\n", $$1, $$2}'
@@ -38,6 +38,9 @@ logs: ## Tail the app container logs
 
 sh: ## Open a shell in the app container
 	@$(DOCKER_COMP) exec app sh
+
+fix-perms: ## (Linux) Reclaim ownership of files the dev container created as root
+	@sudo chown -R $$(id -u):$$(id -g) vendor assets/vendor
 
 ## —— Quality ——
 test: ## Run the PHPUnit suite (local PHP)

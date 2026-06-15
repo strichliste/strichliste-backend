@@ -13,7 +13,6 @@
 ###< symfony/web-server-bundle ###
 
 /.idea
-data.sqlite
 
 
 ###> phpunit/phpunit ###
