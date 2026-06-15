@@ -46,7 +46,7 @@ jobs:
       fail-fast: false
       matrix:
         db: [sqlite, mariadb, pgsql]
-        # 8.4 is the composer.json floor; 8.5 matches the FrankenPHP image.
+        # 8.4 covers the composer.json floor (8.4.1); 8.5 matches the FrankenPHP image.
         php: ["8.4", "8.5"]
         include:
           - db: sqlite
