@@ -17,6 +17,7 @@
             <div class="card article-form">
                 <h2 class="article-form__name">{{ article.name }}</h2>
                 {{ form_start(form) }}
+                {{ form_errors(form) }}
                 {{ form_row(form.name) }}
                 {{ form_row(form.amount) }}
                 {{ form_row(form.active) }}

@@ -63,13 +63,7 @@
     </details>
     <form method="get" action="{{ path('search_results') }}" class="app-header__search" role="search">
         <label class="visually-hidden" for="hsearch">{{ 'nav.search.input_label'|trans }}</label>
-        <input
-            type="text"
-            id="hsearch"
-            name="q"
-            minlength="2"
-            placeholder="{{ 'nav.search.input_placeholder'|trans }}"
-        />
+        <input type="text" id="hsearch" name="q" placeholder="{{ 'nav.search.input_placeholder'|trans }}" />
         <button type="submit" aria-label="{{ 'nav.search.submit'|trans }}">
             <svg
                 viewBox="0 0 24 24"

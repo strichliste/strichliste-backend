@@ -56,9 +56,15 @@ export default class extends Controller {
         ) {
             return true;
         }
-        return Array.from(
+        const changedField = Array.from(
             document.querySelectorAll('input:not([type="hidden"]), textarea'),
         ).some((el) => el.value !== el.defaultValue);
+        if (changedField) return true;
+        // A picked <select> (e.g. a transfer recipient) counts as mid-form too.
+        return Array.from(document.querySelectorAll('select')).some((el) => {
+            const selected = el.options[el.selectedIndex];
+            return (selected && !selected.defaultSelected) || el.value !== '';
+        });
     }
 
     redirect() {
