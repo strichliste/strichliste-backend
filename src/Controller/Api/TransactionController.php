@@ -62,7 +62,7 @@ class TransactionController extends AbstractController
         description: 'Deposit/dispense (`amount`), article purchase (`articleId`, optional `quantity`) or transfer (`amount` + `recipientId`). Amounts are signed cents.',
         tags: ['transaction'],
         parameters: [
-            new OA\Parameter(name: 'userId', in: 'path', required: true, description: 'User id, or the exact user name.', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'userId', in: 'path', required: true, description: 'User id.', schema: new OA\Schema(type: 'integer')),
         ],
         requestBody: new OA\RequestBody(required: true, content: [
             new OA\MediaType(mediaType: 'application/json', schema: new OA\Schema(ref: new Model(type: CreateTransactionDto::class))),
@@ -93,7 +93,7 @@ class TransactionController extends AbstractController
         summary: 'List a user\'s transactions (newest first)',
         tags: ['transaction'],
         parameters: [
-            new OA\Parameter(name: 'userId', in: 'path', required: true, description: 'User id, or the exact user name.', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'userId', in: 'path', required: true, description: 'User id.', schema: new OA\Schema(type: 'integer')),
             new OA\Parameter(name: 'limit', in: 'query', required: false, schema: new OA\Schema(type: 'integer', default: 25)),
             new OA\Parameter(name: 'offset', in: 'query', required: false, schema: new OA\Schema(type: 'integer')),
         ],
@@ -127,7 +127,7 @@ class TransactionController extends AbstractController
         summary: 'Get a single transaction',
         tags: ['transaction'],
         parameters: [
-            new OA\Parameter(name: 'userId', in: 'path', required: true, description: 'User id, or the exact user name.', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'userId', in: 'path', required: true, description: 'User id.', schema: new OA\Schema(type: 'integer')),
             new OA\Parameter(name: 'transactionId', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
         ],
         responses: [
@@ -156,7 +156,7 @@ class TransactionController extends AbstractController
         summary: 'Revert (undo) a transaction',
         tags: ['transaction'],
         parameters: [
-            new OA\Parameter(name: 'userId', in: 'path', required: true, description: 'User id, or the exact user name.', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'userId', in: 'path', required: true, description: 'User id.', schema: new OA\Schema(type: 'integer')),
             new OA\Parameter(name: 'transactionId', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
         ],
         responses: [
