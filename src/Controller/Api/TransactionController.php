@@ -2,8 +2,9 @@
 
 namespace App\Controller\Api;
 
-use App\Dto\Api\Transaction as TransactionSchema;
 use App\Dto\Api\CreateTransactionDto;
+use App\Dto\Api\TransactionListResponse;
+use App\Dto\Api\TransactionResponse;
 use App\Entity\Transaction;
 use App\Entity\User;
 use App\Exception\TransactionNotDeletableException;
@@ -16,9 +17,9 @@ use Doctrine\ORM\EntityManagerInterface;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
+use Symfony\Component\HttpKernel\Attribute\Serialize;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api')]
@@ -37,13 +38,11 @@ class TransactionController extends AbstractController
             new OA\Parameter(name: 'offset', in: 'query', required: false, schema: new OA\Schema(type: 'integer')),
         ],
         responses: [
-            new OA\Response(response: 200, description: 'Transactions with total count.', content: new OA\JsonContent(properties: [
-                new OA\Property(property: 'count', type: 'integer'),
-                new OA\Property(property: 'transactions', type: 'array', items: new OA\Items(ref: new Model(type: TransactionSchema::class))),
-            ])),
+            new OA\Response(response: 200, description: 'Transactions with total count.', content: new OA\JsonContent(ref: new Model(type: TransactionListResponse::class))),
         ],
     )]
-    public function list(Request $request, TransactionRepository $transactionRepository): JsonResponse
+    #[Serialize]
+    public function list(Request $request, TransactionRepository $transactionRepository): TransactionListResponse
     {
         $limit = $request->query->getInt('limit', 25);
         $offset = $request->query->has('offset') ? $request->query->getInt('offset') : null;
@@ -51,10 +50,10 @@ class TransactionController extends AbstractController
         $count = $transactionRepository->count([]);
         $transactions = $transactionRepository->findAllPaginated($limit, $offset);
 
-        return $this->json([
-            'count' => $count,
-            'transactions' => array_map($this->transactionSerializer->serialize(...), $transactions),
-        ]);
+        return new TransactionListResponse(
+            count: $count,
+            transactions: array_map($this->transactionSerializer->serialize(...), $transactions),
+        );
     }
 
     #[Route('/user/{userId}/transaction', methods: ['POST'])]
@@ -70,15 +69,14 @@ class TransactionController extends AbstractController
             new OA\MediaType(mediaType: 'application/x-www-form-urlencoded', schema: new OA\Schema(ref: new Model(type: CreateTransactionDto::class))),
         ]),
         responses: [
-            new OA\Response(response: 200, description: 'The created transaction.', content: new OA\JsonContent(properties: [
-                new OA\Property(property: 'transaction', ref: new Model(type: TransactionSchema::class)),
-            ])),
+            new OA\Response(response: 200, description: 'The created transaction.', content: new OA\JsonContent(ref: new Model(type: TransactionResponse::class))),
             new OA\Response(response: 400, ref: '#/components/responses/Error'),
             new OA\Response(response: 404, ref: '#/components/responses/Error'),
             new OA\Response(response: 422, ref: '#/components/responses/Error'),
         ],
     )]
-    public function createUserTransactions(string $userId, #[MapRequestPayload] CreateTransactionDto $dto, TransactionService $transactionService, EntityManagerInterface $entityManager): JsonResponse
+    #[Serialize]
+    public function createUserTransactions(string $userId, #[MapRequestPayload] CreateTransactionDto $dto, TransactionService $transactionService, EntityManagerInterface $entityManager): TransactionResponse
     {
         $user = $entityManager->getRepository(User::class)->find($userId);
         if (!$user) {
@@ -87,9 +85,7 @@ class TransactionController extends AbstractController
 
         $transaction = $transactionService->doTransaction($user, $dto->amount, $dto->comment, $dto->quantity, $dto->articleId, $dto->recipientId);
 
-        return $this->json([
-            'transaction' => $this->transactionSerializer->serialize($transaction),
-        ]);
+        return new TransactionResponse($this->transactionSerializer->serialize($transaction));
     }
 
     #[Route('/user/{userId}/transaction', methods: ['GET'])]
@@ -102,14 +98,12 @@ class TransactionController extends AbstractController
             new OA\Parameter(name: 'offset', in: 'query', required: false, schema: new OA\Schema(type: 'integer')),
         ],
         responses: [
-            new OA\Response(response: 200, description: 'Transactions with total count.', content: new OA\JsonContent(properties: [
-                new OA\Property(property: 'count', type: 'integer'),
-                new OA\Property(property: 'transactions', type: 'array', items: new OA\Items(ref: new Model(type: TransactionSchema::class))),
-            ])),
+            new OA\Response(response: 200, description: 'Transactions with total count.', content: new OA\JsonContent(ref: new Model(type: TransactionListResponse::class))),
             new OA\Response(response: 404, ref: '#/components/responses/Error'),
         ],
     )]
-    public function getUserTransactions(string $userId, Request $request, EntityManagerInterface $entityManager, TransactionRepository $transactionRepository): JsonResponse
+    #[Serialize]
+    public function getUserTransactions(string $userId, Request $request, EntityManagerInterface $entityManager, TransactionRepository $transactionRepository): TransactionListResponse
     {
         $limit = $request->query->getInt('limit', 25);
         $offset = $request->query->has('offset') ? $request->query->getInt('offset') : null;
@@ -122,10 +116,10 @@ class TransactionController extends AbstractController
         $count = $transactionRepository->countByUser($user);
         $transactions = $transactionRepository->findByUser($user, $limit, $offset);
 
-        return $this->json([
-            'count' => $count,
-            'transactions' => array_map($this->transactionSerializer->serialize(...), $transactions),
-        ]);
+        return new TransactionListResponse(
+            count: $count,
+            transactions: array_map($this->transactionSerializer->serialize(...), $transactions),
+        );
     }
 
     #[Route('/user/{userId}/transaction/{transactionId}', methods: ['GET'])]
@@ -137,13 +131,12 @@ class TransactionController extends AbstractController
             new OA\Parameter(name: 'transactionId', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
         ],
         responses: [
-            new OA\Response(response: 200, description: 'The transaction.', content: new OA\JsonContent(properties: [
-                new OA\Property(property: 'transaction', ref: new Model(type: TransactionSchema::class)),
-            ])),
+            new OA\Response(response: 200, description: 'The transaction.', content: new OA\JsonContent(ref: new Model(type: TransactionResponse::class))),
             new OA\Response(response: 404, ref: '#/components/responses/Error'),
         ],
     )]
-    public function getUserTransaction(string $userId, string $transactionId, EntityManagerInterface $entityManager): JsonResponse
+    #[Serialize]
+    public function getUserTransaction(string $userId, string $transactionId, EntityManagerInterface $entityManager): TransactionResponse
     {
         $user = $entityManager->getRepository(User::class)->find($userId);
         if (!$user) {
@@ -155,9 +148,7 @@ class TransactionController extends AbstractController
             throw new TransactionNotFoundException($transactionId);
         }
 
-        return $this->json([
-            'transaction' => $this->transactionSerializer->serialize($transaction),
-        ]);
+        return new TransactionResponse($this->transactionSerializer->serialize($transaction));
     }
 
     #[Route('/user/{userId}/transaction/{transactionId}', methods: ['DELETE'])]
@@ -169,14 +160,13 @@ class TransactionController extends AbstractController
             new OA\Parameter(name: 'transactionId', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
         ],
         responses: [
-            new OA\Response(response: 200, description: 'The reverted transaction (isDeleted=true).', content: new OA\JsonContent(properties: [
-                new OA\Property(property: 'transaction', ref: new Model(type: TransactionSchema::class)),
-            ])),
+            new OA\Response(response: 200, description: 'The reverted transaction (isDeleted=true).', content: new OA\JsonContent(ref: new Model(type: TransactionResponse::class))),
             new OA\Response(response: 400, ref: '#/components/responses/Error'),
             new OA\Response(response: 404, ref: '#/components/responses/Error'),
         ],
     )]
-    public function deleteTransaction(string $userId, string $transactionId, TransactionService $transactionService, EntityManagerInterface $entityManager): JsonResponse
+    #[Serialize]
+    public function deleteTransaction(string $userId, string $transactionId, TransactionService $transactionService, EntityManagerInterface $entityManager): TransactionResponse
     {
         $user = $entityManager->getRepository(User::class)->find($userId);
         if (!$user) {
@@ -201,8 +191,6 @@ class TransactionController extends AbstractController
 
         $reverted = $transactionService->revertTransaction((int) $transactionId);
 
-        return $this->json([
-            'transaction' => $this->transactionSerializer->serialize($reverted),
-        ]);
+        return new TransactionResponse($this->transactionSerializer->serialize($reverted));
     }
 }
