@@ -16,8 +16,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[OA\Schema(required: ['name'])]
 final class CreateUserDto
 {
+    // nullable:false stops the ?string ctor param (a trick so a missing name fails
+    // NotBlank) from rendering a contradictory "required + nullable" schema.
     #[Assert\NotBlank]
     #[Assert\Length(max: 64)]
+    #[OA\Property(nullable: false)]
     public string $name;
 
     #[Assert\Email]

@@ -15,10 +15,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 final class WriteArticleDto
 {
     #[Assert\NotBlank]
+    #[Assert\Length(max: 255)]
     public string $name;
 
     #[Assert\NotEqualTo(0)]
-    #[OA\Property(description: 'Price in cents.')]
+    #[OA\Property(description: 'Price in cents. Must be non-zero — a missing or 0 amount is rejected (422).')]
     public int $amount;
 
     public function __construct(string $name = '', int $amount = 0)

@@ -10,6 +10,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 final class AddBarcodeDto
 {
     #[Assert\NotBlank]
+    #[Assert\Length(max: 32)]
     public string $barcode;
 
     public function __construct(string $barcode)
