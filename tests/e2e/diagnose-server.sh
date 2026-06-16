@@ -1,70 +1,62 @@
 #!/usr/bin/env bash
-# TEMPORARY diagnostic for the e2e webServer SIGSEGV (exit 139) seen only on the
-# GitHub x86_64 runner. Runs the exact webServer steps (playwright.config.js)
-# first plainly — to identify WHICH command crashes — then under gdb to capture
-# a C backtrace (which shared library / function faults).
+# TEMPORARY diagnostic for the e2e webServer SIGSEGV (exit 139), reproducible
+# only on the GitHub native-x86_64 runner. Confirmed: php -S segfaults on the
+# FIRST request to /user/active while ux-icons parses an icon SVG via
+# \DOMDocument (Icon::fromFile -> libxml2). This captures a C backtrace from a
+# core dump and empirically tests whether disabling PCRE JIT changes anything.
 #
-# Remove this script and its workflow step once the root cause is found.
-#
-# Matches playwright.config.js webServer env exactly: DATABASE_URL + APP_ENV=dev,
-# APP_DEBUG left to dotenv resolution (the real command sets neither explicitly).
+# Remove this script and its workflow step once the cause is fixed.
 export DATABASE_URL='sqlite:///%kernel.project_dir%/var/e2e.db'
 export APP_ENV=dev
-PHP=(php -d variables_order=EGPCS)
+
+# start php -S with the given extra php flags, hit /user/active once, report
+probe () {
+  local label="$1"; shift
+  rm -f var/e2e.db; rm -rf var/cache/dev
+  php -d variables_order=EGPCS "$@" bin/console doctrine:schema:create --quiet
+  php -d variables_order=EGPCS "$@" -S 127.0.0.1:8765 -t public >/tmp/srv.out 2>&1 &
+  local srv=$!
+  sleep 4
+  local code
+  code=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 25 \
+           http://127.0.0.1:8765/user/active 2>/dev/null || echo ERR)
+  sleep 2
+  if kill -0 "$srv" 2>/dev/null; then
+    echo ">>> [$label] http=$code — server ALIVE (no crash)"; kill "$srv" 2>/dev/null
+  else
+    echo ">>> [$label] http=$code — server DIED (SIGSEGV)"
+  fi
+}
 
 echo "PHP: $(php -v | head -1)"
-echo "ext: $(php -m | tr '\n' ' ')"
-echo
+echo "pcre.jit: $(php -i | grep -i '^pcre.jit')"
+echo "libxml:   $(php -i | grep -iE 'libxml.*version|libXML' | head -2 | tr '\n' ' ')"
 
-# 1) schema:create alone -------------------------------------------------------
-echo "::group::PLAIN schema:create"
-rm -f var/e2e.db
-"${PHP[@]}" bin/console doctrine:schema:create -vvv
-echo ">>> schema:create exit code: $?  (139 = SIGSEGV)"
+ulimit -c unlimited
+echo '/tmp/core.%e.%p' | sudo tee /proc/sys/kernel/core_pattern >/dev/null 2>&1 || true
+echo "core_pattern: $(cat /proc/sys/kernel/core_pattern 2>/dev/null)"
+rm -f /tmp/core.*
+
+echo "::group::A) default flags (baseline — expect crash)"
+probe "default"
+echo "--- request log (info/errors) ---"
+grep -vE '\] \[debug\]' /tmp/srv.out | tail -15
 echo "::endgroup::"
 
-# 2) php -S boot + one request -------------------------------------------------
-echo "::group::PLAIN php -S + curl /user/active"
-"${PHP[@]}" -S 127.0.0.1:8765 -t public >/tmp/srv.out 2>&1 &
-SRV=$!
-sleep 4
-if kill -0 "$SRV" 2>/dev/null; then
-  curl -sS -o /dev/null -w 'curl http_code=%{http_code}\n' --max-time 25 \
-    http://127.0.0.1:8765/user/active || echo "curl failed rc=$?"
-  sleep 1
-  kill -0 "$SRV" 2>/dev/null && echo ">>> server ALIVE after request" \
-                            || echo ">>> server DIED after first request"
+echo "::group::core backtrace (from run A)"
+CORE=$(ls -t /tmp/core.* 2>/dev/null | head -1)
+if [ -n "$CORE" ] && command -v gdb >/dev/null; then
+  echo "core: $CORE"
+  gdb -q -batch -ex 'set pagination off' -ex 'bt' -ex 'echo \n---- BT FULL (top) ----\n' -ex 'bt full' \
+      "$(command -v php)" "$CORE" 2>&1 \
+    | grep -vE 'No such file|debuginfod|Missing separate' | head -90
 else
-  echo ">>> server DIED during boot (before first request)"
+  echo "no core produced (CORE='$CORE')"
 fi
-kill "$SRV" 2>/dev/null
-echo "--- server output (tail) ---"; tail -40 /tmp/srv.out
 echo "::endgroup::"
 
-# 3) backtraces under gdb (only meaningful if something above crashed) ---------
-if command -v gdb >/dev/null; then
-  echo "::group::GDB schema:create backtrace"
-  rm -f var/e2e.db
-  gdb -q -batch -ex 'set pagination off' -ex run \
-      -ex 'echo \n==== BT schema:create ====\n' -ex 'bt' -ex 'info sharedlibrary' \
-      --args "${PHP[@]}" bin/console doctrine:schema:create -vvv 2>&1 | tail -60
-  echo "::endgroup::"
+echo "::group::B) pcre.jit=0 (does disabling PCRE JIT stop the crash?)"
+probe "pcre.jit=0" -d pcre.jit=0
+echo "::endgroup::"
 
-  echo "::group::GDB php -S backtrace"
-  gdb -q -batch -ex 'set pagination off' -ex 'handle SIGPIPE nostop noprint pass' \
-      -ex run -ex 'echo \n==== BT php -S ====\n' -ex 'bt' -ex 'info sharedlibrary' \
-      --args "${PHP[@]}" -S 127.0.0.1:8765 -t public >/tmp/gdbsrv.out 2>&1 &
-  G=$!
-  sleep 5
-  curl -sS -o /dev/null --max-time 25 http://127.0.0.1:8765/user/active || true
-  sleep 2
-  kill "$G" 2>/dev/null
-  wait "$G" 2>/dev/null
-  tail -70 /tmp/gdbsrv.out
-  echo "::endgroup::"
-else
-  echo "gdb not available"
-fi
-
-# never fail the job on the diagnostic itself
 exit 0
