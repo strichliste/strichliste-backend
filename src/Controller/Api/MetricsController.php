@@ -24,6 +24,11 @@ class MetricsController extends AbstractController
     }
 
     /**
+     * Returns an array (not a typed Response DTO): the per-day series carries the
+     * legacy quirk where `charged`/`spent` are either the int 0 or a {amount,
+     * transactions} object, plus other ad-hoc nested shapes that a DTO can't model
+     * cleanly. #[Serialize] still removes the manual JsonResponse plumbing.
+     *
      * @return array<string, mixed>
      */
     #[Route('/api/metrics', methods: ['GET'])]
