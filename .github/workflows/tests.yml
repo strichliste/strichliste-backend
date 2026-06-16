@@ -189,10 +189,5 @@ jobs:
         if: failure()
         with:
           name: playwright-report
-          # e2e-server.log carries the PHP dev-server output; it is the only
-          # record of why the webServer process exits (e.g. SIGSEGV / exit 139).
-          path: |
-            playwright-report/
-            var/e2e-server.log
-          if-no-files-found: ignore
+          path: playwright-report/
           retention-days: 7
