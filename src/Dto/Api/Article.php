@@ -2,7 +2,6 @@
 
 namespace App\Dto\Api;
 
-use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 
 /**
@@ -14,17 +13,15 @@ use OpenApi\Attributes as OA;
 final class Article
 {
     /**
-     * @param Barcode[]    $barcodes
-     * @param ArticleTag[] $tags
+     * @param list<Barcode>    $barcodes
+     * @param list<ArticleTag> $tags
      */
     public function __construct(
         #[OA\Property(example: 1)]
         public int $id,
         #[OA\Property(example: 'Club Mate')]
         public string $name,
-        #[OA\Property(type: 'array', items: new OA\Items(ref: new Model(type: Barcode::class)))]
         public array $barcodes,
-        #[OA\Property(type: 'array', items: new OA\Items(ref: new Model(type: ArticleTag::class)))]
         public array $tags,
         #[OA\Property(description: 'Price in cents.', example: 150)]
         public int $amount,
