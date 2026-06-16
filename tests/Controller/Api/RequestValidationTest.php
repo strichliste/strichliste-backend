@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Controller\Api;
 
 use PHPUnit\Framework\Attributes\DataProvider;
