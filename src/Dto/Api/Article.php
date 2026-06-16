@@ -6,9 +6,10 @@ use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 
 /**
- * OpenAPI response model for the frozen /api `article` shape.
+ * Response payload for the frozen /api `article` shape.
  *
- * Documentation-only: mirrors {@see \App\Serializer\ArticleSerializer}.
+ * Built by {@see \App\Serializer\ArticleSerializer}; doubles as the
+ * Nelmio OpenAPI schema.
  */
 final class Article
 {

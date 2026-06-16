@@ -5,9 +5,10 @@ namespace App\Dto\Api;
 use OpenApi\Attributes as OA;
 
 /**
- * OpenAPI response model for the frozen /api `tag` shape.
+ * Response payload for the frozen /api `tag` shape.
  *
- * Documentation-only: mirrors {@see \App\Serializer\TagSerializer}.
+ * Built by {@see \App\Serializer\TagSerializer}; doubles as the
+ * Nelmio OpenAPI schema.
  */
 final class Tag
 {

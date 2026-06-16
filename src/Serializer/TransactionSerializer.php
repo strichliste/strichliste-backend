@@ -2,6 +2,8 @@
 
 namespace App\Serializer;
 
+use App\Dto\Api\Transaction as TransactionDto;
+use App\Dto\Api\User as UserDto;
 use App\Entity\Transaction;
 use App\Service\TransactionService;
 
@@ -11,32 +13,26 @@ class TransactionSerializer
     {
     }
 
-    /**
-     * @return array<string, mixed>
-     */
-    public function serialize(Transaction $transaction): array
+    public function serialize(Transaction $transaction): TransactionDto
     {
         $article = $transaction->getArticle();
 
-        return [
-            'id' => $transaction->getId(),
-            'user' => $this->userSerializer->serialize($transaction->getUser()),
-            'quantity' => $transaction->getQuantity(),
-            'article' => $article ? $this->articleSerializer->serialize($article) : null,
-            'sender' => $this->getUserOrNull($transaction->getSenderTransaction()),
-            'recipient' => $this->getUserOrNull($transaction->getRecipientTransaction()),
-            'comment' => $transaction->getComment(),
-            'amount' => $transaction->getAmount(),
-            'isDeleted' => $transaction->isDeleted(),
-            'isDeletable' => $this->transactionService->isDeletable($transaction),
-            'created' => $transaction->getCreated()->format('Y-m-d H:i:s'),
-        ];
+        return new TransactionDto(
+            id: (int) $transaction->getId(),
+            user: $this->userSerializer->serialize($transaction->getUser()),
+            quantity: $transaction->getQuantity(),
+            article: $article ? $this->articleSerializer->serialize($article) : null,
+            sender: $this->getUserOrNull($transaction->getSenderTransaction()),
+            recipient: $this->getUserOrNull($transaction->getRecipientTransaction()),
+            comment: $transaction->getComment(),
+            amount: $transaction->getAmount(),
+            isDeleted: (bool) $transaction->isDeleted(),
+            isDeletable: $this->transactionService->isDeletable($transaction),
+            created: $transaction->getCreated()->format('Y-m-d H:i:s'),
+        );
     }
 
-    /**
-     * @return array<string, mixed>|null
-     */
-    private function getUserOrNull(?Transaction $transaction): ?array
+    private function getUserOrNull(?Transaction $transaction): ?UserDto
     {
         if (!$transaction) {
             return null;

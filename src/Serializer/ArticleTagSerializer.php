@@ -2,19 +2,17 @@
 
 namespace App\Serializer;
 
+use App\Dto\Api\ArticleTag as ArticleTagDto;
 use App\Entity\ArticleTag;
 
 class ArticleTagSerializer
 {
-    /**
-     * @return array<string, mixed>
-     */
-    public function serialize(ArticleTag $articleTag): array
+    public function serialize(ArticleTag $articleTag): ArticleTagDto
     {
-        return [
-            'id' => $articleTag->getTag()->getId(),
-            'tag' => $articleTag->getTag()->getTag(),
-            'created' => $articleTag->getCreated()->format('Y-m-d H:i:s'),
-        ];
+        return new ArticleTagDto(
+            id: (int) $articleTag->getTag()->getId(),
+            tag: $articleTag->getTag()->getTag(),
+            created: $articleTag->getCreated()->format('Y-m-d H:i:s'),
+        );
     }
 }

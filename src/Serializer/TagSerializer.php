@@ -2,20 +2,18 @@
 
 namespace App\Serializer;
 
+use App\Dto\Api\Tag as TagDto;
 use App\Entity\Tag;
 
 class TagSerializer
 {
-    /**
-     * @return array<string, mixed>
-     */
-    public function serialize(Tag $tag): array
+    public function serialize(Tag $tag): TagDto
     {
-        return [
-            'id' => $tag->getId(),
-            'tag' => $tag->getTag(),
-            'usageCount' => $tag->getUsageCount(),
-            'created' => $tag->getCreated()->format('Y-m-d H:i:s'),
-        ];
+        return new TagDto(
+            id: (int) $tag->getId(),
+            tag: $tag->getTag(),
+            usageCount: $tag->getUsageCount(),
+            created: $tag->getCreated()->format('Y-m-d H:i:s'),
+        );
     }
 }

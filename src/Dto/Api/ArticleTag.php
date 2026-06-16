@@ -5,9 +5,10 @@ namespace App\Dto\Api;
 use OpenApi\Attributes as OA;
 
 /**
- * OpenAPI response model for a tag as embedded in an article.
+ * Response payload for a tag as embedded in an article.
  *
- * Documentation-only: mirrors {@see \App\Serializer\ArticleTagSerializer}.
+ * Built by {@see \App\Serializer\ArticleTagSerializer}; doubles as the
+ * Nelmio OpenAPI schema.
  */
 #[OA\Schema(description: 'Tag as embedded in an article.')]
 final class ArticleTag

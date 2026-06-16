@@ -5,9 +5,10 @@ namespace App\Dto\Api;
 use OpenApi\Attributes as OA;
 
 /**
- * OpenAPI response model for the frozen /api `transaction` shape.
+ * Response payload for the frozen /api `transaction` shape.
  *
- * Documentation-only: mirrors {@see \App\Serializer\TransactionSerializer}.
+ * Built by {@see \App\Serializer\TransactionSerializer}; doubles as the
+ * Nelmio OpenAPI schema.
  */
 final class Transaction
 {
