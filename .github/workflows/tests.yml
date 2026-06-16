@@ -168,6 +168,13 @@ jobs:
 
       - run: npx playwright install --with-deps chromium
 
+      # TEMPORARY: diagnose the webServer SIGSEGV (exit 139) under gdb. Remove
+      # this step and tests/e2e/diagnose-server.sh once the cause is found.
+      - name: Diagnose webServer SIGSEGV
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq gdb >/dev/null
+          bash tests/e2e/diagnose-server.sh
+
       # the suite seeds var/e2e.db and boots its own PHP server (playwright.config.js)
       - run: npx playwright test
 
