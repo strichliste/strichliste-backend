@@ -18,13 +18,12 @@ final class WriteArticleDto
     #[Assert\Length(max: 255)]
     public string $name;
 
-    #[Assert\NotEqualTo(0)]
-    #[OA\Property(description: 'Price in cents. Must be non-zero — a missing or 0 amount is rejected (422).')]
-    public int $amount;
-
-    public function __construct(string $name = '', int $amount = 0)
-    {
+    public function __construct(
+        string $name = '',
+        #[Assert\NotEqualTo(0)]
+        #[OA\Property(description: 'Price in cents. Must be non-zero — a missing or 0 amount is rejected (422).')]
+        public int $amount = 0,
+    ) {
         $this->name = trim($name);
-        $this->amount = $amount;
     }
 }

@@ -75,7 +75,7 @@ class UserServiceTest extends TestCase
         self::assertInstanceOf(\DateTime::class, $staleDateTime);
 
         // roughly 10 days ago (allow a small window for clock drift during the test)
-        $expected = (new \DateTime())->sub(\DateInterval::createFromDateString('10 day'));
+        $expected = new \DateTime()->sub(\DateInterval::createFromDateString('10 day'));
         self::assertEqualsWithDelta($expected->getTimestamp(), $staleDateTime->getTimestamp(), 5);
     }
 
