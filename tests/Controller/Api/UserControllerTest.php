@@ -72,4 +72,16 @@ class UserControllerTest extends AbstractApplicationTestCase
         $this->assertStringContainsString('no-store', $cacheControl);
         $this->assertStringContainsString('max-age=0', $cacheControl);
     }
+
+    public function testUserListIsUsersKeyWithoutCount(): void
+    {
+        $this->requestJson('POST', '/api/user', ['name' => 'listed']);
+
+        $data = $this->requestJson('GET', '/api/user');
+
+        // legacy contract: the user list is { "users": [...] } with NO count field,
+        // unlike every other list. Pinned here since it now lives in a bare array.
+        $this->assertArrayHasKey('users', $data);
+        $this->assertArrayNotHasKey('count', $data);
+    }
 }
