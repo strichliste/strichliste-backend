@@ -2,8 +2,14 @@
 import { defineConfig } from '@playwright/test';
 
 // -d variables_order=EGPCS: without E, PHP never populates $_ENV and
-// Symfony silently falls back to .env.local — the e2e DB isolation depends on it
-const PHP = 'php -d variables_order=EGPCS';
+// Symfony silently falls back to .env.local — the e2e DB isolation depends on it.
+//
+// -d opcache.jit*: opcache's tracing JIT segfaults (exit 139) on the GitHub
+// x86_64 runner while compiling the first request — a PHP JIT compiler bug
+// (confirmed via core dump: every frame in opcache.so) surfaced by the Symfony
+// 8.1 upgrade, not app code. The e2e server gains nothing from JIT, so turn it
+// off; jit_buffer_size=0 guarantees no JIT regardless of mode.
+const PHP = 'php -d variables_order=EGPCS -d opcache.jit=disable -d opcache.jit_buffer_size=0';
 
 // the readiness poll on /user/active fires before globalSetup runs, so the
 // fresh schema must already exist when the server accepts its first request

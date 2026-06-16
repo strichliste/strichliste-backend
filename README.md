@@ -4,7 +4,7 @@ strichliste ([ʃtʀɪçˈlɪstə], German word for tally sheet) is a tool to rep
 
 ## Architecture
 
-This repository is a **single Symfony 7.4 application** that serves:
+This repository is a **single Symfony 8.1 application** that serves:
 
 - **The UI** as server-rendered Twig pages at the real user-facing routes
   (`/`, `/user/active`, `/user/{id}`, `/articles/*`, `/split-invoice`, `/metrics`,

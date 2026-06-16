@@ -40,8 +40,7 @@ class ImportCommand extends Command
             'url' => sprintf('sqlite:///%s', $databaseFile),
         ], $config);
 
-        $connection->connect();
-
+        // DBAL 4 connects lazily on first query; the explicit connect() call was removed.
         $entityManager = $this->entityManager;
 
         // This importer is for strichliste 1 only and starts by wiping the target.

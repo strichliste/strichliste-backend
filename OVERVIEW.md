@@ -147,7 +147,7 @@ There is no floating point money anywhere.
 *(This section and everything below is for developers and
 administrators.)*
 
-strichliste is a **single Symfony 7.4 application** (PHP 8.4+). One
+strichliste is a **single Symfony 8.1 application** (PHP 8.4.1+). One
 process serves two faces:
 
 1. **The web UI** — server-rendered Twig pages at the user-facing
@@ -685,7 +685,7 @@ differences:
 - The separate **React frontend is gone** — the backend now renders the
   complete UI itself (same look and feel, works without JavaScript).
   One application to deploy instead of two.
-- **PHP 8.4+** instead of 7.1; Symfony 7.4.
+- **PHP 8.4.1+** instead of 7.1; Symfony 8.1.
 - The website recommends MySQL and warns against SQLite; today
   **SQLite is a fine default for small installs**, and Postgres is the
   bundled Docker default.
