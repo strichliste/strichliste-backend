@@ -12,9 +12,9 @@ class UserControllerTest extends AbstractApplicationTestCase
 
         $this->assertResponseIsSuccessful();
         $data = json_decode($this->client->getResponse()->getContent(), true);
-        $this->assertSame(self::TEST_USER_NAME, $data['user']['name']);
-        $this->assertSame(0, $data['user']['balance']);
-        $this->assertArrayHasKey('id', $data['user']);
+        $this->assertSame(self::TEST_USER_NAME, $data['name']);
+        $this->assertSame(0, $data['balance']);
+        $this->assertArrayHasKey('id', $data);
     }
 
     public function testCreateUserAcceptsJsonBody(): void
@@ -32,8 +32,8 @@ class UserControllerTest extends AbstractApplicationTestCase
 
         $this->assertResponseIsSuccessful();
         $data = json_decode($this->client->getResponse()->getContent(), true);
-        $this->assertSame('JsonUser', $data['user']['name']);
-        $this->assertSame('json@example.com', $data['user']['email']);
+        $this->assertSame('JsonUser', $data['name']);
+        $this->assertSame('json@example.com', $data['email']);
     }
 
     public function testMalformedJsonBodyIsEnvelopedNotA500(): void

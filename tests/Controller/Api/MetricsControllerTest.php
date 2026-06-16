@@ -51,7 +51,7 @@ class MetricsControllerTest extends AbstractApplicationTestCase
         $this->requestJson('POST', "/api/user/{$userId}/transaction", ['amount' => 500]);
         $tx = $this->requestJson('POST', "/api/user/{$userId}/transaction", [
             'articleId' => $articleId,
-        ], 'transaction');
+        ]);
         $this->requestJson('DELETE', "/api/user/{$userId}/transaction/{$tx['id']}");
 
         $data = $this->requestJson('GET', "/api/user/{$userId}/metrics");

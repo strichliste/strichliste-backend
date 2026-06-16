@@ -21,11 +21,11 @@ class ResponseContractTest extends AbstractApplicationTestCase
         $name = 'Tom & Jerry <x> "Q" O\'Brien';
         $this->client->request('POST', '/api/user', ['name' => $name]);
         $this->assertResponseIsSuccessful();
-        $id = json_decode($this->client->getResponse()->getContent(), true)['user']['id'];
+        $id = json_decode($this->client->getResponse()->getContent(), true)['id'];
 
         $this->client->request('GET', "/api/user/{$id}");
         $raw = $this->client->getResponse()->getContent();
-        $user = json_decode($raw, true)['user'];
+        $user = json_decode($raw, true);
 
         $this->assertSame(
             ['id', 'name', 'email', 'balance', 'isActive', 'isDisabled', 'created', 'updated'],
@@ -45,7 +45,7 @@ class ResponseContractTest extends AbstractApplicationTestCase
     {
         $userId = $this->createUserDb('Contract Tx User');
         // plain deposit: quantity/article/sender/recipient/comment are all null and must stay present
-        $tx = $this->requestJson('POST', "/api/user/{$userId}/transaction", ['amount' => 500], 'transaction');
+        $tx = $this->requestJson('POST', "/api/user/{$userId}/transaction", ['amount' => 500]);
 
         $this->assertSame(
             ['id', 'user', 'quantity', 'article', 'sender', 'recipient', 'comment', 'amount', 'isDeleted', 'isDeletable', 'created'],
@@ -61,7 +61,7 @@ class ResponseContractTest extends AbstractApplicationTestCase
     public function testArticleKeyOrderAndNullPrecursor(): void
     {
         $articleId = $this->createArticleDb('Contract Article', 150);
-        $article = $this->requestJson('GET', "/api/article/{$articleId}", [], 'article');
+        $article = $this->requestJson('GET', "/api/article/{$articleId}");
 
         $this->assertSame(
             ['id', 'name', 'barcodes', 'tags', 'amount', 'isActive', 'usageCount', 'precursor', 'created'],

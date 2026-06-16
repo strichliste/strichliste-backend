@@ -3,9 +3,8 @@
 namespace App\Controller\Api;
 
 use App\Dto\Api\AddTagDto;
-use App\Dto\Api\ArticleResponse;
-use App\Dto\Api\TagListResponse;
-use App\Dto\Api\TagResponse;
+use App\Dto\Api\Article as ArticleDto;
+use App\Dto\Api\Tag as TagDto;
 use App\Entity\Article;
 use App\Entity\ArticleTag;
 use App\Entity\Tag;
@@ -30,16 +29,22 @@ class TagController extends AbstractController
     {
     }
 
+    /**
+     * @return array{count: int, tags: list<TagDto>}
+     */
     #[Route('/tag', methods: ['GET'])]
     #[OA\Get(
         summary: 'List all tags',
         tags: ['tag'],
         responses: [
-            new OA\Response(response: 200, description: 'All tags.', content: new OA\JsonContent(ref: new Model(type: TagListResponse::class))),
+            new OA\Response(response: 200, description: 'All tags.', content: new OA\JsonContent(properties: [
+                new OA\Property(property: 'count', type: 'integer'),
+                new OA\Property(property: 'tags', type: 'array', items: new OA\Items(ref: new Model(type: TagDto::class))),
+            ])),
         ],
     )]
     #[Serialize]
-    public function listTags(EntityManagerInterface $entityManager): TagListResponse
+    public function listTags(EntityManagerInterface $entityManager): array
     {
         $tags = $entityManager->getRepository(Tag::class)->findAll();
 
@@ -47,12 +52,15 @@ class TagController extends AbstractController
                 ?: ($b->getCreated() <=> $a->getCreated())
         );
 
-        return new TagListResponse(
-            count: count($tags),
-            tags: array_map($this->tagSerializer->serialize(...), $tags),
-        );
+        return [
+            'count' => count($tags),
+            'tags' => array_map($this->tagSerializer->serialize(...), $tags),
+        ];
     }
 
+    /**
+     * @return array{count: int, tags: list<TagDto>}
+     */
     #[Route('/article/{articleId}/tag', methods: ['GET'])]
     #[OA\Get(
         summary: 'List an article\'s tags',
@@ -61,12 +69,15 @@ class TagController extends AbstractController
             new OA\Parameter(name: 'articleId', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
         ],
         responses: [
-            new OA\Response(response: 200, description: 'The article\'s tags.', content: new OA\JsonContent(ref: new Model(type: TagListResponse::class))),
+            new OA\Response(response: 200, description: 'The article\'s tags.', content: new OA\JsonContent(properties: [
+                new OA\Property(property: 'count', type: 'integer'),
+                new OA\Property(property: 'tags', type: 'array', items: new OA\Items(ref: new Model(type: TagDto::class))),
+            ])),
             new OA\Response(response: 404, ref: '#/components/responses/Error'),
         ],
     )]
     #[Serialize]
-    public function listArticleTags(int $articleId, EntityManagerInterface $entityManager): TagListResponse
+    public function listArticleTags(int $articleId, EntityManagerInterface $entityManager): array
     {
         $article = $entityManager->getRepository(Article::class)->find($articleId);
         if (!$article) {
@@ -75,10 +86,10 @@ class TagController extends AbstractController
 
         $tags = $article->getTags();
 
-        return new TagListResponse(
-            count: count($tags),
-            tags: array_map($this->tagSerializer->serialize(...), $tags),
-        );
+        return [
+            'count' => count($tags),
+            'tags' => array_map($this->tagSerializer->serialize(...), $tags),
+        ];
     }
 
     #[Route('/article/{articleId}/tag/{tagId}', methods: ['GET'])]
@@ -90,12 +101,12 @@ class TagController extends AbstractController
             new OA\Parameter(name: 'tagId', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
         ],
         responses: [
-            new OA\Response(response: 200, description: 'The tag.', content: new OA\JsonContent(ref: new Model(type: TagResponse::class))),
+            new OA\Response(response: 200, description: 'The tag.', content: new OA\JsonContent(ref: new Model(type: TagDto::class))),
             new OA\Response(response: 404, ref: '#/components/responses/Error'),
         ],
     )]
     #[Serialize]
-    public function getArticleTag(int $articleId, int $tagId, EntityManagerInterface $entityManager): TagResponse
+    public function getArticleTag(int $articleId, int $tagId, EntityManagerInterface $entityManager): TagDto
     {
         $article = $entityManager->getRepository(Article::class)->find($articleId);
         if (!$article) {
@@ -107,7 +118,7 @@ class TagController extends AbstractController
             throw new TagNotFoundException($tagId);
         }
 
-        return new TagResponse($this->tagSerializer->serialize($articleTag->getTag()));
+        return $this->tagSerializer->serialize($articleTag->getTag());
     }
 
     #[Route('/article/{articleId}/tag', methods: ['POST'])]
@@ -122,14 +133,14 @@ class TagController extends AbstractController
             new OA\MediaType(mediaType: 'application/x-www-form-urlencoded', schema: new OA\Schema(ref: new Model(type: AddTagDto::class))),
         ]),
         responses: [
-            new OA\Response(response: 200, description: 'The article including the new tag.', content: new OA\JsonContent(ref: new Model(type: ArticleResponse::class))),
+            new OA\Response(response: 200, description: 'The article including the new tag.', content: new OA\JsonContent(ref: new Model(type: ArticleDto::class))),
             new OA\Response(response: 404, ref: '#/components/responses/Error'),
             new OA\Response(response: 409, ref: '#/components/responses/Error'),
             new OA\Response(response: 422, ref: '#/components/responses/Error'),
         ],
     )]
     #[Serialize]
-    public function addArticleTag(int $articleId, #[MapRequestPayload] AddTagDto $dto, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager, TagRepository $tagRepository): ArticleResponse
+    public function addArticleTag(int $articleId, #[MapRequestPayload] AddTagDto $dto, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager, TagRepository $tagRepository): ArticleDto
     {
         $article = $entityManager->getRepository(Article::class)->find($articleId);
         if (!$article) {
@@ -151,7 +162,7 @@ class TagController extends AbstractController
         $entityManager->persist($article);
         $entityManager->flush();
 
-        return new ArticleResponse($articleSerializer->serialize($article));
+        return $articleSerializer->serialize($article);
     }
 
     #[Route('/article/{articleId}/tag/{tagId}', methods: ['DELETE'])]
@@ -163,12 +174,12 @@ class TagController extends AbstractController
             new OA\Parameter(name: 'tagId', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
         ],
         responses: [
-            new OA\Response(response: 200, description: 'The article without the removed tag.', content: new OA\JsonContent(ref: new Model(type: ArticleResponse::class))),
+            new OA\Response(response: 200, description: 'The article without the removed tag.', content: new OA\JsonContent(ref: new Model(type: ArticleDto::class))),
             new OA\Response(response: 404, ref: '#/components/responses/Error'),
         ],
     )]
     #[Serialize]
-    public function deleteArticleTag(int $articleId, int $tagId, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager): ArticleResponse
+    public function deleteArticleTag(int $articleId, int $tagId, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager): ArticleDto
     {
         $article = $entityManager->getRepository(Article::class)->find($articleId);
         if (!$article) {
@@ -191,6 +202,6 @@ class TagController extends AbstractController
             $entityManager->flush();
         });
 
-        return new ArticleResponse($articleSerializer->serialize($article));
+        return $articleSerializer->serialize($article);
     }
 }

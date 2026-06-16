@@ -35,7 +35,7 @@ abstract class AbstractApplicationTestCase extends WebTestCase
     protected function assertUserBalance(int $userId, int $expected): void
     {
         $data = $this->requestJson('GET', "/api/user/{$userId}");
-        $this->assertSame($expected, $data['user']['balance']);
+        $this->assertSame($expected, $data['balance']);
     }
 
     protected function createUserDb(string $name): int

@@ -103,11 +103,11 @@ class RequestValidationTest extends AbstractApplicationTestCase
         $articleId = $this->createArticleDb('Club Mate', 150);
 
         // plain deposit: no quantity/articleId/recipientId -> still 200
-        $deposit = $this->requestJson('POST', "/api/user/{$userId}/transaction", ['amount' => 500], 'transaction');
+        $deposit = $this->requestJson('POST', "/api/user/{$userId}/transaction", ['amount' => 500]);
         $this->assertSame(500, $deposit['amount']);
 
         // purchase without quantity -> service defaults to 1 (amount -150), still 200
-        $purchase = $this->requestJson('POST', "/api/user/{$userId}/transaction", ['articleId' => $articleId], 'transaction');
+        $purchase = $this->requestJson('POST', "/api/user/{$userId}/transaction", ['articleId' => $articleId]);
         $this->assertSame(-150, $purchase['amount']);
         $this->assertSame(1, $purchase['quantity']);
     }

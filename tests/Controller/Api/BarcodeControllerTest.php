@@ -24,7 +24,7 @@ class BarcodeControllerTest extends AbstractApplicationTestCase
 
         $afterAdd = $this->requestJson('POST', "/api/article/{$articleId}/barcode", [
             'barcode' => $barcode,
-        ], 'article');
+        ]);
 
         $this->assertCount(1, $afterAdd['barcodes']);
         $this->assertSame($barcode, $afterAdd['barcodes'][0]['barcode']);
@@ -75,7 +75,7 @@ class BarcodeControllerTest extends AbstractApplicationTestCase
 
         $afterAdd = $this->requestJson('POST', "/api/article/{$articleAId}/barcode", [
             'barcode' => $this->generateBarcode(),
-        ], 'article');
+        ]);
         $barcodeId = $afterAdd['barcodes'][0]['id'];
 
         $this->client->request($method, "/api/article/{$articleBId}/barcode/{$barcodeId}");
