@@ -2,9 +2,10 @@
 
 namespace App\Controller\Api;
 
-use App\Dto\Api\Article as ArticleSchema;
-use App\Dto\Api\Barcode as BarcodeSchema;
 use App\Dto\Api\AddBarcodeDto;
+use App\Dto\Api\ArticleResponse;
+use App\Dto\Api\BarcodeListResponse;
+use App\Dto\Api\BarcodeResponse;
 use App\Entity\Article;
 use App\Entity\Barcode;
 use App\Exception\ArticleBarcodeAlreadyExistsException;
@@ -18,8 +19,8 @@ use Doctrine\ORM\EntityManagerInterface;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
+use Symfony\Component\HttpKernel\Attribute\Serialize;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api')]
@@ -34,20 +35,18 @@ class BarcodeController extends AbstractController
         summary: 'List all barcodes',
         tags: ['barcode'],
         responses: [
-            new OA\Response(response: 200, description: 'All barcodes.', content: new OA\JsonContent(properties: [
-                new OA\Property(property: 'count', type: 'integer'),
-                new OA\Property(property: 'barcodes', type: 'array', items: new OA\Items(ref: new Model(type: BarcodeSchema::class))),
-            ])),
+            new OA\Response(response: 200, description: 'All barcodes.', content: new OA\JsonContent(ref: new Model(type: BarcodeListResponse::class))),
         ],
     )]
-    public function listBarcodes(EntityManagerInterface $entityManager): JsonResponse
+    #[Serialize]
+    public function listBarcodes(EntityManagerInterface $entityManager): BarcodeListResponse
     {
         $barcodes = $entityManager->getRepository(Barcode::class)->findBy([], ['created' => 'DESC']);
 
-        return $this->json([
-            'count' => count($barcodes),
-            'barcodes' => array_map($this->barcodeSerializer->serialize(...), $barcodes),
-        ]);
+        return new BarcodeListResponse(
+            count: count($barcodes),
+            barcodes: array_map($this->barcodeSerializer->serialize(...), $barcodes),
+        );
     }
 
     #[Route('/article/{articleId}/barcode', methods: ['GET'])]
@@ -58,14 +57,12 @@ class BarcodeController extends AbstractController
             new OA\Parameter(name: 'articleId', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
         ],
         responses: [
-            new OA\Response(response: 200, description: 'The article\'s barcodes.', content: new OA\JsonContent(properties: [
-                new OA\Property(property: 'count', type: 'integer'),
-                new OA\Property(property: 'barcodes', type: 'array', items: new OA\Items(ref: new Model(type: BarcodeSchema::class))),
-            ])),
+            new OA\Response(response: 200, description: 'The article\'s barcodes.', content: new OA\JsonContent(ref: new Model(type: BarcodeListResponse::class))),
             new OA\Response(response: 404, ref: '#/components/responses/Error'),
         ],
     )]
-    public function listArticleBarcode(int $articleId, EntityManagerInterface $entityManager): JsonResponse
+    #[Serialize]
+    public function listArticleBarcode(int $articleId, EntityManagerInterface $entityManager): BarcodeListResponse
     {
         $article = $entityManager->getRepository(Article::class)->find($articleId);
         if (!$article) {
@@ -74,10 +71,10 @@ class BarcodeController extends AbstractController
 
         $barcodes = $article->getBarcodes();
 
-        return $this->json([
-            'count' => count($barcodes),
-            'barcodes' => array_map($this->barcodeSerializer->serialize(...), $barcodes),
-        ]);
+        return new BarcodeListResponse(
+            count: count($barcodes),
+            barcodes: array_map($this->barcodeSerializer->serialize(...), $barcodes),
+        );
     }
 
     #[Route('/article/{articleId}/barcode/{barcodeId}', methods: ['GET'])]
@@ -89,13 +86,12 @@ class BarcodeController extends AbstractController
             new OA\Parameter(name: 'barcodeId', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
         ],
         responses: [
-            new OA\Response(response: 200, description: 'The barcode.', content: new OA\JsonContent(properties: [
-                new OA\Property(property: 'barcode', ref: new Model(type: BarcodeSchema::class)),
-            ])),
+            new OA\Response(response: 200, description: 'The barcode.', content: new OA\JsonContent(ref: new Model(type: BarcodeResponse::class))),
             new OA\Response(response: 404, ref: '#/components/responses/Error'),
         ],
     )]
-    public function getArticleBarcode(int $articleId, int $barcodeId, EntityManagerInterface $entityManager): JsonResponse
+    #[Serialize]
+    public function getArticleBarcode(int $articleId, int $barcodeId, EntityManagerInterface $entityManager): BarcodeResponse
     {
         $article = $entityManager->getRepository(Article::class)->find($articleId);
         if (!$article) {
@@ -107,9 +103,7 @@ class BarcodeController extends AbstractController
             throw new BarcodeNotFoundException($barcodeId);
         }
 
-        return $this->json([
-            'barcode' => $this->barcodeSerializer->serialize($barcode),
-        ]);
+        return new BarcodeResponse($this->barcodeSerializer->serialize($barcode));
     }
 
     #[Route('/article/{articleId}/barcode', methods: ['POST'])]
@@ -124,16 +118,15 @@ class BarcodeController extends AbstractController
             new OA\MediaType(mediaType: 'application/x-www-form-urlencoded', schema: new OA\Schema(ref: new Model(type: AddBarcodeDto::class))),
         ]),
         responses: [
-            new OA\Response(response: 200, description: 'The article including the new barcode.', content: new OA\JsonContent(properties: [
-                new OA\Property(property: 'article', ref: new Model(type: ArticleSchema::class)),
-            ])),
+            new OA\Response(response: 200, description: 'The article including the new barcode.', content: new OA\JsonContent(ref: new Model(type: ArticleResponse::class))),
             new OA\Response(response: 400, ref: '#/components/responses/Error'),
             new OA\Response(response: 404, ref: '#/components/responses/Error'),
             new OA\Response(response: 409, ref: '#/components/responses/Error'),
             new OA\Response(response: 422, ref: '#/components/responses/Error'),
         ],
     )]
-    public function addArticleBarcode(int $articleId, #[MapRequestPayload] AddBarcodeDto $dto, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager, BarcodeRepository $barcodeRepository): JsonResponse
+    #[Serialize]
+    public function addArticleBarcode(int $articleId, #[MapRequestPayload] AddBarcodeDto $dto, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager, BarcodeRepository $barcodeRepository): ArticleResponse
     {
         $article = $entityManager->getRepository(Article::class)->find($articleId);
         if (!$article) {
@@ -155,9 +148,7 @@ class BarcodeController extends AbstractController
         $entityManager->persist($article);
         $entityManager->flush();
 
-        return $this->json([
-            'article' => $articleSerializer->serialize($article),
-        ]);
+        return new ArticleResponse($articleSerializer->serialize($article));
     }
 
     #[Route('/article/{articleId}/barcode/{barcodeId}', methods: ['DELETE'])]
@@ -169,13 +160,12 @@ class BarcodeController extends AbstractController
             new OA\Parameter(name: 'barcodeId', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
         ],
         responses: [
-            new OA\Response(response: 200, description: 'The article without the removed barcode.', content: new OA\JsonContent(properties: [
-                new OA\Property(property: 'article', ref: new Model(type: ArticleSchema::class)),
-            ])),
+            new OA\Response(response: 200, description: 'The article without the removed barcode.', content: new OA\JsonContent(ref: new Model(type: ArticleResponse::class))),
             new OA\Response(response: 404, ref: '#/components/responses/Error'),
         ],
     )]
-    public function deleteArticleBarcode(int $articleId, int $barcodeId, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager): JsonResponse
+    #[Serialize]
+    public function deleteArticleBarcode(int $articleId, int $barcodeId, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager): ArticleResponse
     {
         $article = $entityManager->getRepository(Article::class)->find($articleId);
         if (!$article) {
@@ -190,8 +180,6 @@ class BarcodeController extends AbstractController
         $entityManager->remove($existingBarcode);
         $entityManager->flush();
 
-        return $this->json([
-            'article' => $articleSerializer->serialize($article),
-        ]);
+        return new ArticleResponse($articleSerializer->serialize($article));
     }
 }
