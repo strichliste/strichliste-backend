@@ -85,6 +85,18 @@ class RequestValidationTest extends AbstractApplicationTestCase
         yield 'negative' => [-1];
     }
 
+    public function testMissingAmountTransactionIsEnvelopedNotA500(): void
+    {
+        $userId = $this->createUserDb('Faythe');
+
+        // body with neither amount nor articleId hit setAmount(null) -> raw TypeError (500).
+        // It must now come back as the domain error envelope (400), never an unhandled 500.
+        $this->client->request('POST', "/api/user/{$userId}/transaction", ['comment' => 'oops']);
+        $this->assertResponseStatusCodeSame(400);
+        $this->assertSame(\App\Exception\TransactionInvalidException::class, $this->errorClass());
+        $this->assertUserBalance($userId, 0);
+    }
+
     public function testOmittedOptionalFieldsStillWork(): void
     {
         $userId = $this->createUserDb('Walter');
