@@ -2,8 +2,14 @@
 import { defineConfig } from '@playwright/test';
 
 // -d variables_order=EGPCS: without E, PHP never populates $_ENV and
-// Symfony silently falls back to .env.local — the e2e DB isolation depends on it
-const PHP = 'php -d variables_order=EGPCS';
+// Symfony silently falls back to .env.local — the e2e DB isolation depends on it.
+//
+// -d opcache.jit*: the GitHub x86_64 runner's PHP build enables opcache's tracing
+// JIT in the CLI SAPI that `php -S` uses. That JIT segfaults (exit 139) while
+// compiling the first request's hot path — confirmed via core dump: every frame
+// in opcache.so, jumping into the JIT code buffer. The e2e server gains nothing
+// from JIT, so disable it (buffer_size=0 guarantees no JIT regardless of mode).
+const PHP = 'php -d variables_order=EGPCS -d opcache.jit=disable -d opcache.jit_buffer_size=0';
 
 // the readiness poll on /user/active fires before globalSetup runs, so the
 // fresh schema must already exist when the server accepts its first request.
