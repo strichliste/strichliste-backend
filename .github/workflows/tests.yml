@@ -171,8 +171,19 @@ jobs:
 
       - run: npx playwright install --with-deps chromium
 
-      # the suite seeds var/e2e.db and boots its own PHP server (playwright.config.js)
+      # Serve the app under test with FrankenPHP (the production runtime) in
+      # classic/non-worker mode rather than the runner's `php -S`, whose opcache
+      # JIT segfaults on x86_64. Static binary → no system install / sudo.
+      - name: Install FrankenPHP
+        run: |
+          curl -fsSL https://github.com/php/frankenphp/releases/latest/download/frankenphp-linux-x86_64 -o "$RUNNER_TEMP/frankenphp"
+          chmod +x "$RUNNER_TEMP/frankenphp"
+          echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
+
+      # the suite seeds var/e2e.db and boots the server (playwright.config.js)
       - run: npx playwright test
+        env:
+          E2E_SERVER: frankenphp
 
       - uses: actions/upload-artifact@v6
         if: failure()
