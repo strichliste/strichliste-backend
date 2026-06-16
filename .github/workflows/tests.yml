@@ -46,8 +46,9 @@ jobs:
       fail-fast: false
       matrix:
         db: [sqlite, mariadb, pgsql]
-        # 8.4 covers the composer.json floor (8.4.1); 8.5 matches the FrankenPHP image.
-        php: ["8.4", "8.5"]
+        # 8.5 only — it matches the FrankenPHP production image. (composer.json
+        # still allows 8.4.1+, but we run CI against the version we deploy.)
+        php: ["8.5"]
         include:
           - db: sqlite
             database_url: "sqlite:////tmp/strichliste_test.db"
@@ -146,9 +147,9 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      # Match the FrankenPHP production image (php8.5). On 8.4 the runner's
-      # opcache tracing JIT segfaults the `php -S` dev server while compiling the
-      # first request (exit 139); 8.5 is what prod actually runs.
+      # PHP 8.5 matches the FrankenPHP production image. The php -S dev server
+      # runs with opcache JIT off (see playwright.config.js) to dodge a PHP JIT
+      # segfault on the x86_64 runner that hits 8.4 and 8.5 alike.
       - uses: shivammathur/setup-php@v2
         with:
           php-version: "8.5"
