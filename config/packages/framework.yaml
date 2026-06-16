@@ -11,9 +11,10 @@ framework:
     session:
         handler_id: ~
 
-    # Required by #[MapRequestPayload]/#[MapQueryString] to deserialize request
-    # input into the App\Dto\Api\* DTOs. Responses still use the hand-rolled
-    # src/Serializer/* projections, not this serializer.
+    # Drives both directions of the /api contract: #[MapRequestPayload] deserializes
+    # request bodies into the App\Dto\Api\* request DTOs, and #[Serialize] serializes
+    # the App\Dto\Api\* Response DTOs the controllers return. src/Serializer/* only
+    # projects entities into those Response DTOs; this component does the JSON encoding.
     serializer:
         enabled: true
 

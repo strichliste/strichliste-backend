@@ -13,8 +13,8 @@ use App\Service\MetricsService;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Attribute\Serialize;
 use Symfony\Component\Routing\Attribute\Route;
 
 class MetricsController extends AbstractController
@@ -23,6 +23,9 @@ class MetricsController extends AbstractController
     {
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     #[Route('/api/metrics', methods: ['GET'])]
     #[OA\Get(
         summary: 'Global metrics',
@@ -40,13 +43,14 @@ class MetricsController extends AbstractController
             ])),
         ],
     )]
-    public function metrics(Request $request, ArticleRepository $articleRepository, ArticleSerializer $articleSerializer): JsonResponse
+    #[Serialize]
+    public function metrics(Request $request, ArticleRepository $articleRepository, ArticleSerializer $articleSerializer): array
     {
         // clamp: huge values allocate an array row per day, negative ones make DateTime throw
         $days = max(1, min(3650, $request->query->getInt('days', 30)));
         $articles = $articleRepository->findBy(['active' => true], ['usageCount' => 'DESC']);
 
-        return $this->json([
+        return [
             'balance' => $this->metrics->totalBalance(),
             'transactionCount' => $this->metrics->totalTransactionCount(),
             'userCount' => $this->metrics->totalUserCount(),
@@ -55,9 +59,12 @@ class MetricsController extends AbstractController
                 $articles
             ),
             'days' => $this->metrics->transactionsPerDay($days, 'api'),
-        ]);
+        ];
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     #[Route('/api/user/{userId}/metrics', methods: ['GET'])]
     #[OA\Get(
         summary: 'Per-user metrics',
@@ -88,7 +95,8 @@ class MetricsController extends AbstractController
             new OA\Response(response: 404, ref: '#/components/responses/Error'),
         ],
     )]
-    public function userMetrics(string $userId, ArticleSerializer $articleSerializer, UserRepository $userRepository): JsonResponse
+    #[Serialize]
+    public function userMetrics(string $userId, ArticleSerializer $articleSerializer, UserRepository $userRepository): array
     {
         $user = $userRepository->findByIdentifier($userId);
         if (!$user) {
@@ -99,7 +107,7 @@ class MetricsController extends AbstractController
         $outgoing = $this->metrics->userOutgoing($user);
         $incoming = $this->metrics->userIncoming($user);
 
-        return $this->json([
+        return [
             'balance' => $user->getBalance(),
             'articles' => array_map(
                 fn (array $row) => [
@@ -114,6 +122,6 @@ class MetricsController extends AbstractController
                 'outgoing' => ['count' => $outgoing['cnt'], 'amount' => $outgoing['amount']],
                 'incoming' => ['count' => $incoming['cnt'], 'amount' => $incoming['amount']],
             ],
-        ]);
+        ];
     }
 }
