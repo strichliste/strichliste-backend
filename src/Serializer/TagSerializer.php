@@ -10,7 +10,7 @@ class TagSerializer
     public function serialize(Tag $tag): TagDto
     {
         return new TagDto(
-            id: (int) $tag->getId(),
+            id: $tag->getId(),
             tag: $tag->getTag(),
             usageCount: $tag->getUsageCount(),
             created: $tag->getCreated()->format('Y-m-d H:i:s'),

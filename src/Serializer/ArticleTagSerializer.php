@@ -10,7 +10,7 @@ class ArticleTagSerializer
     public function serialize(ArticleTag $articleTag): ArticleTagDto
     {
         return new ArticleTagDto(
-            id: (int) $articleTag->getTag()->getId(),
+            id: $articleTag->getTag()->getId(),
             tag: $articleTag->getTag()->getTag(),
             created: $articleTag->getCreated()->format('Y-m-d H:i:s'),
         );

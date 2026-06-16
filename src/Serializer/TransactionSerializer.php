@@ -18,7 +18,7 @@ class TransactionSerializer
         $article = $transaction->getArticle();
 
         return new TransactionDto(
-            id: (int) $transaction->getId(),
+            id: $transaction->getId(),
             user: $this->userSerializer->serialize($transaction->getUser()),
             quantity: $transaction->getQuantity(),
             article: $article ? $this->articleSerializer->serialize($article) : null,
@@ -26,7 +26,7 @@ class TransactionSerializer
             recipient: $this->getUserOrNull($transaction->getRecipientTransaction()),
             comment: $transaction->getComment(),
             amount: $transaction->getAmount(),
-            isDeleted: (bool) $transaction->isDeleted(),
+            isDeleted: $transaction->isDeleted(),
             isDeletable: $this->transactionService->isDeletable($transaction),
             created: $transaction->getCreated()->format('Y-m-d H:i:s'),
         );

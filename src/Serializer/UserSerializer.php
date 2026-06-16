@@ -14,12 +14,9 @@ class UserSerializer
 
     public function serialize(User $user): UserDto
     {
-        // entity getters are ?int/?string (Doctrine nullability), but a persisted user
-        // always has them and the contract types are non-null — the casts narrow to the
-        // wire shape deliberately; do not "simplify" them back to nullable.
         return new UserDto(
-            id: (int) $user->getId(),
-            name: (string) $user->getName(),
+            id: $user->getId(),
+            name: $user->getName(),
             email: $user->getEmail(),
             balance: $user->getBalance(),
             isActive: $this->userService->isActive($user),
