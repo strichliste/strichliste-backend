@@ -146,16 +146,19 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      # Match the FrankenPHP production image (php8.5). On 8.4 the runner's
+      # opcache tracing JIT segfaults the `php -S` dev server while compiling the
+      # first request (exit 139); 8.5 is what prod actually runs.
       - uses: shivammathur/setup-php@v2
         with:
-          php-version: "8.4"
+          php-version: "8.5"
           extensions: ctype, iconv, json, intl, pdo_sqlite
           coverage: none
 
       - uses: actions/cache@v5
         with:
           path: ~/.cache/composer
-          key: ${{ runner.os }}-php8.4-composer-${{ hashFiles('composer.lock') }}
+          key: ${{ runner.os }}-php8.5-composer-${{ hashFiles('composer.lock') }}
 
       - run: composer install --no-interaction --prefer-dist
 
