@@ -15,15 +15,11 @@ framework:
     # request bodies into the App\Dto\Api\* request DTOs, and #[Serialize] serializes
     # the App\Dto\Api\* Response DTOs the controllers return. src/Serializer/* only
     # projects entities into those Response DTOs; this component does the JSON encoding.
+    # Note: #[Serialize] uses this component's JsonEncode defaults, which (unlike the
+    # legacy $this->json() / JsonResponse) do NOT hex-escape < > & ' " in strings.
+    # That byte-level change is accepted — JSON unmarshals identically either way.
     serializer:
         enabled: true
-        # #[Serialize] encodes via this component, whose JsonEncode defaults differ from
-        # JsonResponse. The legacy $this->json() controllers used JsonResponse's
-        # DEFAULT_ENCODING_OPTIONS (JSON_HEX_TAG|AMP|APOS|QUOT), which hex-escape
-        # < > & ' " in strings. Pin the same options so the frozen /api byte shape is
-        # preserved for names/comments containing those characters.
-        default_context:
-            json_encode_options: !php/const Symfony\Component\HttpFoundation\JsonResponse::DEFAULT_ENCODING_OPTIONS
 
     #esi: true
     #fragments: true

@@ -35,11 +35,10 @@ class ResponseContractTest extends AbstractApplicationTestCase
         $this->assertArrayHasKey('email', $user, 'null email key must be present, not dropped');
         $this->assertNull($user['email']);
 
-        // Legacy $this->json() escaped < > & ' " via JsonResponse::DEFAULT_ENCODING_OPTIONS.
-        // The hex-escaped form must appear in the raw bytes and the unescaped name must not.
-        $hexEscaped = json_encode($name, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
-        $this->assertStringContainsString($hexEscaped, $raw, 'name is not hex-escaped like JsonResponse');
-        $this->assertStringNotContainsString($name, $raw, 'unescaped name leaked into the response');
+        // #[Serialize] uses standard JSON encoding — unlike legacy $this->json(), it does
+        // NOT hex-escape < > & ' " (accepted byte change). json_encode($name) carries the
+        // literal &/</'/", so this only matches if the response is NOT hex-escaped.
+        $this->assertStringContainsString(json_encode($name), $raw, 'name not encoded with standard JSON escaping');
     }
 
     public function testTransactionKeyOrderAndNullKeys(): void
