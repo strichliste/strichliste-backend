@@ -5,7 +5,7 @@ namespace App\Controller\Api;
 use App\Service\SettingsService;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpKernel\Attribute\Serialize;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api/settings')]
@@ -15,6 +15,9 @@ class SettingsController extends AbstractController
     {
     }
 
+    /**
+     * @return array{settings: array<string, mixed>}
+     */
     #[Route(methods: ['GET'])]
     #[OA\Get(
         summary: 'Get the app settings',
@@ -25,10 +28,13 @@ class SettingsController extends AbstractController
             ])),
         ],
     )]
-    public function list(): JsonResponse
+    #[Serialize]
+    public function list(): array
     {
-        return $this->json([
+        // dynamic config tree (no fixed schema), so a typed Response DTO does not fit;
+        // #[Serialize] still removes the manual JsonResponse plumbing.
+        return [
             'settings' => $this->settingsService->getAll(),
-        ]);
+        ];
     }
 }

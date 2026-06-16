@@ -5,9 +5,10 @@ namespace App\Dto\Api;
 use OpenApi\Attributes as OA;
 
 /**
- * OpenAPI response model for the frozen /api `barcode` shape.
+ * Response payload for the frozen /api `barcode` shape.
  *
- * Documentation-only: mirrors {@see \App\Serializer\BarcodeSerializer}.
+ * Built by {@see \App\Serializer\BarcodeSerializer}; doubles as the
+ * Nelmio OpenAPI schema.
  */
 final class Barcode
 {

@@ -20,7 +20,7 @@ class TransactionControllerTest extends AbstractApplicationTestCase
     {
         $data = $this->requestJson('POST', "/api/user/{$this->userId}/transaction", [
             'amount' => 500,
-        ], 'transaction');
+        ]);
 
         $this->assertSame(500, $data['amount']);
         $this->assertSame($this->userId, $data['user']['id']);
@@ -33,7 +33,7 @@ class TransactionControllerTest extends AbstractApplicationTestCase
     {
         $payoutData = $this->requestJson('POST', "/api/user/{$this->userId}/transaction", [
             'amount' => -500,
-        ], 'transaction');
+        ]);
 
         $this->assertSame(-500, $payoutData['amount']);
         $this->assertSame(-500, $payoutData['user']['balance']);
@@ -43,7 +43,6 @@ class TransactionControllerTest extends AbstractApplicationTestCase
         $undoData = $this->requestJson(
             'DELETE',
             "/api/user/{$this->userId}/transaction/{$payoutData['id']}",
-            unpackKey: 'transaction',
         );
         $this->assertTrue($undoData['isDeleted']);
         $this->assertSame(0, $undoData['user']['balance']);
@@ -58,7 +57,7 @@ class TransactionControllerTest extends AbstractApplicationTestCase
         $sendData = $this->requestJson('POST', "/api/user/{$this->userId}/transaction", [
             'amount' => -500,
             'recipientId' => $recipientId,
-        ], 'transaction');
+        ]);
 
         $this->assertSame(-500, $sendData['amount']);
         $this->assertSame(-500, $sendData['user']['balance']);
@@ -69,7 +68,6 @@ class TransactionControllerTest extends AbstractApplicationTestCase
         $undoData = $this->requestJson(
             'DELETE',
             "/api/user/{$this->userId}/transaction/{$sendData['id']}",
-            unpackKey: 'transaction',
         );
         $this->assertTrue($undoData['isDeleted']);
         $this->assertSame(0, $undoData['user']['balance']);
@@ -84,7 +82,7 @@ class TransactionControllerTest extends AbstractApplicationTestCase
 
         $payout = $this->requestJson('POST', "/api/user/{$this->userId}/transaction", [
             'amount' => -500,
-        ], 'transaction');
+        ]);
 
         // Mallory tries to revert Alice's transaction through her own {userId} scope.
         $this->client->request('DELETE', "/api/user/{$malloryId}/transaction/{$payout['id']}");
@@ -101,7 +99,7 @@ class TransactionControllerTest extends AbstractApplicationTestCase
     {
         $payout = $this->requestJson('POST', "/api/user/{$this->userId}/transaction", [
             'amount' => -500,
-        ], 'transaction');
+        ]);
 
         $this->client->request('DELETE', "/api/user/999999/transaction/{$payout['id']}");
         $this->assertResponseStatusCodeSame(404);
@@ -125,7 +123,7 @@ class TransactionControllerTest extends AbstractApplicationTestCase
     {
         $payout = $this->requestJson('POST', "/api/user/{$this->userId}/transaction", [
             'amount' => -500,
-        ], 'transaction');
+        ]);
 
         // age the transaction beyond the configured undo timeout (payment.undo.timeout = 5 minute)
         $em = static::getContainer()->get(EntityManagerInterface::class);
@@ -147,13 +145,12 @@ class TransactionControllerTest extends AbstractApplicationTestCase
     {
         $payout = $this->requestJson('POST', "/api/user/{$this->userId}/transaction", [
             'amount' => -500,
-        ], 'transaction');
+        ]);
 
         // first undo succeeds and restores the balance
         $this->requestJson(
             'DELETE',
             "/api/user/{$this->userId}/transaction/{$payout['id']}",
-            unpackKey: 'transaction',
         );
         $this->assertUserBalance($this->userId, 0);
 
@@ -169,8 +166,8 @@ class TransactionControllerTest extends AbstractApplicationTestCase
 
     public function testGlobalListKeepsLegacyOldestFirstOrder(): void
     {
-        $first = $this->requestJson('POST', "/api/user/{$this->userId}/transaction", ['amount' => 100], 'transaction');
-        $second = $this->requestJson('POST', "/api/user/{$this->userId}/transaction", ['amount' => 200], 'transaction');
+        $first = $this->requestJson('POST', "/api/user/{$this->userId}/transaction", ['amount' => 100]);
+        $second = $this->requestJson('POST', "/api/user/{$this->userId}/transaction", ['amount' => 200]);
 
         $data = $this->requestJson('GET', '/api/transaction', unpackKey: 'transactions');
 
@@ -181,7 +178,7 @@ class TransactionControllerTest extends AbstractApplicationTestCase
 
     public function testUserTransactionListHonorsLimitAndOffset(): void
     {
-        $user = $this->requestJson('POST', '/api/user', ['name' => 'pager'], 'user');
+        $user = $this->requestJson('POST', '/api/user', ['name' => 'pager']);
         foreach ([100, 200, 300] as $amount) {
             $this->requestJson('POST', sprintf('/api/user/%d/transaction', $user['id']), ['amount' => $amount]);
         }

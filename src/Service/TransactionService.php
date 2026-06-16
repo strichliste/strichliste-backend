@@ -111,6 +111,13 @@ class TransactionService
                 $this->entityManager->persist($article);
             }
 
+            // a deposit/dispense/transfer needs an explicit amount; only the article
+            // path derives one. Without this guard setAmount(null) throws a raw
+            // TypeError (unhandled 500) instead of the 400 envelope for e.g. `{}`.
+            if (null === $amount) {
+                throw new TransactionInvalidException('amount is required unless buying an article');
+            }
+
             if ($recipientId) {
                 $recipient = $lockedUsers[$recipientId];
 

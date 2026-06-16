@@ -2,7 +2,7 @@
 
 namespace App\Controller\Api;
 
-use App\Dto\Api\Article as ArticleSchema;
+use App\Dto\Api\Article as ArticleDto;
 use App\Dto\Api\WriteArticleDto;
 use App\Entity\Article;
 use App\Entity\ArticleTag;
@@ -18,9 +18,9 @@ use Doctrine\ORM\Query\Expr\Join;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
+use Symfony\Component\HttpKernel\Attribute\Serialize;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api/article')]
@@ -30,6 +30,9 @@ class ArticleController extends AbstractController
     {
     }
 
+    /**
+     * @return array{count: int, articles: list<ArticleDto>}
+     */
     #[Route(methods: ['GET'])]
     #[OA\Get(
         summary: 'List articles',
@@ -45,11 +48,12 @@ class ArticleController extends AbstractController
         responses: [
             new OA\Response(response: 200, description: 'Articles; `count` is the total number of ACTIVE articles.', content: new OA\JsonContent(properties: [
                 new OA\Property(property: 'count', type: 'integer'),
-                new OA\Property(property: 'articles', type: 'array', items: new OA\Items(ref: new Model(type: ArticleSchema::class))),
+                new OA\Property(property: 'articles', type: 'array', items: new OA\Items(ref: new Model(type: ArticleDto::class))),
             ])),
         ],
     )]
-    public function list(Request $request, EntityManagerInterface $entityManager, ArticleRepository $articleRepository): JsonResponse
+    #[Serialize]
+    public function list(Request $request, EntityManagerInterface $entityManager, ArticleRepository $articleRepository): array
     {
         $limit = $request->query->getInt('limit', 25);
         $offset = $request->query->has('offset') ? $request->query->getInt('offset') : null;
@@ -89,10 +93,10 @@ class ArticleController extends AbstractController
 
         $articles = $queryBuilder->getQuery()->getResult();
 
-        return $this->json([
+        return [
             'count' => $articleRepository->countActive(),
             'articles' => array_map(fn (Article $article) => $this->articleSerializer->serialize($article), $articles),
-        ]);
+        ];
     }
 
     #[Route(methods: ['POST'])]
@@ -104,24 +108,24 @@ class ArticleController extends AbstractController
             new OA\MediaType(mediaType: 'application/x-www-form-urlencoded', schema: new OA\Schema(ref: new Model(type: WriteArticleDto::class))),
         ]),
         responses: [
-            new OA\Response(response: 200, description: 'The created article.', content: new OA\JsonContent(properties: [
-                new OA\Property(property: 'article', ref: new Model(type: ArticleSchema::class)),
-            ])),
+            new OA\Response(response: 200, description: 'The created article.', content: new OA\JsonContent(ref: new Model(type: ArticleDto::class))),
             new OA\Response(response: 422, ref: '#/components/responses/Error'),
         ],
     )]
-    public function createArticle(#[MapRequestPayload] WriteArticleDto $dto, ArticleService $articleService, EntityManagerInterface $entityManager): JsonResponse
+    #[Serialize]
+    public function createArticle(#[MapRequestPayload] WriteArticleDto $dto, ArticleService $articleService, EntityManagerInterface $entityManager): ArticleDto
     {
         $article = $articleService->create($dto->name, $dto->amount);
 
         $entityManager->persist($article);
         $entityManager->flush();
 
-        return $this->json([
-            'article' => $this->articleSerializer->serialize($article),
-        ]);
+        return $this->articleSerializer->serialize($article);
     }
 
+    /**
+     * @return array{count: int, articles: list<ArticleDto>}
+     */
     #[Route('/search', methods: ['GET'])]
     #[OA\Get(
         summary: 'Search active articles',
@@ -136,11 +140,12 @@ class ArticleController extends AbstractController
         responses: [
             new OA\Response(response: 200, description: 'Matching active articles.', content: new OA\JsonContent(properties: [
                 new OA\Property(property: 'count', type: 'integer'),
-                new OA\Property(property: 'articles', type: 'array', items: new OA\Items(ref: new Model(type: ArticleSchema::class))),
+                new OA\Property(property: 'articles', type: 'array', items: new OA\Items(ref: new Model(type: ArticleDto::class))),
             ])),
         ],
     )]
-    public function search(Request $request, EntityManagerInterface $entityManager): JsonResponse
+    #[Serialize]
+    public function search(Request $request, EntityManagerInterface $entityManager): array
     {
         $query = $request->query->getString('query');
         $limit = $request->query->getInt('limit', 25);
@@ -188,10 +193,10 @@ class ArticleController extends AbstractController
             ->getQuery()
             ->getResult();
 
-        return $this->json([
+        return [
             'count' => count($results),
             'articles' => array_map(fn (Article $article) => $this->articleSerializer->serialize($article), $results),
-        ]);
+        ];
     }
 
     #[Route('/{articleId}', methods: ['GET'])]
@@ -203,13 +208,12 @@ class ArticleController extends AbstractController
             new OA\Parameter(name: 'depth', in: 'query', required: false, description: 'How many precursor revisions to embed.', schema: new OA\Schema(type: 'integer', default: 1)),
         ],
         responses: [
-            new OA\Response(response: 200, description: 'The article.', content: new OA\JsonContent(properties: [
-                new OA\Property(property: 'article', ref: new Model(type: ArticleSchema::class)),
-            ])),
+            new OA\Response(response: 200, description: 'The article.', content: new OA\JsonContent(ref: new Model(type: ArticleDto::class))),
             new OA\Response(response: 404, ref: '#/components/responses/Error'),
         ],
     )]
-    public function getArticle(string $articleId, Request $request, EntityManagerInterface $entityManager): JsonResponse
+    #[Serialize]
+    public function getArticle(string $articleId, Request $request, EntityManagerInterface $entityManager): ArticleDto
     {
         $depth = $request->query->getInt('depth', 1);
 
@@ -218,9 +222,7 @@ class ArticleController extends AbstractController
             throw new ArticleNotFoundException($articleId);
         }
 
-        return $this->json([
-            'article' => $this->articleSerializer->serialize($article, $depth),
-        ]);
+        return $this->articleSerializer->serialize($article, $depth);
     }
 
     #[Route('/{articleId}', methods: ['POST'])]
@@ -236,15 +238,14 @@ class ArticleController extends AbstractController
             new OA\MediaType(mediaType: 'application/x-www-form-urlencoded', schema: new OA\Schema(ref: new Model(type: WriteArticleDto::class))),
         ]),
         responses: [
-            new OA\Response(response: 200, description: 'The new active revision.', content: new OA\JsonContent(properties: [
-                new OA\Property(property: 'article', ref: new Model(type: ArticleSchema::class)),
-            ])),
+            new OA\Response(response: 200, description: 'The new active revision.', content: new OA\JsonContent(ref: new Model(type: ArticleDto::class))),
             new OA\Response(response: 400, ref: '#/components/responses/Error'),
             new OA\Response(response: 404, ref: '#/components/responses/Error'),
             new OA\Response(response: 422, ref: '#/components/responses/Error'),
         ],
     )]
-    public function updateArticle(string $articleId, #[MapRequestPayload] WriteArticleDto $dto, ArticleService $articleService, EntityManagerInterface $entityManager): JsonResponse
+    #[Serialize]
+    public function updateArticle(string $articleId, #[MapRequestPayload] WriteArticleDto $dto, ArticleService $articleService, EntityManagerInterface $entityManager): ArticleDto
     {
         $article = $entityManager->getRepository(Article::class)->find($articleId);
 
@@ -258,9 +259,7 @@ class ArticleController extends AbstractController
 
         $article = $articleService->update($article, $dto->name, $dto->amount);
 
-        return $this->json([
-            'article' => $this->articleSerializer->serialize($article),
-        ]);
+        return $this->articleSerializer->serialize($article);
     }
 
     #[Route('/{articleId}', methods: ['DELETE'])]
@@ -272,13 +271,12 @@ class ArticleController extends AbstractController
             new OA\Parameter(name: 'articleId', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
         ],
         responses: [
-            new OA\Response(response: 200, description: 'The deactivated article.', content: new OA\JsonContent(properties: [
-                new OA\Property(property: 'article', ref: new Model(type: ArticleSchema::class)),
-            ])),
+            new OA\Response(response: 200, description: 'The deactivated article.', content: new OA\JsonContent(ref: new Model(type: ArticleDto::class))),
             new OA\Response(response: 404, ref: '#/components/responses/Error'),
         ],
     )]
-    public function deleteArticle(string $articleId, EntityManagerInterface $entityManager): JsonResponse
+    #[Serialize]
+    public function deleteArticle(string $articleId, EntityManagerInterface $entityManager): ArticleDto
     {
         $article = $entityManager->getRepository(Article::class)->find($articleId);
         if (!$article) {
@@ -293,8 +291,6 @@ class ArticleController extends AbstractController
 
         $entityManager->flush();
 
-        return $this->json([
-            'article' => $this->articleSerializer->serialize($article),
-        ]);
+        return $this->articleSerializer->serialize($article);
     }
 }

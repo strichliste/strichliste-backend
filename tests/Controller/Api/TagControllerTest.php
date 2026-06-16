@@ -26,7 +26,7 @@ class TagControllerTest extends AbstractApplicationTestCase
 
         $afterAdd = $this->requestJson('POST', "/api/article/{$articleAId}/tag", [
             'tag' => 'mate',
-        ], 'article');
+        ]);
         $tagId = $afterAdd['tags'][0]['id'];
 
         $this->client->request($method, "/api/article/{$articleBId}/tag/{$tagId}");
@@ -54,7 +54,7 @@ class TagControllerTest extends AbstractApplicationTestCase
 
         $this->requestJson('DELETE', "/api/article/{$articleAId}/tag/{$mateTagId}");
 
-        $mateAfter = $this->requestJson('GET', "/api/article/{$articleBId}/tag/{$mateTagId}", unpackKey: 'tag');
+        $mateAfter = $this->requestJson('GET', "/api/article/{$articleBId}/tag/{$mateTagId}");
         $this->assertSame(1, $mateAfter['usageCount']);
 
         $this->requestJson('DELETE', "/api/article/{$articleBId}/tag/{$mateTagId}");

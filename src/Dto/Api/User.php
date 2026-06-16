@@ -5,11 +5,11 @@ namespace App\Dto\Api;
 use OpenApi\Attributes as OA;
 
 /**
- * OpenAPI response model for the frozen /api `user` shape.
+ * Response payload for the frozen /api `user` shape.
  *
- * Documentation-only: mirrors {@see \App\Serializer\UserSerializer} and is
- * pinned by tests/Controller/Api/*. Never instantiated — the typed properties
- * exist so Nelmio derives the schema from them.
+ * Built by {@see \App\Serializer\UserSerializer}, emitted by the #[Serialize]
+ * controllers and read by Nelmio for the OpenAPI schema — one class is both the
+ * runtime projection and the documented contract, pinned by tests/Controller/Api/*.
  */
 final class User
 {

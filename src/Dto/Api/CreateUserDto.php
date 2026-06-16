@@ -25,10 +25,12 @@ final class CreateUserDto
     #[OA\Property(format: 'email')]
     public ?string $email;
 
-    public function __construct(?string $name = null, ?string $email = null)
+    // non-null $name with a default (not ?string) so the schema renders non-null
+    // without an #[OA\Property(nullable: false)] override; a missing name still
+    // arrives as '' and fails NotBlank as a clean 422.
+    public function __construct(string $name = '', ?string $email = null)
     {
-        // missing -> '' so NotBlank reports it as a clean validation failure
-        $this->name = User::sanitizeName($name ?? '');
+        $this->name = User::sanitizeName($name);
         $this->email = null === $email ? null : trim($email);
     }
 }

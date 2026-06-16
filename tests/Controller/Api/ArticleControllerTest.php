@@ -18,7 +18,7 @@ class ArticleControllerTest extends AbstractApplicationTestCase
         $article = $this->requestJson('POST', '/api/article', [
             'name' => '  Club Mate  ', // Spaces are intentional and expected to be trim()ed
             'amount' => 150,
-        ], 'article');
+        ]);
 
         $this->assertIsInt($article['id']);
         $this->assertSame('Club Mate', $article['name']);
@@ -30,7 +30,7 @@ class ArticleControllerTest extends AbstractApplicationTestCase
         $this->assertNull($article['precursor']);
         $this->assertNotEmpty($article['created']);
 
-        $fetched = $this->requestJson('GET', "/api/article/{$article['id']}", unpackKey: 'article');
+        $fetched = $this->requestJson('GET', "/api/article/{$article['id']}");
         $this->assertSame($article['id'], $fetched['id']);
         $this->assertSame('Club Mate', $fetched['name']);
         $this->assertSame(150, $fetched['amount']);
@@ -42,7 +42,7 @@ class ArticleControllerTest extends AbstractApplicationTestCase
 
         $buyData = $this->requestJson('POST', "/api/user/{$this->userId}/transaction", [
             'articleId' => $articleId,
-        ], 'transaction');
+        ]);
 
         $transactionId = $buyData['id'];
         $this->assertSame(-150, $buyData['amount']);
@@ -50,14 +50,14 @@ class ArticleControllerTest extends AbstractApplicationTestCase
 
         $this->assertUserBalance($this->userId, -150);
 
-        $afterBuy = $this->requestJson('GET', "/api/article/{$articleId}", unpackKey: 'article');
+        $afterBuy = $this->requestJson('GET', "/api/article/{$articleId}");
 
         $this->assertSame(1, $afterBuy['usageCount']);
 
         $updated = $this->requestJson('POST', "/api/article/{$articleId}", [
             'name' => 'Club Mate',
             'amount' => 200,
-        ], 'article');
+        ]);
 
         $this->assertNotSame($articleId, $updated['id']);
         $this->assertSame(200, $updated['amount']);
@@ -65,20 +65,19 @@ class ArticleControllerTest extends AbstractApplicationTestCase
         $this->assertSame($articleId, $updated['precursor']['id']);
         $this->assertSame(1, $updated['usageCount']);
 
-        $oldArticle = $this->requestJson('GET', "/api/article/{$articleId}", unpackKey: 'article');
+        $oldArticle = $this->requestJson('GET', "/api/article/{$articleId}");
         $this->assertFalse($oldArticle['isActive']);
 
         $undoData = $this->requestJson(
             'DELETE',
             "/api/user/{$this->userId}/transaction/{$transactionId}",
-            unpackKey: 'transaction',
         );
         $this->assertTrue($undoData['isDeleted']);
         $this->assertSame(0, $undoData['user']['balance']);
 
         $this->assertUserBalance($this->userId, 0);
 
-        $afterUndo = $this->requestJson('GET', "/api/article/{$articleId}", unpackKey: 'article');
+        $afterUndo = $this->requestJson('GET', "/api/article/{$articleId}");
 
         $this->assertSame(0, $afterUndo['usageCount']);
     }
@@ -98,13 +97,13 @@ class ArticleControllerTest extends AbstractApplicationTestCase
         $updated = $this->requestJson('POST', "/api/article/{$oldId}", [
             'name' => 'Club Mate',
             'amount' => 200,
-        ], 'article');
+        ]);
 
         $newId = $updated['id'];
         $this->assertNotSame($oldId, $newId);
         $this->assertSame($oldId, $updated['precursor']['id']);
 
-        $newArticle = $this->requestJson('GET', "/api/article/{$newId}", unpackKey: 'article');
+        $newArticle = $this->requestJson('GET', "/api/article/{$newId}");
 
         $this->assertCount(1, $newArticle['barcodes']);
         $this->assertSame($barcode, $newArticle['barcodes'][0]['barcode']);
@@ -112,7 +111,7 @@ class ArticleControllerTest extends AbstractApplicationTestCase
         $tags = array_column($newArticle['tags'], 'tag');
         $this->assertEqualsCanonicalizing(['mate', 'caffeine'], $tags);
 
-        $oldArticle = $this->requestJson('GET', "/api/article/{$oldId}", unpackKey: 'article');
+        $oldArticle = $this->requestJson('GET', "/api/article/{$oldId}");
         $this->assertFalse($oldArticle['isActive']);
         $this->assertSame([], $oldArticle['barcodes']);
         $this->assertSame([], $oldArticle['tags']);
@@ -126,7 +125,7 @@ class ArticleControllerTest extends AbstractApplicationTestCase
         $this->requestJson('POST', "/api/article/{$articleId}/barcode", ['barcode' => $barcode]);
         $this->requestJson('POST', "/api/article/{$articleId}/tag", ['tag' => 'mate']);
 
-        $deleted = $this->requestJson('DELETE', "/api/article/{$articleId}", unpackKey: 'article');
+        $deleted = $this->requestJson('DELETE', "/api/article/{$articleId}");
 
         $this->assertFalse($deleted['isActive']);
         $this->assertSame([], $deleted['barcodes']);

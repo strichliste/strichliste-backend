@@ -10,6 +10,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 final class AddTagDto
 {
     #[Assert\NotBlank]
+    #[Assert\Length(max: 255)]
     public string $tag;
 
     public function __construct(string $tag)

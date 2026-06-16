@@ -11,9 +11,14 @@ framework:
     session:
         handler_id: ~
 
-    # Required by #[MapRequestPayload]/#[MapQueryString] to deserialize request
-    # input into the App\Dto\Api\* DTOs. Responses still use the hand-rolled
-    # src/Serializer/* projections, not this serializer.
+    # Drives both directions of the /api contract: #[MapRequestPayload] deserializes
+    # request bodies into the App\Dto\Api\* request DTOs, and #[Serialize] serializes
+    # what the controllers return — the App\Dto\Api\* resource DTOs and the plain
+    # {count, items} list arrays. src/Serializer/* only projects entities into those
+    # resource DTOs; this component does the JSON encoding.
+    # Note: #[Serialize] uses this component's JsonEncode defaults, which (unlike the
+    # legacy $this->json() / JsonResponse) do NOT hex-escape < > & ' " in strings.
+    # That byte-level change is accepted — JSON unmarshals identically either way.
     serializer:
         enabled: true
 
