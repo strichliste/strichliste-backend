@@ -40,13 +40,6 @@ class Barcode
         return $this->barcode;
     }
 
-    public function setBarcode(string $barcode): self
-    {
-        $this->barcode = $barcode;
-
-        return $this;
-    }
-
     public function getArticle(): Article
     {
         return $this->article;

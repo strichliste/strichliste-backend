@@ -137,14 +137,6 @@ class User
         return $this;
     }
 
-    /**
-     * @return Collection<int, Transaction>
-     */
-    public function getTransactions(): Collection
-    {
-        return $this->transactions;
-    }
-
     #[ORM\PrePersist]
     public function setHistoryColumnsOnPrePersist(PrePersistEventArgs $event): void
     {

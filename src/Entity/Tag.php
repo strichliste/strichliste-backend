@@ -48,14 +48,6 @@ class Tag
         return $this;
     }
 
-    /**
-     * @return Article[]
-     */
-    public function getArticles(): array
-    {
-        return array_map(fn (ArticleTag $articleTag) => $articleTag->getArticle(), $this->articleTags->getValues());
-    }
-
     public function getUsageCount(): int
     {
         return count($this->articleTags);
