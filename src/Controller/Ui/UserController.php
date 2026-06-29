@@ -12,8 +12,8 @@ use App\Repository\TransactionRepository;
 use App\Repository\UserRepository;
 use App\Service\SettingsService;
 use App\Service\TransactionService;
+use App\Service\UserService;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
@@ -27,7 +27,7 @@ class UserController extends AbstractController
         private readonly UserRepository $userRepository,
         private readonly TransactionRepository $transactionRepository,
         private readonly SettingsService $settings,
-        private readonly EntityManagerInterface $em,
+        private readonly UserService $userService,
         private readonly TransactionService $transactionService,
         private readonly ArticleRepository $articleRepository,
         private readonly TranslatorInterface $translator,
@@ -156,9 +156,8 @@ class UserController extends AbstractController
                 $form->get('name')->addError(new FormError($this->translator->trans('user.create.errors.duplicate')));
             } else {
                 $user = new User()->setName($name);
-                $this->em->persist($user);
                 try {
-                    $this->em->flush();
+                    $this->userService->create($user);
                     $this->addFlash('success', $this->translator->trans('user.create.success', ['%name%' => $user->getName()]));
 
                     return $this->redirectToRoute('users_detail', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
@@ -195,9 +194,8 @@ class UserController extends AbstractController
                 $user->setEmail($data['email'] ? trim((string) $data['email']) : null);
                 $wasDisabled = $user->isDisabled();
                 $user->setDisabled((bool) $data['isDisabled']);
-                $this->em->persist($user);
                 try {
-                    $this->em->flush();
+                    $this->userService->update($user);
 
                     if (!$wasDisabled && $user->isDisabled()) {
                         $this->addFlash('success', $this->translator->trans('user.edit.disabled_success', ['%name%' => $user->getName()]));

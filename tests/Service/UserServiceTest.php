@@ -5,11 +5,14 @@ namespace App\Tests\Service;
 use App\Entity\User;
 use App\Service\SettingsService;
 use App\Service\UserService;
+use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
+use Psr\EventDispatcher\EventDispatcherInterface;
 
 /**
- * UserService only depends on SettingsService, which wraps a plain array, so both
- * can be built directly — no container or DB required.
+ * The staleness logic only depends on SettingsService (a plain array wrapper),
+ * so it is built directly; the persistence collaborators are mocked because
+ * isActive()/getStaleDateTime() never touch them.
  */
 class UserServiceTest extends TestCase
 {
@@ -19,7 +22,11 @@ class UserServiceTest extends TestCase
             ? new SettingsService([])
             : new SettingsService(['user' => ['stalePeriod' => $stalePeriod]]);
 
-        return new UserService($settings);
+        return new UserService(
+            $settings,
+            $this->createMock(EntityManagerInterface::class),
+            $this->createMock(EventDispatcherInterface::class),
+        );
     }
 
     private function userUpdatedAt(\DateTime $updated): User

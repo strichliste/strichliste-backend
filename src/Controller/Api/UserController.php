@@ -11,7 +11,6 @@ use App\Exception\UserNotFoundException;
 use App\Repository\UserRepository;
 use App\Serializer\UserSerializer;
 use App\Service\UserService;
-use Doctrine\ORM\EntityManagerInterface;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -80,7 +79,7 @@ class UserController extends AbstractController
         ],
     )]
     #[Serialize]
-    public function createUser(#[MapRequestPayload] CreateUserDto $dto, UserRepository $userRepository, EntityManagerInterface $entityManager): UserDto
+    public function createUser(#[MapRequestPayload] CreateUserDto $dto, UserRepository $userRepository, UserService $userService): UserDto
     {
         if ($userRepository->findByName($dto->name)) {
             throw new UserAlreadyExistsException($dto->name);
@@ -93,8 +92,7 @@ class UserController extends AbstractController
             $user->setEmail($dto->email);
         }
 
-        $entityManager->persist($user);
-        $entityManager->flush();
+        $userService->create($user);
 
         return $this->userSerializer->serialize($user);
     }
@@ -180,7 +178,7 @@ class UserController extends AbstractController
         ],
     )]
     #[Serialize]
-    public function updateUser(string $userId, #[MapRequestPayload] UpdateUserDto $dto, UserRepository $userRepository, EntityManagerInterface $entityManager): UserDto
+    public function updateUser(string $userId, #[MapRequestPayload] UpdateUserDto $dto, UserRepository $userRepository, UserService $userService): UserDto
     {
         $user = $userRepository->findByIdentifier($userId);
         if (!$user) {
@@ -203,8 +201,7 @@ class UserController extends AbstractController
             $user->setDisabled($dto->isDisabled);
         }
 
-        $entityManager->persist($user);
-        $entityManager->flush();
+        $userService->update($user);
 
         return $this->userSerializer->serialize($user);
     }
