@@ -246,8 +246,7 @@ Returns the created `User-Object`
 
 * UserNotFoundException
 * UserAlreadyExistsException
-* ParameterMissingException
-* ParameterInvalidException
+* ValidationException
 
 ### POST /user/{userId}/transaction
 
@@ -287,8 +286,7 @@ Returns a `Transaction-Object`
 #### Errors
 
 * UserNotFoundException
-* ParameterMissingException
-* ParameterInvalidException
+* ValidationException
 * AccountBalanceBoundaryException
 * TransactionBoundaryException
 
@@ -385,8 +383,7 @@ Returns the created `Article-Object`
 
 #### Errors
 
-* ParameterInvalidException
-* ParameterMissingException
+* ValidationException
 
 ### POST /article/{articleId}
 
@@ -419,8 +416,7 @@ Returns the newly created `Article-Object`, with the old one as precursor.
 #### Errors
 
 * ArticleNotFoundException
-* ParameterInvalidException
-* ParameterMissingException
+* ValidationException
 
 ### DELETE /article/{articleId}
 
@@ -616,8 +612,7 @@ Current possible exceptions are
 | ArticleBarcodeAlreadyExistsException | 409              | Active article (42) with barcode '13374242' already exists.                      |
 | ArticleNotFoundException             | 404              | Article '42' not found                                                           |
 | ArticleInactiveException             | 400              | Article 'Club Mate' (42) is inactive                                             |
-| ParameterInvalidException            | 400              | Parameter 'email' is invalid                                                     |
-| ParameterMissingException            | 400              | Parameter 'name' is missing                                                      |
+| ValidationException                  | 422              | name: This value should not be blank.                                            |
 | ParameterNotFoundException           | 500              | Mandarory config value 'parameter.foo' is missing                                |
 | TransactionBoundaryException         | 400              | Transaction amount '10' exceeds upper transaction boundary '3'                   |
 | TransactionNotFoundException         | 404              | Transaction '42' not found for user '23'                                         |
