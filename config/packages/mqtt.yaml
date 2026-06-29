@@ -16,18 +16,7 @@ parameters:
     env(MQTT_RETAIN): 'false'
     env(MQTT_TLS): 'false'
 
+# MqttConfig binds these env vars directly via #[Autowire] attributes, so it
+# needs no service definition here — only the interface alias does.
 services:
-    App\Mqtt\MqttConfig:
-        arguments:
-            $enabled: '%env(bool:MQTT_ENABLED)%'
-            $host: '%env(MQTT_HOST)%'
-            $port: '%env(int:MQTT_PORT)%'
-            $username: '%env(MQTT_USERNAME)%'
-            $password: '%env(MQTT_PASSWORD)%'
-            $clientId: '%env(MQTT_CLIENT_ID)%'
-            $baseTopic: '%env(MQTT_BASE_TOPIC)%'
-            $qos: '%env(int:MQTT_QOS)%'
-            $retain: '%env(bool:MQTT_RETAIN)%'
-            $tls: '%env(bool:MQTT_TLS)%'
-
     App\Mqtt\MqttPublisherInterface: '@App\Mqtt\MqttPublisher'
