@@ -187,8 +187,8 @@ The spec is hand-maintained as `#[OA\*]` attributes on the
 `src/ApiDoc/*` and the document-level `info` in
 `config/packages/nelmio_api_doc.yaml`. It is deliberately hand-written
 (not introspected from the serializers), so the frozen contract is
-described explicitly and can't drift by accident. A prose version with
-more request/response examples lives in `docs/API.md`.
+described explicitly and can't drift by accident. The browsable spec is
+served at `/api/doc` (Swagger UI) and `/api/doc.json`.
 
 ### Code map
 
@@ -659,8 +659,7 @@ The scanner-script recipe (e.g. for a serial scanner or vending
 machine): `GET /api/article?barcode=<scan>` → take `articles[0].id` →
 `POST /api/user/{id}/transaction` with `{"articleId": …}`.
 
-Resource overview (full, browsable detail at **`/api/doc`**; prose
-examples in `docs/API.md`):
+Resource overview (full, browsable detail at **`/api/doc`**):
 
 | Resource | Endpoints |
 | --- | --- |
@@ -726,9 +725,8 @@ differences:
 
 - **README.md** — Docker operations manual: TLS, every `.env` knob,
   backup & restore, upgrades, rollback, troubleshooting.
-- **docs/Config.md**, **docs/Commands.md**, **docs/API.md** — the
-  original reference docs (this document supersedes Config.md's
-  defaults where they differ).
+- **docs/Config.md**, **docs/Commands.md** — the original reference docs
+  (this document supersedes Config.md's defaults where they differ).
 - **`/api/doc`** on your instance — interactive API documentation.
 - **`make e2e`** — the Playwright suite clicks through every UI flow;
   reading `tests/e2e/` doubles as a tour of what the app can do.

@@ -7,7 +7,8 @@ Strichliste is a single Symfony application that serves both:
   `/settings`). The UI is operable without JavaScript. JS layers (Stimulus
   controllers + Turbo) are progressive enhancement only.
 - The **REST API** at `/api/*` for third-party clients. The API contract is
-  frozen — see `API.md` (if maintained externally) for the JSON shape.
+  frozen — see the generated OpenAPI spec at `/api/doc` (Swagger UI) or
+  `/api/doc.json` for the JSON shape.
 
 ## Database
 
