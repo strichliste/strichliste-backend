@@ -5,7 +5,6 @@ namespace App\Entity;
 use App\Repository\TagRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\Event\PrePersistEventArgs;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: TagRepository::class)]
@@ -48,14 +47,6 @@ class Tag
         return $this;
     }
 
-    /**
-     * @return Article[]
-     */
-    public function getArticles(): array
-    {
-        return array_map(fn (ArticleTag $articleTag) => $articleTag->getArticle(), $this->articleTags->getValues());
-    }
-
     public function getUsageCount(): int
     {
         return count($this->articleTags);
@@ -74,7 +65,7 @@ class Tag
     }
 
     #[ORM\PrePersist]
-    public function setHistoryColumnsOnPrePersist(PrePersistEventArgs $event): void
+    public function setHistoryColumnsOnPrePersist(): void
     {
         if (!$this->getCreated()) {
             $this->setCreated(new \DateTime());

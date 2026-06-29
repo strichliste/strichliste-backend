@@ -5,7 +5,6 @@ namespace App\Entity;
 use App\Repository\ArticleRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\Event\PrePersistEventArgs;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ArticleRepository::class)]
@@ -185,7 +184,7 @@ class Article
     }
 
     #[ORM\PrePersist]
-    public function setHistoryColumnsOnPrePersist(PrePersistEventArgs $event): void
+    public function setHistoryColumnsOnPrePersist(): void
     {
         if (!$this->getCreated()) {
             $this->setCreated(new \DateTime());

@@ -2,7 +2,6 @@
 
 namespace App\Entity;
 
-use Doctrine\ORM\Event\PrePersistEventArgs;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
@@ -69,7 +68,7 @@ class ArticleTag
     }
 
     #[ORM\PrePersist]
-    public function setHistoryColumnsOnPrePersist(PrePersistEventArgs $event): void
+    public function setHistoryColumnsOnPrePersist(): void
     {
         if (!$this->getCreated()) {
             $this->setCreated(new \DateTime());

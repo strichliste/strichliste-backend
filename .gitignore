@@ -8,6 +8,9 @@
 /vendor/
 ###< symfony/framework-bundle ###
 
+# Generated IDE config-completion stub; regenerated on cache:warmup.
+/config/reference.php
+
 ###> symfony/web-server-bundle ###
 /.web-server-pid
 ###< symfony/web-server-bundle ###

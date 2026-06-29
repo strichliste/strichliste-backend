@@ -5,7 +5,6 @@ namespace App\Entity;
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\Event\PrePersistEventArgs;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -137,16 +136,8 @@ class User
         return $this;
     }
 
-    /**
-     * @return Collection<int, Transaction>
-     */
-    public function getTransactions(): Collection
-    {
-        return $this->transactions;
-    }
-
     #[ORM\PrePersist]
-    public function setHistoryColumnsOnPrePersist(PrePersistEventArgs $event): void
+    public function setHistoryColumnsOnPrePersist(): void
     {
         $now = new \DateTime();
 
