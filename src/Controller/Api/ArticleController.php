@@ -113,12 +113,9 @@ class ArticleController extends AbstractController
         ],
     )]
     #[Serialize]
-    public function createArticle(#[MapRequestPayload] WriteArticleDto $dto, ArticleService $articleService, EntityManagerInterface $entityManager): ArticleDto
+    public function createArticle(#[MapRequestPayload] WriteArticleDto $dto, ArticleService $articleService): ArticleDto
     {
         $article = $articleService->create($dto->name, $dto->amount);
-
-        $entityManager->persist($article);
-        $entityManager->flush();
 
         return $this->articleSerializer->serialize($article);
     }
@@ -276,20 +273,20 @@ class ArticleController extends AbstractController
         ],
     )]
     #[Serialize]
-    public function deleteArticle(string $articleId, EntityManagerInterface $entityManager): ArticleDto
+    public function deleteArticle(string $articleId, EntityManagerInterface $entityManager, ArticleService $articleService): ArticleDto
     {
         $article = $entityManager->getRepository(Article::class)->find($articleId);
         if (!$article) {
             throw new ArticleNotFoundException($articleId);
         }
 
+        // the API frees the barcodes for reuse on delete; the deactivate() flush
+        // below persists these removals together with isActive=false
         foreach ($article->getBarcodes() as $barcode) {
             $entityManager->remove($barcode);
         }
 
-        $article->setActive(false);
-
-        $entityManager->flush();
+        $articleService->deactivate($article);
 
         return $this->articleSerializer->serialize($article);
     }
