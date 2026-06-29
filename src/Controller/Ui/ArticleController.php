@@ -9,8 +9,8 @@ use App\Form\EditArticleType;
 use App\Repository\ArticleRepository;
 use App\Repository\TagRepository;
 use App\Repository\TransactionRepository;
+use App\Service\ArticleService;
 use App\Service\MoneyParser;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,9 +26,8 @@ class ArticleController extends AbstractController
         private readonly ArticleRepository $articleRepository,
         private readonly TagRepository $tagRepository,
         private readonly TransactionRepository $transactionRepository,
-        private readonly EntityManagerInterface $em,
         private readonly TranslatorInterface $translator,
-        private readonly \App\Service\ArticleService $articleService,
+        private readonly ArticleService $articleService,
     ) {
     }
 
@@ -94,11 +93,10 @@ class ArticleController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
-            $article = new Article();
-            $article->setName(trim((string) $data['name']));
-            $article->setAmount(MoneyParser::majorToCents((float) $data['amount']));
-            $this->em->persist($article);
-            $this->em->flush();
+            $article = $this->articleService->create(
+                trim((string) $data['name']),
+                MoneyParser::majorToCents((float) $data['amount']),
+            );
             $this->addFlash('success', $this->translator->trans('articles.create.success'));
 
             return $this->redirectToRoute('articles_edit', ['id' => $article->getId()], Response::HTTP_SEE_OTHER);
@@ -153,9 +151,7 @@ class ArticleController extends AbstractController
 
                 return $this->redirectToRoute('articles_delete', ['id' => $article->getId()], Response::HTTP_SEE_OTHER);
             }
-            $article->setActive(false);
-            $this->em->persist($article);
-            $this->em->flush();
+            $this->articleService->deactivate($article);
             $this->addFlash('success', $this->translator->trans('articles.delete.success'));
 
             return $this->redirectToRoute('articles_inactive', [], Response::HTTP_SEE_OTHER);

@@ -5,6 +5,8 @@ namespace App\Service;
 use App\Entity\Article;
 use App\Entity\Transaction;
 use App\Entity\User;
+use App\Event\TransactionCreatedEvent;
+use App\Event\TransactionRevertedEvent;
 use App\Exception\AccountBalanceBoundaryException;
 use App\Exception\ArticleInactiveException;
 use App\Exception\ArticleNotFoundException;
@@ -18,12 +20,14 @@ use Doctrine\DBAL\LockMode;
 use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\EventDispatcher\EventDispatcherInterface;
 
 class TransactionService
 {
     public function __construct(
         private readonly SettingsService $settingsService,
         private readonly EntityManagerInterface $entityManager,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
         $connection = $this->entityManager->getConnection();
         if ($connection->getDatabasePlatform() instanceof AbstractMySQLPlatform) {
@@ -61,6 +65,27 @@ class TransactionService
      * @throws ParameterNotFoundException
      */
     public function doTransaction(User $user, ?int $amount, ?string $comment = null, ?int $quantity = 1, ?int $articleId = null, ?int $recipientId = null): Transaction
+    {
+        $transaction = $this->persistTransaction($user, $amount, $comment, $quantity, $articleId, $recipientId);
+
+        $this->eventDispatcher->dispatch(new TransactionCreatedEvent($transaction));
+
+        return $transaction;
+    }
+
+    /**
+     * Persist a single transaction without announcing it. Kept separate from
+     * doTransaction() so doSplit() can run many rows inside one outer DB
+     * transaction and dispatch the created events only after that transaction
+     * has committed — nested wrapInTransaction uses savepoints, so the rows are
+     * not durable until the outermost commit.
+     *
+     * @throws AccountBalanceBoundaryException
+     * @throws TransactionBoundaryException
+     * @throws TransactionInvalidException
+     * @throws ParameterNotFoundException
+     */
+    private function persistTransaction(User $user, ?int $amount, ?string $comment = null, ?int $quantity = 1, ?int $articleId = null, ?int $recipientId = null): Transaction
     {
         if (($recipientId || $articleId) && $amount > 0) {
             throw new TransactionInvalidException('Amount can\'t be positive when sending money or buying an article');
@@ -202,8 +227,8 @@ class TransactionService
             }
         }
 
-        return $this->entityManager->wrapInTransaction(function () use ($participants, $recipient, $perRowCents, $comment) {
-            // take every lock upfront; doTransaction's own locking is then a no-op
+        $results = $this->entityManager->wrapInTransaction(function () use ($participants, $recipient, $perRowCents, $comment) {
+            // take every lock upfront; persistTransaction's own locking is then a no-op
             $allIds = array_unique(array_merge(
                 [$recipient->getId()],
                 array_map(fn (User $u) => $u->getId(), $participants),
@@ -219,7 +244,7 @@ class TransactionService
 
             $results = [];
             foreach ($participants as $idx => $participant) {
-                $results[] = $this->doTransaction(
+                $results[] = $this->persistTransaction(
                     $participant,
                     -$perRowCents[$idx],
                     $comment,
@@ -231,6 +256,13 @@ class TransactionService
 
             return $results;
         });
+
+        // announce only after the outer transaction committed (see persistTransaction)
+        foreach ($results as $transaction) {
+            $this->eventDispatcher->dispatch(new TransactionCreatedEvent($transaction));
+        }
+
+        return $results;
     }
 
     /**
@@ -243,7 +275,7 @@ class TransactionService
      */
     public function revertTransaction(int $transactionId): Transaction
     {
-        return $this->entityManager->wrapInTransaction(function () use ($transactionId) {
+        $reverted = $this->entityManager->wrapInTransaction(function () use ($transactionId) {
             $txRepo = $this->entityManager->getRepository(Transaction::class);
 
             $primaryTx = $txRepo->find($transactionId);
@@ -303,6 +335,10 @@ class TransactionService
 
             return $lockedTx[$transactionId];
         });
+
+        $this->eventDispatcher->dispatch(new TransactionRevertedEvent($reverted));
+
+        return $reverted;
     }
 
     /**

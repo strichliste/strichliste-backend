@@ -100,6 +100,53 @@ A new strichliste2 feature is transferring money to other accounts with an optio
 | custom  | book     | true    | Enable/Disable dispense custom amounts  |
 | steps   | money[]  |         | Available payment steps in unit "money" |
 
+## MQTT
+
+Optional integration that publishes a JSON message for every user, transaction
+and article action so external systems (dashboards, home automation, …) can
+react to them.
+
+Unlike the settings above, MQTT is **not** configured in `config/strichliste.yaml`
+and is **not** exposed via `/api/settings` — that endpoint is unauthenticated and
+serves the whole settings tree, which would leak the broker credentials. It is
+configured with `MQTT_*` environment variables instead (defaults in
+`config/packages/mqtt.yaml`; set real values in `.env.local` or the container
+environment). Disabled by default.
+
+| variable        | datatype | default     | description                                              |
+|-----------------|----------|-------------|----------------------------------------------------------|
+| MQTT_ENABLED    | bool     | false       | Master switch for the integration                        |
+| MQTT_HOST       | string   | 127.0.0.1   | Broker host                                              |
+| MQTT_PORT       | int      | 1883        | Broker port                                             |
+| MQTT_USERNAME   | string   | (empty)     | Broker username (omit for anonymous)                     |
+| MQTT_PASSWORD   | string   | (empty)     | Broker password                                          |
+| MQTT_CLIENT_ID  | string   | strichliste | MQTT client id                                          |
+| MQTT_BASE_TOPIC | string   | strichliste | Prefix for every topic                                   |
+| MQTT_QOS        | int      | 0           | Quality of service (0, 1 or 2)                           |
+| MQTT_RETAIN     | bool     | false       | Publish messages as retained                             |
+| MQTT_TLS        | bool     | false       | Connect over TLS                                         |
+
+Publishing is fire-and-forget: a broker outage is logged and never breaks the
+action that triggered it.
+
+#### Topics
+
+Each action publishes the same resource representation the `/api` returns,
+JSON-encoded, to `{MQTT_BASE_TOPIC}/{entity}/{action}`:
+
+| topic                            | published when                                |
+|----------------------------------|-----------------------------------------------|
+| `<base>/user/created`            | a user is created                             |
+| `<base>/user/updated`            | a user's profile is updated                   |
+| `<base>/transaction/created`     | a deposit, dispense, transfer or purchase     |
+| `<base>/transaction/deleted`     | a transaction is reverted (undone)            |
+| `<base>/article/created`         | an article is created                         |
+| `<base>/article/updated`         | an article is updated (new revision)          |
+| `<base>/article/deleted`         | an article is deactivated                     |
+
+Bulk administrative CLI commands (imports, LDAP sync, cleanup) intentionally do
+not publish.
+
 ## Datatypes
 
 #### timeperiod
