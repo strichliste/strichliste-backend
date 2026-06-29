@@ -14,6 +14,7 @@
         "doctrine/orm": "^3.3",
         "nelmio/api-doc-bundle": "^5.10",
         "nelmio/cors-bundle": "^2.6",
+        "php-mqtt/client": "^2.3",
         "symfony/asset": "^8.1",
         "symfony/asset-mapper": "^8.1",
         "symfony/console": "^8.1",
