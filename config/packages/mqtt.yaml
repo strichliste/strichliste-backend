@@ -1,0 +1,33 @@
+# MQTT integration: publishes a JSON message for every user/transaction/article
+# action. Disabled by default. Configure via MQTT_* environment variables.
+#
+# These live OUTSIDE the strichliste settings tree (config/strichliste.yaml) on
+# purpose: that tree is served verbatim and unauthenticated by /api/settings, so
+# putting the broker host/credentials there would leak them.
+parameters:
+    env(MQTT_ENABLED): 'false'
+    env(MQTT_HOST): '127.0.0.1'
+    env(MQTT_PORT): '1883'
+    env(MQTT_USERNAME): ''
+    env(MQTT_PASSWORD): ''
+    env(MQTT_CLIENT_ID): 'strichliste'
+    env(MQTT_BASE_TOPIC): 'strichliste'
+    env(MQTT_QOS): '0'
+    env(MQTT_RETAIN): 'false'
+    env(MQTT_TLS): 'false'
+
+services:
+    App\Mqtt\MqttConfig:
+        arguments:
+            $enabled: '%env(bool:MQTT_ENABLED)%'
+            $host: '%env(MQTT_HOST)%'
+            $port: '%env(int:MQTT_PORT)%'
+            $username: '%env(MQTT_USERNAME)%'
+            $password: '%env(MQTT_PASSWORD)%'
+            $clientId: '%env(MQTT_CLIENT_ID)%'
+            $baseTopic: '%env(MQTT_BASE_TOPIC)%'
+            $qos: '%env(int:MQTT_QOS)%'
+            $retain: '%env(bool:MQTT_RETAIN)%'
+            $tls: '%env(bool:MQTT_TLS)%'
+
+    App\Mqtt\MqttPublisherInterface: '@App\Mqtt\MqttPublisher'
