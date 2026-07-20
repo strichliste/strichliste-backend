@@ -8,7 +8,6 @@ use App\Dto\Api\Tag as TagDto;
 use App\Entity\Article;
 use App\Entity\ArticleTag;
 use App\Entity\Tag;
-use App\Exception\ArticleNotFoundException;
 use App\Exception\ArticleTagAlreadyExistsException;
 use App\Exception\TagNotFoundException;
 use App\Repository\TagRepository;
@@ -77,13 +76,8 @@ class TagController extends AbstractController
         ],
     )]
     #[Serialize]
-    public function listArticleTags(int $articleId, EntityManagerInterface $entityManager): array
+    public function listArticleTags(Article $article): array
     {
-        $article = $entityManager->getRepository(Article::class)->find($articleId);
-        if (!$article) {
-            throw new ArticleNotFoundException($articleId);
-        }
-
         $tags = $article->getTags();
 
         return [
@@ -106,14 +100,9 @@ class TagController extends AbstractController
         ],
     )]
     #[Serialize]
-    public function getArticleTag(int $articleId, int $tagId, EntityManagerInterface $entityManager): TagDto
+    public function getArticleTag(Article $article, int $tagId, EntityManagerInterface $entityManager): TagDto
     {
-        $article = $entityManager->getRepository(Article::class)->find($articleId);
-        if (!$article) {
-            throw new ArticleNotFoundException($articleId);
-        }
-
-        $articleTag = $entityManager->getRepository(ArticleTag::class)->findOneBy(['article' => $articleId, 'tag' => $tagId]);
+        $articleTag = $entityManager->getRepository(ArticleTag::class)->findOneBy(['article' => $article, 'tag' => $tagId]);
         if (!$articleTag) {
             throw new TagNotFoundException($tagId);
         }
@@ -140,13 +129,8 @@ class TagController extends AbstractController
         ],
     )]
     #[Serialize]
-    public function addArticleTag(int $articleId, #[MapRequestPayload] AddTagDto $dto, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager, TagRepository $tagRepository): ArticleDto
+    public function addArticleTag(Article $article, #[MapRequestPayload] AddTagDto $dto, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager, TagRepository $tagRepository): ArticleDto
     {
-        $article = $entityManager->getRepository(Article::class)->find($articleId);
-        if (!$article) {
-            throw new ArticleNotFoundException($articleId);
-        }
-
         $newTag = new Tag($dto->tag);
         $existingTag = $tagRepository->findByTag($dto->tag);
         if ($existingTag) {
@@ -179,14 +163,9 @@ class TagController extends AbstractController
         ],
     )]
     #[Serialize]
-    public function deleteArticleTag(int $articleId, int $tagId, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager): ArticleDto
+    public function deleteArticleTag(Article $article, int $tagId, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager): ArticleDto
     {
-        $article = $entityManager->getRepository(Article::class)->find($articleId);
-        if (!$article) {
-            throw new ArticleNotFoundException($articleId);
-        }
-
-        $articleTag = $entityManager->getRepository(ArticleTag::class)->findOneBy(['article' => $articleId, 'tag' => $tagId]);
+        $articleTag = $entityManager->getRepository(ArticleTag::class)->findOneBy(['article' => $article, 'tag' => $tagId]);
         if (!$articleTag) {
             throw new TagNotFoundException($tagId);
         }
