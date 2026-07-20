@@ -55,7 +55,7 @@ class UserController extends AbstractController
         } elseif ('false' === $active) {
             $users = $userRepository->findAllInactive($staleDateTime);
         } else {
-            $users = $userRepository->findAll();
+            $users = $userRepository->findAllEnabled();
         }
 
         usort($users, fn (User $a, User $b) => strnatcasecmp((string) $a->getName(), (string) $b->getName()));
