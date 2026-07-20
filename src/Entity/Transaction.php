@@ -17,22 +17,23 @@ class Transaction
     #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: User::class, fetch: 'EAGER', inversedBy: 'transactions')]
+    // to-one links are lazy; the list queries fetch-join them (see TransactionRepository)
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'transactions')]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
 
     #[ORM\Column(type: 'integer', nullable: true)]
     private ?int $quantity = null;
 
-    #[ORM\ManyToOne(targetEntity: Article::class, fetch: 'EAGER')]
+    #[ORM\ManyToOne(targetEntity: Article::class)]
     #[ORM\JoinColumn(nullable: true)]
     private ?Article $article = null;
 
-    #[ORM\OneToOne(targetEntity: Transaction::class, fetch: 'EAGER', cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(targetEntity: Transaction::class, cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: true, onDelete: 'CASCADE')]
     private ?Transaction $recipientTransaction = null;
 
-    #[ORM\OneToOne(targetEntity: Transaction::class, fetch: 'EAGER', cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(targetEntity: Transaction::class, cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: true, onDelete: 'CASCADE')]
     private ?Transaction $senderTransaction = null;
 
