@@ -153,9 +153,7 @@ class ArticleController extends AbstractController
 
                 return $this->redirectToRoute('articles_delete', ['id' => $article->getId()], Response::HTTP_SEE_OTHER);
             }
-            $article->setActive(false);
-            $this->em->persist($article);
-            $this->em->flush();
+            $this->articleService->deactivate($article);
             $this->addFlash('success', $this->translator->trans('articles.delete.success'));
 
             return $this->redirectToRoute('articles_inactive', [], Response::HTTP_SEE_OTHER);

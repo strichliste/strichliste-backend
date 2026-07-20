@@ -276,21 +276,13 @@ class ArticleController extends AbstractController
         ],
     )]
     #[Serialize]
-    public function deleteArticle(string $articleId, EntityManagerInterface $entityManager): ArticleDto
+    public function deleteArticle(string $articleId, ArticleService $articleService, EntityManagerInterface $entityManager): ArticleDto
     {
         $article = $entityManager->getRepository(Article::class)->find($articleId);
         if (!$article) {
             throw new ArticleNotFoundException($articleId);
         }
 
-        foreach ($article->getBarcodes() as $barcode) {
-            $entityManager->remove($barcode);
-        }
-
-        $article->setActive(false);
-
-        $entityManager->flush();
-
-        return $this->articleSerializer->serialize($article);
+        return $this->articleSerializer->serialize($articleService->deactivate($article));
     }
 }

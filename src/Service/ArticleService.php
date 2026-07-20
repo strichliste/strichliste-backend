@@ -63,6 +63,21 @@ class ArticleService
     }
 
     /**
+     * Soft-delete: remove the article's barcodes (freeing them for reuse) and
+     * mark it inactive. Shared by the API and UI delete paths so they can't drift.
+     */
+    public function deactivate(Article $article): Article
+    {
+        foreach ($article->getBarcodes() as $barcode) {
+            $this->entityManager->remove($barcode);
+        }
+        $article->setActive(false);
+        $this->entityManager->flush();
+
+        return $article;
+    }
+
+    /**
      * Build a new (unpersisted) article. Input is validated upstream by
      * {@see \App\Dto\Api\WriteArticleDto}; `$amountCents` is raw integer cents.
      */
