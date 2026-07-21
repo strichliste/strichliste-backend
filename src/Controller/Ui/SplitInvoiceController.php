@@ -38,7 +38,7 @@ class SplitInvoiceController extends AbstractController
             throw new NotFoundHttpException();
         }
 
-        $allUsers = $this->userRepository->findAll(); // excludes disabled
+        $allUsers = $this->userRepository->findAllEnabled();
 
         $errors = [];
         $rowErrors = [];

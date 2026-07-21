@@ -26,9 +26,7 @@ class TransferTransactionType extends AbstractType
                 'choice_label' => 'name',
                 'placeholder' => 'transactions.transfer.recipient_placeholder',
                 'query_builder' => function (\App\Repository\UserRepository $repo) use ($excludeUser) {
-                    $qb = $repo->createQueryBuilder('u')
-                        ->where('u.disabled = false')
-                        ->orderBy('u.name');
+                    $qb = $repo->getBaseQueryBuilder();
                     if ($excludeUser) {
                         $qb->andWhere('u.id <> :excluded')
                             ->setParameter('excluded', $excludeUser->getId());

@@ -9,7 +9,6 @@ use App\Entity\ArticleTag;
 use App\Entity\Barcode;
 use App\Entity\Tag;
 use App\Exception\ArticleInactiveException;
-use App\Exception\ArticleNotFoundException;
 use App\Repository\ArticleRepository;
 use App\Serializer\ArticleSerializer;
 use App\Service\ArticleService;
@@ -213,14 +212,9 @@ class ArticleController extends AbstractController
         ],
     )]
     #[Serialize]
-    public function getArticle(string $articleId, Request $request, EntityManagerInterface $entityManager): ArticleDto
+    public function getArticle(Article $article, Request $request): ArticleDto
     {
         $depth = $request->query->getInt('depth', 1);
-
-        $article = $entityManager->getRepository(Article::class)->find($articleId);
-        if (!$article) {
-            throw new ArticleNotFoundException($articleId);
-        }
 
         return $this->articleSerializer->serialize($article, $depth);
     }
@@ -245,14 +239,8 @@ class ArticleController extends AbstractController
         ],
     )]
     #[Serialize]
-    public function updateArticle(string $articleId, #[MapRequestPayload] WriteArticleDto $dto, ArticleService $articleService, EntityManagerInterface $entityManager): ArticleDto
+    public function updateArticle(Article $article, #[MapRequestPayload] WriteArticleDto $dto, ArticleService $articleService): ArticleDto
     {
-        $article = $entityManager->getRepository(Article::class)->find($articleId);
-
-        if (!$article) {
-            throw new ArticleNotFoundException($articleId);
-        }
-
         if (!$article->isActive()) {
             throw new ArticleInactiveException($article);
         }
@@ -276,21 +264,8 @@ class ArticleController extends AbstractController
         ],
     )]
     #[Serialize]
-    public function deleteArticle(string $articleId, EntityManagerInterface $entityManager): ArticleDto
+    public function deleteArticle(Article $article, ArticleService $articleService): ArticleDto
     {
-        $article = $entityManager->getRepository(Article::class)->find($articleId);
-        if (!$article) {
-            throw new ArticleNotFoundException($articleId);
-        }
-
-        foreach ($article->getBarcodes() as $barcode) {
-            $entityManager->remove($barcode);
-        }
-
-        $article->setActive(false);
-
-        $entityManager->flush();
-
-        return $this->articleSerializer->serialize($article);
+        return $this->articleSerializer->serialize($articleService->deactivate($article));
     }
 }

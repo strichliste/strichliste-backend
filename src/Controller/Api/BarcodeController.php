@@ -9,7 +9,6 @@ use App\Entity\Article;
 use App\Entity\Barcode;
 use App\Exception\ArticleBarcodeAlreadyExistsException;
 use App\Exception\ArticleInactiveException;
-use App\Exception\ArticleNotFoundException;
 use App\Exception\BarcodeNotFoundException;
 use App\Repository\BarcodeRepository;
 use App\Serializer\ArticleSerializer;
@@ -73,13 +72,8 @@ class BarcodeController extends AbstractController
         ],
     )]
     #[Serialize]
-    public function listArticleBarcode(int $articleId, EntityManagerInterface $entityManager): array
+    public function listArticleBarcode(Article $article): array
     {
-        $article = $entityManager->getRepository(Article::class)->find($articleId);
-        if (!$article) {
-            throw new ArticleNotFoundException($articleId);
-        }
-
         $barcodes = $article->getBarcodes();
 
         return [
@@ -102,15 +96,10 @@ class BarcodeController extends AbstractController
         ],
     )]
     #[Serialize]
-    public function getArticleBarcode(int $articleId, int $barcodeId, EntityManagerInterface $entityManager): BarcodeDto
+    public function getArticleBarcode(Article $article, int $barcodeId, EntityManagerInterface $entityManager): BarcodeDto
     {
-        $article = $entityManager->getRepository(Article::class)->find($articleId);
-        if (!$article) {
-            throw new ArticleNotFoundException($articleId);
-        }
-
         $barcode = $entityManager->getRepository(Barcode::class)->find($barcodeId);
-        if (!$barcode || $barcode->getArticle()->getId() !== $articleId) {
+        if (!$barcode || $barcode->getArticle()->getId() !== $article->getId()) {
             throw new BarcodeNotFoundException($barcodeId);
         }
 
@@ -137,13 +126,8 @@ class BarcodeController extends AbstractController
         ],
     )]
     #[Serialize]
-    public function addArticleBarcode(int $articleId, #[MapRequestPayload] AddBarcodeDto $dto, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager, BarcodeRepository $barcodeRepository): ArticleDto
+    public function addArticleBarcode(Article $article, #[MapRequestPayload] AddBarcodeDto $dto, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager, BarcodeRepository $barcodeRepository): ArticleDto
     {
-        $article = $entityManager->getRepository(Article::class)->find($articleId);
-        if (!$article) {
-            throw new ArticleNotFoundException($articleId);
-        }
-
         if (!$article->isActive()) {
             throw new ArticleInactiveException($article);
         }
@@ -176,15 +160,10 @@ class BarcodeController extends AbstractController
         ],
     )]
     #[Serialize]
-    public function deleteArticleBarcode(int $articleId, int $barcodeId, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager): ArticleDto
+    public function deleteArticleBarcode(Article $article, int $barcodeId, ArticleSerializer $articleSerializer, EntityManagerInterface $entityManager): ArticleDto
     {
-        $article = $entityManager->getRepository(Article::class)->find($articleId);
-        if (!$article) {
-            throw new ArticleNotFoundException($articleId);
-        }
-
         $existingBarcode = $entityManager->getRepository(Barcode::class)->find($barcodeId);
-        if (!$existingBarcode || $existingBarcode->getArticle()->getId() !== $articleId) {
+        if (!$existingBarcode || $existingBarcode->getArticle()->getId() !== $article->getId()) {
             throw new BarcodeNotFoundException($barcodeId);
         }
 

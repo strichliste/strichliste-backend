@@ -17,8 +17,10 @@ class UserRepository extends ServiceEntityRepository
         parent::__construct($registry, User::class);
     }
 
-    #[\Override]
-    public function findAll(): array
+    /**
+     * @return list<User>
+     */
+    public function findAllEnabled(): array
     {
         return $this->getBaseQueryBuilder()
             ->getQuery()
@@ -109,7 +111,7 @@ class UserRepository extends ServiceEntityRepository
         return $this->findOneBy(['name' => $name]);
     }
 
-    private function getBaseQueryBuilder(): QueryBuilder
+    public function getBaseQueryBuilder(): QueryBuilder
     {
         return $this->createQueryBuilder('u')
             ->select('u')
