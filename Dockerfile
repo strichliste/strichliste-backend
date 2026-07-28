@@ -18,10 +18,12 @@ SHELL ["/bin/bash", "-euxo", "pipefail", "-c"]
 WORKDIR /app
 
 # pdo_sqlite is built in; pdo_pgsql and pdo_mysql cover the other DATABASE_URL choices.
+# ldap: required by symfony/ldap (app:ldapimport) — a dev dependency the dev image installs.
 RUN install-php-extensions \
 	@composer \
 	apcu \
 	intl \
+	ldap \
 	opcache \
 	pdo_mysql \
 	pdo_pgsql \

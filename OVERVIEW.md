@@ -580,7 +580,7 @@ Run with `php bin/console …` — inside Docker:
 | `app:user:status <user> <true\|false>` | Enable/disable an account by name or id. |
 | `app:user:cleanup --days/--months/--years [--minBalance --maxBalance --confirm]` | Bulk-disable accounts inactive for longer than the interval (optionally only within a balance range). |
 | `app:retire-data --days/--months/--years [--confirm]` | **Delete** transactions older than the interval — the data-privacy lever. Check your bookkeeping retention duties first. |
-| `app:ldapimport --host … --bindDn … --baseDn …` | Create/update users from an LDAP directory (cron-able). Note: needs the `symfony/ldap` package, which is a dev dependency — for production use run `composer require symfony/ldap` (not available in the stock Docker image). |
+| `app:ldapimport --host … --bindDn … --baseDn …` | Create/update users from an LDAP directory (cron-able). Note: needs the `symfony/ldap` package, which is a dev dependency — for production use run `composer require symfony/ldap` (the Docker image ships the `ldap` PHP extension). |
 | `cache:clear` | Apply `strichliste.yaml` changes (bare metal; the Docker entrypoint does this on boot). |
 | `doctrine:migrations:migrate` | Apply schema migrations (automatic in Docker). |
 
