@@ -57,6 +57,8 @@ parameters:
                     - 200
                     - 500
                     - 1000
+                sounds:
+                    - 'ka-ching.wav'
 
             dispense:
                 enabled: true
@@ -67,3 +69,5 @@ parameters:
                     - 200
                     - 500
                     - 1000
+                sounds:
+                    - 'ka-ching.wav'
