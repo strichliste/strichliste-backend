@@ -12,7 +12,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class HomeController extends AbstractController
 {
-    private const int PAGE_SIZE = 25;
+    private const int PAGE_SIZE = 30;
 
     public function __construct(
         private readonly UserRepository $userRepository,
