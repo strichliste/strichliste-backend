@@ -1,0 +1,10 @@
+services:
+  app:
+    environment:
+      SERVER_NAME: ":80"
+      XDEBUG_MODE: ${XDEBUG_MODE:-debug}
+      XDEBUG_CONFIG: "client_host=localhost"
+    ports: !reset []
+
+  database:
+    ports: !reset []
