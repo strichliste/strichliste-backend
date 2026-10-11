@@ -461,20 +461,11 @@ body {
 }
 
 .fab--floating {
-    position: fixed;
+    position: sticky;
     bottom: 1rem;
-    right: 1rem;
     z-index: 10;
-}
-
-/* keep the footer's "Code" link reachable under the fixed FAB */
-@media (max-width: 64em) {
-    .app-footer {
-        padding-right: 4.5rem;
-    }
-    main {
-        padding-bottom: 4rem;
-    }
+    display: flex;
+    margin: 1rem 0 0 auto;
 }
 
 /* desktop only — at tablet width the gutter left pages off-center */
@@ -482,10 +473,10 @@ body {
     .fab--floating {
         position: absolute;
         bottom: auto;
-        right: auto;
-        /* sits in the 8rem list gutter; margin-top clears the toolbar row */
+        /* sits in the 8rem list gutter; top + margin-top clear the toolbar row */
+        top: 1rem;
         left: 5rem;
-        margin-top: 6rem;
+        margin: 6rem 0 0;
     }
 }
 

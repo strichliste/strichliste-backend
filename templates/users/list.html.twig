@@ -5,11 +5,6 @@
 {% block main %}
     <h1 class="visually-hidden">{{ (active ? 'user.active.title' : 'user.inactive.title')|trans }}</h1>
 
-    {% if active %}
-        <a class="fab fab--floating" href="{{ path('users_create') }}" aria-label="{{ 'user.list.add_cta'|trans }}"
-            >+</a
-        >
-    {% endif %}
     <div class="list-toolbar">
         <nav class="tabs" aria-label="{{ 'user.list.filter_aria'|trans }}">
             <a href="{{ path('users_active') }}" {% if active %}aria-current="page"{% endif %}
@@ -37,5 +32,11 @@
             totalPages="{{ totalPages }}"
             baseUrl="{{ active ? path('users_active') : path('users_inactive') }}"
         />
+    {% endif %}
+
+    {% if active %}
+        <a class="fab fab--floating" href="{{ path('users_create') }}" aria-label="{{ 'user.list.add_cta'|trans }}"
+            >+</a
+        >
     {% endif %}
 {% endblock %}
