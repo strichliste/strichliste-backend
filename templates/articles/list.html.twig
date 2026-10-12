@@ -7,14 +7,6 @@
         {{ (active ? 'articles.list.title.active' : 'articles.list.title.inactive')|trans }}
     </h1>
 
-    {% if active %}
-        <a
-            class="fab fab--floating"
-            href="{{ path('articles_create') }}"
-            aria-label="{{ 'articles.list.add_cta'|trans }}"
-            >+</a
-        >
-    {% endif %}
     <div class="list-toolbar">
         <nav class="tabs" aria-label="{{ 'articles.list.filter_aria'|trans }}">
             <a href="{{ path('articles_active') }}" {% if active %}aria-current="page"{% endif %}
@@ -71,5 +63,14 @@
             baseUrl="{{ active ? path('articles_active') : path('articles_inactive') }}"
             extraParams="{{ activeTag ? {tag: activeTag} : {} }}"
         />
+    {% endif %}
+
+    {% if active %}
+        <a
+            class="fab fab--floating"
+            href="{{ path('articles_create') }}"
+            aria-label="{{ 'articles.list.add_cta'|trans }}"
+            >+</a
+        >
     {% endif %}
 {% endblock %}
