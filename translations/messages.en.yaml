@@ -244,6 +244,7 @@ articles:
             inactive: Inactive articles
         add_cta: Add article
         empty: No articles yet.
+        empty_active: Click the plus button to add one.
         empty_inactive: No inactive articles. Articles land here when they are archived or replaced by a price change.
         filter_aria: Article status filter
         filter:
