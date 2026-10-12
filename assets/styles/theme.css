@@ -313,6 +313,7 @@ input {
     font-family: 'Inter', sans-serif;
     width: 100%;
     border-radius: 2px;
+    color: inherit;
 }
 input,
 button {
