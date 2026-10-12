@@ -1,0 +1,94 @@
+{
+    "name": "strichliste",
+    "dockerComposeFile": [
+        "../compose.yaml",
+        "../compose.override.yaml",
+        "compose.devcontainer.yaml"
+    ],
+    "service": "app",
+    "runServices": [
+        "app",
+        "database"
+    ],
+    "workspaceFolder": "/app",
+    "shutdownAction": "stopCompose",
+    "overrideCommand": false,
+    "features": {
+        "ghcr.io/devcontainers/features/git:1": {
+            "version": "os-provided"
+        },
+        "ghcr.io/devcontainers/features/node:1": {
+            "version": "22"
+        }
+    },
+    "forwardPorts": [
+        80,
+        "database:5432"
+    ],
+    "portsAttributes": {
+        "80": {
+            "label": "strichliste",
+            "onAutoForward": "openBrowser"
+        },
+        "database:5432": {
+            "label": "Postgres (strichliste/strichliste)",
+            "onAutoForward": "silent"
+        },
+        "8765": {
+            "label": "Playwright e2e server",
+            "onAutoForward": "ignore"
+        },
+        "9003": {
+            "label": "Xdebug",
+            "onAutoForward": "ignore"
+        },
+        "2019": {
+            "label": "Caddy admin",
+            "onAutoForward": "ignore"
+        }
+    },
+    "postCreateCommand": "npm ci && npx playwright install --with-deps chromium",
+    "postStartCommand": "git config --global --add safe.directory /app",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "bmewburn.vscode-intelephense-client",
+                "xdebug.php-debug",
+                "SanderRonde.phpstan-vscode",
+                "junstyle.php-cs-fixer",
+                "mblode.twig-language-2",
+                "esbenp.prettier-vscode",
+                "ms-playwright.playwright",
+                "redhat.vscode-yaml"
+            ],
+            "settings": {
+                "php.validate.executablePath": "/usr/local/bin/php",
+                "intelephense.environment.phpVersion": "8.4.1",
+                "php-cs-fixer.executablePath": "${workspaceFolder}/vendor/bin/php-cs-fixer",
+                "php-cs-fixer.config": ".php-cs-fixer.dist.php",
+                "phpstan.binPath": "vendor/bin/phpstan",
+                "phpstan.configFile": "phpstan.dist.neon",
+                "[twig]": {
+                    "editor.defaultFormatter": "esbenp.prettier-vscode"
+                },
+                "[javascript]": {
+                    "editor.defaultFormatter": "esbenp.prettier-vscode"
+                },
+                "[css]": {
+                    "editor.defaultFormatter": "esbenp.prettier-vscode"
+                },
+                "launch": {
+                    "version": "0.2.0",
+                    "configurations": [
+                        {
+                            "name": "Listen for Xdebug",
+                            "type": "php",
+                            "request": "launch",
+                            "port": 9003
+                        }
+                    ]
+                }
+            }
+        }
+    }
+}
