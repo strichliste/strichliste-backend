@@ -77,9 +77,6 @@ class ArticleController extends AbstractController
         $slice = array_slice($articles, $offset, self::PAGE_SIZE);
 
 	$rabat = $this->bankService->getBankRabat();
-	error_log("********************************");
-	error_log($rabat);
-	error_log("********************************");
 
         return $this->render('articles/list.html.twig', [
             'articles' => $slice,
