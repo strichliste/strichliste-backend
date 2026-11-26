@@ -125,7 +125,7 @@ class SplitInvoiceController extends AbstractController
             }
         }
 
-        if (!$errors && !$rowErrors && $recipient) {
+        if (!$errors && !$rowErrors) {
             try {
                 $this->transactionService->doSplit($debtors, $recipient, $debtorAmounts, $comment);
                 $this->addFlash('success', $this->translator->trans('split_invoice.flash.success', [

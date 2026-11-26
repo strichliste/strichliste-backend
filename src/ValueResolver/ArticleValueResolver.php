@@ -20,6 +20,7 @@ final readonly class ArticleValueResolver implements ValueResolverInterface
     {
     }
 
+    /** @return iterable<Article> */
     public function resolve(Request $request, ArgumentMetadata $argument): iterable
     {
         if (Article::class !== $argument->getType() || !$request->attributes->has('articleId')) {

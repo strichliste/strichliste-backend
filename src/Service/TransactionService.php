@@ -101,9 +101,7 @@ class TransactionService
 
                 $transaction->setQuantity($quantity ?: 1);
 
-                if (null === $amount) {
-                    $amount = $article->getAmount() * $transaction->getQuantity() * -1;
-                }
+                $amount ??= $article->getAmount() * $transaction->getQuantity() * -1;
 
                 $transaction->setArticle($article);
 

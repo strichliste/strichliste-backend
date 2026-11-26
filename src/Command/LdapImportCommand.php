@@ -99,7 +99,7 @@ class LdapImportCommand extends Command
                 }
             }
 
-            if ($existingUser && $update) {
+            if ($existingUser) {
                 // Don't show message if nothing has changed
                 if ($existingUser->getEmail() == $user->getEmail()) {
                     continue;
