@@ -15,7 +15,7 @@ jobs:
       # lint:container and lint:twig boot the kernel; the DSN must parse but is never used.
       DATABASE_URL: "sqlite:////tmp/strichliste_lint.db"
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: shivammathur/setup-php@v2
         with:
@@ -23,7 +23,7 @@ jobs:
           extensions: ctype, iconv, json, intl, pdo_sqlite
           coverage: none
 
-      - uses: actions/cache@v5
+      - uses: actions/cache@v6
         with:
           path: ~/.cache/composer
           key: ${{ runner.os }}-php8.5-composer-${{ hashFiles('composer.lock') }}
@@ -92,7 +92,7 @@ jobs:
       DATABASE_URL: ${{ matrix.database_url }}
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: shivammathur/setup-php@v2
         with:
@@ -101,7 +101,7 @@ jobs:
           extensions: ctype, iconv, json, intl, ${{ matrix.php_extensions }}
           coverage: none
 
-      - uses: actions/cache@v5
+      - uses: actions/cache@v6
         with:
           path: ~/.cache/composer
           key: ${{ runner.os }}-php${{ matrix.php }}-composer-${{ hashFiles('composer.lock') }}
@@ -120,7 +120,7 @@ jobs:
     env:
       DATABASE_URL: "sqlite:////tmp/strichliste_idem.db"
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: shivammathur/setup-php@v2
         with:
@@ -128,7 +128,7 @@ jobs:
           extensions: ctype, iconv, json, intl, pdo_sqlite
           coverage: none
 
-      - uses: actions/cache@v5
+      - uses: actions/cache@v6
         with:
           path: ~/.cache/composer
           key: ${{ runner.os }}-php8.5-composer-${{ hashFiles('composer.lock') }}
@@ -145,7 +145,7 @@ jobs:
     name: e2e (playwright)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       # PHP 8.5 matches the FrankenPHP production image. The php -S dev server
       # runs with opcache JIT off (see playwright.config.js) to dodge a PHP JIT
@@ -156,14 +156,14 @@ jobs:
           extensions: ctype, iconv, json, intl, pdo_sqlite
           coverage: none
 
-      - uses: actions/cache@v5
+      - uses: actions/cache@v6
         with:
           path: ~/.cache/composer
           key: ${{ runner.os }}-php8.5-composer-${{ hashFiles('composer.lock') }}
 
       - run: composer install --no-interaction --prefer-dist
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: "22"
           cache: npm
@@ -175,7 +175,7 @@ jobs:
       # the suite seeds var/e2e.db and boots its own PHP server (playwright.config.js)
       - run: npx playwright test
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: playwright-report
