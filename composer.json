@@ -30,7 +30,7 @@
         "symfony/ux-autocomplete": "^3.1",
         "symfony/ux-icons": "^3.1",
         "symfony/ux-turbo": "^2.35",
-        "symfony/ux-twig-component": "^2.35",
+        "symfony/ux-twig-component": "^3.8",
         "symfony/validator": "^8.1",
         "symfony/yaml": "^8.1",
         "twig/extra-bundle": "^3.24",
